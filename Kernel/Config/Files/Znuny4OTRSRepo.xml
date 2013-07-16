@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_config version="1.0" init="Application">
+    <ConfigItem Name="PreApplicationModule###Znuny4OTRSRepo" Required="0" Valid="1">
+        <Description Translatable="1">Defines a module to enable Znuny4OTRS repo informations.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Agent</SubGroup>
+        <Setting>
+            <String Regex="">Kernel::Modules::Znuny4OTRSRepo</String>
+        </Setting>
+    </ConfigItem>
+
+</otrs_config>

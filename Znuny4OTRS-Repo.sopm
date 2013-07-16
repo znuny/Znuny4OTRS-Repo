@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_package version="1.0">
+    <Name>Znuny4OTRS-Repo</Name>
+    <Version>1.0.0</Version>
+    <Framework>3.1.x</Framework>
+    <Framework>3.2.x</Framework>
+    <Vendor>Znuny GmbH</Vendor>
+    <URL>http://znuny.com/</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description Lang="en">Enables Znuny4OTRS repos to install and upgrade packages directly via package manager.</Description>
+    <Description Lang="de">Aktiviert Znuny4OTRS Repositories um Pakete direkt in der Paket-Verwaltung zu installieren oder zu aktuallisieren.</Description>
+    <Filelist>
+        <File Permission="644" Location="Kernel/Modules/Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
+        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.pm"/>
+    </Filelist>
+    <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
+        <br/>
+        <br/>
+        Welcome to <u>Znuny4OTRS Repo</u>!
+        <br/>
+        <br/>
+
+        <p>
+        You are about to install the Znuny4OTRS Repo extention with the following features:
+            <ul>
+                <li>Direct install and upgrade of Znuny packages via package manager</li>
+                <li>Enables package verification for Znuny packages</li>
+            </ul>
+        </p>
+        <br/>
+        <br/>
+        <p>
+        Your Znuny Team!
+        <br/>
+        <a href="http://znuny.com/" target="_blank">http://znuny.com</a>
+        </p>
+        <br/>
+        <br/>
+    ]]></IntroInstall>
+    <IntroInstall Type="pre" Title="Pre-Installations-Information" Lang="de"><![CDATA[
+        <br/>
+        <br/>
+        Herzlich Willkommen zu <u>Znuny4OTRS Repo</u>!
+        <br/>
+        <br/>
+        <p>
+        Sie sind gerade dabei, die Znuny4OTRS Repo Erweiterung mit folgenden Funktionen zu installieren:
+            <ul>
+                <li>Direktes installieren und aktualisieren von Znuny Paketen über den Paket-Manager</li>
+                <li>Aktiviert Paket-Verifizierung von Znuny Paketen</li>
+            </ul>
+        </p>
+        <br/>
+        <br/>
+        <p>
+        Ihr Znuny Team!
+        <br/>
+        <a href="http://znuny.com/" target="_blank">http://znuny.com</a>
+        </p>
+        <br/>
+        <br/>
+    ]]></IntroInstall>
+</otrs_package>
