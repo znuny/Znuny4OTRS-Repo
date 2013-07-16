@@ -25,7 +25,7 @@
         You are about to install the Znuny4OTRS Repo extention with the following features:
             <ul>
                 <li>Direct install and upgrade of Znuny packages via package manager</li>
-                <li>Enables package verification for Znuny packages</li>
+                <li>Enables package verification also for Znuny packages</li>
             </ul>
         </p>
         <br/>
@@ -48,7 +48,7 @@
         Sie sind gerade dabei, die Znuny4OTRS Repo Erweiterung mit folgenden Funktionen zu installieren:
             <ul>
                 <li>Direktes installieren und aktualisieren von Znuny Paketen über den Paket-Manager</li>
-                <li>Aktiviert Paket-Verifizierung von Znuny Paketen</li>
+                <li>Aktiviert Paket-Verifizierung auch für Znuny Paketen</li>
             </ul>
         </p>
         <br/>
