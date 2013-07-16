@@ -8,5 +8,25 @@
             <String Regex="">Kernel::Modules::Znuny4OTRSRepo</String>
         </Setting>
     </ConfigItem>
-
+    <ConfigItem Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
+        <Description Translatable="1">Define private addon repos.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="API-KEY">My Addons</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Znuny4OTRSRepoType" Required="1" Valid="1">
+        <Description Translatable="1">Access repos via http or https.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Option SelectedID="https">
+                <Item Key="https">https</Item>
+                <Item Key="http">http</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
 </otrs_config>
