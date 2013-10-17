@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
+    <ChangeLog Version="1.0.1" Date="2013-10-17 13:41:56 +0200">Added docu.</ChangeLog>
     <Framework>3.1.x</Framework>
     <Framework>3.2.x</Framework>
     <Vendor>Znuny GmbH</Vendor>
@@ -13,6 +14,7 @@
         <File Permission="644" Location="Kernel/Modules/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.pm"/>
+        <File Location="doc/de/Znuny4OTRS-Repo.pdf" Permission="644"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
         <br/>
