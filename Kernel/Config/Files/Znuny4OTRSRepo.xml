@@ -23,7 +23,7 @@
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
-            <Option SelectedID="https">
+            <Option SelectedID="http">
                 <Item Key="https">https</Item>
                 <Item Key="http">http</Item>
             </Option>
