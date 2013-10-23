@@ -14,6 +14,8 @@
         <File Permission="644" Location="Kernel/Modules/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
+        <File Permission="644" Location="bin/znuny.Helper.pl"/>
         <File Location="doc/de/Znuny4OTRS-Repo.pdf" Permission="644"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
