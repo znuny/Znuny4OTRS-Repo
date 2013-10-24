@@ -194,7 +194,9 @@ sub _PackageUninstall {
 
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_JSLoaderAdd();
+my $Result = $CodeObject->_JSLoaderAdd(
+    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
+);
 
 =cut
 
@@ -202,7 +204,7 @@ sub _JSLoaderAdd {
     my ( $Self, %Param ) = @_;
 
     # define the enabled dynamic fields for each screen
-    my %JSLoaderConfig = $Self->_JSLoaderDefinitionGet();
+    my %JSLoaderConfig = %Param;
 
     VIEW:
     for my $View ( keys %JSLoaderConfig ) {
@@ -253,7 +255,9 @@ sub _JSLoaderAdd {
 =item _JSLoaderRemove()
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_JSLoaderRemove();
+my $Result = $CodeObject->_JSLoaderRemove(
+    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
+);
 
 =cut
 
@@ -262,7 +266,7 @@ sub _JSLoaderRemove {
 
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
-    my %JSLoaderConfig = $Self->_JSLoaderDefinitionGet();
+    my %JSLoaderConfig = %Param;
 
     VIEW:
     for my $View ( keys %JSLoaderConfig ) {
