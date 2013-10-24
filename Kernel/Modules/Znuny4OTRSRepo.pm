@@ -28,18 +28,20 @@ sub PreRun {
 
     return if $Self->{Action} !~ /^Admin/;
 
+    return if $Self->{ConfigObject}->Get('Znuny4OTRSRepoDisable');
+
     my $RepositoryList = $Self->{ConfigObject}->Get('Package::RepositoryList');
     if ( !$RepositoryList ) {
         $RepositoryList = {};
     }
 
     my $Type = $Self->{ConfigObject}->Get('Znuny4OTRSRepoType') || 'https';
-    $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/public'} = '[-Addons-] Znuny4OTRS - Public';
+    $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/public'} = 'Addons - Znuny4OTRS / Public';
 
     my $PrivateRepost = $Self->{ConfigObject}->Get('Znuny4OTRSPrivatRepos');
     if ($PrivateRepost && ref $PrivateRepost eq 'HASH' ) {
         for my $Key ( keys %{ $PrivateRepost } ) {
-            $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/' . $Key } = "[-Private-] $PrivateRepost->{$Key} ";
+            $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/' . $Key } = "Addons - Znuny4OTRS / Private $PrivateRepost->{$Key} ";
         }
     }
 
