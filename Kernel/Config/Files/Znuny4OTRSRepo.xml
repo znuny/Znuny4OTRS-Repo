@@ -35,8 +35,8 @@
         <SubGroup>Core</SubGroup>
         <Setting>
             <Option SelectedID="">
-                <Item Key="1">Disable</Item>
-                <Item Key="">Enable</Item>
+                <Item Key="1">Disable Online Repos</Item>
+                <Item Key="">Enable Online Repos</Item>
             </Option>
         </Setting>
     </ConfigItem>
