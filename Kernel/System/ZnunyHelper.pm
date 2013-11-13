@@ -627,6 +627,26 @@ sub _DynamicFieldsCreate {
     return 1;
 }
 
+=item _GroupCreateIfNotExists()
 
+creates group if not texts
+
+    my $Result = $CodeObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
+
+=cut
+
+sub _GroupCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    my %Groups = $Self->{GroupObject}->GroupList( Valid => 0 );
+    for my $GroupID ( keys %Groups ) {
+        return if $Param{Name} eq $Groups{ $GroupID };
+    }
+    return $Self->{GroupObject}->GroupAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
+}
 
 1;
