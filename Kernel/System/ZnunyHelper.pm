@@ -211,13 +211,19 @@ sub _JSLoaderAdd {
 
         next VIEW if !IsArrayRefWithData( $JSLoaderConfig{$View} );
 
+        # check if we have to add the 'Customer' prefix for the SysConfig key
+        my $CustomerInterfacePrefix = '';
+        if ( $View =~ m{^Customer} ) {
+            $CustomerInterfacePrefix = 'Customer';
+        }
+
        # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get("Frontend::Module")->{$View};
+        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
-                Message  => "Error while getting 'Frontend::Module' for view '$View'.",
+                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
             );
             next VIEW;
         }
@@ -244,7 +250,7 @@ sub _JSLoaderAdd {
         # update the sysconfig
         my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::Module###' . $View,
+            Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
             Value => $Config,
         );
     }
@@ -273,13 +279,20 @@ sub _JSLoaderRemove {
 
         next VIEW if !IsArrayRefWithData( $JSLoaderConfig{$View} );
 
-        # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get("Frontend::Module")->{$View};
+
+        # check if we have to add the 'Customer' prefix for the SysConfig key
+        my $CustomerInterfacePrefix = '';
+        if ( $View =~ m{^Customer} ) {
+            $CustomerInterfacePrefix = 'Customer';
+        }
+
+       # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Self->{LogObject}->Log(
                 Priority => 'error',
-                Message  => "Error while getting 'Frontend::Module' for view '$View'.",
+                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
             );
             next VIEW;
         }
@@ -309,7 +322,7 @@ sub _JSLoaderRemove {
         # update the sysconfig
         my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Frontend::Module###' . $View,
+            Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
             Value => $Config,
         );
     }
