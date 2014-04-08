@@ -1,5 +1,5 @@
 
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2013-2014 Znuny GmbH, http://znuny.com/
 
 use strict;
 use warnings;

@@ -40,6 +40,21 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Frontend::Output::FilterElementPost###OutputFilterZnunyVerify" Required="0" Valid="0">
+        <Description Translatable="1">This configuration registers a Output pre-filter to extend package verification.</Description>
+        <Group>Framework</Group>
+        <SubGroup>OutputFilter</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::OutputFilterZnunyVerify</Item>
+                <Item Key="Templates">
+                    <Hash>
+                        <Item Key="AdminPackageManager">1</Item>
+                    </Hash>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Frontend::Module###AdminRegistration" Required="0" Valid="0">
         <Description Translatable="1">Frontend module registration for the agent interface.</Description>
         <Group>Framework</Group>
