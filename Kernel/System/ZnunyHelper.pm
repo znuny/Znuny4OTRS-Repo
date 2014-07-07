@@ -662,4 +662,44 @@ sub _GroupCreateIfNotExists {
     );
 }
 
+=item _NotificationCreateIfNotExists()
+
+creates notification if not texts
+
+    my $Result = $CodeObject->_NotificationCreateIfNotExists(
+        'Agent::PvD::NewTicket',
+        'de',
+        'sub',
+        'body',
+    );
+
+=cut
+
+sub _NotificationCreateIfNotExists {
+    my ( $Self, $Type, $Lang, $Subject, $Body ) = @_;
+
+    # check if exists
+    $Self->{DBObject}->Prepare(
+        SQL   => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
+        Bind  => [ \$Type, \$Lang ],
+        Limit => 1,
+    );
+    my $Exists;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        $Exists = 1;
+    }
+    return 1 if $Exists;
+
+    # create new
+    my $Charset = 'utf8';
+    return $Self->{DBObject}->Do(
+        SQL => 'INSERT INTO notifications (notification_type, notification_language, '
+            . 'subject, text, notification_charset, content_type, '
+            . 'create_time, create_by, change_time, change_by) '
+            . 'VALUES( ?, ?, ?, ?, ?, \'text/plain\', '
+            . 'current_timestamp, 1, current_timestamp, 1 )',
+        Bind => [ \$Type, \$Lang, \$Subject, \$Body, \$Charset ],
+    );
+}
+
 1;
