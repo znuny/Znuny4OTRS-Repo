@@ -73,9 +73,7 @@ sub new {
     # reset all warnings
     }
 
-
     # create needed objects
-    $Self->{ConfigObject}            = Kernel::Config->new();
     $Self->{GroupObject}             = Kernel::System::Group->new( %{$Self} );
     $Self->{UserObject}              = Kernel::System::User->new( %{$Self} );
     $Self->{ValidObject}             = Kernel::System::Valid->new( %{$Self} );
@@ -203,6 +201,11 @@ my $Result = $CodeObject->_JSLoaderAdd(
 sub _JSLoaderAdd {
     my ( $Self, %Param ) = @_;
 
+    $Self->{LogObject}->Log(
+        Priority => 'notice',
+        Message  => "_JSLoaderAdd function is deprecated, please use _LoaderAdd."
+    );
+
     # define the enabled dynamic fields for each screen
     my %JSLoaderConfig = %Param;
 
@@ -270,6 +273,11 @@ my $Result = $CodeObject->_JSLoaderRemove(
 sub _JSLoaderRemove {
     my ( $Self, %Param ) = @_;
 
+    $Self->{LogObject}->Log(
+        Priority => 'notice',
+        Message  => "_JSLoaderRemove function is deprecated, please use _LoaderRemove."
+    );
+
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %JSLoaderConfig = %Param;
@@ -329,6 +337,188 @@ sub _JSLoaderRemove {
 
     return 1;
 }
+=item _LoaderAdd()
+
+This function adds JavaScript files to the load of defined screens.
+
+my $Result = $CodeObject->_LoaderAdd(
+    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
+);
+
+=cut
+
+sub _LoaderAdd {
+    my ( $Self, %Param ) = @_;
+
+    # define the enabled dynamic fields for each screen
+    my %LoaderConfig = %Param;
+
+    my $ExtensionRegExp = '\.(css|js)$';
+    VIEW:
+    for my $View ( keys %LoaderConfig ) {
+
+        next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
+
+        # check if we have to add the 'Customer' prefix for the SysConfig key
+        my $CustomerInterfacePrefix = '';
+        if ( $View =~ m{^Customer} ) {
+            $CustomerInterfacePrefix = 'Customer';
+        }
+
+       # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+
+        if ( !IsHashRefWithData($Config) ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
+            );
+            next VIEW;
+        }
+
+        my @JSLoaderFiles;
+        my @CSSLoaderFiles;
+        if ( IsHashRefWithData( $Config->{Loader} ) ) {
+
+            if ( IsArrayRefWithData( $Config->{Loader}->{JavaScript} ) ) {
+                @JSLoaderFiles = @{ $Config->{Loader}->{JavaScript} };
+            }
+            if ( IsArrayRefWithData( $Config->{Loader}->{CSS} ) ) {
+                @CSSLoaderFiles = @{ $Config->{Loader}->{CSS} };
+            }
+        }
+
+        LOADERFILE:
+        for my $NewLoaderFile ( sort @{ $LoaderConfig{$View} } ) {
+
+            next LOADERFILE if $NewLoaderFile !~ m{$ExtensionRegExp}i;
+
+            if ( lc $1 eq 'css' ) {
+
+                next LOADERFILE if grep { $NewLoaderFile eq $_ } @CSSLoaderFiles;
+
+                push @CSSLoaderFiles, $NewLoaderFile;
+            }
+            elsif ( lc $1 eq 'js' ) {
+
+                next LOADERFILE if grep { $NewLoaderFile eq $_ } @JSLoaderFiles;
+
+                push @JSLoaderFiles, $NewLoaderFile;
+            }
+        }
+
+        $Config->{Loader}->{JavaScript} = \@JSLoaderFiles;
+        $Config->{Loader}->{CSS}        = \@CSSLoaderFiles;
+
+        # update the sysconfig
+        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
+            Valid => 1,
+            Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
+            Value => $Config,
+        );
+    }
+
+    return 1;
+}
+
+=item _LoaderRemove()
+This function adds JavaScript files to the load of defined screens.
+
+my $Result = $CodeObject->_LoaderRemove(
+    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
+);
+
+=cut
+
+sub _LoaderRemove {
+    my ( $Self, %Param ) = @_;
+
+    # define the enabled dynamic fields for each screen
+    # (taken from sysconfig)
+    my %LoaderConfig = %Param;
+
+    VIEW:
+    for my $View ( keys %LoaderConfig ) {
+
+        next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
+
+
+        # check if we have to add the 'Customer' prefix for the SysConfig key
+        my $CustomerInterfacePrefix = '';
+        if ( $View =~ m{^Customer} ) {
+            $CustomerInterfacePrefix = 'Customer';
+        }
+
+       # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+
+        if ( !IsHashRefWithData($Config) ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
+            );
+            next VIEW;
+        }
+
+        my @JSLoaderFiles;
+        my @CSSLoaderFiles;
+        if ( IsHashRefWithData( $Config->{Loader} ) ) {
+
+            if ( IsArrayRefWithData( $Config->{Loader}->{JavaScript} ) ) {
+                @JSLoaderFiles = @{ $Config->{Loader}->{JavaScript} };
+            }
+            if ( IsArrayRefWithData( $Config->{Loader}->{CSS} ) ) {
+                @CSSLoaderFiles = @{ $Config->{Loader}->{CSS} };
+            }
+        }
+
+        if (
+            scalar @JSLoaderFiles
+            && !scalar @CSSLoaderFiles
+        ) {
+            next VIEW;
+        }
+
+        if ( scalar @JSLoaderFiles ) {
+
+            my @NewJSLoaderFiles;
+            LOADERFILE:
+            for my $JSLoaderFile ( sort @JSLoaderFiles ) {
+
+                next LOADERFILE if grep { $JSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
+
+                push @NewJSLoaderFiles, $JSLoaderFile;
+            }
+
+            $Config->{Loader}->{JavaScript} = \@NewJSLoaderFiles;
+        }
+
+        if ( scalar @CSSLoaderFiles ) {
+
+            my @NewCSSLoaderFiles;
+            LOADERFILE:
+            for my $CSSLoaderFile ( sort @CSSLoaderFiles ) {
+
+                next LOADERFILE if grep { $CSSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
+
+                push @NewCSSLoaderFiles, $CSSLoaderFile;
+            }
+
+            $Config->{Loader}->{CSS} = \@NewCSSLoaderFiles;
+        }
+
+
+        # update the sysconfig
+        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
+            Valid => 1,
+            Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
+            Value => $Config,
+        );
+    }
+
+    return 1;
+}
+
 =item _DynamicFieldsScreenEnable()
 
 This function enables the defined dynamic fields in the needed screens.
