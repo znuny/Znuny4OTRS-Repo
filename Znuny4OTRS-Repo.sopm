@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
+    <ChangeLog Version="2.0.1" Date="2014-11-28 19:36:06 +0100">- Changed package verify replacement logic.
+- Changed default to https.
+- Fixed bug: Copy past error causes use of unknown var error.</ChangeLog>
     <ChangeLog Version="2.0.0" Date="2014-11-28 16:02:19 +0100">Ported to OTRS 4.</ChangeLog>
     <ChangeLog Version="1.0.10" Date="2014-11-28 13:57:29 +0100">Fixed bug: Can&apos;t delete dynamic fields with stored values in the DB.</ChangeLog>
     <ChangeLog Version="1.0.9" Date="2014-07-08 15:34:29 +0200">Follow up release.</ChangeLog>
