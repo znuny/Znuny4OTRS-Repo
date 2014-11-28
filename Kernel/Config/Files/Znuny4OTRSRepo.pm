@@ -6,56 +6,37 @@
 use strict;
 use warnings;
 
-use Kernel::System::Package;
+use Kernel::System::CloudService;
 
 # disable redefine warnings in this scope
 {
 no warnings 'redefine';
 
-sub Kernel::System::Package::_FileSystemCheck {
-    my ( $Self, %Param ) = @_;
+sub Kernel::System::CloudService::new {
+    my ( $Type, %Param ) = @_;
+
+    # allocate new hash for object
+    my $Self = {};
+    bless( $Self, $Type );
+
+    # set system registration data
+    %{ $Self->{RegistrationData} } =
+        $Kernel::OM->Get('Kernel::System::SystemData')->SystemDataGroupGet(
+        Group  => 'Registration',
+        UserID => 1,
+        );
 
 # ---
 # Znuny4OTRS-Repo
 # ---
-    # set new pav url
-    my $Type                  = $Kernel::OM->Get('Kernel::Config')->Get('Znuny4OTRSRepoType') || 'https';
-    $Self->{PackageVerifyURL} = $Type . '://portal.znuny.com/api/addon_pav/';
+#     # set URL for calling cloud services
+#     $Self->{CloudServiceURL} = 'https://cloud.otrs.com/otrs/public.pl';
+    # set new cloud service url
+    my $Type                 = $Kernel::OM->Get('Kernel::Config')->Get('Znuny4OTRSRepoType') || 'https';
+    $Self->{CloudServiceURL} = $Type . '://portal.znuny.com/api/otrs_cloud_service/';
 # ---
-    my $Home = $Param{Home} || $Self->{Home};
 
-    # check Home
-    if ( !-e $Home ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
-            Priority => 'error',
-            Message  => "No such home directory: $Home!",
-        );
-        return;
-    }
-
-    # create test files in following directories
-    for my $Filepath (
-        qw(/bin/ /Kernel/ /Kernel/System/ /Kernel/Output/ /Kernel/Output/HTML/ /Kernel/Modules/)
-        )
-    {
-        my $Location = "$Home/$Filepath/check_permissons.$$";
-        my $Content  = 'test';
-
-        # create test file
-        my $Write = $Self->{MainObject}->FileWrite(
-            Location => $Location,
-            Content  => \$Content,
-        );
-
-        # return false if not created
-        return if !$Write;
-
-        # delete test file
-        $Self->{MainObject}->FileDelete( Location => $Location );
-    }
-
-    return 1;
-
+    return $Self;
 }
 
 }
