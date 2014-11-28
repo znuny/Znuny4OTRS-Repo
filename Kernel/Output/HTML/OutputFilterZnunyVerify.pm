@@ -1,4 +1,7 @@
-# Copyright (C) 2013-2014 Znuny GmbH, http://znuny.com/
+# --
+# Kernel/OutputFilterZnunyVerify.pm - replaces the OTRS verify logo with the Znuny version
+# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# --
 
 package Kernel::Output::HTML::OutputFilterZnunyVerify;
 
@@ -13,12 +16,7 @@ sub new {
     bless( $Self, $Type );
 
     # check needed objects
-    for my $Needed (
-        qw(
-        LayoutObject ConfigObject LogObject MainObject ParamObject
-        )
-        )
-    {
+    for my $Needed ( qw(LayoutObject ConfigObject LogObject MainObject ParamObject) ) {
         $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
@@ -59,7 +57,6 @@ sub Run {
     }xmsgei;
 
     return 1;
-
 }
 
 1;

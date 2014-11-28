@@ -1,30 +1,34 @@
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com
+# --
+# Kernel/ZnunyHelper.pm - provides some useful functions
+# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# --
 
 package Kernel::System::ZnunyHelper;
 
 use strict;
 use warnings;
 
-use Kernel::Config;
-use Kernel::System::Log;
-use Kernel::System::Main;
-use Kernel::System::Encode;
-use Kernel::System::Time;
-use Kernel::System::DB;
-
-use Kernel::System::XML;
-use Kernel::System::SysConfig;
-use Kernel::System::Group;
-use Kernel::System::User;
-use Kernel::System::Valid;
-use Kernel::System::DynamicField;
-use Kernel::System::DynamicField::Backend;
-use Kernel::System::DynamicFieldValue;
-
-
-use Kernel::System::Package;
-
 use Kernel::System::VariableCheck qw(:all);
+
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Cache',
+    'Kernel::System::Loader',
+    'Kernel::System::Log',
+    'Kernel::System::Main',
+    'Kernel::System::Encode',
+    'Kernel::System::Time',
+    'Kernel::System::DB',
+    'Kernel::System::XML',
+    'Kernel::System::SysConfig',
+    'Kernel::System::Group',
+    'Kernel::System::User',
+    'Kernel::System::Valid',
+    'Kernel::System::DynamicField',
+    'Kernel::System::DynamicField::Backend',
+    'Kernel::System::DynamicFieldValue',
+    'Kernel::System::Package',
+);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -33,29 +37,14 @@ sub new {
     my $Self = \%Param;
     bless( $Self, $Type );
 
-    # create needed objects
-    $Self->{ConfigObject} = Kernel::Config->new();
-    $Self->{LogObject}    = Kernel::System::Log->new(
-        LogPrefix => 'Znuny4OTRS-Helper',
-        %{$Self},
-    );
-    $Self->{EncodeObject} = Kernel::System::Encode->new( %{$Self} );
-    $Self->{MainObject}   = Kernel::System::Main->new( %{$Self} );
-    $Self->{TimeObject}   = Kernel::System::Time->new( %{$Self} );
-    $Self->{DBObject}     = Kernel::System::DB->new( %{$Self} );
-
-    $Self->{XMLObject}       = Kernel::System::XML->new( %{$Self} );
-    $Self->{SysConfigObject} = Kernel::System::SysConfig->new( %{$Self} );
-
     # rebuild ZZZ* files
-    $Self->{SysConfigObject}->WriteDefault();
+    $Kernel::OM->Get('Kernel::System::SysConfig')->WriteDefault();
 
     # define the ZZZ files
     my @ZZZFiles = (
         'ZZZAAuto.pm',
         'ZZZAuto.pm',
     );
-
 
     # disable redefine warnings in this scope
     {
@@ -75,14 +64,6 @@ sub new {
     # reset all warnings
     }
 
-    # create needed objects
-    $Self->{GroupObject}               = Kernel::System::Group->new( %{$Self} );
-    $Self->{UserObject}                = Kernel::System::User->new( %{$Self} );
-    $Self->{ValidObject}               = Kernel::System::Valid->new( %{$Self} );
-    $Self->{DynamicFieldObject}        = Kernel::System::DynamicField->new( %{$Self} );
-    $Self->{DynamicFieldBackendObject} = Kernel::System::DynamicField::Backend->new( %{$Self} );
-    $Self->{DynamicFieldValueObject}   = Kernel::System::DynamicFieldValue->new( %{$Self} );
-
     return $Self;
 }
 
@@ -91,18 +72,33 @@ sub new {
 sub _PackageInstall {
     my ( $Self, %Param ) = @_;
 
-    my $PackageObject = Kernel::System::Package->new( %{$Self} );
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(File) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
 
     # read
-    my $ContentRef = $Self->{MainObject}->FileRead(
+    my $ContentRef = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
         Location => $Param{File},
-        Mode     => 'utf8',      # optional - binmode|utf8
-        Result   => 'SCALAR',    # optional - SCALAR|ARRAY
+        Mode     => 'utf8',
+        Result   => 'SCALAR',
     );
     return if !$ContentRef;
 
+    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
+
     # parse
-    my %Structure = $PackageObject->PackageParse( String => ${$ContentRef} );
+    my %Structure = $PackageObject->PackageParse(
+        String => ${ $ContentRef },
+    );
 
     # execute actions
     # install code (pre)
@@ -115,13 +111,23 @@ sub _PackageInstall {
     }
 
     # install database (pre)
-    if ( $Structure{DatabaseInstall} && $Structure{DatabaseInstall}->{pre} ) {
-        $PackageObject->_Database( Database => $Structure{DatabaseInstall}->{pre} );
+    if (
+        IsHashRefWithData( $Structure{DatabaseInstall} )
+        && $Structure{DatabaseInstall}->{pre}
+    ) {
+        $PackageObject->_Database(
+            Database => $Structure{DatabaseInstall}->{pre},
+        );
     }
 
     # install database (post)
-    if ( $Structure{DatabaseInstall} && $Structure{DatabaseInstall}->{post} ) {
-        $PackageObject->_Database( Database => $Structure{DatabaseInstall}->{post} );
+    if (
+        IsHashRefWithData( $Structure{DatabaseInstall} )
+        && $Structure{DatabaseInstall}->{post}
+    ) {
+        $PackageObject->_Database(
+            Database => $Structure{DatabaseInstall}->{post},
+        );
     }
 
     # install code (post)
@@ -133,29 +139,45 @@ sub _PackageInstall {
         );
     }
 
-    $PackageObject->{CacheObject}->CleanUp();
-    $PackageObject->{LoaderObject}->CacheDelete();
+    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
+    $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
 
     return 1;
 }
 
 # File => '/path/to/file'
 
-sub _PackageUninstall {
+sub _PackageUMain{
     my ( $Self, %Param ) = @_;
 
-    my $PackageObject = Kernel::System::Package->new( %{$Self} );
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(File) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
 
     # read
-    my $ContentRef = $Self->{MainObject}->FileRead(
+    my $ContentRef = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
         Location => $Param{File},
-        Mode     => 'utf8',      # optional - binmode|utf8
-        Result   => 'SCALAR',    # optional - SCALAR|ARRAY
+        Mode     => 'utf8',
+        Result   => 'SCALAR',
     );
     return if !$ContentRef;
 
+    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
+
     # parse
-    my %Structure = $PackageObject->PackageParse( String => ${$ContentRef} );
+    my %Structure = $PackageObject->PackageParse(
+        String => ${ $ContentRef },
+    );
 
     # uninstall code (pre)
     if ( $Structure{CodeUninstall} ) {
@@ -167,13 +189,23 @@ sub _PackageUninstall {
     }
 
     # uninstall database (pre)
-    if ( $Structure{DatabaseUninstall} && $Structure{DatabaseUninstall}->{pre} ) {
-        $PackageObject->_Database( Database => $Structure{DatabaseUninstall}->{pre} );
+    if (
+        IsHashRefWithData( $Structure{DatabaseUninstall} )
+        && $Structure{DatabaseUninstall}->{pre}
+    ) {
+        $PackageObject->_Database(
+            Database => $Structure{DatabaseUninstall}->{pre},
+        );
     }
 
     # uninstall database (post)
-    if ( $Structure{DatabaseUninstall} && $Structure{DatabaseUninstall}->{post} ) {
-        $PackageObject->_Database( Database => $Structure{DatabaseUninstall}->{post} );
+    if (
+        IsHashRefWithData( $Structure{DatabaseUninstall} )
+        && $Structure{DatabaseUninstall}->{post}
+    ) {
+        $PackageObject->_Database(
+            Database => $Structure{DatabaseUninstall}->{post},
+        );
     }
 
     # uninstall code (post)
@@ -185,13 +217,15 @@ sub _PackageUninstall {
         );
     }
 
-    $PackageObject->{CacheObject}->CleanUp();
-    $PackageObject->{LoaderObject}->CacheDelete();
+    $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
+    $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
 
     return 1;
 }
 
 =item _JSLoaderAdd()
+
+!!! DEPRECATED !!! -> use _LoaderAdd() instead
 
 This function adds JavaScript files to the load of defined screens.
 
@@ -204,68 +238,21 @@ my $Result = $CodeObject->_JSLoaderAdd(
 sub _JSLoaderAdd {
     my ( $Self, %Param ) = @_;
 
-    $Self->{LogObject}->Log(
+    $Kernel::OM->Get('Kernel::System::Log')->Log(
         Priority => 'notice',
         Message  => "_JSLoaderAdd function is deprecated, please use _LoaderAdd."
     );
 
-    # define the enabled dynamic fields for each screen
-    my %JSLoaderConfig = %Param;
-
-    VIEW:
-    for my $View ( keys %JSLoaderConfig ) {
-
-        next VIEW if !IsArrayRefWithData( $JSLoaderConfig{$View} );
-
-        # check if we have to add the 'Customer' prefix for the SysConfig key
-        my $CustomerInterfacePrefix = '';
-        if ( $View =~ m{^Customer} ) {
-            $CustomerInterfacePrefix = 'Customer';
-        }
-
-       # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
-
-        if ( !IsHashRefWithData($Config) ) {
-            $Self->{LogObject}->Log(
-                Priority => 'error',
-                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
-            );
-            next VIEW;
-        }
-
-        my @JSLoaderFiles;
-        if (
-            IsHashRefWithData( $Config->{Loader} )
-            && IsArrayRefWithData( $Config->{Loader}->{JavaScript} )
-            )
-        {
-            @JSLoaderFiles = @{ $Config->{Loader}->{JavaScript} };
-        }
-
-        LOADERFILE:
-        for my $NewJSLoaderFile ( sort @{ $JSLoaderConfig{$View} } ) {
-
-            next LOADERFILE if grep { $NewJSLoaderFile eq $_ } @JSLoaderFiles;
-
-            push @JSLoaderFiles, $NewJSLoaderFile;
-        }
-
-        $Config->{Loader}->{JavaScript} = \@JSLoaderFiles;
-
-        # update the sysconfig
-        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
-            Value => $Config,
-        );
-    }
+    $Self->_LoaderAdd( %Param );
 
     return 1;
 }
 
 =item _JSLoaderRemove()
-This function adds JavaScript files to the load of defined screens.
+
+!!! DEPRECATED !!! -> use _LoaderRemove() instead
+
+This function removes JavaScript files to the load of defined screens.
 
 my $Result = $CodeObject->_JSLoaderRemove(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
@@ -276,76 +263,25 @@ my $Result = $CodeObject->_JSLoaderRemove(
 sub _JSLoaderRemove {
     my ( $Self, %Param ) = @_;
 
-    $Self->{LogObject}->Log(
+    $Kernel::OM->Get('Kernel::System::Log')->Log(
         Priority => 'notice',
         Message  => "_JSLoaderRemove function is deprecated, please use _LoaderRemove."
     );
 
-    # define the enabled dynamic fields for each screen
-    # (taken from sysconfig)
-    my %JSLoaderConfig = %Param;
-
-    VIEW:
-    for my $View ( keys %JSLoaderConfig ) {
-
-        next VIEW if !IsArrayRefWithData( $JSLoaderConfig{$View} );
-
-
-        # check if we have to add the 'Customer' prefix for the SysConfig key
-        my $CustomerInterfacePrefix = '';
-        if ( $View =~ m{^Customer} ) {
-            $CustomerInterfacePrefix = 'Customer';
-        }
-
-       # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
-
-        if ( !IsHashRefWithData($Config) ) {
-            $Self->{LogObject}->Log(
-                Priority => 'error',
-                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
-            );
-            next VIEW;
-        }
-
-        my @JSLoaderFiles;
-        if (
-            IsHashRefWithData( $Config->{Loader} )
-            && IsArrayRefWithData( $Config->{Loader}->{JavaScript} )
-            )
-        {
-            @JSLoaderFiles = @{ $Config->{Loader}->{JavaScript} };
-        }
-
-        next VIEW if !@JSLoaderFiles;
-
-        my @NewJSLoaderFiles;
-        LOADERFILE:
-        for my $JSLoaderFile ( sort @JSLoaderFiles ) {
-
-            next LOADERFILE if grep { $JSLoaderFile eq $_ } @{ $JSLoaderConfig{$View} };
-
-            push @NewJSLoaderFiles, $JSLoaderFile;
-        }
-
-        $Config->{Loader}->{JavaScript} = \@NewJSLoaderFiles;
-
-        # update the sysconfig
-        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
-            Value => $Config,
-        );
-    }
+    $Self->_LoaderRemove( %Param );
 
     return 1;
 }
+
 =item _LoaderAdd()
 
-This function adds JavaScript files to the load of defined screens.
+This function adds JavaScript and CSS files to the load of defined screens.
 
 my $Result = $CodeObject->_LoaderAdd(
-    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
+    AgentTicketPhone => [
+        'Core.Agent.WPTicketOEChange.css',
+        'Core.Agent.WPTicketOEChange.js'
+    ],
 );
 
 =cut
@@ -369,10 +305,10 @@ sub _LoaderAdd {
         }
 
        # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
-            $Self->{LogObject}->Log(
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
                 Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
             );
@@ -414,7 +350,7 @@ sub _LoaderAdd {
         $Config->{Loader}->{CSS}        = \@CSSLoaderFiles;
 
         # update the sysconfig
-        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
             Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
             Value => $Config,
@@ -425,10 +361,14 @@ sub _LoaderAdd {
 }
 
 =item _LoaderRemove()
-This function adds JavaScript files to the load of defined screens.
+
+This function removes JavaScript and CSS files to the load of defined screens.
 
 my $Result = $CodeObject->_LoaderRemove(
-    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
+    AgentTicketPhone => [
+        'Core.Agent.WPTicketOEChange.css',
+        'Core.Agent.WPTicketOEChange.js',
+    ],
 );
 
 =cut
@@ -445,7 +385,6 @@ sub _LoaderRemove {
 
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
 
-
         # check if we have to add the 'Customer' prefix for the SysConfig key
         my $CustomerInterfacePrefix = '';
         if ( $View =~ m{^Customer} ) {
@@ -453,10 +392,10 @@ sub _LoaderRemove {
         }
 
        # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
-            $Self->{LogObject}->Log(
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
                 Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
             );
@@ -476,7 +415,7 @@ sub _LoaderRemove {
         }
 
         if (
-            scalar @JSLoaderFiles
+            !scalar @JSLoaderFiles
             && !scalar @CSSLoaderFiles
         ) {
             next VIEW;
@@ -512,7 +451,7 @@ sub _LoaderRemove {
 
 
         # update the sysconfig
-        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
             Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
             Value => $Config,
@@ -537,22 +476,28 @@ sub _DynamicFieldsScreenEnable {
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
 
-    for my $Screen ( keys %ScreenDynamicFieldConfig ) {
+    VIEW:
+    for my $View ( keys %ScreenDynamicFieldConfig ) {
+
+        next VIEW if !IsHashRefWithData( $ScreenDynamicFieldConfig{$View} );
 
         # get existing config for each screen
-        my $Config = $Self->{ConfigObject}->Get("Ticket::Frontend::$Screen");
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::". $View);
 
         # get existing dynamic field config
-        my %ExistingSetting = %{ $Config->{DynamicField} || {} };
+        my %ExistingSetting;
+        if ( IsHashRefWithData( $Config->{DynamicField} ) ) {
+            %ExistingSetting = %{ $Config->{DynamicField} };
+        }
 
         # add the new settings
-        my %NewSetting = ( %ExistingSetting, %{ $ScreenDynamicFieldConfig{$Screen} } );
+        my %NewDynamicFieldConfig = ( %ExistingSetting, %{ $ScreenDynamicFieldConfig{$View} } );
 
         # update the sysconfig
-        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Ticket::Frontend::' . $Screen . '###DynamicField',
-            Value => \%NewSetting,
+            Key   => 'Ticket::Frontend::' . $View . '###DynamicField',
+            Value => \%NewDynamicFieldConfig,
         );
     }
 
@@ -569,37 +514,42 @@ my $Result = $CodeObject->_DynamicFieldsScreenDisable($Definition);
 
 sub _DynamicFieldsScreenDisable {
     my ( $Self, %Param ) = @_;
+
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
 
-    SCREEN:
-    for my $Screen ( keys %ScreenDynamicFieldConfig ) {
+    VIEW:
+    for my $View ( keys %ScreenDynamicFieldConfig ) {
 
-        next SCREEN if !IsHashRefWithData( $ScreenDynamicFieldConfig{$Screen} );
+        next VIEW if !IsHashRefWithData( $ScreenDynamicFieldConfig{$View} );
 
         # get existing config for each screen
-        my $Config = $Self->{ConfigObject}->Get("Ticket::Frontend::$Screen");
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::". $View);
 
         # get existing dynamic field config
-        my %ExistingSetting = %{ $Config->{DynamicField} || {} };
+        my %ExistingSetting;
+        if ( IsHashRefWithData( $Config->{DynamicField} ) ) {
+            %ExistingSetting = %{ $Config->{DynamicField} };
+        }
 
-        my %NewSetting;
+        my %NewDynamicFieldConfig;
         SETTING:
         for my $ExistingSettingKey ( sort keys %ExistingSetting ) {
 
-            next SETTING if $ScreenDynamicFieldConfig{$Screen}->{$ExistingSettingKey};
+            next SETTING if $ScreenDynamicFieldConfig{ $View }->{$ExistingSettingKey};
 
-            $NewSetting{$ExistingSettingKey} = $ExistingSetting{$ExistingSettingKey};
+            $NewDynamicFieldConfig{$ExistingSettingKey} = $ExistingSetting{$ExistingSettingKey};
         }
 
         # update the sysconfig
-        my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => 'Ticket::Frontend::' . $Screen . '###DynamicField',
-            Value => \%NewSetting,
+            Key   => 'Ticket::Frontend::' . $View . '###DynamicField',
+            Value => \%NewDynamicFieldConfig,
         );
     }
+
     return 1;
 }
 
@@ -612,40 +562,43 @@ my $Result = $CodeObject->_DynamicFieldsDelete('Field1', 'Field2');
 =cut
 
 sub _DynamicFieldsDelete {
-    my ( $Self, @Definition ) = @_;
+    my ( $Self, @DynamicFields ) = @_;
+
+    return 1 if !@DynamicFields;
 
     # get all current dynamic fields
-    my $DynamicFieldList = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
         Valid => 0,
     );
 
-    # get the definition for all dynamic fields
-    my @DynamicFields = @Definition;
+    return 1 if !IsArrayRefWithData( $DynamicFieldList );
 
     # create a dynamic fields lookup table
     my %DynamicFieldLookup;
 
-    DYNAMICFIELDLOOKUP:
-    for my $DynamicField ( @{$DynamicFieldList} ) {
-        next DYNAMICFIELDLOOKUP if ref $DynamicField ne 'HASH';
+    DYNAMICFIELD:
+    for my $DynamicField ( @{ $DynamicFieldList } ) {
+
+        next DYNAMICFIELD if !IsHashRefWithData( $DynamicField );
+
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
 
-    # disable the dynamic fields
+    # delete the dynamic fields
     DYNAMICFIELD:
-    for my $DynamicField (@DynamicFields) {
+    for my $DynamicFieldName (@DynamicFields) {
 
-        next DYNAMICFIELD if !$DynamicFieldLookup{ $DynamicField };
+        next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldLookup{ $DynamicFieldName } );
 
-        my $ValuesDeleteSuccess = $Self->{DynamicFieldBackendObject}->AllValuesDelete(
+        my $ValuesDeleteSuccess = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->AllValuesDelete(
             DynamicFieldConfig => $DynamicFieldLookup{ $DynamicField },
             UserID             => 1,
         );
 
-        my $Success = $Self->{DynamicFieldObject}->DynamicFieldDelete(
-            %{ $DynamicFieldLookup{ $DynamicField } },
-            Reorder    => 0,
-            UserID     => 1,
+        my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldDelete(
+            %{ $DynamicFieldLookup{ $DynamicFieldName } },
+            Reorder => 0,
+            UserID  => 1,
         );
     }
 
@@ -661,38 +614,43 @@ my $Result = $CodeObject->_DynamicFieldsDisable('Field1', 'Field2');
 =cut
 
 sub _DynamicFieldsDisable {
-    my ( $Self, @Definition ) = @_;
+    my ( $Self, @DynamicFields ) = @_;
 
-    my $ValidID = $Self->{ValidObject}->ValidLookup(
-        Valid => 'invalid',
-    );
+    return 1 if !@DynamicFields;
 
     # get all current dynamic fields
-    my $DynamicFieldList = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
         Valid => 0,
     );
 
-    # get the definition for all dynamic fields
-    my @DynamicFields = @Definition;
+    return 1 if !IsArrayRefWithData( $DynamicFieldList );
 
     # create a dynamic fields lookup table
     my %DynamicFieldLookup;
 
-    DYNAMICFIELDLOOKUP:
-    for my $DynamicField ( @{$DynamicFieldList} ) {
-        next DYNAMICFIELDLOOKUP if ref $DynamicField ne 'HASH';
+    DYNAMICFIELD:
+    for my $DynamicField ( @{ $DynamicFieldList } ) {
+
+        next DYNAMICFIELD if !IsHashRefWithData( $DynamicField );
+
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
 
+    my $InvalidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        Valid => 'invalid',
+    );
+
     # disable the dynamic fields
     DYNAMICFIELD:
-    for my $DynamicField (@DynamicFields) {
-        next if !$DynamicFieldLookup{ $DynamicField };
-        my $Success = $Self->{DynamicFieldObject}->DynamicFieldUpdate(
-            %{ $DynamicFieldLookup{ $DynamicField } },
-            ValidID    => $ValidID,
-            Reorder    => 0,
-            UserID     => 1,
+    for my $DynamicFieldName (@DynamicFields) {
+
+        next DYNAMICFIELD if !$DynamicFieldLookup{ $DynamicFieldName };
+
+        my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldUpdate(
+            %{ $DynamicFieldLookup{ $DynamicFieldName } },
+            ValidID => $InvalidID,
+            Reorder => 0,
+            UserID  => 1,
         );
     }
 
@@ -711,26 +669,28 @@ sub _DynamicFieldsCreateIfNotExists {
     my ( $Self, @Definition ) = @_;
 
     # get all current dynamic fields
-    my $DynamicFieldList = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
         Valid => 0,
     );
-    my @DynamicFieldExistsNot;
-    for my $NewDynamicfield (@Definition) {
-        my $Exists = 0;
-        for my $OldDynamicfield ( @{$DynamicFieldList} ) {
-            if ( $NewDynamicfield->{Name} eq $OldDynamicfield->{Name} ) {
-                $Exists = 1;
-            }
-        }
-        if (!$Exists) {
-            push @DynamicFieldExistsNot, $NewDynamicfield;
-        }
-    }
-    if (@DynamicFieldExistsNot) {
-        $Self->_DynamicFieldsCreate(@DynamicFieldExistsNot);
+
+    if ( !IsArrayRefWithData( $DynamicFieldList ) ) {
+        $DynamicFieldList = [];
     }
 
-    return 1;
+    my @DynamicFieldExistsNot;
+    DYNAMICFIELD:
+    for my $NewDynamicField ( @Definition ) {
+
+        next DYNAMICFIELD if !IsHashRefWithData( $NewDynamicField );
+
+        next DYNAMICFIELD if grep { $NewDynamicField->{Name} eq $_->{Name} } @{ $DynamicFieldList };
+
+        push @DynamicFieldExistsNot, $NewDynamicField;
+    }
+
+    return 1 if !@DynamicFieldExistsNot;
+
+    return $Self->_DynamicFieldsCreate(@DynamicFieldExistsNot);
 }
 
 =item _DynamicFieldsCreate()
@@ -742,62 +702,66 @@ creates all dynamic fields that are necessary
 =cut
 
 sub _DynamicFieldsCreate {
-    my ( $Self, @Definition ) = @_;
+    my ( $Self, @DynamicFields ) = @_;
 
-    my $ValidID = $Self->{ValidObject}->ValidLookup(
+    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
         Valid => 'valid',
     );
 
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
     # get all current dynamic fields
-    my $DynamicFieldList = $Self->{DynamicFieldObject}->DynamicFieldListGet(
+    my $DynamicFieldList = $DynamicFieldObject->DynamicFieldListGet(
         Valid => 0,
     );
 
-    # get the list of order numbers (is already sorted).
-    my @DynamicfieldOrderList;
-    for my $Dynamicfield ( @{$DynamicFieldList} ) {
-        push @DynamicfieldOrderList, $Dynamicfield->{FieldOrder};
+    if ( !IsArrayRefWithData( $DynamicFieldList ) ) {
+        $DynamicFieldList = [];
     }
 
     # get the last element from the order list and add 1
     my $NextOrderNumber = 1;
-    if (@DynamicfieldOrderList) {
-        $NextOrderNumber = $DynamicfieldOrderList[-1] + 1;
+    if (
+        IsArrayRefWithData( $DynamicFieldList )
+        && IsHashRefWithData( $DynamicFieldList->[-1] )
+        && $DynamicFieldList->[-1]->{FieldOrder}
+    ) {
+        $NextOrderNumber = $DynamicFieldList->[-1]->{FieldOrder} + 1;
     }
-
-    # get the definition for all dynamic fields
-    my @DynamicFields = @Definition;
 
     # create a dynamic fields lookup table
     my %DynamicFieldLookup;
 
-    DYNAMICFIELDLOOKUP:
-    for my $DynamicField ( @{$DynamicFieldList} ) {
-        next DYNAMICFIELDLOOKUP if ref $DynamicField ne 'HASH';
+    DYNAMICFIELD:
+    for my $DynamicField ( @{ $DynamicFieldList } ) {
+
+        next DYNAMICFIELD if !IsHashRefWithData( $DynamicField );
+
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
 
     # create or update dynamic fields
     DYNAMICFIELD:
-    for my $DynamicField (@DynamicFields) {
+    for my $NewDynamicField ( @DynamicFields ) {
+
         my $CreateDynamicField;
 
         # check if the dynamic field already exists
-        if ( ref $DynamicFieldLookup{ $DynamicField->{Name} } ne 'HASH' ) {
+        if ( !IsHashRefWithData( $DynamicFieldLookup{ $NewDynamicField->{Name} } ) ) {
             $CreateDynamicField = 1;
         }
 
         # if the field exists check if the type match with the needed type
         elsif (
-            $DynamicFieldLookup{ $DynamicField->{Name} }->{FieldType}
-            ne $DynamicField->{FieldType}
-            )
-        {
+            $DynamicFieldLookup{ $NewDynamicField->{Name} }->{FieldType}
+            ne $NewDynamicField->{FieldType}
+        ) {
+            my %OldDynamicFieldConfig = %{ $DynamicFieldLookup{ $NewDynamicField->{Name} } };
 
             # rename the field and create a new one
-            my $Success = $Self->{DynamicFieldObject}->DynamicFieldUpdate(
-                %{ $DynamicFieldLookup{ $DynamicField->{Name} } },
-                Name   => $DynamicFieldLookup{ $DynamicField->{Name} }->{Name} . 'Old',
+            my $Success = $DynamicFieldObject->DynamicFieldUpdate(
+                %OldDynamicFieldConfig,
+                Name   => $OldDynamicFieldConfig{Name} . 'Old',
                 UserID => 1,
             );
 
@@ -806,10 +770,12 @@ sub _DynamicFieldsCreate {
 
         # otherwise if the field exists and the type matches, update it as defined
         else {
-            my $Success = $Self->{DynamicFieldObject}->DynamicFieldUpdate(
-                %{$DynamicField},
-                ID         => $DynamicFieldLookup{ $DynamicField->{Name} }->{ID},
-                FieldOrder => $DynamicFieldLookup{ $DynamicField->{Name} }->{FieldOrder},
+            my %OldDynamicFieldConfig = %{ $DynamicFieldLookup{ $NewDynamicField->{Name} } };
+
+            my $Success = $DynamicFieldObject->DynamicFieldUpdate(
+                %{$NewDynamicField},
+                ID         => $OldDynamicFieldConfig{ID},
+                FieldOrder => $OldDynamicFieldConfig{FieldOrder},
                 ValidID    => $ValidID,
                 Reorder    => 0,
                 UserID     => 1,
@@ -817,24 +783,23 @@ sub _DynamicFieldsCreate {
         }
 
         # check if new field has to be created
-        if ($CreateDynamicField) {
+        next DYNAMICFIELD if !$CreateDynamicField;
 
-            # create a new field
-            my $FieldID = $Self->{DynamicFieldObject}->DynamicFieldAdd(
-                Name       => $DynamicField->{Name},
-                Label      => $DynamicField->{Label},
-                FieldOrder => $NextOrderNumber,
-                FieldType  => $DynamicField->{FieldType},
-                ObjectType => $DynamicField->{ObjectType},
-                Config     => $DynamicField->{Config},
-                ValidID    => $ValidID,
-                UserID     => 1,
-            );
-            next DYNAMICFIELD if !$FieldID;
+        # create a new field
+        my $FieldID = $DynamicFieldObject->DynamicFieldAdd(
+            Name       => $NewDynamicField->{Name},
+            Label      => $NewDynamicField->{Label},
+            FieldOrder => $NextOrderNumber,
+            FieldType  => $NewDynamicField->{FieldType},
+            ObjectType => $NewDynamicField->{ObjectType},
+            Config     => $NewDynamicField->{Config},
+            ValidID    => $ValidID,
+            UserID     => 1,
+        );
+        next DYNAMICFIELD if !$FieldID;
 
-            # increase the order number
-            $NextOrderNumber++;
-        }
+        # increase the order number
+        $NextOrderNumber++;
     }
 
     return 1;
@@ -851,11 +816,28 @@ creates group if not texts
 sub _GroupCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
-    my %Groups = $Self->{GroupObject}->GroupList( Valid => 0 );
-    for my $GroupID ( keys %Groups ) {
-        return if $Param{Name} eq $Groups{ $GroupID };
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Name) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
     }
-    return $Self->{GroupObject}->GroupAdd(
+
+    my %GroupsReversed = $Kernel::OM->Get('Kernel::System::Group')->GroupList(
+        Valid => 0,
+    );
+
+    %GroupsReversed = reverse %GroupsReversed;
+
+    return 1 if $GroupsReversed{ $Param{Name} };
+
+    return $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
@@ -879,20 +861,20 @@ sub _NotificationCreateIfNotExists {
     my ( $Self, $Type, $Lang, $Subject, $Body ) = @_;
 
     # check if exists
-    $Self->{DBObject}->Prepare(
+    $Kernel::OM->Get('Kernel::System::DB')->Prepare(
         SQL   => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
         Bind  => [ \$Type, \$Lang ],
         Limit => 1,
     );
     my $Exists;
-    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
         $Exists = 1;
     }
     return 1 if $Exists;
 
     # create new
     my $Charset = 'utf8';
-    return $Self->{DBObject}->Do(
+    return $Kernel::OM->Get('Kernel::System::DB')->Do(
         SQL => 'INSERT INTO notifications (notification_type, notification_language, '
             . 'subject, text, notification_charset, content_type, '
             . 'create_time, create_by, change_time, change_by) '

@@ -1,10 +1,14 @@
-
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com/
+# --
+# Kernel/Znuny4OTRSRepo.pm - PreApplication module to add the Znuny repository to the repository list
+# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# --
 
 package Kernel::Modules::Znuny4OTRSRepo;
 
 use strict;
 use warnings;
+
+use Kernel::System::VariableCheck qw(:all);
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -14,10 +18,12 @@ sub new {
     bless( $Self, $Type );
 
     # check needed objects
-    for (qw(ParamObject DBObject LogObject ConfigObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
-        }
+    NEEDED:
+    for my $Needed (qw(ParamObject DBObject LogObject ConfigObject)) {
+
+        next NEEDED if $Self->{$Needed};
+
+        $Self->{LayoutObject}->FatalError( Message => "Got no $Needed!" );
     }
 
     return $Self;
@@ -31,20 +37,27 @@ sub PreRun {
     return if $Self->{ConfigObject}->Get('Znuny4OTRSRepoDisable');
 
     my $RepositoryList = $Self->{ConfigObject}->Get('Package::RepositoryList');
-    if ( !$RepositoryList ) {
+    if ( !IsHashRefWithData( $RepositoryList ) ) {
         $RepositoryList = {};
     }
 
-    my $Type = $Self->{ConfigObject}->Get('Znuny4OTRSRepoType') || 'https';
-    $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/public'} = 'Addons - Znuny4OTRS / Public';
+    my $RepositoryURL = $Self->{ConfigObject}->Get('Znuny4OTRSRepoType');
+    $RepositoryURL  ||= 'https';
+    $RepositoryURL   .= '://portal.znuny.com/api/addon_repos/';
 
+    # add public repository
+    $RepositoryList->{ $RepositoryURL . 'public'} = 'Addons - Znuny4OTRS / Public';
+
+    # check for and add configured private repositories
     my $PrivateRepost = $Self->{ConfigObject}->Get('Znuny4OTRSPrivatRepos');
-    if ($PrivateRepost && ref $PrivateRepost eq 'HASH' ) {
+
+    if ( IsHashRefWithData( $PrivateRepost ) ) {
         for my $Key ( keys %{ $PrivateRepost } ) {
-            $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/' . $Key } = "Addons - Znuny4OTRS / Private $PrivateRepost->{$Key} ";
+            $RepositoryList->{ $RepositoryURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
         }
     }
 
+    # set temporary config entry
     $Self->{ConfigObject}->Set(
         Key   => 'Package::RepositoryList',
         Value => $RepositoryList,
