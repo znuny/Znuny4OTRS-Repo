@@ -18,7 +18,9 @@ use Kernel::System::Group;
 use Kernel::System::User;
 use Kernel::System::Valid;
 use Kernel::System::DynamicField;
+use Kernel::System::DynamicField::Backend;
 use Kernel::System::DynamicFieldValue;
+
 
 use Kernel::System::Package;
 
@@ -74,11 +76,12 @@ sub new {
     }
 
     # create needed objects
-    $Self->{GroupObject}             = Kernel::System::Group->new( %{$Self} );
-    $Self->{UserObject}              = Kernel::System::User->new( %{$Self} );
-    $Self->{ValidObject}             = Kernel::System::Valid->new( %{$Self} );
-    $Self->{DynamicFieldObject}      = Kernel::System::DynamicField->new( %{$Self} );
-    $Self->{DynamicFieldValueObject} = Kernel::System::DynamicFieldValue->new( %{$Self} );
+    $Self->{GroupObject}               = Kernel::System::Group->new( %{$Self} );
+    $Self->{UserObject}                = Kernel::System::User->new( %{$Self} );
+    $Self->{ValidObject}               = Kernel::System::Valid->new( %{$Self} );
+    $Self->{DynamicFieldObject}        = Kernel::System::DynamicField->new( %{$Self} );
+    $Self->{DynamicFieldBackendObject} = Kernel::System::DynamicField::Backend->new( %{$Self} );
+    $Self->{DynamicFieldValueObject}   = Kernel::System::DynamicFieldValue->new( %{$Self} );
 
     return $Self;
 }
@@ -631,7 +634,14 @@ sub _DynamicFieldsDelete {
     # disable the dynamic fields
     DYNAMICFIELD:
     for my $DynamicField (@DynamicFields) {
-        next if !$DynamicFieldLookup{ $DynamicField };
+
+        next DYNAMICFIELD if !$DynamicFieldLookup{ $DynamicField };
+
+        my $ValuesDeleteSuccess = $Self->{DynamicFieldBackendObject}->AllValuesDelete(
+            DynamicFieldConfig => $DynamicFieldLookup{ $DynamicField },
+            UserID             => 1,
+        );
+
         my $Success = $Self->{DynamicFieldObject}->DynamicFieldDelete(
             %{ $DynamicFieldLookup{ $DynamicField } },
             Reorder    => 0,
