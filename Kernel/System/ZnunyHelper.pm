@@ -591,7 +591,7 @@ sub _DynamicFieldsDelete {
         next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldLookup{ $DynamicFieldName } );
 
         my $ValuesDeleteSuccess = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->AllValuesDelete(
-            DynamicFieldConfig => $DynamicFieldLookup{ $DynamicField },
+            DynamicFieldConfig => $DynamicFieldLookup{ $DynamicFieldName },
             UserID             => 1,
         );
 
