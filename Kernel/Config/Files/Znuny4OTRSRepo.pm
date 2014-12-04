@@ -32,8 +32,8 @@ sub Kernel::System::CloudService::new {
 #     # set URL for calling cloud services
 #     $Self->{CloudServiceURL} = 'https://cloud.otrs.com/otrs/public.pl';
     # set new cloud service url
-    my $Type                 = $Kernel::OM->Get('Kernel::Config')->Get('Znuny4OTRSRepoType') || 'https';
-    $Self->{CloudServiceURL} = $Type . '://portal.znuny.com/api/otrs_cloud_service/';
+    my $Schema               = $Kernel::OM->Get('Kernel::Config')->Get('Znuny4OTRSRepoType') || 'https';
+    $Self->{CloudServiceURL} = $Schema .'://portal.znuny.com/api/otrs_cloud_service/';
 # ---
 
     return $Self;
