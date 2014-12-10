@@ -33,7 +33,7 @@ sub Kernel::System::CloudService::new {
 #     $Self->{CloudServiceURL} = 'https://cloud.otrs.com/otrs/public.pl';
     # set new cloud service url
     my $Schema               = $Kernel::OM->Get('Kernel::Config')->Get('Znuny4OTRSRepoType') || 'https';
-    $Self->{CloudServiceURL} = $Schema .'://portal.znuny.com/api/otrs_cloud_service/';
+    $Self->{CloudServiceURL} = $Schema .'://'. $Kernel::OM->Get('Kernel::Config')->Get('Znuny4OTRSCloudServiceProxyURL');
 # ---
 
     return $Self;

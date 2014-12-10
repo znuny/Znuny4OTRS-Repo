@@ -29,6 +29,14 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Znuny4OTRSCloudServiceProxyURL" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines the URL to the OTRS CloudService Proxy service. The http or https prefix will be added, depending on selection SysConfig 'Znuny4OTRSRepoType'.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <String Regex="">portal.znuny.com/api/otrs_cloud_service_proxy/</String>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
         <Description Translatable="1">Disable online repos, e. g. for production system where new direct access to repos is needed.</Description>
         <Group>Znuny4OTRS-Repo</Group>
