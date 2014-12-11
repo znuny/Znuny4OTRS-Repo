@@ -34,7 +34,7 @@
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
-            <String Regex="">portal.znuny.com/api/otrs_cloud_service_proxy/</String>
+            <String Regex="">portal.znuny.com/api/otrs_cloud_service/</String>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
