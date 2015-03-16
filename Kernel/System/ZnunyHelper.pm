@@ -22,6 +22,9 @@ our @ObjectDependencies = (
     'Kernel::System::XML',
     'Kernel::System::SysConfig',
     'Kernel::System::Group',
+    'Kernel::System::Role',
+    'Kernel::System::Type',
+    'Kernel::System::State',
     'Kernel::System::User',
     'Kernel::System::Valid',
     'Kernel::System::DynamicField',
@@ -868,7 +871,7 @@ sub _RoleCreateIfNotExists {
         return;
     }
 
-    my %RolesReversed = $Kernel::OM->Get('Kernel::System::Group')->RoleList(
+    my %RolesReversed = $Kernel::OM->Get('Kernel::System::Role')->RoleList(
         Valid => 0,
     );
 
@@ -882,6 +885,127 @@ sub _RoleCreateIfNotExists {
         %Param,
     );
 }
+=item _TypeCreateIfNotExists()
+
+creates Type if not exists
+
+    my $Result = $CodeObject->_TypeCreateIfNotExists( Name => 'Some Type Name' );
+
+=cut
+
+sub _TypeCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Name) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %TypesReversed = $Kernel::OM->Get('Kernel::System::Type')->TypeList(
+        Valid => 0,
+    );
+
+    %TypesReversed = reverse %TypesReversed;
+
+    return 1 if $TypesReversed{ $Param{Name} };
+
+    return $Kernel::OM->Get('Kernel::System::Type')->TypeAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
+}
+=item _StateCreateIfNotExists()
+
+creates State if not exists
+
+    my $Result = $CodeObject->_StateCreateIfNotExists( Name => 'Some State Name', Type => 1 );
+
+    my %ListType = (
+        1 => "new",
+        2 => "open",
+        3 => "closed",
+        4 => "pending reminder",
+        5 => "pending auto",
+        6 => "removed",
+        7 => "merged",
+    );
+
+=cut
+
+sub _StateCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Name) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %StatesReversed = $Kernel::OM->Get('Kernel::System::State')->StateList(
+        Valid => 0,
+    );
+
+    %StatesReversed = reverse %StatesReversed;
+
+    return 1 if $StatesReversed{ $Param{Name} };
+
+    return $Kernel::OM->Get('Kernel::System::State')->StateAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
+}
+
+=item _StateDisable()
+
+disables a given state
+
+    my $Result = $CodeObject->_StateDisable('State1','State2');
+
+=cut
+
+sub _StateDisable {
+    my ( $Self, @States ) = @_;
+
+    return 1 if !@States;
+
+    #get current invalid id
+    my $InvalidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        Valid => 'invalid',
+    );
+
+    # disable the states
+    STATE:
+    for my $StateName ( @States ) {
+        my %State = $Kernel::OM->Get('Kernel::System::State')->StateGet(
+            Name => $StateName,
+        );
+        next STATE if !%State;
+        my $Success = $Kernel::OM->Get('Kernel::System::State')->StateUpdate(
+              %State,
+              ValidID        => 1,
+              UserID         => 1,
+            );
+    }
+ }
+
+
 
 =item _NotificationCreateIfNotExists()
 
