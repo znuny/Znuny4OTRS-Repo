@@ -807,7 +807,7 @@ sub _DynamicFieldsCreate {
 
 =item _GroupCreateIfNotExists()
 
-creates group if not texts
+creates group if not exists
 
     my $Result = $CodeObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
 
@@ -838,6 +838,45 @@ sub _GroupCreateIfNotExists {
     return 1 if $GroupsReversed{ $Param{Name} };
 
     return $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
+}
+
+=item _RoleCreateIfNotExists()
+
+creates role if not exists
+
+    my $Result = $CodeObject->_GroupCreateIfNotExists( Name => 'Some Role Name' );
+
+=cut
+
+sub _RoleCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Name) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %RolesReversed = $Kernel::OM->Get('Kernel::System::Group')->RoleList(
+        Valid => 0,
+    );
+
+    %RolesReversed = reverse %RolesReversed;
+
+    return 1 if $RolesReversed{ $Param{Name} };
+
+    return $Kernel::OM->Get('Kernel::System::Role')->RoleAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
