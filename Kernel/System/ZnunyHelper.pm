@@ -22,7 +22,6 @@ our @ObjectDependencies = (
     'Kernel::System::XML',
     'Kernel::System::SysConfig',
     'Kernel::System::Group',
-    'Kernel::System::Role',
     'Kernel::System::Type',
     'Kernel::System::State',
     'Kernel::System::User',
@@ -871,7 +870,7 @@ sub _RoleCreateIfNotExists {
         return;
     }
 
-    my %RolesReversed = $Kernel::OM->Get('Kernel::System::Role')->RoleList(
+    my %RolesReversed = $Kernel::OM->Get('Kernel::System::Group')->RoleList(
         Valid => 0,
     );
 
@@ -879,7 +878,7 @@ sub _RoleCreateIfNotExists {
 
     return 1 if $RolesReversed{ $Param{Name} };
 
-    return $Kernel::OM->Get('Kernel::System::Role')->RoleAdd(
+    return $Kernel::OM->Get('Kernel::System::Group')->RoleAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
@@ -959,6 +958,7 @@ sub _StateCreateIfNotExists {
 
     my %StatesReversed = $Kernel::OM->Get('Kernel::System::State')->StateList(
         Valid => 0,
+        UserID => 1
     );
 
     %StatesReversed = reverse %StatesReversed;
@@ -966,9 +966,9 @@ sub _StateCreateIfNotExists {
     return 1 if $StatesReversed{ $Param{Name} };
 
     return $Kernel::OM->Get('Kernel::System::State')->StateAdd(
+        %Param,
         ValidID => 1,
         UserID  => 1,
-        %Param,
     );
 }
 
@@ -993,17 +993,111 @@ sub _StateDisable {
     # disable the states
     STATE:
     for my $StateName ( @States ) {
+
         my %State = $Kernel::OM->Get('Kernel::System::State')->StateGet(
             Name => $StateName,
         );
         next STATE if !%State;
+
         my $Success = $Kernel::OM->Get('Kernel::System::State')->StateUpdate(
               %State,
-              ValidID        => 1,
+              ValidID        => $InvalidID,
               UserID         => 1,
             );
     }
  }
+
+
+=item _ServicereateIfNotExists()
+
+creates Service if not exists
+
+    my $Result = $CodeObject->_ServiceCreateIfNotExists( Name => 'Some ServiceName' );
+
+=cut
+
+sub _ServicereateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
+        Valid  => 0,
+        UserID => 1
+    );
+
+    %ServiceReversed = reverse %ServiceReversed;
+
+    return 1 if $ServiceReversed{ $Param{Name} };
+
+    #Split String to check for possible sub services
+    my @ServiceArray = split( '::', $Param{Name} );
+
+    #check for parent (length)
+    my $size  = scalar @ServiceArray;
+    my $count = 0;
+    if ( scalar @ServiceArray > 0 ) {
+
+        # create service with parent
+        my $CompleteServiceString = '';
+        SERVICE:
+        for my $ServiceString (@ServiceArray) {
+            if ( $count == 0 ) {
+
+                #build / check for main service
+                my $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
+                    Name   => $ServiceString,
+                    UserID => 1,
+                );
+                $CompleteServiceString = $ServiceString;
+                $count++;
+                next SERVICE if $ServiceID;
+
+                $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+                    Name    => $CompleteServiceString,
+                    ValidID => 1,
+                    UserID  => 1
+                );
+            }
+            else {
+                #build sub services
+                my $ParentID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
+                    Name   => $CompleteServiceString,
+                    UserID => 1,
+                );
+                $CompleteServiceString = $CompleteServiceString . '::' . $ServiceString;
+                $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+                    Name     => $ServiceString,
+                    ParentID => $ParentID,
+                    ValidID  => 1,
+                    UserID   => 1
+                );
+                $count++;
+            }
+        }
+    }
+    else {
+        #create Service without parent
+        $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+            %Param,
+            ValidID => 1,
+            UserID  => 1
+        );
+    }
+
+    return
+}
 
 
 
