@@ -1,12 +1,18 @@
 # --
-# Kernel/Znuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
-# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# Kernel/Config/Files/Znuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
+# Copyright (C) 2001-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
 use strict;
 use warnings;
 
 use Kernel::System::CloudService;
+
+our $ObjectManagerDisabled = 1;
 
 # disable redefine warnings in this scope
 {
@@ -42,3 +48,15 @@ sub Kernel::System::CloudService::new {
 }
 
 1;
+
+=back
+
+=head1 TERMS AND CONDITIONS
+
+This software is part of the OTRS project (L<http://otrs.org/>).
+
+This software comes with ABSOLUTELY NO WARRANTY. For details, see
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+
+=cut

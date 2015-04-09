@@ -1,6 +1,10 @@
 # --
-# Kernel/OutputFilterZnunyVerify.pm - replaces the OTRS verify logo with the Znuny version
-# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# Kernel/Output/HTML/OutputFilterZnunyVerify.pm - replaces the OTRS verify logo with the Znuny version
+# Copyright (C) 2001-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
 package Kernel::Output::HTML::OutputFilterZnunyVerify;
@@ -16,7 +20,7 @@ sub new {
     bless( $Self, $Type );
 
     # check needed objects
-    for my $Needed ( qw(LayoutObject ConfigObject LogObject MainObject ParamObject) ) {
+    for my $Needed (qw(LayoutObject ConfigObject LogObject MainObject ParamObject)) {
         $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
     }
 
@@ -60,3 +64,15 @@ sub Run {
 }
 
 1;
+
+=back
+
+=head1 TERMS AND CONDITIONS
+
+This software is part of the OTRS project (L<http://otrs.org/>).
+
+This software comes with ABSOLUTELY NO WARRANTY. For details, see
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+
+=cut

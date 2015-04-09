@@ -6,4 +6,3 @@
 # Paketverifizierung auch von Znuny Paketen
 
 Mit diesem Paket können Znuny Paketen über OTRS verifiziert werden.
-

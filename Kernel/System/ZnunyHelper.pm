@@ -1,6 +1,10 @@
 # --
-# Kernel/ZnunyHelper.pm - provides some useful functions
-# Copyright (C) 2014 Znuny GmbH, http://znuny.com/
+# Kernel/System/ZnunyHelper.pm - provides some useful functions
+# Copyright (C) 2001-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
 package Kernel::System::ZnunyHelper;
@@ -17,12 +21,14 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::Encode',
+    'Kernel::System::GeneralCatalog',
     'Kernel::System::Time',
     'Kernel::System::DB',
     'Kernel::System::XML',
     'Kernel::System::SysConfig',
     'Kernel::System::Group',
     'Kernel::System::Type',
+    'Kernel::System::Service',
     'Kernel::System::State',
     'Kernel::System::User',
     'Kernel::System::Valid',
@@ -31,6 +37,30 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicFieldValue',
     'Kernel::System::Package',
 );
+
+=head1 NAME
+
+Kernel::System::ZnunyHelper
+
+=head1 SYNOPSIS
+
+All ZnunyHelper functions.
+
+=head1 PUBLIC INTERFACE
+
+=over 4
+
+=cut
+
+=item new()
+
+create an object. Do not use it directly, instead use:
+
+    use Kernel::System::ObjectManager;
+    local $Kernel::OM = Kernel::System::ObjectManager->new();
+    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+
+=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -63,7 +93,8 @@ sub new {
                 last PREFIX;
             }
         }
-    # reset all warnings
+
+        # reset all warnings
     }
 
     return $Self;
@@ -76,9 +107,9 @@ sub _PackageInstall {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(File) ) {
+    for my $Needed (qw(File)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -99,7 +130,7 @@ sub _PackageInstall {
 
     # parse
     my %Structure = $PackageObject->PackageParse(
-        String => ${ $ContentRef },
+        String => ${$ContentRef},
     );
 
     # execute actions
@@ -116,7 +147,8 @@ sub _PackageInstall {
     if (
         IsHashRefWithData( $Structure{DatabaseInstall} )
         && $Structure{DatabaseInstall}->{pre}
-    ) {
+        )
+    {
         $PackageObject->_Database(
             Database => $Structure{DatabaseInstall}->{pre},
         );
@@ -126,7 +158,8 @@ sub _PackageInstall {
     if (
         IsHashRefWithData( $Structure{DatabaseInstall} )
         && $Structure{DatabaseInstall}->{post}
-    ) {
+        )
+    {
         $PackageObject->_Database(
             Database => $Structure{DatabaseInstall}->{post},
         );
@@ -149,15 +182,14 @@ sub _PackageInstall {
 
 # File => '/path/to/file'
 
-sub _PackageUMain{
+sub _PackageUMain {
     my ( $Self, %Param ) = @_;
-
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(File) ) {
+    for my $Needed (qw(File)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -178,7 +210,7 @@ sub _PackageUMain{
 
     # parse
     my %Structure = $PackageObject->PackageParse(
-        String => ${ $ContentRef },
+        String => ${$ContentRef},
     );
 
     # uninstall code (pre)
@@ -194,7 +226,8 @@ sub _PackageUMain{
     if (
         IsHashRefWithData( $Structure{DatabaseUninstall} )
         && $Structure{DatabaseUninstall}->{pre}
-    ) {
+        )
+    {
         $PackageObject->_Database(
             Database => $Structure{DatabaseUninstall}->{pre},
         );
@@ -204,7 +237,8 @@ sub _PackageUMain{
     if (
         IsHashRefWithData( $Structure{DatabaseUninstall} )
         && $Structure{DatabaseUninstall}->{post}
-    ) {
+        )
+    {
         $PackageObject->_Database(
             Database => $Structure{DatabaseUninstall}->{post},
         );
@@ -227,13 +261,13 @@ sub _PackageUMain{
 
 =item _JSLoaderAdd()
 
-!!! DEPRECATED !!! -> use _LoaderAdd() instead
-
 This function adds JavaScript files to the load of defined screens.
 
 my $Result = $CodeObject->_JSLoaderAdd(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
+
+DEPRECATED: -> use _LoaderAdd() instead
 
 =cut
 
@@ -245,20 +279,20 @@ sub _JSLoaderAdd {
         Message  => "_JSLoaderAdd function is deprecated, please use _LoaderAdd."
     );
 
-    $Self->_LoaderAdd( %Param );
+    $Self->_LoaderAdd(%Param);
 
     return 1;
 }
 
 =item _JSLoaderRemove()
 
-!!! DEPRECATED !!! -> use _LoaderRemove() instead
-
 This function removes JavaScript files to the load of defined screens.
 
 my $Result = $CodeObject->_JSLoaderRemove(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
+
+DEPRECATED: -> use _LoaderRemove() instead
 
 =cut
 
@@ -270,7 +304,7 @@ sub _JSLoaderRemove {
         Message  => "_JSLoaderRemove function is deprecated, please use _LoaderRemove."
     );
 
-    $Self->_LoaderRemove( %Param );
+    $Self->_LoaderRemove(%Param);
 
     return 1;
 }
@@ -296,7 +330,7 @@ sub _LoaderAdd {
 
     my $ExtensionRegExp = '\.(css|js)$';
     VIEW:
-    for my $View ( keys %LoaderConfig ) {
+    for my $View ( sort keys %LoaderConfig ) {
 
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
 
@@ -306,8 +340,8 @@ sub _LoaderAdd {
             $CustomerInterfacePrefix = 'Customer';
         }
 
-       # get existing config for each View
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        # get existing config for each View
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -354,7 +388,7 @@ sub _LoaderAdd {
         # update the sysconfig
         my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
+            Key   => $CustomerInterfacePrefix . "Frontend::Module###" . $View,
             Value => $Config,
         );
     }
@@ -383,7 +417,7 @@ sub _LoaderRemove {
     my %LoaderConfig = %Param;
 
     VIEW:
-    for my $View ( keys %LoaderConfig ) {
+    for my $View ( sort keys %LoaderConfig ) {
 
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
 
@@ -393,8 +427,8 @@ sub _LoaderRemove {
             $CustomerInterfacePrefix = 'Customer';
         }
 
-       # get existing config for each View
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        # get existing config for each View
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
@@ -419,7 +453,8 @@ sub _LoaderRemove {
         if (
             !scalar @JSLoaderFiles
             && !scalar @CSSLoaderFiles
-        ) {
+            )
+        {
             next VIEW;
         }
 
@@ -451,11 +486,10 @@ sub _LoaderRemove {
             $Config->{Loader}->{CSS} = \@NewCSSLoaderFiles;
         }
 
-
         # update the sysconfig
         my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
+            Key   => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
             Value => $Config,
         );
     }
@@ -479,12 +513,12 @@ sub _DynamicFieldsScreenEnable {
     my %ScreenDynamicFieldConfig = %Param;
 
     VIEW:
-    for my $View ( keys %ScreenDynamicFieldConfig ) {
+    for my $View ( sort keys %ScreenDynamicFieldConfig ) {
 
         next VIEW if !IsHashRefWithData( $ScreenDynamicFieldConfig{$View} );
 
         # get existing config for each screen
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::". $View);
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( "Ticket::Frontend::" . $View );
 
         # get existing dynamic field config
         my %ExistingSetting;
@@ -522,12 +556,12 @@ sub _DynamicFieldsScreenDisable {
     my %ScreenDynamicFieldConfig = %Param;
 
     VIEW:
-    for my $View ( keys %ScreenDynamicFieldConfig ) {
+    for my $View ( sort keys %ScreenDynamicFieldConfig ) {
 
         next VIEW if !IsHashRefWithData( $ScreenDynamicFieldConfig{$View} );
 
         # get existing config for each screen
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get("Ticket::Frontend::". $View);
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( "Ticket::Frontend::" . $View );
 
         # get existing dynamic field config
         my %ExistingSetting;
@@ -539,7 +573,7 @@ sub _DynamicFieldsScreenDisable {
         SETTING:
         for my $ExistingSettingKey ( sort keys %ExistingSetting ) {
 
-            next SETTING if $ScreenDynamicFieldConfig{ $View }->{$ExistingSettingKey};
+            next SETTING if $ScreenDynamicFieldConfig{$View}->{$ExistingSettingKey};
 
             $NewDynamicFieldConfig{$ExistingSettingKey} = $ExistingSetting{$ExistingSettingKey};
         }
@@ -573,15 +607,15 @@ sub _DynamicFieldsDelete {
         Valid => 0,
     );
 
-    return 1 if !IsArrayRefWithData( $DynamicFieldList );
+    return 1 if !IsArrayRefWithData($DynamicFieldList);
 
     # create a dynamic fields lookup table
     my %DynamicFieldLookup;
 
     DYNAMICFIELD:
-    for my $DynamicField ( @{ $DynamicFieldList } ) {
+    for my $DynamicField ( @{$DynamicFieldList} ) {
 
-        next DYNAMICFIELD if !IsHashRefWithData( $DynamicField );
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicField);
 
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
@@ -590,15 +624,15 @@ sub _DynamicFieldsDelete {
     DYNAMICFIELD:
     for my $DynamicFieldName (@DynamicFields) {
 
-        next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldLookup{ $DynamicFieldName } );
+        next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldLookup{$DynamicFieldName} );
 
         my $ValuesDeleteSuccess = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->AllValuesDelete(
-            DynamicFieldConfig => $DynamicFieldLookup{ $DynamicFieldName },
+            DynamicFieldConfig => $DynamicFieldLookup{$DynamicFieldName},
             UserID             => 1,
         );
 
         my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldDelete(
-            %{ $DynamicFieldLookup{ $DynamicFieldName } },
+            %{ $DynamicFieldLookup{$DynamicFieldName} },
             Reorder => 0,
             UserID  => 1,
         );
@@ -625,15 +659,15 @@ sub _DynamicFieldsDisable {
         Valid => 0,
     );
 
-    return 1 if !IsArrayRefWithData( $DynamicFieldList );
+    return 1 if !IsArrayRefWithData($DynamicFieldList);
 
     # create a dynamic fields lookup table
     my %DynamicFieldLookup;
 
     DYNAMICFIELD:
-    for my $DynamicField ( @{ $DynamicFieldList } ) {
+    for my $DynamicField ( @{$DynamicFieldList} ) {
 
-        next DYNAMICFIELD if !IsHashRefWithData( $DynamicField );
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicField);
 
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
@@ -646,10 +680,10 @@ sub _DynamicFieldsDisable {
     DYNAMICFIELD:
     for my $DynamicFieldName (@DynamicFields) {
 
-        next DYNAMICFIELD if !$DynamicFieldLookup{ $DynamicFieldName };
+        next DYNAMICFIELD if !$DynamicFieldLookup{$DynamicFieldName};
 
         my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldUpdate(
-            %{ $DynamicFieldLookup{ $DynamicFieldName } },
+            %{ $DynamicFieldLookup{$DynamicFieldName} },
             ValidID => $InvalidID,
             Reorder => 0,
             UserID  => 1,
@@ -675,17 +709,17 @@ sub _DynamicFieldsCreateIfNotExists {
         Valid => 0,
     );
 
-    if ( !IsArrayRefWithData( $DynamicFieldList ) ) {
+    if ( !IsArrayRefWithData($DynamicFieldList) ) {
         $DynamicFieldList = [];
     }
 
     my @DynamicFieldExistsNot;
     DYNAMICFIELD:
-    for my $NewDynamicField ( @Definition ) {
+    for my $NewDynamicField (@Definition) {
 
-        next DYNAMICFIELD if !IsHashRefWithData( $NewDynamicField );
+        next DYNAMICFIELD if !IsHashRefWithData($NewDynamicField);
 
-        next DYNAMICFIELD if grep { $NewDynamicField->{Name} eq $_->{Name} } @{ $DynamicFieldList };
+        next DYNAMICFIELD if grep { $NewDynamicField->{Name} eq $_->{Name} } @{$DynamicFieldList};
 
         push @DynamicFieldExistsNot, $NewDynamicField;
     }
@@ -717,17 +751,18 @@ sub _DynamicFieldsCreate {
         Valid => 0,
     );
 
-    if ( !IsArrayRefWithData( $DynamicFieldList ) ) {
+    if ( !IsArrayRefWithData($DynamicFieldList) ) {
         $DynamicFieldList = [];
     }
 
     # get the last element from the order list and add 1
     my $NextOrderNumber = 1;
     if (
-        IsArrayRefWithData( $DynamicFieldList )
+        IsArrayRefWithData($DynamicFieldList)
         && IsHashRefWithData( $DynamicFieldList->[-1] )
         && $DynamicFieldList->[-1]->{FieldOrder}
-    ) {
+        )
+    {
         $NextOrderNumber = $DynamicFieldList->[-1]->{FieldOrder} + 1;
     }
 
@@ -735,16 +770,16 @@ sub _DynamicFieldsCreate {
     my %DynamicFieldLookup;
 
     DYNAMICFIELD:
-    for my $DynamicField ( @{ $DynamicFieldList } ) {
+    for my $DynamicField ( @{$DynamicFieldList} ) {
 
-        next DYNAMICFIELD if !IsHashRefWithData( $DynamicField );
+        next DYNAMICFIELD if !IsHashRefWithData($DynamicField);
 
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
 
     # create or update dynamic fields
     DYNAMICFIELD:
-    for my $NewDynamicField ( @DynamicFields ) {
+    for my $NewDynamicField (@DynamicFields) {
 
         my $CreateDynamicField;
 
@@ -757,7 +792,8 @@ sub _DynamicFieldsCreate {
         elsif (
             $DynamicFieldLookup{ $NewDynamicField->{Name} }->{FieldType}
             ne $NewDynamicField->{FieldType}
-        ) {
+            )
+        {
             my %OldDynamicFieldConfig = %{ $DynamicFieldLookup{ $NewDynamicField->{Name} } };
 
             # rename the field and create a new one
@@ -820,9 +856,9 @@ sub _GroupCreateIfNotExists {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Name) ) {
+    for my $Needed (qw(Name)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -850,7 +886,7 @@ sub _GroupCreateIfNotExists {
 
 creates role if not exists
 
-    my $Result = $CodeObject->_GroupCreateIfNotExists( Name => 'Some Role Name' );
+    my $Result = $CodeObject->_RoleCreateIfNotExists( Name => 'Some Role Name' );
 
 =cut
 
@@ -859,9 +895,9 @@ sub _RoleCreateIfNotExists {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Name) ) {
+    for my $Needed (qw(Name)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -884,6 +920,7 @@ sub _RoleCreateIfNotExists {
         %Param,
     );
 }
+
 =item _TypeCreateIfNotExists()
 
 creates Type if not exists
@@ -897,9 +934,9 @@ sub _TypeCreateIfNotExists {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Name) ) {
+    for my $Needed (qw(Name)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -922,6 +959,7 @@ sub _TypeCreateIfNotExists {
         %Param,
     );
 }
+
 =item _StateCreateIfNotExists()
 
 creates State if not exists
@@ -945,9 +983,9 @@ sub _StateCreateIfNotExists {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Name) ) {
+    for my $Needed (qw(Name)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -957,7 +995,7 @@ sub _StateCreateIfNotExists {
     }
 
     my %StatesReversed = $Kernel::OM->Get('Kernel::System::State')->StateList(
-        Valid => 0,
+        Valid  => 0,
         UserID => 1
     );
 
@@ -992,7 +1030,7 @@ sub _StateDisable {
 
     # disable the states
     STATE:
-    for my $StateName ( @States ) {
+    for my $StateName (@States) {
 
         my %State = $Kernel::OM->Get('Kernel::System::State')->StateGet(
             Name => $StateName,
@@ -1000,23 +1038,25 @@ sub _StateDisable {
         next STATE if !%State;
 
         my $Success = $Kernel::OM->Get('Kernel::System::State')->StateUpdate(
-              %State,
-              ValidID        => $InvalidID,
-              UserID         => 1,
-            );
+            %State,
+            ValidID => $InvalidID,
+            UserID  => 1,
+        );
     }
- }
+}
 
-
-=item _ServicereateIfNotExists()
+=item _ServiceCreateIfNotExists()
 
 creates Service if not exists
 
-    my $Result = $CodeObject->_ServiceCreateIfNotExists( Name => 'Some ServiceName' );
+    my $Result = $CodeObject->_ServiceCreateIfNotExists(
+        Name => 'Some ServiceName',
+        %ITSMParams,                        # optional params for Criticality or TypeID if ITSM is installed
+    );
 
 =cut
 
-sub _ServicereateIfNotExists {
+sub _ServiceCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
@@ -1041,65 +1081,59 @@ sub _ServicereateIfNotExists {
 
     return 1 if $ServiceReversed{ $Param{Name} };
 
-    #Split String to check for possible sub services
+    # split string to check for possible sub services
     my @ServiceArray = split( '::', $Param{Name} );
 
-    #check for parent (length)
-    my $size  = scalar @ServiceArray;
-    my $count = 0;
-    if ( scalar @ServiceArray > 0 ) {
+    # create service with parent
+    my $CompleteServiceName = '';
+    SERVICE:
+    for my $ServiceName (@ServiceArray) {
 
-        # create service with parent
-        my $CompleteServiceString = '';
-        SERVICE:
-        for my $ServiceString (@ServiceArray) {
-            if ( $count == 0 ) {
+        my $ParentID;
+        if ($CompleteServiceName) {
 
-                #build / check for main service
-                my $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
-                    Name   => $ServiceString,
-                    UserID => 1,
+            $ParentID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
+                Name   => $CompleteServiceName,
+                UserID => 1,
+            );
+
+            if ( !$ParentID ) {
+
+                $Kernel::OM->Get('Kernel::System::Log')->Log(
+                    Priority => 'error',
+                    Message  => "Error while getting ServiceID for parent service "
+                        . "'$CompleteServiceName' for new service '" . $Param{Name} . "'.",
                 );
-                $CompleteServiceString = $ServiceString;
-                $count++;
-                next SERVICE if $ServiceID;
-
-                $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
-                    Name    => $CompleteServiceString,
-                    ValidID => 1,
-                    UserID  => 1
-                );
+                return;
             }
-            else {
-                #build sub services
-                my $ParentID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
-                    Name   => $CompleteServiceString,
-                    UserID => 1,
-                );
-                $CompleteServiceString = $CompleteServiceString . '::' . $ServiceString;
-                $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
-                    Name     => $ServiceString,
-                    ParentID => $ParentID,
-                    ValidID  => 1,
-                    UserID   => 1
-                );
-                $count++;
-            }
+
+            $CompleteServiceName .= '::';
         }
-    }
-    else {
-        #create Service without parent
-        $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+
+        next SERVICE if $ServiceReversed{$ServiceName};
+
+        my $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
             %Param,
-            ValidID => 1,
-            UserID  => 1
+            Name     => $ServiceName,
+            ParentID => $ParentID,
+            ValidID  => 1,
+            UserID   => 1,
         );
+
+        if ( !$ServiceID ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while adding new service '$ServiceName'.",
+            );
+            return;
+        }
+
+        $CompleteServiceName .= $ServiceName;
     }
 
-    return
+    return 1;
 }
-
-
 
 =item _NotificationCreateIfNotExists()
 
@@ -1119,8 +1153,8 @@ sub _NotificationCreateIfNotExists {
 
     # check if exists
     $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-        SQL   => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
-        Bind  => [ \$Type, \$Lang ],
+        SQL  => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
+        Bind => [ \$Type, \$Lang ],
         Limit => 1,
     );
     my $Exists;
@@ -1141,4 +1175,83 @@ sub _NotificationCreateIfNotExists {
     );
 }
 
+=item _GeneralCatalogItemCreateIfNotExists()
+
+adds a general catalog item if it does not exist
+
+    my $Result = $CodeObject->_GeneralCatalogItemCreateIfNotExists(
+        Name    => 'Test Item',
+        Class   => 'ITSM::ConfigItem::Test',
+        Comment => 'Class for test item.',
+    );
+
+=cut
+
+sub _GeneralCatalogItemCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name Class)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
+    my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+
+    # check if general catalog module is installed
+    my $GeneralCatalogLoaded = $MainObject->Require(
+        'Kernel::System::GeneralCatalog',
+        Silent => 1,
+    );
+
+    return if !$GeneralCatalogLoaded;
+
+    my $ValidID = $ValidObject->ValidLookup(
+        Valid => 'valid',
+    );
+
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+
+    # check if item already exists
+    my $ItemListRef = $GeneralCatalogObject->ItemList(
+        Class => $Param{Class},
+        Valid => $ValidID,
+    );
+
+    my %ItemList = reverse %{ $ItemListRef || {} };
+
+    return 1 if $ItemList{ $Param{Name} };
+
+    # add item if it does not exist
+    my $ItemID = $GeneralCatalogObject->ItemAdd(
+        Class   => $Param{Class},
+        Name    => $Param{Name},
+        ValidID => $ValidID,
+        Comment => $Param{Comment},
+        UserID  => 1,
+    );
+
+    return $ItemID;
+}
+
 1;
+
+=back
+
+=head1 TERMS AND CONDITIONS
+
+This software is part of the OTRS project (L<http://otrs.org/>).
+
+This software comes with ABSOLUTELY NO WARRANTY. For details, see
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+
+=cut
