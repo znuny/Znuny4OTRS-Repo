@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # --
 # bin/znuny.Helper.pl
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
 # --
 # This program is free software; you can redistribute it and/or modify
