@@ -1,6 +1,7 @@
 # --
 # Kernel/Output/HTML/OutputFilterZnunyVerify.pm - replaces the OTRS verify logo with the Znuny version
-# Copyright (C) 2001-2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you

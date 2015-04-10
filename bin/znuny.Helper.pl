@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 # --
 # bin/znuny.Helper.pl
-# Copyright (C) 2001-2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
 # --
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU AFFERO General Public License as published by
@@ -46,7 +47,7 @@ getopt( 'hap', \%Opts );
 
 if ( $Opts{h} ) {
     print "znuny.Helper.pl - OTRS helper functions\n";
-    print "Copyright (C) 2013-2015 Znuny GmbH, http://znuny.com/\n";
+    print "Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/\n";
     print "usage: znuny.Helper.pl -a install|uninstall -p /path/to/file.sopm\n";
     exit 1;
 }
