@@ -757,6 +757,14 @@ sub _DynamicFieldsDisable {
 
 creates all dynamic fields that are necessary
 
+Usable Snippets (SublimeTextAdjustments):
+    otrs.dynamicfield.config.text
+    otrs.dynamicfield.config.checkbox
+    otrs.dynamicfield.config.datetime
+    otrs.dynamicfield.config.dropdown
+    otrs.dynamicfield.config.textarea
+    otrs.dynamicfield.config.multiselect
+
     my @DynamicFields = (
         {
             Name       => 'TestDynamicField1',
@@ -817,6 +825,14 @@ sub _DynamicFieldsCreateIfNotExists {
 =item _DynamicFieldsCreate()
 
 creates all dynamic fields that are necessary
+
+Usable Snippets (SublimeTextAdjustments):
+    otrs.dynamicfield.config.text
+    otrs.dynamicfield.config.checkbox
+    otrs.dynamicfield.config.datetime
+    otrs.dynamicfield.config.dropdown
+    otrs.dynamicfield.config.textarea
+    otrs.dynamicfield.config.multiselect
 
     my @DynamicFields = (
         {
