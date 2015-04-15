@@ -263,7 +263,7 @@ sub _PackageUMain {
 
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_JSLoaderAdd(
+my $Result = $ZnunyHelperObject->_JSLoaderAdd(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
 
@@ -288,7 +288,7 @@ sub _JSLoaderAdd {
 
 This function removes JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_JSLoaderRemove(
+my $Result = $ZnunyHelperObject->_JSLoaderRemove(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
 
@@ -313,7 +313,7 @@ sub _JSLoaderRemove {
 
 This function adds JavaScript and CSS files to the load of defined screens.
 
-my $Result = $CodeObject->_LoaderAdd(
+my $Result = $ZnunyHelperObject->_LoaderAdd(
     AgentTicketPhone => [
         'Core.Agent.WPTicketOEChange.css',
         'Core.Agent.WPTicketOEChange.js'
@@ -400,7 +400,7 @@ sub _LoaderAdd {
 
 This function removes JavaScript and CSS files to the load of defined screens.
 
-my $Result = $CodeObject->_LoaderRemove(
+my $Result = $ZnunyHelperObject->_LoaderRemove(
     AgentTicketPhone => [
         'Core.Agent.WPTicketOEChange.css',
         'Core.Agent.WPTicketOEChange.js',
@@ -501,7 +501,21 @@ sub _LoaderRemove {
 
 This function enables the defined dynamic fields in the needed screens.
 
-my $Result = $CodeObject->_DynamicFieldsScreenEnable();
+    my %Screens = (
+        AgentTicketFreeText => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 1,
+            TestDynamicField3 => 1,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 1,
+        }
+    );
+
+    my $Success = $ZnunyHelperObject->_DynamicFieldsScreenEnable(%Screens);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -544,7 +558,21 @@ sub _DynamicFieldsScreenEnable {
 
 This function disables the defined dynamic fields in the needed screens.
 
-my $Result = $CodeObject->_DynamicFieldsScreenDisable($Definition);
+    my %Screens = (
+        AgentTicketFreeText => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 1,
+            TestDynamicField3 => 1,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 1,
+        }
+    );
+
+    my $Success = $ZnunyHelperObject->_DynamicFieldsScreenDisable(%Screens);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -593,7 +621,7 @@ sub _DynamicFieldsScreenDisable {
 
 This function delete the defined dynamic fields
 
-my $Result = $CodeObject->_DynamicFieldsDelete('Field1', 'Field2');
+my $Result = $ZnunyHelperObject->_DynamicFieldsDelete('Field1', 'Field2');
 
 =cut
 
@@ -645,7 +673,7 @@ sub _DynamicFieldsDelete {
 
 This function disables the defined dynamic fields
 
-my $Result = $CodeObject->_DynamicFieldsDisable('Field1', 'Field2');
+my $Result = $ZnunyHelperObject->_DynamicFieldsDisable('Field1', 'Field2');
 
 =cut
 
@@ -697,7 +725,7 @@ sub _DynamicFieldsDisable {
 
 creates all dynamic fields that are necessary
 
-    my $Result = $CodeObject->_DynamicFieldsCreateIfNotExists( $Definition );
+    my $Result = $ZnunyHelperObject->_DynamicFieldsCreateIfNotExists( $Definition );
 
 =cut
 
@@ -733,7 +761,32 @@ sub _DynamicFieldsCreateIfNotExists {
 
 creates all dynamic fields that are necessary
 
-    my $Result = $CodeObject->_DynamicFieldsCreate( $Definition );
+    my @DynamicFields = (
+        {
+            Name       => 'TestDynamicField1',
+            Label      => "TestDynamicField1",
+            ObjectType => 'Ticket',
+            FieldType  => 'Text',
+            Config     => {
+                DefaultValue => "",
+            },
+        },
+        {
+            Name       => 'TestDynamicField2',
+            Label      => "TestDynamicField2",
+            ObjectType => 'Ticket',
+            FieldType  => 'Text',
+            Config     => {
+                DefaultValue => "",
+            },
+        },
+    );
+
+    my $Success = $ZnunyHelperObject->_DynamicFieldsCreate( @DynamicFields );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -847,7 +900,7 @@ sub _DynamicFieldsCreate {
 
 creates group if not exists
 
-    my $Result = $CodeObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
+    my $Result = $ZnunyHelperObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
 
 =cut
 
@@ -886,7 +939,7 @@ sub _GroupCreateIfNotExists {
 
 creates role if not exists
 
-    my $Result = $CodeObject->_RoleCreateIfNotExists( Name => 'Some Role Name' );
+    my $Result = $ZnunyHelperObject->_RoleCreateIfNotExists( Name => 'Some Role Name' );
 
 =cut
 
@@ -925,7 +978,7 @@ sub _RoleCreateIfNotExists {
 
 creates Type if not exists
 
-    my $Result = $CodeObject->_TypeCreateIfNotExists( Name => 'Some Type Name' );
+    my $Result = $ZnunyHelperObject->_TypeCreateIfNotExists( Name => 'Some Type Name' );
 
 =cut
 
@@ -964,7 +1017,7 @@ sub _TypeCreateIfNotExists {
 
 creates State if not exists
 
-    my $Result = $CodeObject->_StateCreateIfNotExists( Name => 'Some State Name', Type => 1 );
+    my $Result = $ZnunyHelperObject->_StateCreateIfNotExists( Name => 'Some State Name', Type => 1 );
 
     my %ListType = (
         1 => "new",
@@ -1014,7 +1067,7 @@ sub _StateCreateIfNotExists {
 
 disables a given state
 
-    my $Result = $CodeObject->_StateDisable('State1','State2');
+    my $Result = $ZnunyHelperObject->_StateDisable('State1','State2');
 
 =cut
 
@@ -1049,7 +1102,7 @@ sub _StateDisable {
 
 creates Service if not exists
 
-    my $Result = $CodeObject->_ServiceCreateIfNotExists(
+    my $Result = $ZnunyHelperObject->_ServiceCreateIfNotExists(
         Name => 'Some ServiceName',
         %ITSMParams,                        # optional params for Criticality or TypeID if ITSM is installed
     );
@@ -1139,7 +1192,7 @@ sub _ServiceCreateIfNotExists {
 
 creates notification if not texts
 
-    my $Result = $CodeObject->_NotificationCreateIfNotExists(
+    my $Result = $ZnunyHelperObject->_NotificationCreateIfNotExists(
         'Agent::PvD::NewTicket',
         'de',
         'sub',
@@ -1179,7 +1232,7 @@ sub _NotificationCreateIfNotExists {
 
 adds a general catalog item if it does not exist
 
-    my $Result = $CodeObject->_GeneralCatalogItemCreateIfNotExists(
+    my $Result = $ZnunyHelperObject->_GeneralCatalogItemCreateIfNotExists(
         Name    => 'Test Item',
         Class   => 'ITSM::ConfigItem::Test',
         Comment => 'Class for test item.',
