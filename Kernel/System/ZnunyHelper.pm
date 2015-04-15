@@ -313,12 +313,18 @@ sub _JSLoaderRemove {
 
 This function adds JavaScript and CSS files to the load of defined screens.
 
-my $Result = $ZnunyHelperObject->_LoaderAdd(
-    AgentTicketPhone => [
-        'Core.Agent.WPTicketOEChange.css',
-        'Core.Agent.WPTicketOEChange.js'
-    ],
-);
+    my %LoaderConfig = (
+        AgentTicketPhone => [
+            'Core.Agent.WPTicketOEChange.css',
+            'Core.Agent.WPTicketOEChange.js'
+        ],
+    );
+
+    my $Success = $ZnunyHelperObject->_LoaderAdd(%LoaderConfig);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -400,12 +406,18 @@ sub _LoaderAdd {
 
 This function removes JavaScript and CSS files to the load of defined screens.
 
-my $Result = $ZnunyHelperObject->_LoaderRemove(
-    AgentTicketPhone => [
-        'Core.Agent.WPTicketOEChange.css',
-        'Core.Agent.WPTicketOEChange.js',
-    ],
-);
+    my %LoaderConfig = (
+        AgentTicketPhone => [
+            'Core.Agent.WPTicketOEChange.css',
+            'Core.Agent.WPTicketOEChange.js'
+        ],
+    );
+
+    my $Success = $ZnunyHelperObject->_LoaderRemove(%LoaderConfig);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -621,7 +633,17 @@ sub _DynamicFieldsScreenDisable {
 
 This function delete the defined dynamic fields
 
-my $Result = $ZnunyHelperObject->_DynamicFieldsDelete('Field1', 'Field2');
+    my @DynamicFields = (
+        'TestDynamicField1',
+        'TestDynamicField2',
+        'TestDynamicField3',
+    );
+
+    my $Success = $ZnunyHelperObject->_DynamicFieldsDelete(@DynamicFields);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -673,7 +695,17 @@ sub _DynamicFieldsDelete {
 
 This function disables the defined dynamic fields
 
-my $Result = $ZnunyHelperObject->_DynamicFieldsDisable('Field1', 'Field2');
+    my @DynamicFields = (
+        'TestDynamicField1',
+        'TestDynamicField2',
+        'TestDynamicField3',
+    );
+
+    my $Success = $ZnunyHelperObject->_DynamicFieldsDisable(@DynamicFields);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -725,7 +757,32 @@ sub _DynamicFieldsDisable {
 
 creates all dynamic fields that are necessary
 
-    my $Result = $ZnunyHelperObject->_DynamicFieldsCreateIfNotExists( $Definition );
+    my @DynamicFields = (
+        {
+            Name       => 'TestDynamicField1',
+            Label      => "TestDynamicField1",
+            ObjectType => 'Ticket',
+            FieldType  => 'Text',
+            Config     => {
+                DefaultValue => "",
+            },
+        },
+        {
+            Name       => 'TestDynamicField2',
+            Label      => "TestDynamicField2",
+            ObjectType => 'Ticket',
+            FieldType  => 'Text',
+            Config     => {
+                DefaultValue => "",
+            },
+        },
+    );
+
+    my $Result = $ZnunyHelperObject->_DynamicFieldsCreateIfNotExists( @DynamicFields );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -900,7 +957,13 @@ sub _DynamicFieldsCreate {
 
 creates group if not exists
 
-    my $Result = $ZnunyHelperObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
+    my $Success = $ZnunyHelperObject->_GroupCreateIfNotExists(
+        Name => 'Some Group Name',
+    );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -939,7 +1002,13 @@ sub _GroupCreateIfNotExists {
 
 creates role if not exists
 
-    my $Result = $ZnunyHelperObject->_RoleCreateIfNotExists( Name => 'Some Role Name' );
+    my $Success = $ZnunyHelperObject->_RoleCreateIfNotExists(
+        Name => 'Some Role Name',
+    );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -978,7 +1047,13 @@ sub _RoleCreateIfNotExists {
 
 creates Type if not exists
 
-    my $Result = $ZnunyHelperObject->_TypeCreateIfNotExists( Name => 'Some Type Name' );
+    my $Success = $ZnunyHelperObject->_TypeCreateIfNotExists(
+        Name => 'Some Type Name',
+    );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -1017,17 +1092,20 @@ sub _TypeCreateIfNotExists {
 
 creates State if not exists
 
-    my $Result = $ZnunyHelperObject->_StateCreateIfNotExists( Name => 'Some State Name', Type => 1 );
+    my $StateObject = $Kernel::OM->Get('Kernel::System::State');
 
-    my %ListType = (
-        1 => "new",
-        2 => "open",
-        3 => "closed",
-        4 => "pending reminder",
-        5 => "pending auto",
-        6 => "removed",
-        7 => "merged",
+    my $StateTypeID = $StateObject->StateTypeLookup(
+        StateType => 'pending auto',  # e.g. new|open|closed|pending reminder|pending auto|removed|merged
     );
+
+    my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
+        Name => 'Some State Name',
+        Type => $StateTypeID,
+    );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -1067,7 +1145,16 @@ sub _StateCreateIfNotExists {
 
 disables a given state
 
-    my $Result = $ZnunyHelperObject->_StateDisable('State1','State2');
+    my @States = (
+        'State1',
+        'State2',
+    );
+
+    my $Success = $ZnunyHelperObject->_StateDisable(@States);
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -1081,6 +1168,8 @@ sub _StateDisable {
         Valid => 'invalid',
     );
 
+    my $Success = 1;
+
     # disable the states
     STATE:
     for my $StateName (@States) {
@@ -1090,22 +1179,32 @@ sub _StateDisable {
         );
         next STATE if !%State;
 
-        my $Success = $Kernel::OM->Get('Kernel::System::State')->StateUpdate(
+        my $UpdateSuccess = $Kernel::OM->Get('Kernel::System::State')->StateUpdate(
             %State,
             ValidID => $InvalidID,
             UserID  => 1,
         );
+
+        if (!$UpdateSuccess) {
+            $Success = 0;
+        }
     }
+
+    return $Success;
 }
 
 =item _ServiceCreateIfNotExists()
 
 creates Service if not exists
 
-    my $Result = $ZnunyHelperObject->_ServiceCreateIfNotExists(
+    my $Success = $ZnunyHelperObject->_ServiceCreateIfNotExists(
         Name => 'Some ServiceName',
         %ITSMParams,                        # optional params for Criticality or TypeID if ITSM is installed
     );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -1192,12 +1291,16 @@ sub _ServiceCreateIfNotExists {
 
 creates notification if not texts
 
-    my $Result = $ZnunyHelperObject->_NotificationCreateIfNotExists(
-        'Agent::PvD::NewTicket',
-        'de',
-        'sub',
-        'body',
+    my $Success = $ZnunyHelperObject->_NotificationCreateIfNotExists(
+        'Agent::PvD::NewTicket',   # Notification type
+        'de',                      # Notification language
+        'sub',                     # Notification subject
+        'body',                    # Notification body
     );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
@@ -1232,11 +1335,15 @@ sub _NotificationCreateIfNotExists {
 
 adds a general catalog item if it does not exist
 
-    my $Result = $ZnunyHelperObject->_GeneralCatalogItemCreateIfNotExists(
+    my $Success = $ZnunyHelperObject->_GeneralCatalogItemCreateIfNotExists(
         Name    => 'Test Item',
         Class   => 'ITSM::ConfigItem::Test',
         Comment => 'Class for test item.',
     );
+
+Returns:
+
+    my $Success = 1;
 
 =cut
 
