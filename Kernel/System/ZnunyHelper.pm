@@ -1108,15 +1108,10 @@ sub _TypeCreateIfNotExists {
 
 creates State if not exists
 
-    my $StateObject = $Kernel::OM->Get('Kernel::System::State');
-
-    my $StateTypeID = $StateObject->StateTypeLookup(
-        StateType => 'pending auto',  # e.g. new|open|closed|pending reminder|pending auto|removed|merged
-    );
-
     my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
         Name => 'Some State Name',
-        Type => $StateTypeID,
+        # e.g. new|open|closed|pending reminder|pending auto|removed|merged
+        Type => $StateObject->StateTypeLookup( StateType => 'pending auto' ),
     );
 
 Returns:
@@ -1201,7 +1196,7 @@ sub _StateDisable {
             UserID  => 1,
         );
 
-        if (!$UpdateSuccess) {
+        if ( !$UpdateSuccess ) {
             $Success = 0;
         }
     }
@@ -1351,7 +1346,7 @@ sub _NotificationCreateIfNotExists {
 
 adds a general catalog item if it does not exist
 
-    my $Success = $ZnunyHelperObject->_GeneralCatalogItemCreateIfNotExists(
+    my $ItemID = $ZnunyHelperObject->_GeneralCatalogItemCreateIfNotExists(
         Name    => 'Test Item',
         Class   => 'ITSM::ConfigItem::Test',
         Comment => 'Class for test item.',
@@ -1359,7 +1354,7 @@ adds a general catalog item if it does not exist
 
 Returns:
 
-    my $Success = 1;
+    my $ItemID = 1234;
 
 =cut
 
@@ -1404,7 +1399,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
     my %ItemList = reverse %{ $ItemListRef || {} };
 
-    return 1 if $ItemList{ $Param{Name} };
+    return $ItemList{ $Param{Name} } if $ItemList{ $Param{Name} };
 
     # add item if it does not exist
     my $ItemID = $GeneralCatalogObject->ItemAdd(
