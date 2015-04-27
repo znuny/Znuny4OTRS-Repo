@@ -22,6 +22,7 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::Encode',
     'Kernel::System::GeneralCatalog',
+    'Kernel::System::ITSMConfigItem',
     'Kernel::System::Time',
     'Kernel::System::DB',
     'Kernel::System::XML',
@@ -1411,6 +1412,300 @@ sub _GeneralCatalogItemCreateIfNotExists {
     );
 
     return $ItemID;
+}
+
+=item _ITSMVersionAdd()
+
+adds or updates a config item
+
+    my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
+        ConfigItemID  => 12345,
+        Name          => 'example name',
+
+        ClassID       => 1234,
+        ClassName     => 'example class',
+        DefinitionID  => 1234,
+
+        DeplStateID   => 1234,
+        DeplStateName => 'Production',
+
+        InciStateID   => 1234,
+        InciStateName => 'Operational',
+
+        XMLData => {
+            'Priority'    => 'high',
+            'Product'     => 'test',
+            'Description' => 'test'
+        },
+    );
+
+Returns:
+
+    my $VersionID = 1234;
+
+=cut
+
+sub _ITSMVersionAdd {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(ConfigItemID Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    if ( !$Param{DeplStateID} && !$Param{DeplStateName} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter 'DeplStateID' or 'DeplStateName' needed!",
+        );
+        return;
+    }
+    if ( !$Param{InciStateID} && !$Param{InciStateName} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter 'DeplStateID' or 'DeplStateName' needed!",
+        );
+        return;
+    }
+    if ( $Param{XMLData} && !IsHashRefWithData( $Param{XMLData} ) ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter 'XMLData' as hash ref needed!",
+        );
+        return;
+    }
+
+    # check if general catalog module is installed
+    my $GeneralCatalogLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+        'Kernel::System::GeneralCatalog',
+        Silent => 1,
+    );
+
+    return if !$GeneralCatalogLoaded;
+
+    # check if general catalog module is installed
+    my $ITSMConfigItemLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+        'Kernel::System::ITSMConfigItem',
+        Silent => 1,
+    );
+
+    return if !$ITSMConfigItemLoaded;
+
+    my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+    my $ValidObject          = $Kernel::OM->Get('Kernel::System::Valid');
+
+    my $ConfigItemID = $Param{ConfigItemID};
+    my %ConfigItem = %{ $Param{XMLData} || {} };
+    my %VersionConfigItem;
+
+    my $VersionRef = $ConfigItemObject->VersionGet(
+        ConfigItemID => $ConfigItemID,
+        XMLDataGet   => 1,
+    );
+
+    if ( IsHashRefWithData($VersionRef) ) {
+
+        if ( IsHashRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1] ) ) {
+
+            FIELD:
+            for my $Field ( sort keys %{ $VersionRef->{XMLData}->[1]->{Version}->[1] } ) {
+                next FIELD if !IsArrayRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field} );
+
+                my $Value = $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field}->[1]->{Content};
+
+                next FIELD if !defined $Value;
+
+                $VersionConfigItem{$Field} = $Value;
+            }
+        }
+    }
+
+    # get deployment state list
+    my %DeplStateList = %{
+        $GeneralCatalogObject->ItemList(
+            Class => 'ITSM::ConfigItem::DeploymentState',
+            )
+            || {}
+    };
+    my %DeplStateListReverse = reverse %DeplStateList;
+
+    my %InciStateList = %{
+        $GeneralCatalogObject->ItemList(
+            Class => 'ITSM::Core::IncidentState',
+            )
+            || {}
+    };
+    my %InciStateListReverse = reverse %InciStateList;
+
+    # get definition
+    my $DefinitionID = $Param{DefinitionID};
+    if ( !$DefinitionID ) {
+
+        # get class id or name
+        my $ClassID = $Param{ClassID};
+        if ( $Param{ClassName} ) {
+
+            # get valid id
+            my $ValidID = $ValidObject->ValidLookup(
+                Valid => 'valid',
+            );
+
+            my $ItemListRef = $GeneralCatalogObject->ItemList(
+                Class => 'ITSM::ConfigItem::Class',
+                Valid => $ValidID,
+            );
+
+            my %ItemList = reverse %{ $ItemListRef || {} };
+
+            $ClassID = $ItemList{ $Param{ClassName} };
+        }
+
+        my $XMLDefinition = $ConfigItemObject->DefinitionGet(
+            ClassID => $ClassID,
+        );
+
+        $DefinitionID = $XMLDefinition->{DefinitionID};
+    }
+
+    $VersionRef ||= {};
+    if ( $Param{Name} ) {
+        $VersionRef->{Name} = $Param{Name};
+    }
+    if ( $Param{DefinitionID} || $Param{ClassID} || $Param{ClassName} ) {
+        $VersionRef->{DefinitionID} = $DefinitionID;
+    }
+    if ( $Param{DeplStateID} ) {
+        $VersionRef->{DeplStateID} = $Param{DeplStateID};
+    }
+    if ( $Param{InciStateID} ) {
+        $VersionRef->{InciStateID} = $Param{InciStateID};
+    }
+    if ( $Param{DeplStateName} ) {
+        $VersionRef->{DeplStateID} = $DeplStateListReverse{ $Param{DeplStateName} };
+    }
+    if ( $Param{InciStateName} ) {
+        $VersionRef->{InciStateID} = $InciStateListReverse{ $Param{InciStateName} };
+    }
+
+    %ConfigItem = ( %VersionConfigItem, %ConfigItem );
+
+    my $XMLData = [
+        undef,
+        {
+            'Version' => [
+                undef,
+                {
+                    map {
+                        $_ => [
+                            undef,
+                            { 'Content' => $ConfigItem{$_} }
+                            ]
+                        } sort keys %ConfigItem
+                },
+            ],
+        },
+    ];
+
+    my $VersionID = $ConfigItemObject->VersionAdd(
+        ConfigItemID => $ConfigItemID,
+        Name         => $VersionRef->{Name},
+        DefinitionID => $VersionRef->{DefinitionID},
+        DeplStateID  => $VersionRef->{DeplStateID},
+        InciStateID  => $VersionRef->{InciStateID},
+        XMLData      => $XMLData,
+        UserID       => 1,
+    );
+
+    return $VersionID;
+}
+
+=item _ITSMVersionGet()
+
+adds or updates a config item
+
+    my %Version = $ZnunyHelperObject->_ITSMVersionGet(
+        ConfigItemID  => 12345,
+    );
+
+Returns:
+
+    my %Version = (
+        ConfigItemID  => 12345,
+
+        DefinitionID  => 1234,
+        DeplStateID   => 1234,
+        DeplStateName => 'Production',
+        InciStateID   => 1234,
+        InciStateName => 'Operational',
+        Name          => 'example name',
+        XMLData => {
+            'Priority'    => 'high',
+            'Product'     => 'test',
+            'Description' => 'test'
+        },
+    );
+
+=cut
+
+sub _ITSMVersionGet {
+    my ( $Self, %Param ) = @_;
+
+    # check if general catalog module is installed
+    my $GeneralCatalogLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+        'Kernel::System::GeneralCatalog',
+        Silent => 1,
+    );
+
+    return if !$GeneralCatalogLoaded;
+
+    # check if general catalog module is installed
+    my $ITSMConfigItemLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+        'Kernel::System::ITSMConfigItem',
+        Silent => 1,
+    );
+
+    return if !$ITSMConfigItemLoaded;
+
+    my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+
+    my $VersionRef = $ConfigItemObject->VersionGet(
+        %Param,
+        XMLDataGet => 1,
+    );
+
+    return if !IsHashRefWithData($VersionRef);
+
+    my %VersionConfigItem;
+    $VersionConfigItem{XMLData} ||= {};
+    if ( IsHashRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1] ) ) {
+
+        FIELD:
+        for my $Field ( sort keys %{ $VersionRef->{XMLData}->[1]->{Version}->[1] } ) {
+            next FIELD if !IsArrayRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field} );
+
+            my $Value = $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field}->[1]->{Content};
+
+            next FIELD if !defined $Value;
+
+            $VersionConfigItem{XMLData}->{$Field} = $Value;
+        }
+    }
+
+    for my $Field (qw(ConfigItemID Name DefinitionID DeplStateID DeplState InciStateID InciState)) {
+        $VersionConfigItem{$Field} = $VersionRef->{$Field};
+    }
+
+    return %VersionConfigItem;
 }
 
 1;
