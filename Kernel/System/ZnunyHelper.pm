@@ -1377,7 +1377,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
     my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
-    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
 
     # check if general catalog module is installed
     my $GeneralCatalogLoaded = $MainObject->Require(
@@ -1423,7 +1423,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
 =item _ITSMVersionAdd()
 
-adds or updates a config item
+adds or updates a config item version.
 
     my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
         ConfigItemID  => 12345,
@@ -1583,7 +1583,7 @@ sub _ITSMVersionAdd {
         $Version{InciStateID} = $InciStateListReverse{ $Param{InciStateName} };
     }
 
-    %ConfigItem = ( %{ $Version{XMLData} }, %ConfigItem );
+    %ConfigItem = ( %{ $Version{XMLData} || {} }, %ConfigItem );
 
     my $XMLData = [
         undef,
@@ -1615,9 +1615,92 @@ sub _ITSMVersionAdd {
     return $VersionID;
 }
 
+=item _ITSMVersionExists()
+
+checks if a version already exists without returning a error.
+
+
+    my $Found = $ZnunyHelperObject->_ITSMVersionExists(
+        VersionID  => 123,
+    );
+
+    or
+
+    my $Found = $ZnunyHelperObject->_ITSMVersionExists(
+        ConfigItemID => 123,
+    );
+
+
+Returns:
+
+    my $Found = 1;
+
+=cut
+
+sub _ITSMVersionExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    if ( !$Param{VersionID} && !$Param{ConfigItemID} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => 'Need VersionID or ConfigItemID!',
+        );
+        return;
+    }
+
+    # check if general catalog module is installed
+    my $GeneralCatalogLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+        'Kernel::System::GeneralCatalog',
+        Silent => 1,
+    );
+
+    return if !$GeneralCatalogLoaded;
+
+    # check if general catalog module is installed
+    my $ITSMConfigItemLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+        'Kernel::System::ITSMConfigItem',
+        Silent => 1,
+    );
+
+    return if !$ITSMConfigItemLoaded;
+
+    if ( $Param{VersionID} ) {
+
+        # get version
+        $Kernel::OM->Get('Kernel::System::DB')->Prepare(
+            SQL => 'SELECT id, configitem_id, name, definition_id, '
+                . 'depl_state_id, inci_state_id, create_time, create_by '
+                . 'FROM configitem_version WHERE id = ?',
+            Bind  => [ \$Param{VersionID} ],
+            Limit => 1,
+        );
+    }
+    else {
+
+        # get version
+        $Kernel::OM->Get('Kernel::System::DB')->Prepare(
+            SQL => 'SELECT id, configitem_id, name, definition_id, '
+                . 'depl_state_id, inci_state_id, create_time, create_by '
+                . 'FROM configitem_version '
+                . 'WHERE configitem_id = ? ORDER BY id DESC',
+            Bind  => [ \$Param{ConfigItemID} ],
+            Limit => 1,
+        );
+    }
+
+    # fetch the result
+    my $Found;
+    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
+        $Found = 1;
+    }
+
+    return $Found;
+}
+
 =item _ITSMVersionGet()
 
-adds or updates a config item
+get a config item version.
 
     my %Version = $ZnunyHelperObject->_ITSMVersionGet(
         ConfigItemID  => 12345,
@@ -1664,6 +1747,8 @@ sub _ITSMVersionGet {
 
     my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
     my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+
+    return if !$Self->_ITSMVersionExists(%Param);
 
     my $VersionRef = $ConfigItemObject->VersionGet(
         %Param,
