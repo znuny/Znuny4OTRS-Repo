@@ -1377,6 +1377,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
     my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
 
     # check if general catalog module is installed
     my $GeneralCatalogLoaded = $MainObject->Require(
@@ -1400,7 +1401,13 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
     my %ItemList = reverse %{ $ItemListRef || {} };
 
-    return $ItemList{ $Param{Name} } if $ItemList{ $Param{Name} };
+    if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
+        return $ItemList{ $Param{Name} } if $ItemList{ $Param{Name} };
+    }
+    else {
+        my %ItemListLowerCase = map { lc $_ => $ItemList{$_} } sort keys %ItemList;
+        return $ItemListLowerCase{ lc $Param{Name} } if $ItemListLowerCase{ lc $Param{Name} };
+    }
 
     # add item if it does not exist
     my $ItemID = $GeneralCatalogObject->ItemAdd(
@@ -1505,29 +1512,10 @@ sub _ITSMVersionAdd {
 
     my $ConfigItemID = $Param{ConfigItemID};
     my %ConfigItem = %{ $Param{XMLData} || {} };
-    my %VersionConfigItem;
 
-    my $VersionRef = $ConfigItemObject->VersionGet(
+    my %Version = $Self->_ITSMVersionGet(
         ConfigItemID => $ConfigItemID,
-        XMLDataGet   => 1,
     );
-
-    if ( IsHashRefWithData($VersionRef) ) {
-
-        if ( IsHashRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1] ) ) {
-
-            FIELD:
-            for my $Field ( sort keys %{ $VersionRef->{XMLData}->[1]->{Version}->[1] } ) {
-                next FIELD if !IsArrayRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field} );
-
-                my $Value = $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field}->[1]->{Content};
-
-                next FIELD if !defined $Value;
-
-                $VersionConfigItem{$Field} = $Value;
-            }
-        }
-    }
 
     # get deployment state list
     my %DeplStateList = %{
@@ -1576,27 +1564,26 @@ sub _ITSMVersionAdd {
         $DefinitionID = $XMLDefinition->{DefinitionID};
     }
 
-    $VersionRef ||= {};
     if ( $Param{Name} ) {
-        $VersionRef->{Name} = $Param{Name};
+        $Version{Name} = $Param{Name};
     }
     if ( $Param{DefinitionID} || $Param{ClassID} || $Param{ClassName} ) {
-        $VersionRef->{DefinitionID} = $DefinitionID;
+        $Version{DefinitionID} = $DefinitionID;
     }
     if ( $Param{DeplStateID} ) {
-        $VersionRef->{DeplStateID} = $Param{DeplStateID};
+        $Version{DeplStateID} = $Param{DeplStateID};
     }
     if ( $Param{InciStateID} ) {
-        $VersionRef->{InciStateID} = $Param{InciStateID};
+        $Version{InciStateID} = $Param{InciStateID};
     }
     if ( $Param{DeplStateName} ) {
-        $VersionRef->{DeplStateID} = $DeplStateListReverse{ $Param{DeplStateName} };
+        $Version{DeplStateID} = $DeplStateListReverse{ $Param{DeplStateName} };
     }
     if ( $Param{InciStateName} ) {
-        $VersionRef->{InciStateID} = $InciStateListReverse{ $Param{InciStateName} };
+        $Version{InciStateID} = $InciStateListReverse{ $Param{InciStateName} };
     }
 
-    %ConfigItem = ( %VersionConfigItem, %ConfigItem );
+    %ConfigItem = ( %{ $Version{XMLData} }, %ConfigItem );
 
     my $XMLData = [
         undef,
@@ -1617,10 +1604,10 @@ sub _ITSMVersionAdd {
 
     my $VersionID = $ConfigItemObject->VersionAdd(
         ConfigItemID => $ConfigItemID,
-        Name         => $VersionRef->{Name},
-        DefinitionID => $VersionRef->{DefinitionID},
-        DeplStateID  => $VersionRef->{DeplStateID},
-        InciStateID  => $VersionRef->{InciStateID},
+        Name         => $Version{Name},
+        DefinitionID => $Version{DefinitionID},
+        DeplStateID  => $Version{DeplStateID},
+        InciStateID  => $Version{InciStateID},
         XMLData      => $XMLData,
         UserID       => 1,
     );
