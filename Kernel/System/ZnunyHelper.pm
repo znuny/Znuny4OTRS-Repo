@@ -1669,9 +1669,7 @@ sub _ITSMVersionExists {
 
         # get version
         $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-            SQL => 'SELECT id, configitem_id, name, definition_id, '
-                . 'depl_state_id, inci_state_id, create_time, create_by '
-                . 'FROM configitem_version WHERE id = ?',
+            SQL => 'SELECT 1 FROM configitem_version WHERE id = ?',
             Bind  => [ \$Param{VersionID} ],
             Limit => 1,
         );
@@ -1680,10 +1678,7 @@ sub _ITSMVersionExists {
 
         # get version
         $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-            SQL => 'SELECT id, configitem_id, name, definition_id, '
-                . 'depl_state_id, inci_state_id, create_time, create_by '
-                . 'FROM configitem_version '
-                . 'WHERE configitem_id = ? ORDER BY id DESC',
+            SQL => 'SELECT 1 FROM configitem_version WHERE configitem_id = ? ORDER BY id DESC',
             Bind  => [ \$Param{ConfigItemID} ],
             Limit => 1,
         );
