@@ -19,6 +19,48 @@ our $ObjectManagerDisabled = 1;
 {
 no warnings 'redefine';
 
+# backup original PackageVerify()
+my $PackageVerifyOld = \&Kernel::System::Package::PackageVerify;
+
+# redefine PackageVerify() of Kernel::System::Package
+*Kernel::System::Package::PackageVerify = sub {
+    my ( $Self, %Param ) = @_;
+
+    my $PackageVerification = $Self->{ConfigObject}->Get('PackageVerification');
+    return 'verified' if !$PackageVerification;
+
+    # execute original function
+    return &{$PackageVerifyOld}( $Self, %Param );
+};
+
+# backup original PackageVerifyAll()
+my $PackageVerifyAllOld = \&Kernel::System::Package::PackageVerifyAll;
+
+# redefine PackageVerifyAll() of Kernel::System::Package
+*Kernel::System::Package::PackageVerifyAll = sub {
+    my ( $Self, %Param ) = @_;
+
+    my $PackageVerification = $Self->{ConfigObject}->Get('PackageVerification');
+    if ( !$PackageVerification ) {
+        # get installed package list
+        my @PackageList = $Self->RepositoryList(
+            Result => 'Short',
+        );
+
+        # and take the short way ;)
+        my %Result;
+        for my $Package (@PackageList) {
+            $Result{ $Package->{Name} } = 'verified';
+        }
+
+        return %Result;
+    }
+
+    # execute original function
+    return &{$PackageVerifyAllOld}( $Self, %Param );
+};
+
+
 sub Kernel::System::CloudService::new {
     my ( $Type, %Param ) = @_;
 
