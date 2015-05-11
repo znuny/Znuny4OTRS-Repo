@@ -11,6 +11,7 @@
 use strict;
 use warnings;
 
+use Kernel::System::Package;
 use Kernel::System::CloudService;
 
 our $ObjectManagerDisabled = 1;
@@ -26,7 +27,7 @@ my $PackageVerifyOld = \&Kernel::System::Package::PackageVerify;
 *Kernel::System::Package::PackageVerify = sub {
     my ( $Self, %Param ) = @_;
 
-    my $PackageVerification = $Self->{ConfigObject}->Get('PackageVerification');
+    my $PackageVerification = $Kernel::OM->Get('Kernel::Config')->Get('PackageVerification');
     return 'verified' if !$PackageVerification;
 
     # execute original function
@@ -40,7 +41,7 @@ my $PackageVerifyAllOld = \&Kernel::System::Package::PackageVerifyAll;
 *Kernel::System::Package::PackageVerifyAll = sub {
     my ( $Self, %Param ) = @_;
 
-    my $PackageVerification = $Self->{ConfigObject}->Get('PackageVerification');
+    my $PackageVerification = $Kernel::OM->Get('Kernel::Config')->Get('PackageVerification');
     if ( !$PackageVerification ) {
         # get installed package list
         my @PackageList = $Self->RepositoryList(
