@@ -40,6 +40,17 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="PackageVerification" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines if the OTRS package verification should be active or disabled. If disabled all packages are shown as verified. It's still recommended to use only verified packages.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Option SelectedID="1">
+                <Item Key="1">Active</Item>
+                <Item Key="0">Disabled</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Frontend::Output::FilterElementPost###OutputFilterZnunyVerify" Required="0" Valid="0">
         <Description Translatable="1">This configuration registers a Output pre-filter to extend package verification.</Description>
         <Group>Framework</Group>
