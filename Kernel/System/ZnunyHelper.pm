@@ -37,6 +37,8 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicField::Backend',
     'Kernel::System::DynamicFieldValue',
     'Kernel::System::Package',
+    'Kernel::System::GenericInterface::Webservice',
+    'Kernel::System::YAML',
 );
 
 =head1 NAME
@@ -1669,7 +1671,7 @@ sub _ITSMVersionExists {
 
         # get version
         $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-            SQL => 'SELECT 1 FROM configitem_version WHERE id = ?',
+            SQL   => 'SELECT 1 FROM configitem_version WHERE id = ?',
             Bind  => [ \$Param{VersionID} ],
             Limit => 1,
         );
@@ -1678,7 +1680,7 @@ sub _ITSMVersionExists {
 
         # get version
         $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-            SQL => 'SELECT 1 FROM configitem_version WHERE configitem_id = ? ORDER BY id DESC',
+            SQL   => 'SELECT 1 FROM configitem_version WHERE configitem_id = ? ORDER BY id DESC',
             Bind  => [ \$Param{ConfigItemID} ],
             Limit => 1,
         );
@@ -1773,6 +1775,315 @@ sub _ITSMVersionGet {
     }
 
     return %VersionConfigItem;
+}
+
+=item _WebserviceCreateIfNotExists()
+
+creates webservices that not exist yet
+
+    # installs all .yml files in $OTRS/scripts/webservices/
+    # name of the file will be the name of the webservice
+    my $Result = $CodeObject->_WebserviceCreateIfNotExists(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Result = $CodeObject->_WebserviceCreateIfNotExists(
+        Webservices => {
+            'New Webservice 1234' => '/path/to/Webservice.yml',
+            ...
+        }
+    );
+
+=cut
+
+sub _WebserviceCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    my $Webservices = $Param{Webservices};
+    if ( !IsHashRefWithData($Webservices) ) {
+        $Webservices = $Self->_WebservicesGet(
+            SubDir => $Param{SubDir},
+        );
+    }
+
+    return 1 if !IsHashRefWithData($Webservices);
+
+    my $WebserviceList = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceList();
+    if ( ref $WebserviceList ne 'HASH' ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Error while getting list of Webservices!"
+        );
+        return;
+    }
+
+    WEBSERVICE:
+    for my $WebserviceName ( sort keys %{$Webservices} ) {
+
+        # stop if already added
+        next WEBSERVICE if grep { $WebserviceName eq $_ } sort values %{$WebserviceList};
+
+        my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
+
+        # read config
+        my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
+            Location => $WebserviceYAMLPath,
+        );
+
+        if ( !$Content ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Can't read $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        my $Config = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
+
+        if ( !$Config ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while loading $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        # add webservice to the system
+        my $WebserviceID = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceAdd(
+            Name    => $WebserviceName,
+            Config  => $Config,
+            ValidID => 1,
+            UserID  => 1,
+        );
+
+        if ( !$WebserviceID ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+    }
+
+    return 1;
+}
+
+=item _WebserviceCreate()
+
+creates or updates webservices
+
+    # installs all .yml files in $OTRS/scripts/webservices/
+    # name of the file will be the name of the webservice
+    my $Result = $CodeObject->_WebserviceCreate(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Result = $CodeObject->_WebserviceCreate(
+        Webservices => {
+            'New Webservice 1234' => '/path/to/Webservice.yml',
+            ...
+        }
+    );
+
+=cut
+
+sub _WebserviceCreate {
+    my ( $Self, %Param ) = @_;
+
+    my $Webservices = $Param{Webservices};
+    if ( !IsHashRefWithData($Webservices) ) {
+        $Webservices = $Self->_WebservicesGet(
+            SubDir => $Param{SubDir},
+        );
+    }
+
+    return 1 if !IsHashRefWithData($Webservices);
+
+    my $WebserviceList = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceList();
+    if ( ref $WebserviceList ne 'HASH' ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Error while getting list of Webservices!"
+        );
+        return;
+    }
+    my %WebserviceListReversed = reverse %{$WebserviceList};
+
+    WEBSERVICE:
+    for my $WebserviceName ( sort keys %{$Webservices} ) {
+
+        my $WebserviceID           = $WebserviceListReversed{$WebserviceName};
+        my $UpdateOrCreateFunction = 'WebserviceAdd';
+
+        if ( !$WebserviceID ) {
+            $UpdateOrCreateFunction = 'WebserviceUpdate';
+        }
+
+        # stop if already added
+        next WEBSERVICE if grep { $WebserviceName eq $_ } sort values %{$WebserviceList};
+
+        my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
+
+        # read config
+        my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
+            Location => $WebserviceYAMLPath,
+        );
+
+        if ( !$Content ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Can't read $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        my $Config = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
+
+        if ( !$Config ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while loading $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        # add or update webservice
+        my $Success = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->$UpdateOrCreateFunction(
+            ID      => $WebserviceID,
+            Name    => $WebserviceName,
+            Config  => $Config,
+            ValidID => 1,
+            UserID  => 1,
+        );
+
+        if ( !$Success ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while updating/adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+    }
+
+    return 1;
+}
+
+=item _WebserviceDelete()
+
+deletes webservices
+
+    # deletes all .yml files webservices in $OTRS/scripts/webservices/
+    # name of the file will be the name of the webservice
+    my $Result = $CodeObject->_WebserviceDelete(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Result = $CodeObject->_WebserviceDelete(
+        Webservices => {
+            'Not needed Webservice 1234' => 1, # value is not used
+            ...
+        }
+    );
+
+=cut
+
+sub _WebserviceDelete {
+    my ( $Self, %Param ) = @_;
+
+    my $Webservices = $Param{Webservices};
+    if ( !IsHashRefWithData($Webservices) ) {
+        $Webservices = $Self->_WebservicesGet(
+            SubDir => $Param{SubDir},
+        );
+    }
+
+    return 1 if !IsHashRefWithData($Webservices);
+
+    my $WebserviceList = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceList();
+    if ( ref $WebserviceList ne 'HASH' ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Error while getting list of Webservices!"
+        );
+        return;
+    }
+    my %WebserviceListReversed = reverse %{$WebserviceList};
+
+    WEBSERVICE:
+    for my $WebserviceName ( sort keys %{$Webservices} ) {
+
+        # stop if already deleted
+        next WEBSERVICE if !$WebserviceListReversed{$WebserviceName};
+
+        # delete webservice
+        my $Success = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceDelete(
+            ID     => $WebserviceListReversed{$WebserviceName},
+            UserID => 1,
+        );
+
+        if ( !$Success ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while deleting Webservice '$WebserviceName'!"
+            );
+            return;
+        }
+    }
+
+    return 1;
+}
+
+=item _WebservicesGet()
+
+gets a list of .yml files from $OTRS/scripts/webservices
+
+    my $Result = $CodeObject->_WebservicesGet(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+    $Result = {
+        'Webservice'          => '$OTRS/scripts/webservices/Znuny4OTRSAssetDesk/Webservice.yml',
+        'New Webservice 1234' => '$OTRS/scripts/webservices/Znuny4OTRSAssetDesk/New Webservice 1234.yml',
+    }
+
+=cut
+
+sub _WebservicesGet {
+    my ( $Self, %Param ) = @_;
+
+    my $WebserviceDirectory = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+        . '/scripts/webservices';
+
+    if ( IsStringWithData( $Param{SubDir} ) ) {
+        $WebserviceDirectory .= '/' . $Param{SubDir};
+    }
+
+    my @FilesInDirectory = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+        Directory => $WebserviceDirectory,
+        Filter    => '*.yml',
+    );
+
+    my %Webservices;
+    for my $FileWithPath (@FilesInDirectory) {
+
+        my $WebserviceName = $FileWithPath;
+        $WebserviceName =~ s{\A .+? \/ ([^\/]+) \. yml \z}{$1}xms;
+
+        $Webservices{$WebserviceName} = $FileWithPath;
+    }
+
+    return \%Webservices;
 }
 
 1;
