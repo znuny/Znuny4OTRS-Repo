@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
+    <ChangeLog Version="2.0.3" Date="2015-05-12 12:34:45 +0200">- Added SysConfig &apos;PackageVerification&apos; to disable OTRS package verification.
+- Added helper function &apos;_WebserviceCreate&apos;.
+- Added helper function &apos;_WebserviceCreateIfNotExists&apos;.
+- Added helper function &apos;_WebserviceDelete&apos;.
+- Added helper function &apos;_WebservicesGet&apos;.</ChangeLog>
     <ChangeLog Version="2.0.2" Date="2014-12-11 11:47:58 +0100">Added functionality to use the new Znuny for OTRS CloudService and made URL to it changeable via SysConfig.</ChangeLog>
     <ChangeLog Version="2.0.1" Date="2014-11-28 19:36:06 +0100">- Changed package verify replacement logic.
 - Changed default to https.
