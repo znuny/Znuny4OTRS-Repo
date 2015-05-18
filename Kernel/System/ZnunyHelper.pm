@@ -1922,7 +1922,7 @@ sub _WebserviceCreate {
         my $WebserviceID           = $WebserviceListReversed{$WebserviceName};
         my $UpdateOrCreateFunction = 'WebserviceAdd';
 
-        if ( !$WebserviceID ) {
+        if ( $WebserviceID ) {
             $UpdateOrCreateFunction = 'WebserviceUpdate';
         }
 
