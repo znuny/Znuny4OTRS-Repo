@@ -30,6 +30,7 @@ our @ObjectDependencies = (
     'Kernel::System::Group',
     'Kernel::System::Type',
     'Kernel::System::Service',
+    'Kernel::System::SLA',
     'Kernel::System::State',
     'Kernel::System::User',
     'Kernel::System::Valid',
@@ -1297,6 +1298,54 @@ sub _ServiceCreateIfNotExists {
             return;
         }
     }
+
+    return 1;
+}
+
+=item _SLACreateIfNotExists()
+
+creates SLA if not exists
+
+    my $Success = $ZnunyHelperObject->_SLACreateIfNotExists(
+        Name => 'Some ServiceName',
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _SLACreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %SLAReversed = reverse $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
+        UserID => 1
+    );
+
+    return 1 if $SLAReversed{ $Param{Name} };
+
+    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        Valid => 'valid',
+    );
+    my $SLAID = $Kernel::OM->Get('Kernel::System::SLA')->SLAAdd(
+        Name    => $Param{Name},
+        ValidID => $ValidID,
+        UserID  => 1,
+    );
 
     return 1;
 }
