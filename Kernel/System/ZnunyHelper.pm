@@ -1276,6 +1276,8 @@ sub _ServiceCreateIfNotExists {
             $CompleteServiceName .= '::';
         }
 
+        $CompleteServiceName .= $ServiceName;
+
         next SERVICE if $ServiceReversed{$ServiceName};
 
         my $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
@@ -1294,8 +1296,6 @@ sub _ServiceCreateIfNotExists {
             );
             return;
         }
-
-        $CompleteServiceName .= $ServiceName;
     }
 
     return 1;
@@ -1922,7 +1922,7 @@ sub _WebserviceCreate {
         my $WebserviceID           = $WebserviceListReversed{$WebserviceName};
         my $UpdateOrCreateFunction = 'WebserviceAdd';
 
-        if ( $WebserviceID ) {
+        if ($WebserviceID) {
             $UpdateOrCreateFunction = 'WebserviceUpdate';
         }
 
