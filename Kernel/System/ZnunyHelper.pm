@@ -1308,6 +1308,13 @@ creates SLA if not exists
 
     my $Success = $ZnunyHelperObject->_SLACreateIfNotExists(
         Name => 'Some ServiceName',
+        ServiceIDs          => [ 1, 5, 7 ],  # (optional)
+        FirstResponseTime   => 120,          # (optional)
+        FirstResponseNotify => 60,           # (optional) notify agent if first response escalation is 60% reached
+        UpdateTime          => 180,          # (optional)
+        UpdateNotify        => 80,           # (optional) notify agent if update escalation is 80% reached
+        SolutionTime        => 580,          # (optional)
+        SolutionNotify      => 80,           # (optional) notify agent if solution escalation is 80% reached
     );
 
 Returns:
@@ -1342,12 +1349,62 @@ sub _SLACreateIfNotExists {
         Valid => 'valid',
     );
     my $SLAID = $Kernel::OM->Get('Kernel::System::SLA')->SLAAdd(
-        Name    => $Param{Name},
-        ValidID => $ValidID,
-        UserID  => 1,
+        Name                => $Param{Name},
+        ValidID             => $ValidID,
+        UserID              => 1,
+        ServiceIDs          => $Param{ServiceIDs},
+        FirstResponseTime   => $Param{FirstResponseTime},
+        FirstResponseNotify => $Param{FirstResponseNotify},
+        UpdateTime          => $Param{UpdateTime},
+        UpdateNotify        => $Param{UpdateNotify},
+        SolutionTime        => $Param{SolutionTime},
+        SolutionNotify      => $Param{SolutionNotify},
     );
 
     return 1;
+}
+
+=item _QueueCreateIfNotExists()
+
+creates Queue if not exists
+
+    my $Success = $ZnunyHelperObject->_QueueCreateIfNotExists(
+        Name => 'Some Queue Name',
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _QueueCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %QueuesReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList();
+
+    %QueuesReversed = reverse %QueuesReversed;
+
+    return 1 if $QueuesReversed{ $Param{Name} };
+
+    return $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
 }
 
 =item _NotificationCreateIfNotExists()
