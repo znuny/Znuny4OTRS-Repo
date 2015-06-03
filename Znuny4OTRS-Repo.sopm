@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.4</Version>
+    <Version>2.0.5</Version>
+    <ChangeLog Version="2.0.5" Date="2015-06-03 12:13:46 UTC">- Added _QueueCreateIfNotExists() function
+- Added _SLACreateIfNotExists() function</ChangeLog>
     <ChangeLog Version="2.0.4" Date="2015-05-28 14:28:43 UTC">Fixed the creation of services via SOPM</ChangeLog>
     <ChangeLog Version="2.0.3" Date="2015-05-12 12:34:45 +0200">- Added SysConfig &apos;PackageVerification&apos; to disable OTRS package verification.
 - Added helper function &apos;_WebserviceCreate&apos;.
