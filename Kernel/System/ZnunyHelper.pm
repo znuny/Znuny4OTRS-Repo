@@ -2192,6 +2192,50 @@ sub _WebservicesGet {
     return \%Webservices;
 }
 
+=item _PackageSetupInit()
+
+set up initial steps for package setup
+
+    my $Success = $ZnunyHelperObject->_PackageSetupInit();
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PackageSetupInit {
+    my ( $Self, %Param ) = @_;
+
+    # rebuild ZZZ* files
+    $Kernel::OM->Get('Kernel::System::SysConfig')->WriteDefault();
+
+    # define the ZZZ files
+    my @ZZZFiles = (
+        'ZZZAAuto.pm',
+        'ZZZAuto.pm',
+    );
+
+    # reload the ZZZ files (mod_perl workaround)
+    for my $ZZZFile (@ZZZFiles) {
+
+        PREFIX:
+        for my $Prefix (@INC) {
+            my $File = $Prefix . '/Kernel/Config/Files/' . $ZZZFile;
+            next PREFIX if !-f $File;
+            do $File;
+            last PREFIX;
+        }
+    }
+
+    # make sure to use a new config object
+    $Kernel::OM->ObjectsDiscard(
+        Objects => ['Kernel::Config'],
+    );
+
+    return 1;
+}
+
 1;
 
 =back
