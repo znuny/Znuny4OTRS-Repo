@@ -486,7 +486,7 @@ sub _LoaderRemove {
 
             my @NewJSLoaderFiles;
             LOADERFILE:
-            for my $JSLoaderFile ( sort @JSLoaderFiles ) {
+            for my $JSLoaderFile ( @JSLoaderFiles ) {
 
                 next LOADERFILE if grep { $JSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
 
@@ -500,7 +500,7 @@ sub _LoaderRemove {
 
             my @NewCSSLoaderFiles;
             LOADERFILE:
-            for my $CSSLoaderFile ( sort @CSSLoaderFiles ) {
+            for my $CSSLoaderFile ( @CSSLoaderFiles ) {
 
                 next LOADERFILE if grep { $CSSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
 
