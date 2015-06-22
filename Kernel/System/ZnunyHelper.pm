@@ -1486,6 +1486,9 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
     my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
+    my $Name = $Param{Name};
+    $Name =~ s{\A\s*}{}g;
+    $Name =~ s{\s*\z}{}g;
 
     # check if general catalog module is installed
     my $GeneralCatalogLoaded = $MainObject->Require(
@@ -1510,17 +1513,17 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my %ItemList = reverse %{ $ItemListRef || {} };
 
     if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
-        return $ItemList{ $Param{Name} } if $ItemList{ $Param{Name} };
+        return $ItemList{ $Name } if $ItemList{ $Name };
     }
     else {
         my %ItemListLowerCase = map { lc $_ => $ItemList{$_} } sort keys %ItemList;
-        return $ItemListLowerCase{ lc $Param{Name} } if $ItemListLowerCase{ lc $Param{Name} };
+        return $ItemListLowerCase{ lc $Name } if $ItemListLowerCase{ lc $Name };
     }
 
     # add item if it does not exist
     my $ItemID = $GeneralCatalogObject->ItemAdd(
         Class   => $Param{Class},
-        Name    => $Param{Name},
+        Name    => $Name,
         ValidID => $ValidID,
         Comment => $Param{Comment},
         UserID  => 1,
