@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.6</Version>
+    <Version>2.0.7</Version>
+    <ChangeLog Version="2.0.7" Date="2015-06-22 14:26:17 UTC">removed sorting JS/CSS</ChangeLog>
     <ChangeLog Version="2.0.6" Date="2015-06-16 11:10:47 UTC">Added static init function for package setups (_PackageSetupInit()).</ChangeLog>
     <ChangeLog Version="2.0.5" Date="2015-06-03 12:13:46 UTC">- Added _QueueCreateIfNotExists() function
 - Added _SLACreateIfNotExists() function</ChangeLog>
