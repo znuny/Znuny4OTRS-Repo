@@ -17,6 +17,7 @@ use Kernel::System::SysConfig;
 use Kernel::System::Group;
 use Kernel::System::User;
 use Kernel::System::Valid;
+use Kernel::System::Type;
 use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::DynamicFieldValue;
@@ -79,6 +80,7 @@ sub new {
     $Self->{GroupObject}               = Kernel::System::Group->new( %{$Self} );
     $Self->{UserObject}                = Kernel::System::User->new( %{$Self} );
     $Self->{ValidObject}               = Kernel::System::Valid->new( %{$Self} );
+    $Self->{TypeObject}                = Kernel::System::Type->new( %{$Self} );
     $Self->{DynamicFieldObject}        = Kernel::System::DynamicField->new( %{$Self} );
     $Self->{DynamicFieldBackendObject} = Kernel::System::DynamicField::Backend->new( %{$Self} );
     $Self->{DynamicFieldValueObject}   = Kernel::System::DynamicFieldValue->new( %{$Self} );
@@ -838,6 +840,51 @@ sub _DynamicFieldsCreate {
     }
 
     return 1;
+}
+
+=item _TypeCreateIfNotExists()
+
+creates Type if not exists
+
+    my $Success = $Self->{ZnunyHelperObject}->_TypeCreateIfNotExists(
+        Name => 'Some Type Name',
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _TypeCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %TypesReversed = $Self->{TypeObject}->TypeList(
+        Valid => 0,
+    );
+
+    %TypesReversed = reverse %TypesReversed;
+
+    return 1 if $TypesReversed{ $Param{Name} };
+
+    return $Self->{TypeObject}->TypeAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
 }
 
 =item _GroupCreateIfNotExists()
