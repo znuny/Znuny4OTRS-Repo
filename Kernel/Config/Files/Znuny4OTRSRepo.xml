@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_config version="1.0" init="Application">
-    <ConfigItem Name="PreApplicationModule###Znuny4OTRSRepo" Required="0" Valid="1">
-        <Description Translatable="1">Defines a module to enable Znuny4OTRS repo informations.</Description>
-        <Group>Znuny4OTRS-Repo</Group>
-        <SubGroup>Frontend::Agent</SubGroup>
-        <Setting>
-            <String Regex="">Kernel::Modules::Znuny4OTRSRepo</String>
-        </Setting>
-    </ConfigItem>
     <ConfigItem Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
         <Description Translatable="1">Define private addon repos.</Description>
         <Group>Znuny4OTRS-Repo</Group>

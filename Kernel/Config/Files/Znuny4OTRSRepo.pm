@@ -14,7 +14,37 @@ use warnings;
 use Kernel::System::Package;
 use Kernel::System::CloudService;
 
+use Kernel::System::VariableCheck qw(:all);
+
 our $ObjectManagerDisabled = 1;
+
+# add the Znuny repository to the repository list
+if ( !$Self->{'Znuny4OTRSRepoDisable'} ) {
+
+    my $RepositoryList = $Self->{'Package::RepositoryList'};
+    if ( !IsHashRefWithData($RepositoryList) ) {
+        $RepositoryList = {};
+    }
+
+    my $RepositoryURL = $Self->{'Znuny4OTRSRepoType'};
+    $RepositoryURL ||= 'https';
+    $RepositoryURL .= '://portal.znuny.com/api/addon_repos/';
+
+    # add public repository
+    $RepositoryList->{ $RepositoryURL . 'public' } = 'Addons - Znuny4OTRS / Public';
+
+    # check for and add configured private repositories
+    my $PrivateRepost = $Self->{'Znuny4OTRSPrivatRepos'};
+
+    if ( IsHashRefWithData($PrivateRepost) ) {
+        for my $Key ( sort keys %{$PrivateRepost} ) {
+            $RepositoryList->{ $RepositoryURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
+        }
+    }
+
+    # set temporary config entry
+    $Self->{'Package::RepositoryList'} = $RepositoryList;
+}
 
 # disable redefine warnings in this scope
 {
