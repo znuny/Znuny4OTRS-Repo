@@ -1,4 +1,4 @@
-
+# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # Copyright (C) 2013-2014 Znuny GmbH, http://znuny.com/
 
 use strict;
