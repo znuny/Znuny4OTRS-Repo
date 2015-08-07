@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.10</Version>
+    <Version>2.0.11</Version>
+    <ChangeLog Version="2.0.11" Date="2015-08-07 13:02:55 UTC">Fixed return values of ServiceCreateIfNotExists and SLACreateIfNotExists.</ChangeLog>
     <ChangeLog Version="2.0.10" Date="2015-07-20 08:39:23 UTC">Fixed bug: Following config pm-files overwrite the Zununy4OTRS repo configs.</ChangeLog>
     <ChangeLog Version="2.0.9" Date="2015-07-17 09:16:03 UTC">Follow up release.</ChangeLog>
     <ChangeLog Version="2.0.7" Date="2015-06-22 14:26:17 UTC">removed sorting JS/CSS</ChangeLog>
