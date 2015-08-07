@@ -7,6 +7,7 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
+## nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
 
 use strict;
 use warnings;
@@ -17,6 +18,8 @@ use Kernel::System::CloudService;
 use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
+
+use vars qw($Self);
 
 # add the Znuny repository to the repository list
 if ( !$Self->{'Znuny4OTRSRepoDisable'} ) {

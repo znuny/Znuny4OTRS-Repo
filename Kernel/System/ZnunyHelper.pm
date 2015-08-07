@@ -28,6 +28,7 @@ our @ObjectDependencies = (
     'Kernel::System::XML',
     'Kernel::System::SysConfig',
     'Kernel::System::Group',
+    'Kernel::System::Queue',
     'Kernel::System::Type',
     'Kernel::System::Service',
     'Kernel::System::SLA',
@@ -478,7 +479,7 @@ sub _LoaderRemove {
 
             my @NewJSLoaderFiles;
             LOADERFILE:
-            for my $JSLoaderFile ( @JSLoaderFiles ) {
+            for my $JSLoaderFile (@JSLoaderFiles) {
 
                 next LOADERFILE if grep { $JSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
 
@@ -492,7 +493,7 @@ sub _LoaderRemove {
 
             my @NewCSSLoaderFiles;
             LOADERFILE:
-            for my $CSSLoaderFile ( @CSSLoaderFiles ) {
+            for my $CSSLoaderFile (@CSSLoaderFiles) {
 
                 next LOADERFILE if grep { $CSSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
 
@@ -1246,13 +1247,15 @@ sub _ServiceCreateIfNotExists {
 
     %ServiceReversed = reverse %ServiceReversed;
 
-    return 1 if $ServiceReversed{ $Param{Name} };
+    return $ServiceReversed{ $Param{Name} } if $ServiceReversed{ $Param{Name} };
 
     # split string to check for possible sub services
     my @ServiceArray = split( '::', $Param{Name} );
 
     # create service with parent
     my $CompleteServiceName = '';
+    my $ServiceID;
+
     SERVICE:
     for my $ServiceName (@ServiceArray) {
 
@@ -1279,9 +1282,12 @@ sub _ServiceCreateIfNotExists {
 
         $CompleteServiceName .= $ServiceName;
 
-        next SERVICE if $ServiceReversed{$ServiceName};
+        if ( $ServiceReversed{$ServiceName} ) {
+            $ServiceID = $ServiceReversed{$ServiceName};
+            next SERVICE;
+        }
 
-        my $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+        $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
             %Param,
             Name     => $ServiceName,
             ParentID => $ParentID,
@@ -1299,7 +1305,7 @@ sub _ServiceCreateIfNotExists {
         }
     }
 
-    return 1;
+    return $ServiceID;
 }
 
 =item _SLACreateIfNotExists()
@@ -1361,7 +1367,7 @@ sub _SLACreateIfNotExists {
         SolutionNotify      => $Param{SolutionNotify},
     );
 
-    return 1;
+    return $SLAID;
 }
 
 =item _QueueCreateIfNotExists()
@@ -1486,7 +1492,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
     my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
-    my $Name = $Param{Name};
+    my $Name        = $Param{Name};
     $Name =~ s{\A\s*}{}g;
     $Name =~ s{\s*\z}{}g;
 
@@ -1513,7 +1519,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my %ItemList = reverse %{ $ItemListRef || {} };
 
     if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
-        return $ItemList{ $Name } if $ItemList{ $Name };
+        return $ItemList{$Name} if $ItemList{$Name};
     }
     else {
         my %ItemListLowerCase = map { lc $_ => $ItemList{$_} } sort keys %ItemList;
