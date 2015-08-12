@@ -1,4 +1,11 @@
-# Copyright (C) 2013-2014 Znuny GmbH, http://znuny.com/
+# --
+# Kernel/Output/HTML/OutputFilterZnunyVerify.pm
+# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
 
 package Kernel::Output::HTML::OutputFilterZnunyVerify;
 
@@ -30,33 +37,55 @@ sub Run {
 
     return if $Self->{LayoutObject}->{Action} ne 'AdminPackageManager';
 
+=for comment
+
+example html for verify replacement
+
+
+    <img src="/otrs-web/skins/Agent/default/img//otrs-verify-small.png" class="OTRSVerifyLogo" alt="Dieses Paket wurde von OTRSVerify (tm) geprüft" />
+    <a href="/otrs/index.pl?Action=AdminPackageManager;Subaction=View;Name=DynamicFieldRemoteDB;Version=1.3.0">DynamicFieldRemoteDB</a>
+
+=cut
+
     # replace logo in packlage list
     ${ $Param{Data} } =~ s{
-        (<img\ssrc=")(.+?)("\sclass="OTRSVerifyLogo"\salt=")(.+?)("\s/>.+?<a\shref=.+?blank.+?>)(.+?)(</a>)
+        (<img [^>]* src="([^"]+ \Qotrs-verify-small.png\E)" [^>]* class="OTRSVerifyLogo" [^>]* >) \s* <a [^>]* >([^<]+)<\/a> \s* <\/td> \s*
+        <td> .*? <\/td> \s*
+        <td> .*? <\/td> \s*
+        <td><a [^>]* >([^>]+)<\/a><\/td>
     }
     {
-        my $Start1 = $1;
-        my $Url    = $2;
-        my $Start2 = $3;
-        my $Title  = $4;
-        my $Start3 = $5;
-        my $Vendor = $6;
-        my $Start4 = $7;
-        if ( $Vendor !~ /otrs/i ) {
-            $Url    =~ s/otrs-verify-small.png/znuny-verify-small.png/;
+
+        my $HTML = $&;
+        my $ImageHTML = $1;
+        my $ImageSource = $2;
+        my $PackageName = $3;
+        my $Vendor = $4;
+
+        if ( $Vendor =~ m{znuny}xmsi ) {
+            my $HTMLNew = $HTML;
+
+            $HTMLNew =~ s{\Qotrs-verify-small.png\E}{znuny-verify-small.png}xmsi;
+
+            $HTMLNew;
         }
-        "$Start1$Url$Start2$Title$Start3$Vendor$Start4"
+        elsif ( $Vendor =~ m{otrs}xmsi ) {
+            $HTML;
+        } else {
+            my $HTMLNew = $HTML;
+
+            $HTMLNew =~ s{\Q$ImageHTML\E}{}xmsi;
+
+            $HTMLNew;
+        }
+
     }xmsgei;
 
     # replace logo in package view
     ${ $Param{Data} } =~ s{
-        (<img\ssrc=".+?otrs-verify.png"\sclass="OTRSVerifyLogoBig")
+        <img [^>]* class="OTRSVerifyLogoBig" [^>]* >
     }
-    {
-        my $Part = $1;
-        $Part =~ s/otrs-verify.png/znuny-verify.png/;
-        $Part
-    }xmsgei;
+    {}xmsgi;
 
     return 1;
 

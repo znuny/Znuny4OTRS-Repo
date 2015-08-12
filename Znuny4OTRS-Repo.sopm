@@ -28,11 +28,12 @@
         <File Permission="644" Location="Kernel/Modules/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnunyVerify.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="755" Location="bin/znuny.Helper.pl"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
-        <File Location="doc/de/Znuny4OTRS-Repo.pdf" Permission="644"/>
+        <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
         <br/>

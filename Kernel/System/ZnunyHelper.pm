@@ -1,4 +1,12 @@
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com
+# --
+# Kernel/System/ZnunyHelper.pm - provides some useful functions
+# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
+## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
 
 package Kernel::System::ZnunyHelper;
 
@@ -22,10 +30,33 @@ use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::DynamicFieldValue;
 
-
 use Kernel::System::Package;
 
 use Kernel::System::VariableCheck qw(:all);
+
+=head1 NAME
+
+Kernel::System::ZnunyHelper
+
+=head1 SYNOPSIS
+
+All ZnunyHelper functions.
+
+=head1 PUBLIC INTERFACE
+
+=over 4
+
+=cut
+
+=item new()
+
+create an object. Do not use it directly, instead use:
+
+    use Kernel::System::ObjectManager;
+    local $Kernel::OM = Kernel::System::ObjectManager->new();
+    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+
+=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -57,7 +88,6 @@ sub new {
         'ZZZAuto.pm',
     );
 
-
     # disable redefine warnings in this scope
     {
         no warnings 'redefine';
@@ -73,7 +103,8 @@ sub new {
                 last PREFIX;
             }
         }
-    # reset all warnings
+
+        # reset all warnings
     }
 
     # create needed objects
@@ -98,8 +129,8 @@ sub _PackageInstall {
     # read
     my $ContentRef = $Self->{MainObject}->FileRead(
         Location => $Param{File},
-        Mode     => 'utf8',      # optional - binmode|utf8
-        Result   => 'SCALAR',    # optional - SCALAR|ARRAY
+        Mode     => 'utf8',         # optional - binmode|utf8
+        Result   => 'SCALAR',       # optional - SCALAR|ARRAY
     );
     return if !$ContentRef;
 
@@ -151,8 +182,8 @@ sub _PackageUninstall {
     # read
     my $ContentRef = $Self->{MainObject}->FileRead(
         Location => $Param{File},
-        Mode     => 'utf8',      # optional - binmode|utf8
-        Result   => 'SCALAR',    # optional - SCALAR|ARRAY
+        Mode     => 'utf8',         # optional - binmode|utf8
+        Result   => 'SCALAR',       # optional - SCALAR|ARRAY
     );
     return if !$ContentRef;
 
@@ -215,7 +246,7 @@ sub _JSLoaderAdd {
     my %JSLoaderConfig = %Param;
 
     VIEW:
-    for my $View ( keys %JSLoaderConfig ) {
+    for my $View ( sort keys %JSLoaderConfig ) {
 
         next VIEW if !IsArrayRefWithData( $JSLoaderConfig{$View} );
 
@@ -225,8 +256,8 @@ sub _JSLoaderAdd {
             $CustomerInterfacePrefix = 'Customer';
         }
 
-       # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Self->{LogObject}->Log(
@@ -258,7 +289,7 @@ sub _JSLoaderAdd {
         # update the sysconfig
         my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
+            Key   => $CustomerInterfacePrefix . "Frontend::Module###" . $View,
             Value => $Config,
         );
     }
@@ -288,10 +319,9 @@ sub _JSLoaderRemove {
     my %JSLoaderConfig = %Param;
 
     VIEW:
-    for my $View ( keys %JSLoaderConfig ) {
+    for my $View ( sort keys %JSLoaderConfig ) {
 
         next VIEW if !IsArrayRefWithData( $JSLoaderConfig{$View} );
-
 
         # check if we have to add the 'Customer' prefix for the SysConfig key
         my $CustomerInterfacePrefix = '';
@@ -299,8 +329,8 @@ sub _JSLoaderRemove {
             $CustomerInterfacePrefix = 'Customer';
         }
 
-       # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Self->{LogObject}->Log(
@@ -335,13 +365,14 @@ sub _JSLoaderRemove {
         # update the sysconfig
         my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
+            Key   => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
             Value => $Config,
         );
     }
 
     return 1;
 }
+
 =item _LoaderAdd()
 
 This function adds JavaScript files to the load of defined screens.
@@ -360,7 +391,7 @@ sub _LoaderAdd {
 
     my $ExtensionRegExp = '\.(css|js)$';
     VIEW:
-    for my $View ( keys %LoaderConfig ) {
+    for my $View ( sort keys %LoaderConfig ) {
 
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
 
@@ -370,8 +401,8 @@ sub _LoaderAdd {
             $CustomerInterfacePrefix = 'Customer';
         }
 
-       # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Self->{LogObject}->Log(
@@ -418,7 +449,7 @@ sub _LoaderAdd {
         # update the sysconfig
         my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix ."Frontend::Module###" . $View,
+            Key   => $CustomerInterfacePrefix . "Frontend::Module###" . $View,
             Value => $Config,
         );
     }
@@ -443,10 +474,9 @@ sub _LoaderRemove {
     my %LoaderConfig = %Param;
 
     VIEW:
-    for my $View ( keys %LoaderConfig ) {
+    for my $View ( sort keys %LoaderConfig ) {
 
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
-
 
         # check if we have to add the 'Customer' prefix for the SysConfig key
         my $CustomerInterfacePrefix = '';
@@ -454,8 +484,8 @@ sub _LoaderRemove {
             $CustomerInterfacePrefix = 'Customer';
         }
 
-       # get existing config for each View
-        my $Config = $Self->{ConfigObject}->Get($CustomerInterfacePrefix ."Frontend::Module")->{$View};
+        # get existing config for each View
+        my $Config = $Self->{ConfigObject}->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Self->{LogObject}->Log(
@@ -480,7 +510,8 @@ sub _LoaderRemove {
         if (
             scalar @JSLoaderFiles
             && !scalar @CSSLoaderFiles
-        ) {
+            )
+        {
             next VIEW;
         }
 
@@ -488,7 +519,7 @@ sub _LoaderRemove {
 
             my @NewJSLoaderFiles;
             LOADERFILE:
-            for my $JSLoaderFile ( @JSLoaderFiles ) {
+            for my $JSLoaderFile (@JSLoaderFiles) {
 
                 next LOADERFILE if grep { $JSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
 
@@ -502,7 +533,7 @@ sub _LoaderRemove {
 
             my @NewCSSLoaderFiles;
             LOADERFILE:
-            for my $CSSLoaderFile ( @CSSLoaderFiles ) {
+            for my $CSSLoaderFile (@CSSLoaderFiles) {
 
                 next LOADERFILE if grep { $CSSLoaderFile eq $_ } @{ $LoaderConfig{$View} };
 
@@ -512,11 +543,10 @@ sub _LoaderRemove {
             $Config->{Loader}->{CSS} = \@NewCSSLoaderFiles;
         }
 
-
         # update the sysconfig
         my $Success = $Self->{SysConfigObject}->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix .'Frontend::Module###' . $View,
+            Key   => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
             Value => $Config,
         );
     }
@@ -539,7 +569,7 @@ sub _DynamicFieldsScreenEnable {
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
 
-    for my $Screen ( keys %ScreenDynamicFieldConfig ) {
+    for my $Screen ( sort keys %ScreenDynamicFieldConfig ) {
 
         # get existing config for each screen
         my $Config = $Self->{ConfigObject}->Get("Ticket::Frontend::$Screen");
@@ -571,12 +601,13 @@ my $Result = $CodeObject->_DynamicFieldsScreenDisable($Definition);
 
 sub _DynamicFieldsScreenDisable {
     my ( $Self, %Param ) = @_;
+
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
 
     SCREEN:
-    for my $Screen ( keys %ScreenDynamicFieldConfig ) {
+    for my $Screen ( sort keys %ScreenDynamicFieldConfig ) {
 
         next SCREEN if !IsHashRefWithData( $ScreenDynamicFieldConfig{$Screen} );
 
@@ -637,17 +668,17 @@ sub _DynamicFieldsDelete {
     DYNAMICFIELD:
     for my $DynamicField (@DynamicFields) {
 
-        next DYNAMICFIELD if !$DynamicFieldLookup{ $DynamicField };
+        next DYNAMICFIELD if !$DynamicFieldLookup{$DynamicField};
 
         my $ValuesDeleteSuccess = $Self->{DynamicFieldBackendObject}->AllValuesDelete(
-            DynamicFieldConfig => $DynamicFieldLookup{ $DynamicField },
+            DynamicFieldConfig => $DynamicFieldLookup{$DynamicField},
             UserID             => 1,
         );
 
         my $Success = $Self->{DynamicFieldObject}->DynamicFieldDelete(
-            %{ $DynamicFieldLookup{ $DynamicField } },
-            Reorder    => 0,
-            UserID     => 1,
+            %{ $DynamicFieldLookup{$DynamicField} },
+            Reorder => 0,
+            UserID  => 1,
         );
     }
 
@@ -689,12 +720,12 @@ sub _DynamicFieldsDisable {
     # disable the dynamic fields
     DYNAMICFIELD:
     for my $DynamicField (@DynamicFields) {
-        next if !$DynamicFieldLookup{ $DynamicField };
+        next if !$DynamicFieldLookup{$DynamicField};
         my $Success = $Self->{DynamicFieldObject}->DynamicFieldUpdate(
-            %{ $DynamicFieldLookup{ $DynamicField } },
-            ValidID    => $ValidID,
-            Reorder    => 0,
-            UserID     => 1,
+            %{ $DynamicFieldLookup{$DynamicField} },
+            ValidID => $ValidID,
+            Reorder => 0,
+            UserID  => 1,
         );
     }
 
@@ -724,7 +755,7 @@ sub _DynamicFieldsCreateIfNotExists {
                 $Exists = 1;
             }
         }
-        if (!$Exists) {
+        if ( !$Exists ) {
             push @DynamicFieldExistsNot, $NewDynamicfield;
         }
     }
@@ -846,7 +877,7 @@ sub _DynamicFieldsCreate {
 
 creates Type if not exists
 
-    my $Success = $Self->{ZnunyHelperObject}->_TypeCreateIfNotExists(
+    my $Success = $CodeObject->_TypeCreateIfNotExists(
         Name => 'Some Type Name',
     );
 
@@ -899,8 +930,8 @@ sub _GroupCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
     my %Groups = $Self->{GroupObject}->GroupList( Valid => 0 );
-    for my $GroupID ( keys %Groups ) {
-        return if $Param{Name} eq $Groups{ $GroupID };
+    for my $GroupID ( sort keys %Groups ) {
+        return if $Param{Name} eq $Groups{$GroupID};
     }
     return $Self->{GroupObject}->GroupAdd(
         ValidID => 1,
@@ -927,8 +958,8 @@ sub _NotificationCreateIfNotExists {
 
     # check if exists
     $Self->{DBObject}->Prepare(
-        SQL   => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
-        Bind  => [ \$Type, \$Lang ],
+        SQL  => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
+        Bind => [ \$Type, \$Lang ],
         Limit => 1,
     );
     my $Exists;
@@ -950,3 +981,15 @@ sub _NotificationCreateIfNotExists {
 }
 
 1;
+
+=back
+
+=head1 TERMS AND CONDITIONS
+
+This software is part of the OTRS project (L<http://otrs.org/>).
+
+This software comes with ABSOLUTELY NO WARRANTY. For details, see
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+
+=cut

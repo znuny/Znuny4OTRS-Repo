@@ -1,5 +1,11 @@
-
-# Copyright (C) 2013 Znuny GmbH, http://znuny.com/
+# --
+# Kernel/Modules/Znuny4OTRSRepo.pm
+# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
 
 package Kernel::Modules::Znuny4OTRSRepo;
 
@@ -36,12 +42,13 @@ sub PreRun {
     }
 
     my $Type = $Self->{ConfigObject}->Get('Znuny4OTRSRepoType') || 'https';
-    $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/public'} = 'Addons - Znuny4OTRS / Public';
+    $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/public' } = 'Addons - Znuny4OTRS / Public';
 
     my $PrivateRepost = $Self->{ConfigObject}->Get('Znuny4OTRSPrivatRepos');
-    if ($PrivateRepost && ref $PrivateRepost eq 'HASH' ) {
-        for my $Key ( keys %{ $PrivateRepost } ) {
-            $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/' . $Key } = "Addons - Znuny4OTRS / Private $PrivateRepost->{$Key} ";
+    if ( $PrivateRepost && ref $PrivateRepost eq 'HASH' ) {
+        for my $Key ( sort keys %{$PrivateRepost} ) {
+            $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/' . $Key }
+                = "Addons - Znuny4OTRS / Private $PrivateRepost->{$Key} ";
         }
     }
 
