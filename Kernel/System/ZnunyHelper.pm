@@ -52,9 +52,9 @@ All ZnunyHelper functions.
 
 create an object. Do not use it directly, instead use:
 
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+    use Kernel::System::ZnunyHelper;
+
+    my $ZnunyHelperObject = Kernel::System::ZnunyHelper->new();
 
 =cut
 
