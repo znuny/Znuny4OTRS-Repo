@@ -228,7 +228,7 @@ sub _PackageUninstall {
 
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_JSLoaderAdd(
+my $Result = $ZnunyHelperObject->_JSLoaderAdd(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
 
@@ -300,7 +300,7 @@ sub _JSLoaderAdd {
 =item _JSLoaderRemove()
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_JSLoaderRemove(
+my $Result = $ZnunyHelperObject->_JSLoaderRemove(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
 
@@ -377,7 +377,7 @@ sub _JSLoaderRemove {
 
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_LoaderAdd(
+my $Result = $ZnunyHelperObject->_LoaderAdd(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
 
@@ -460,7 +460,7 @@ sub _LoaderAdd {
 =item _LoaderRemove()
 This function adds JavaScript files to the load of defined screens.
 
-my $Result = $CodeObject->_LoaderRemove(
+my $Result = $ZnunyHelperObject->_LoaderRemove(
     AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
 );
 
@@ -558,7 +558,7 @@ sub _LoaderRemove {
 
 This function enables the defined dynamic fields in the needed screens.
 
-my $Result = $CodeObject->_DynamicFieldsScreenEnable();
+my $Result = $ZnunyHelperObject->_DynamicFieldsScreenEnable();
 
 =cut
 
@@ -595,7 +595,7 @@ sub _DynamicFieldsScreenEnable {
 
 This function disables the defined dynamic fields in the needed screens.
 
-my $Result = $CodeObject->_DynamicFieldsScreenDisable($Definition);
+my $Result = $ZnunyHelperObject->_DynamicFieldsScreenDisable($Definition);
 
 =cut
 
@@ -640,7 +640,7 @@ sub _DynamicFieldsScreenDisable {
 
 This function delete the defined dynamic fields
 
-my $Result = $CodeObject->_DynamicFieldsDelete('Field1', 'Field2');
+my $Result = $ZnunyHelperObject->_DynamicFieldsDelete('Field1', 'Field2');
 
 =cut
 
@@ -689,7 +689,7 @@ sub _DynamicFieldsDelete {
 
 This function disables the defined dynamic fields
 
-my $Result = $CodeObject->_DynamicFieldsDisable('Field1', 'Field2');
+my $Result = $ZnunyHelperObject->_DynamicFieldsDisable('Field1', 'Field2');
 
 =cut
 
@@ -736,7 +736,7 @@ sub _DynamicFieldsDisable {
 
 creates all dynamic fields that are necessary
 
-    my $Result = $CodeObject->_DynamicFieldsCreateIfNotExists( $Definition );
+    my $Result = $ZnunyHelperObject->_DynamicFieldsCreateIfNotExists( $Definition );
 
 =cut
 
@@ -770,7 +770,7 @@ sub _DynamicFieldsCreateIfNotExists {
 
 creates all dynamic fields that are necessary
 
-    my $Result = $CodeObject->_DynamicFieldsCreate( $Definition );
+    my $Result = $ZnunyHelperObject->_DynamicFieldsCreate( $Definition );
 
 =cut
 
@@ -877,7 +877,7 @@ sub _DynamicFieldsCreate {
 
 creates Type if not exists
 
-    my $Success = $CodeObject->_TypeCreateIfNotExists(
+    my $Success = $ZnunyHelperObject->_TypeCreateIfNotExists(
         Name => 'Some Type Name',
     );
 
@@ -922,7 +922,7 @@ sub _TypeCreateIfNotExists {
 
 creates group if not texts
 
-    my $Result = $CodeObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
+    my $Result = $ZnunyHelperObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
 
 =cut
 
@@ -944,7 +944,7 @@ sub _GroupCreateIfNotExists {
 
 creates notification if not texts
 
-    my $Result = $CodeObject->_NotificationCreateIfNotExists(
+    my $Result = $ZnunyHelperObject->_NotificationCreateIfNotExists(
         'Agent::PvD::NewTicket',
         'de',
         'sub',
@@ -978,6 +978,384 @@ sub _NotificationCreateIfNotExists {
             . 'current_timestamp, 1, current_timestamp, 1 )',
         Bind => [ \$Type, \$Lang, \$Subject, \$Body, \$Charset ],
     );
+}
+
+=item _WebserviceCreateIfNotExists()
+
+creates webservices that not exist yet
+
+    # installs all .yml files in $OTRS/scripts/webservices/
+    # name of the file will be the name of the webservice
+    my $Result = $ZnunyHelperObject->_WebserviceCreateIfNotExists(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Result = $ZnunyHelperObject->_WebserviceCreateIfNotExists(
+        Webservices => {
+            'New Webservice 1234' => '/path/to/Webservice.yml',
+            ...
+        }
+    );
+
+=cut
+
+sub _WebserviceCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    my %RequiredObjectsMapping = (
+        YAML       => 'Kernel::System::YAML',
+        Webservice => 'Kernel::System::GenericInterface::Webservice',
+    );
+    return if !$Self->_RequireObjects( RequiredObjectsMapping => \%RequiredObjectsMapping );
+
+    my $Webservices = $Param{Webservices};
+    if ( !IsHashRefWithData($Webservices) ) {
+        $Webservices = $Self->_WebservicesGet(
+            SubDir => $Param{SubDir},
+        );
+    }
+
+    return 1 if !IsHashRefWithData($Webservices);
+
+    my $WebserviceList = $Self->{WebserviceObject}->WebserviceList();
+    if ( ref $WebserviceList ne 'HASH' ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Error while getting list of Webservices!"
+        );
+        return;
+    }
+
+    WEBSERVICE:
+    for my $WebserviceName ( sort keys %{$Webservices} ) {
+
+        # stop if already added
+        next WEBSERVICE if grep { $WebserviceName eq $_ } sort values %{$WebserviceList};
+
+        my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
+
+        # read config
+        my $Content = $Self->{MainObject}->FileRead(
+            Location => $WebserviceYAMLPath,
+        );
+
+        if ( !$Content ) {
+
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Can't read $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        my $Config = $Self->{YAMLObject}->Load( Data => ${$Content} );
+
+        if ( !$Config ) {
+
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while loading $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        # add webservice to the system
+        my $WebserviceID = $Self->{WebserviceObject}->WebserviceAdd(
+            Name    => $WebserviceName,
+            Config  => $Config,
+            ValidID => 1,
+            UserID  => 1,
+        );
+
+        if ( !$WebserviceID ) {
+
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+    }
+
+    return 1;
+}
+
+=item _WebserviceCreate()
+
+creates or updates webservices
+
+    # installs all .yml files in $OTRS/scripts/webservices/
+    # name of the file will be the name of the webservice
+    my $Result = $ZnunyHelperObject->_WebserviceCreate(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Result = $ZnunyHelperObject->_WebserviceCreate(
+        Webservices => {
+            'New Webservice 1234' => '/path/to/Webservice.yml',
+            ...
+        }
+    );
+
+=cut
+
+sub _WebserviceCreate {
+    my ( $Self, %Param ) = @_;
+
+    my %RequiredObjectsMapping = (
+        YAML       => 'Kernel::System::YAML',
+        Webservice => 'Kernel::System::GenericInterface::Webservice',
+    );
+    return if !$Self->_RequireObjects( RequiredObjectsMapping => \%RequiredObjectsMapping );
+
+    my $Webservices = $Param{Webservices};
+    if ( !IsHashRefWithData($Webservices) ) {
+        $Webservices = $Self->_WebservicesGet(
+            SubDir => $Param{SubDir},
+        );
+    }
+
+    return 1 if !IsHashRefWithData($Webservices);
+
+    my $WebserviceList = $Self->{WebserviceObject}->WebserviceList();
+    if ( ref $WebserviceList ne 'HASH' ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Error while getting list of Webservices!"
+        );
+        return;
+    }
+    my %WebserviceListReversed = reverse %{$WebserviceList};
+
+    WEBSERVICE:
+    for my $WebserviceName ( sort keys %{$Webservices} ) {
+
+        my $WebserviceID           = $WebserviceListReversed{$WebserviceName};
+        my $UpdateOrCreateFunction = 'WebserviceAdd';
+
+        if ($WebserviceID) {
+            $UpdateOrCreateFunction = 'WebserviceUpdate';
+        }
+
+        # stop if already added
+        next WEBSERVICE if grep { $WebserviceName eq $_ } sort values %{$WebserviceList};
+
+        my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
+
+        # read config
+        my $Content = $Self->{MainObject}->FileRead(
+            Location => $WebserviceYAMLPath,
+        );
+
+        if ( !$Content ) {
+
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Can't read $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        my $Config = $Self->{YAMLObject}->Load( Data => ${$Content} );
+
+        if ( !$Config ) {
+
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while loading $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+
+        # add or update webservice
+        my $Success = $Self->{WebserviceObject}->$UpdateOrCreateFunction(
+            ID      => $WebserviceID,
+            Name    => $WebserviceName,
+            Config  => $Config,
+            ValidID => 1,
+            UserID  => 1,
+        );
+
+        if ( !$Success ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while updating/adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
+            );
+            next WEBSERVICE;
+        }
+    }
+
+    return 1;
+}
+
+=item _WebserviceDelete()
+
+deletes webservices
+
+    # deletes all .yml files webservices in $OTRS/scripts/webservices/
+    # name of the file will be the name of the webservice
+    my $Result = $ZnunyHelperObject->_WebserviceDelete(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Result = $ZnunyHelperObject->_WebserviceDelete(
+        Webservices => {
+            'Not needed Webservice 1234' => 1, # value is not used
+            ...
+        }
+    );
+
+=cut
+
+sub _WebserviceDelete {
+    my ( $Self, %Param ) = @_;
+
+    my %RequiredObjectsMapping = (
+        Webservice => 'Kernel::System::GenericInterface::Webservice',
+    );
+    return if !$Self->_RequireObjects( RequiredObjectsMapping => \%RequiredObjectsMapping );
+
+    my $Webservices = $Param{Webservices};
+    if ( !IsHashRefWithData($Webservices) ) {
+        $Webservices = $Self->_WebservicesGet(
+            SubDir => $Param{SubDir},
+        );
+    }
+
+    return 1 if !IsHashRefWithData($Webservices);
+
+    my $WebserviceList = $Self->{WebserviceObject}->WebserviceList();
+    if ( ref $WebserviceList ne 'HASH' ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Error while getting list of Webservices!"
+        );
+        return;
+    }
+    my %WebserviceListReversed = reverse %{$WebserviceList};
+
+    WEBSERVICE:
+    for my $WebserviceName ( sort keys %{$Webservices} ) {
+
+        # stop if already deleted
+        next WEBSERVICE if !$WebserviceListReversed{$WebserviceName};
+
+        # delete webservice
+        my $Success = $Self->{WebserviceObject}->WebserviceDelete(
+            ID     => $WebserviceListReversed{$WebserviceName},
+            UserID => 1,
+        );
+
+        if ( !$Success ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Error while deleting Webservice '$WebserviceName'!"
+            );
+            return;
+        }
+    }
+
+    return 1;
+}
+
+=item _WebservicesGet()
+
+gets a list of .yml files from $OTRS/scripts/webservices
+
+    my $Result = $ZnunyHelperObject->_WebservicesGet(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+    $Result = {
+        'Webservice'          => '$OTRS/scripts/webservices/Znuny4OTRSAssetDesk/Webservice.yml',
+        'New Webservice 1234' => '$OTRS/scripts/webservices/Znuny4OTRSAssetDesk/New Webservice 1234.yml',
+    }
+
+=cut
+
+sub _WebservicesGet {
+    my ( $Self, %Param ) = @_;
+
+    my $WebserviceDirectory = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+        . '/scripts/webservices';
+
+    if ( IsStringWithData( $Param{SubDir} ) ) {
+        $WebserviceDirectory .= '/' . $Param{SubDir};
+    }
+
+    my @FilesInDirectory = $Self->{MainObject}->DirectoryRead(
+        Directory => $WebserviceDirectory,
+        Filter    => '*.yml',
+    );
+
+    my %Webservices;
+    for my $FileWithPath (@FilesInDirectory) {
+
+        my $WebserviceName = $FileWithPath;
+        $WebserviceName =~ s{\A .+? \/ ([^\/]+) \. yml \z}{$1}xms;
+
+        $Webservices{$WebserviceName} = $FileWithPath;
+    }
+
+    return \%Webservices;
+}
+
+=item _RequireObjects()
+
+loads required modules, if provided by the framework
+
+    my %RequiredObjectsMapping = (
+        YAML       => 'Kernel::System::YAML',
+        Webservice => 'Kernel::System::GenericInterface::Webservice',
+    );
+
+    my $Result = $ZnunyHelperObject->_RequireObjects(
+        RequiredObjectsMapping => \%RequiredObjectsMapping,
+    );
+
+    $Result = 1
+    or
+    $Result = undef
+
+=cut
+
+sub _RequireObjects {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    if ( !IsHashRefWithData( $Param{RequiredObjectsMapping} ) ) {
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Parameter 'RequiredObjectsMapping' neeeds to be a HashRef!",
+        );
+        return;
+    }
+
+    for my $RequiredObject ( sort keys %{ $Param{RequiredObjectsMapping} } ) {
+
+        my $ModulePath = $Param{RequiredObjectsMapping}->{$RequiredObject};
+
+        my $Loaded = $Self->{MainObject}->Require($ModulePath);
+
+        if ( !$Loaded ) {
+
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Can't load '$ModulePath'.",
+            );
+            return;
+        }
+
+        $Self->{ $RequiredObject . 'Object' } = $ModulePath->new( %{$Self} );
+    }
+
+    return 1;
 }
 
 1;
