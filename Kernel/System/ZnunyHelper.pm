@@ -1282,7 +1282,7 @@ gets a list of .yml files from $OTRS/scripts/webservices
 sub _WebservicesGet {
     my ( $Self, %Param ) = @_;
 
-    my $WebserviceDirectory = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+    my $WebserviceDirectory = $Self->{ConfigObject}->Get('Home')
         . '/scripts/webservices';
 
     if ( IsStringWithData( $Param{SubDir} ) ) {
