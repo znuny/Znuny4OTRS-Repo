@@ -106,6 +106,42 @@ sub new {
     return $Self;
 }
 
+=item _ItemReverseListGet()
+
+checks if a item (for example a service name) is in a reverse item list (for example reverse %ServiceList)
+with case sensitive check
+
+    my $ItemID = $ZnunyHelperObject->_ItemReverseListGet($ServiceName, %ServiceListReverse);
+
+Returns:
+
+    my $ItemID = 123;
+
+=cut
+
+sub _ItemReverseListGet {
+    my ( $Self, $ItemName, %ItemListReverse ) = @_;
+
+    return if !$ItemName;
+
+    $ItemName =~ s{\A\s*}{}g;
+    $ItemName =~ s{\s*\z}{}g;
+
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+
+    my $ItemID;
+    if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
+        $ItemID = $ItemListReverse{$ItemName};
+    }
+    else {
+        my %ItemListReverseLC = map { lc $_ => $ItemListReverse{$_} } keys %ItemListReverse;
+
+        $ItemID = $ItemListReverseLC{ lc $ItemName };
+    }
+
+    return $ItemID;
+}
+
 # File => '/path/to/file'
 
 sub _PackageInstall {
@@ -1008,10 +1044,10 @@ sub _GroupCreateIfNotExists {
     my %GroupsReversed = $Kernel::OM->Get('Kernel::System::Group')->GroupList(
         Valid => 0,
     );
-
     %GroupsReversed = reverse %GroupsReversed;
 
-    return 1 if $GroupsReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %GroupsReversed );
+    return $ItemID if $ItemID;
 
     return $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
         ValidID => 1,
@@ -1053,10 +1089,10 @@ sub _RoleCreateIfNotExists {
     my %RolesReversed = $Kernel::OM->Get('Kernel::System::Group')->RoleList(
         Valid => 0,
     );
-
     %RolesReversed = reverse %RolesReversed;
 
-    return 1 if $RolesReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %RolesReversed );
+    return $ItemID if $ItemID;
 
     return $Kernel::OM->Get('Kernel::System::Group')->RoleAdd(
         ValidID => 1,
@@ -1098,10 +1134,10 @@ sub _TypeCreateIfNotExists {
     my %TypesReversed = $Kernel::OM->Get('Kernel::System::Type')->TypeList(
         Valid => 0,
     );
-
     %TypesReversed = reverse %TypesReversed;
 
-    return 1 if $TypesReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %TypesReversed );
+    return $ItemID if $ItemID;
 
     return $Kernel::OM->Get('Kernel::System::Type')->TypeAdd(
         ValidID => 1,
@@ -1146,10 +1182,10 @@ sub _StateCreateIfNotExists {
         Valid  => 0,
         UserID => 1
     );
-
     %StatesReversed = reverse %StatesReversed;
 
-    return 1 if $StatesReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %StatesReversed );
+    return $ItemID if $ItemID;
 
     return $Kernel::OM->Get('Kernel::System::State')->StateAdd(
         %Param,
@@ -1241,17 +1277,19 @@ sub _ServiceCreateIfNotExists {
         return;
     }
 
+    my $Name = $Param{Name};
+
     my %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
         Valid  => 0,
         UserID => 1
     );
-
     %ServiceReversed = reverse %ServiceReversed;
 
-    return $ServiceReversed{ $Param{Name} } if $ServiceReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Name, %ServiceReversed );
+    return $ItemID if $ItemID;
 
     # split string to check for possible sub services
-    my @ServiceArray = split( '::', $Param{Name} );
+    my @ServiceArray = split( '::', $Name );
 
     # create service with parent
     my $CompleteServiceName = '';
@@ -1273,7 +1311,7 @@ sub _ServiceCreateIfNotExists {
                 $Kernel::OM->Get('Kernel::System::Log')->Log(
                     Priority => 'error',
                     Message  => "Error while getting ServiceID for parent service "
-                        . "'$CompleteServiceName' for new service '" . $Param{Name} . "'.",
+                        . "'$CompleteServiceName' for new service '" . $Name . "'.",
                 );
                 return;
             }
@@ -1283,8 +1321,9 @@ sub _ServiceCreateIfNotExists {
 
         $CompleteServiceName .= $ServiceName;
 
-        if ( $ServiceReversed{$ServiceName} ) {
-            $ServiceID = $ServiceReversed{$ServiceName};
+        my $ItemID = $Self->_ItemReverseListGet( $CompleteServiceName, %ServiceReversed );
+        if ($ItemID) {
+            $ServiceID = $ItemID;
             next SERVICE;
         }
 
@@ -1300,10 +1339,16 @@ sub _ServiceCreateIfNotExists {
 
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message  => "Error while adding new service '$ServiceName'.",
+                Message  => "Error while adding new service '$ServiceName' ($ParentID).",
             );
             return;
         }
+
+        %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
+            Valid  => 0,
+            UserID => 1
+        );
+        %ServiceReversed = reverse %ServiceReversed;
     }
 
     return $ServiceID;
@@ -1346,26 +1391,21 @@ sub _SLACreateIfNotExists {
         return;
     }
 
-    my %SLAReversed = reverse $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
+    my %SLAReversed = $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
         UserID => 1
     );
+    %SLAReversed = reverse %SLAReversed;
 
-    return 1 if $SLAReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %SLAReversed );
+    return $ItemID if $ItemID;
 
     my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
         Valid => 'valid',
     );
     my $SLAID = $Kernel::OM->Get('Kernel::System::SLA')->SLAAdd(
-        Name                => $Param{Name},
-        ValidID             => $ValidID,
-        UserID              => 1,
-        ServiceIDs          => $Param{ServiceIDs},
-        FirstResponseTime   => $Param{FirstResponseTime},
-        FirstResponseNotify => $Param{FirstResponseNotify},
-        UpdateTime          => $Param{UpdateTime},
-        UpdateNotify        => $Param{UpdateNotify},
-        SolutionTime        => $Param{SolutionTime},
-        SolutionNotify      => $Param{SolutionNotify},
+        %Param,
+        ValidID => $ValidID,
+        UserID  => 1,
     );
 
     return $SLAID;
@@ -1402,10 +1442,10 @@ sub _QueueCreateIfNotExists {
     }
 
     my %QueuesReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList();
-
     %QueuesReversed = reverse %QueuesReversed;
 
-    return 1 if $QueuesReversed{ $Param{Name} };
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %QueuesReversed );
+    return $ItemID if $ItemID;
 
     return $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
         ValidID => 1,
@@ -1494,8 +1534,6 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
     my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
     my $Name        = $Param{Name};
-    $Name =~ s{\A\s*}{}g;
-    $Name =~ s{\s*\z}{}g;
 
     # check if general catalog module is installed
     my $GeneralCatalogLoaded = $MainObject->Require(
@@ -1517,18 +1555,13 @@ sub _GeneralCatalogItemCreateIfNotExists {
         Valid => $ValidID,
     );
 
-    my %ItemList = reverse %{ $ItemListRef || {} };
+    my %ItemListReverse = reverse %{ $ItemListRef || {} };
 
-    if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
-        return $ItemList{$Name} if $ItemList{$Name};
-    }
-    else {
-        my %ItemListLowerCase = map { lc $_ => $ItemList{$_} } sort keys %ItemList;
-        return $ItemListLowerCase{ lc $Name } if $ItemListLowerCase{ lc $Name };
-    }
+    my $ItemID = $Self->_ItemReverseListGet( $Name, %ItemListReverse );
+    return $ItemID if $ItemID;
 
     # add item if it does not exist
-    my $ItemID = $GeneralCatalogObject->ItemAdd(
+    $ItemID = $GeneralCatalogObject->ItemAdd(
         Class   => $Param{Class},
         Name    => $Name,
         ValidID => $ValidID,
@@ -2035,7 +2068,7 @@ sub _WebserviceCreate {
     WEBSERVICE:
     for my $WebserviceName ( sort keys %{$Webservices} ) {
 
-        my $WebserviceID           = $WebserviceListReversed{$WebserviceName};
+        my $WebserviceID = $Self->_ItemReverseListGet( $WebserviceName, %WebserviceListReversed );
         my $UpdateOrCreateFunction = 'WebserviceAdd';
 
         if ($WebserviceID) {
