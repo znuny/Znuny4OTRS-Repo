@@ -1141,9 +1141,6 @@ sub _WebserviceCreate {
             $UpdateOrCreateFunction = 'WebserviceUpdate';
         }
 
-        # stop if already added
-        next WEBSERVICE if grep { $WebserviceName eq $_ } sort values %{$WebserviceList};
-
         my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
 
         # read config
