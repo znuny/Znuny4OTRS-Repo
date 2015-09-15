@@ -1416,7 +1416,8 @@ sub _SLACreateIfNotExists {
 creates Queue if not exists
 
     my $Success = $ZnunyHelperObject->_QueueCreateIfNotExists(
-        Name => 'Some Queue Name',
+        Name    => 'Some Queue Name',
+        GroupID => 1,
     );
 
 Returns:
@@ -1430,7 +1431,7 @@ sub _QueueCreateIfNotExists {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Name)) {
+    for my $Needed (qw(Name GroupID)) {
 
         next NEEDED if defined $Param{$Needed};
 
