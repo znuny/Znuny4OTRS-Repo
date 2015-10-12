@@ -192,6 +192,24 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             DestQueueID: 'DestQueueID',
             QueueID:     'DestQueueID',
         },
+
+        CustomerTicketMessage: {
+            Dest:       'Dest',
+            QueueID:    'Dest',
+            PriorityID: 'PriorityID',
+            RichText:   'RichText',
+            ServiceID:  'ServiceID',
+            SLAID:      'SLAID',
+            Subject:    'Subject',
+            TypeID:     'TypeID',
+        },
+
+        CustomerTicketZoom: {
+            PriorityID: 'PriorityID',
+            RichText:   'RichText',
+            StateID:    'StateID',
+            Subject:    'Subject',
+        }
     };
 
     var ActionModuleMapping = {
