@@ -100,4 +100,16 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <!-- Remove -->
+    <ConfigItem Name="Loader::Agent::CommonJS###000-Znuny4OTRSInput" Required="1" Valid="1">
+        <Description Translatable="1">List of JS files to always be loaded for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Setting>
+            <Array>
+                <Item>Core.Form.Znuny4OTRSInput.js</Item>
+            </Array>
+        </Setting>
+    </ConfigItem>
+
 </otrs_config>
