@@ -1,5 +1,5 @@
 # --
-# Kernel/Config/Files/Znuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
+# Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
 # --
