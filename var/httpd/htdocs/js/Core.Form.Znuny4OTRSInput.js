@@ -383,7 +383,21 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         var Type = TargetNS.Type( FieldID );
 
-        if (
+        if ( FieldID === 'RichText' ) {
+            if (
+                typeof CKEDITOR !== 'undefined'
+                && CKEDITOR.instances[ FieldID ]
+            ) {
+                // Attention: No 'change' event will get triggered
+                // and the content will get re-rendered, so all events are lost :)
+                // See: https://dev.ckeditor.com/ticket/6633
+                CKEDITOR.instances[ FieldID ].setData( Content || '' );
+            }
+            else {
+                $('#'+ FieldID).val( Content || '' ).trigger('change');
+            }
+        }
+        else if (
             Type == 'text'
             || Type == 'hidden'
             || Type == 'textarea'
