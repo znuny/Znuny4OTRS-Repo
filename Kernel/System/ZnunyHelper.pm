@@ -1405,50 +1405,6 @@ sub _QueueCreateIfNotExists {
     );
 }
 
-=item _NotificationCreateIfNotExists()
-
-creates notification if not texts
-
-    my $Success = $ZnunyHelperObject->_NotificationCreateIfNotExists(
-        'Agent::PvD::NewTicket',   # Notification type
-        'de',                      # Notification language
-        'sub',                     # Notification subject
-        'body',                    # Notification body
-    );
-
-Returns:
-
-    my $Success = 1;
-
-=cut
-
-sub _NotificationCreateIfNotExists {
-    my ( $Self, $Type, $Lang, $Subject, $Body ) = @_;
-
-    # check if exists
-    $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-        SQL  => 'SELECT notification_type FROM notifications WHERE notification_type = ? AND notification_language = ?',
-        Bind => [ \$Type, \$Lang ],
-        Limit => 1,
-    );
-    my $Exists;
-    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
-        $Exists = 1;
-    }
-    return 1 if $Exists;
-
-    # create new
-    my $Charset = 'utf8';
-    return $Kernel::OM->Get('Kernel::System::DB')->Do(
-        SQL => 'INSERT INTO notifications (notification_type, notification_language, '
-            . 'subject, text, notification_charset, content_type, '
-            . 'create_time, create_by, change_time, change_by) '
-            . 'VALUES( ?, ?, ?, ?, ?, \'text/plain\', '
-            . 'current_timestamp, 1, current_timestamp, 1 )',
-        Bind => [ \$Type, \$Lang, \$Subject, \$Body, \$Charset ],
-    );
-}
-
 =item _GeneralCatalogItemCreateIfNotExists()
 
 adds a general catalog item if it does not exist
