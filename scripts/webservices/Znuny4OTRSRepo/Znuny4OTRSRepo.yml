@@ -1,0 +1,13 @@
+---
+Debugger:
+  DebugThreshold: debug
+  TestMode: 0
+Description: ''
+FrameworkVersion: 5.0.x git
+Provider:
+  Transport:
+    Type: ''
+RemoteSystem: ''
+Requester:
+  Transport:
+    Type: ''
