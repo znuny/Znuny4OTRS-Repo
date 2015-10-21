@@ -301,56 +301,6 @@ sub _PackageUMain {
     return 1;
 }
 
-=item _JSLoaderAdd()
-
-This function adds JavaScript files to the load of defined screens.
-
-my $Result = $ZnunyHelperObject->_JSLoaderAdd(
-    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
-);
-
-DEPRECATED: -> use _LoaderAdd() instead
-
-=cut
-
-sub _JSLoaderAdd {
-    my ( $Self, %Param ) = @_;
-
-    $Kernel::OM->Get('Kernel::System::Log')->Log(
-        Priority => 'notice',
-        Message  => "_JSLoaderAdd function is deprecated, please use _LoaderAdd."
-    );
-
-    $Self->_LoaderAdd(%Param);
-
-    return 1;
-}
-
-=item _JSLoaderRemove()
-
-This function removes JavaScript files to the load of defined screens.
-
-my $Result = $ZnunyHelperObject->_JSLoaderRemove(
-    AgentTicketPhone => ['Core.Agent.WPTicketOEChange.js'],
-);
-
-DEPRECATED: -> use _LoaderRemove() instead
-
-=cut
-
-sub _JSLoaderRemove {
-    my ( $Self, %Param ) = @_;
-
-    $Kernel::OM->Get('Kernel::System::Log')->Log(
-        Priority => 'notice',
-        Message  => "_JSLoaderRemove function is deprecated, please use _LoaderRemove."
-    );
-
-    $Self->_LoaderRemove(%Param);
-
-    return 1;
-}
-
 =item _LoaderAdd()
 
 This function adds JavaScript and CSS files to the load of defined screens.
