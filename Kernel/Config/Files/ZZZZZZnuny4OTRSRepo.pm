@@ -13,7 +13,7 @@ use strict;
 use warnings;
 
 use Kernel::System::Package;
-use Kernel::System::CloudService;
+use Kernel::System::CloudService::Backend::Run;
 
 use Kernel::System::VariableCheck qw(:all);
 
@@ -95,7 +95,7 @@ my $PackageVerifyAllOld = \&Kernel::System::Package::PackageVerifyAll;
 };
 
 
-sub Kernel::System::CloudService::new {
+sub Kernel::System::CloudService::Backend::Run::new {
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object

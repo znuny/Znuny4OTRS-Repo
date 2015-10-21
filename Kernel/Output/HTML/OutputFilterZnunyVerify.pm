@@ -12,6 +12,10 @@ package Kernel::Output::HTML::OutputFilterZnunyVerify;
 use strict;
 use warnings;
 
+our @ObjectDependencies = (
+    'Kernel::Output::HTML::Layout',
+);
+
 sub new {
     my ( $Type, %Param ) = @_;
 
@@ -19,18 +23,15 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    # check needed objects
-    for my $Needed (qw(LayoutObject ConfigObject LogObject MainObject ParamObject)) {
-        $Self->{$Needed} = $Param{$Needed} || die "Got no $Needed!";
-    }
-
     return $Self;
 }
 
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    return if $Self->{LayoutObject}->{Action} ne 'AdminPackageManager';
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    return if $LayoutObject->{Action} ne 'AdminPackageManager';
 
 =for comment
 
