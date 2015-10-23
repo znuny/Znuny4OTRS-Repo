@@ -1,5 +1,5 @@
 # --
-# Kernel/Output/HTML/OutputFilterZnunyVerify.pm - replaces the OTRS verify logo with the Znuny version
+# Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm - replaces the OTRS verify logo with the Znuny version
 # Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -7,7 +7,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::Output::HTML::OutputFilterZnunyVerify;
+package Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRepo;
 
 use strict;
 use warnings;
@@ -87,15 +87,3 @@ example html for verify replacement
 }
 
 1;
-
-=back
-
-=head1 TERMS AND CONDITIONS
-
-This software is part of the OTRS project (L<http://otrs.org/>).
-
-This software comes with ABSOLUTELY NO WARRANTY. For details, see
-the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
-
-=cut
