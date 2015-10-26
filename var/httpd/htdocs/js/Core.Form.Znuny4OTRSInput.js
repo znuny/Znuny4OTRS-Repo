@@ -261,13 +261,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     }
 
     // TODO: Get -> Read out Attribute value(s)
-    TargetNS.Get = function ( Attribute, KeyOrValue ) {
+    TargetNS.Get = function ( Attribute, Options ) {
 
-        KeyOrValue  = KeyOrValue || 'Key';
-        var FieldID = TargetNS.FieldID( Attribute );
+        Options = Options || {};
 
-        KeyOrValue  = KeyOrValue || 'Key';
-        var FieldID = TargetNS.FieldID( Attribute );
+        if ( typeof Options !== 'object' ) return;
+
+        var KeyOrValue    = Options.KeyOrValue    || 'Key';
+        var FieldID       = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
@@ -372,10 +373,19 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return $('#'+ FieldID)[0].tagName.toLowerCase();
     }
 
-    TargetNS.Set = function ( Attribute, Content, KeyOrValue ) {
+    TargetNS.Set = function ( Attribute, Content, Options ) {
 
-        KeyOrValue  = KeyOrValue || 'Key';
-        var FieldID = TargetNS.FieldID( Attribute );
+        Options = Options || {};
+
+        if ( typeof Options !== 'object' ) return;
+
+        var TriggerChange = true;
+        if ( typeof Options.TriggerChange === 'boolean' ) {
+            TriggerChange = Options.TriggerChange;
+        }
+
+        var KeyOrValue    = Options.KeyOrValue    || 'Key';
+        var FieldID       = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
@@ -394,7 +404,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 CKEDITOR.instances[ FieldID ].setData( Content || '' );
             }
             else {
-                $('#'+ FieldID).val( Content || '' ).trigger('change');
+                $('#'+ FieldID).val( Content || '' );
+                if (TriggerChange) {
+                    $('#'+ FieldID).trigger('change');
+                }
             }
         }
         else if (
@@ -430,7 +443,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                                 var Index = $(Element).attr('id');
                                 Index     = Index.replace('CustomerTicketText_', '');
 
-                                $('#CustomerSelected_'+ Index ).trigger('click');
+                                if (TriggerChange) {
+                                    $('#CustomerSelected_'+ Index ).trigger('click');
+                                }
 
                                 SetAsTicketCustomer = false;
                             }
@@ -474,7 +489,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             }
             // regular fields
             else {
-                $('#'+ FieldID).val( Content || '' ).trigger('change');
+                $('#'+ FieldID).val( Content || '' );
+
+                if (TriggerChange) {
+                    $('#'+ FieldID).trigger('change');
+                }
             }
 
         }
@@ -485,7 +504,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 Checked = true;
             }
             $('#'+ FieldID).prop('checked', Checked);
-            $('#'+ FieldID).trigger('change');
+            if (TriggerChange) {
+                $('#'+ FieldID).trigger('change');
+            }
         }
         else if ( Type == 'select' ) {
 
@@ -511,6 +532,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
               return Element.toString();
             });
 
+            var SelectValue;
             $('#'+ FieldID +' option').filter(function() {
 
                 var CompareKeyOrValue;
@@ -525,15 +547,25 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // may want to use $.trim in here?
                 if ( SetSelected.indexOf( $.trim( CompareKeyOrValue ) ) != -1 ) {
                     Selected = true;
+                    SelectValue = $(this).val();
                 }
 
                 return Selected;
             }).prop('selected', true);
 
-            $('#'+ FieldID).trigger('change');
+            $('#' + FieldID).val(SelectValue);
+
+            if (TriggerChange) {
+                $('#'+ FieldID).trigger('change');
+            }
         }
         // TODO: Date / DateTime ?
         // TODO: Attachments?
+
+        // trigger redraw on modernized fields
+        if ($('#'+ FieldID).hasClass('Modernize')) {
+            $('#'+ FieldID).trigger('redraw.InputField');
+        }
 
         return true;
     };
