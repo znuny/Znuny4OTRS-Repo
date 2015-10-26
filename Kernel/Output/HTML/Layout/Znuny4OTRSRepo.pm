@@ -42,7 +42,7 @@ create an object. Do not use it directly, instead use:
 
 modifies content and uses outputfilter hooks to get hook content
 
-    my $Data = $ZnunyHelperObject->_OutputFilterHookShift(
+    my $Data = $LayoutObject->_OutputFilterHookShift(
         Name => 'DynamicField',
         All  => 1,
         %Param,
@@ -103,7 +103,7 @@ Example html for a hook:
 
 modifies content and uses outputfilter hooks to get hook content
 
-    my $Success = $ZnunyHelperObject->_OutputFilterHookReplace(
+    my $Success = $LayoutObject->_OutputFilterHookReplace(
         Name    => 'DynamicField',
         All     => 1,
         Replace => sub {
@@ -178,7 +178,7 @@ Example html for a hook:
 
 modifies content and uses outputfilter hooks to check if a hook exists
 
-    my $Exists = $ZnunyHelperObject->_OutputFilterHookExists(
+    my $Exists = $LayoutObject->_OutputFilterHookExists(
         Name => 'DynamicField',
         %Param,
     );
@@ -224,7 +224,7 @@ Example html for a hook:
 
 modifies content and uses outputfilter hooks to add content after hook.
 
-    my $Success = $ZnunyHelperObject->_OutputFilterHookInsertAfter(
+    my $Success = $LayoutObject->_OutputFilterHookInsertAfter(
         Name    => 'DynamicField',
         Content => '... html ...',
         %Param,
@@ -274,7 +274,7 @@ Example html for a hook:
 
 modifies content and uses outputfilter hooks to add content before hook.
 
-    my $Success = $ZnunyHelperObject->_OutputFilterHookInsertBefore(
+    my $Success = $LayoutObject->_OutputFilterHookInsertBefore(
         Name    => 'DynamicField',
         Content => '... html ...',
         %Param,

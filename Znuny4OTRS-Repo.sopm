@@ -55,6 +55,7 @@
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
+        <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
