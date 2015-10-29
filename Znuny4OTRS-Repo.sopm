@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.17</Version>
+    <Version>2.0.18</Version>
+    <ChangeLog Version="2.0.18" Date="2015-10-29 08:24:35 UTC">Updated documentation.</ChangeLog>
     <ChangeLog Version="2.0.17" Date="2015-10-26 12:56:37 UTC">Improved Core.Form.Znuny4OTRSInput.js</ChangeLog>
     <ChangeLog Version="2.0.16" Date="2015-10-23 15:23:45 UTC">Fixed bug: Regex of unquoted string fails.</ChangeLog>
     <ChangeLog Version="2.0.15" Date="2015-10-23 14:48:32 UTC">Added Core.Form.Znuny4OTRSInput JavaScript.</ChangeLog>
