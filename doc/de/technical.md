@@ -1,6 +1,6 @@
 # Core.Form.Znuny4OTRSInput
 
-The purpose of this Javascript library is to make the handling of fields in the frontend much more easier. It aims to make development ...
+The purpose of this Javascript library is to make the handling of fields in the frontend much easier. It aims to make development ...
 
 - easier
 - faster
