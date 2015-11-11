@@ -1,3 +1,4 @@
+# VERSION:1.1
 # --
 # Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
 # Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
@@ -7,7 +8,8 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
+
+package Kernel::Config::Files::ZZZZZZnuny4OTRSRepo;
 
 use strict;
 use warnings;
@@ -19,34 +21,38 @@ use Kernel::System::VariableCheck qw(:all);
 
 our $ObjectManagerDisabled = 1;
 
-use vars qw($Self);
+sub Load {
+    my ($File, $Self) = @_;
 
-# add the Znuny repository to the repository list
-if ( !$Self->{'Znuny4OTRSRepoDisable'} ) {
+    # add the Znuny repository to the repository list
+    if ( !$Self->{'Znuny4OTRSRepoDisable'} ) {
 
-    my $RepositoryList = $Self->{'Package::RepositoryList'};
-    if ( !IsHashRefWithData($RepositoryList) ) {
-        $RepositoryList = {};
-    }
-
-    my $RepositoryURL = $Self->{'Znuny4OTRSRepoType'};
-    $RepositoryURL ||= 'https';
-    $RepositoryURL .= '://portal.znuny.com/api/addon_repos/';
-
-    # add public repository
-    $RepositoryList->{ $RepositoryURL . 'public' } = 'Addons - Znuny4OTRS / Public';
-
-    # check for and add configured private repositories
-    my $PrivateRepost = $Self->{'Znuny4OTRSPrivatRepos'};
-
-    if ( IsHashRefWithData($PrivateRepost) ) {
-        for my $Key ( sort keys %{$PrivateRepost} ) {
-            $RepositoryList->{ $RepositoryURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
+        my $RepositoryList = $Self->{'Package::RepositoryList'};
+        if ( !IsHashRefWithData($RepositoryList) ) {
+            $RepositoryList = {};
         }
+
+        my $RepositoryURL = $Self->{'Znuny4OTRSRepoType'};
+        $RepositoryURL ||= 'https';
+        $RepositoryURL .= '://portal.znuny.com/api/addon_repos/';
+
+        # add public repository
+        $RepositoryList->{ $RepositoryURL . 'public' } = 'Addons - Znuny4OTRS / Public';
+
+        # check for and add configured private repositories
+        my $PrivateRepost = $Self->{'Znuny4OTRSPrivatRepos'};
+
+        if ( IsHashRefWithData($PrivateRepost) ) {
+            for my $Key ( sort keys %{$PrivateRepost} ) {
+                $RepositoryList->{ $RepositoryURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
+            }
+        }
+
+        # set temporary config entry
+        $Self->{'Package::RepositoryList'} = $RepositoryList;
     }
 
-    # set temporary config entry
-    $Self->{'Package::RepositoryList'} = $RepositoryList;
+    return 1;
 }
 
 # disable redefine warnings in this scope
