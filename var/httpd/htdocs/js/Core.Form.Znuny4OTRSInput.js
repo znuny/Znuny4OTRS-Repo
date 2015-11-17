@@ -297,7 +297,6 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     LookupClass = 'CustomerTicketText';
                 }
 
-                // TODO: CustomerSelected
                 var Result = [];
                 $('.'+ LookupClass).each( function (Index, Element) {
 
@@ -306,6 +305,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     var Value = $.trim( $(Element).val() );
 
                     if ( Value.length === 0 ) return true;
+
+                    // only get selected customers if option is set
+                    if ( Options.Selected && !$(Element).siblings('.CustomerTicketRadio').prop('checked') ) return true;
 
                     Result.push( Value );
                 });
