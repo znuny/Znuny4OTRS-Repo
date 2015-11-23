@@ -359,6 +359,19 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     return $('#CustomerAutoComplete').val();
                 }
             }
+            // DynamicField CustomerUserID
+            else if (
+                Type == 'hidden'
+                && FieldID.indexOf('DynamicField_') == 0
+                && $('#'+ FieldID +'Autocomplete').length > 0
+            ) {
+                if ( KeyOrValue == 'Key' ) {
+                    return $('#'+ FieldID).val();
+                }
+                else {
+                    return $('#'+ FieldID +'Autocomplete').val();
+                }
+            }
             // regular fields
             else {
                 return $('#'+ FieldID).val();
