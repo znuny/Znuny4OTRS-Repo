@@ -522,6 +522,29 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // start search
                 $('#'+ FieldID).autocomplete('search', Content);
             }
+            // DynamicField CustomerUserID
+            else if (
+                Type == 'hidden'
+                && FieldID.indexOf('DynamicField_') == 0
+                && $('#'+ FieldID +'Autocomplete').length > 0
+            ) {
+                // register event listener to fetch and set result
+                $('#'+ FieldID +'Autocomplete').one('autocompleteresponse', function( Event, Result ) {
+
+                    if ( Result.content.length === 1 ) {
+
+                        var CustomerKey   = Result.content[0].key,
+                            CustomerValue = Result.content[0].value;
+
+                        $('#'+ FieldID +'Autocomplete').autocomplete('close');
+                        $('#'+ FieldID +'Autocomplete').val(CustomerValue);
+                        $('#'+ FieldID).val(CustomerKey);
+                    }
+                } );
+
+                // start search
+                $('#'+ FieldID +'Autocomplete').autocomplete('search', Content);
+            }
             // regular fields
             else {
                 $('#'+ FieldID).val( Content || '' );
@@ -530,7 +553,6 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     $('#'+ FieldID).trigger('change');
                 }
             }
-
         }
         else if ( Type == 'checkbox' ) {
 
