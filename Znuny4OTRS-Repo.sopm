@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.6</Version>
+    <Version>3.0.7</Version>
+    <ChangeLog Version="3.0.7" Date="2015-11-23 11:50:27 UTC">- Added support for DynamicField CustomerUserID driver.&#13;
+- Added support for the process management views.</ChangeLog>
     <ChangeLog Version="3.0.6" Date="2015-11-11 17:16:20 UTC">Fixed memory leak.</ChangeLog>
     <ChangeLog Version="3.0.5" Date="2015-10-29 08:24:17 UTC">Updated documentation.</ChangeLog>
     <ChangeLog Version="3.0.4" Date="2015-10-26 12:37:40 UTC">Improved Core.Form.Znuny4OTRSInput.js</ChangeLog>
