@@ -399,6 +399,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             }
             else {
                 var $Element = $('#'+ FieldID +' option:selected');
+
+                if (!$Element.length) return;
+
                 if ( KeyOrValue == 'Key' ) {
                     return QueueIDExtract( $Element.val(), $Element.text() );
                 }
