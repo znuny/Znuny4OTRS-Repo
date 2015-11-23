@@ -294,7 +294,6 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return Action;
     }
 
-    // TODO: Get -> Read out Attribute value(s)
     TargetNS.Get = function ( Attribute, Options ) {
 
         Options = Options || {};
