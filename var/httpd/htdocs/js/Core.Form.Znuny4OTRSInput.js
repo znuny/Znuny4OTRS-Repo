@@ -386,8 +386,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             TriggerChange = Options.TriggerChange;
         }
 
-        var KeyOrValue    = Options.KeyOrValue    || 'Key';
-        var FieldID       = TargetNS.FieldID( Attribute );
+        var KeyOrValue = Options.KeyOrValue || 'Key';
+        var FieldID    = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
