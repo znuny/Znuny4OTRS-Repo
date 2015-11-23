@@ -209,6 +209,40 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             RichText:   'RichText',
             StateID:    'StateID',
             Subject:    'Subject',
+        },
+
+        AgentTicketProcess: {
+            Subject:       'Subject',
+            RichText:      'RichText',
+            Customer:      'CustomerAutoComplete',
+            CustomerID:    'CustomerID',
+            Title:         'Title',
+            ResponsibleID: 'ResponsibleID',
+            OwnerID:       'OwnerID',
+            SLAID:         'SLAID',
+            ServiceID:     'ServiceID',
+            LockID:        'LockID',
+            PriorityID:    'PriorityID',
+            QueueID:       'QueueID',
+            StateID:       'StateID',
+            TypeID:        'TypeID',
+        },
+
+        CustomerTicketProcess: {
+            Subject:       'Subject',
+            RichText:      'RichText',
+            Customer:      'CustomerAutoComplete',
+            CustomerID:    'CustomerID',
+            Title:         'Title',
+            ResponsibleID: 'ResponsibleID',
+            OwnerID:       'OwnerID',
+            SLAID:         'SLAID',
+            ServiceID:     'ServiceID',
+            LockID:        'LockID',
+            PriorityID:    'PriorityID',
+            QueueID:       'QueueID',
+            StateID:       'StateID',
+            TypeID:        'TypeID',
         }
     };
 
