@@ -300,8 +300,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         if ( typeof Options !== 'object' ) return;
 
-        var KeyOrValue    = Options.KeyOrValue    || 'Key';
-        var FieldID       = TargetNS.FieldID( Attribute );
+        var KeyOrValue = Options.KeyOrValue || 'Key';
+        var FieldID    = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) return;
 
