@@ -303,9 +303,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         var KeyOrValue    = Options.KeyOrValue    || 'Key';
         var FieldID       = TargetNS.FieldID( Attribute );
 
-        if ( !FieldID ) {
-            return false;
-        }
+        if ( !FieldID ) return;
 
         var Type = TargetNS.Type( FieldID );
 
@@ -413,7 +411,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         // TODO: Date / DateTime?
         // TODO: Attachments?
 
-        return true;
+        return;
     }
 
     TargetNS.Type = function ( FieldID ) {
