@@ -416,6 +416,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     TargetNS.Type = function ( FieldID ) {
 
+        if ( $('#'+ FieldID).length == 0 ) return;
+
         if ( $('#'+ FieldID)[0].tagName == 'INPUT' ) {
             return $('#'+ FieldID)[0].type.toLowerCase();
         }
