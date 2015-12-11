@@ -533,6 +533,23 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                         Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
                     }
+                    else if( KeyOrValue == 'Key' && Result.content.length > 1 ) {
+
+                        $.each(Result.content, function(Index,Element){
+
+                            if(Element.key != Content) return true;
+
+                            var CustomerKey   = Element.key,
+                                CustomerValue = Element.value;
+
+                            $('#'+ FieldID).autocomplete('close');
+                            $('#'+ FieldID).val(CustomerValue);
+
+                            Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
+
+                            return false;
+                        });
+                    }
                 } );
 
                 // start search
@@ -555,6 +572,22 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                         $('#'+ FieldID +'Autocomplete').autocomplete('close');
                         $('#'+ FieldID +'Autocomplete').val(CustomerValue);
                         $('#'+ FieldID).val(CustomerKey);
+                    }
+                    else if( KeyOrValue == 'Key' && Result.content.length > 1 ) {
+
+                        $.each(Result.content, function(Index,Element){
+
+                            if(Element.key != Content) return true;
+
+                            var CustomerKey   = Element.key,
+                                CustomerValue = Element.value;
+
+                            $('#'+ FieldID +'Autocomplete').autocomplete('close');
+                            $('#'+ FieldID +'Autocomplete').val(CustomerValue);
+                            $('#'+ FieldID).val(CustomerKey);
+
+                            return false;
+                        });
                     }
                 } );
 
