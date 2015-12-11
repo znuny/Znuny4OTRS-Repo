@@ -52,7 +52,6 @@
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnunyVerify.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
-        <File Permission="755" Location="bin/znuny.Helper.pl"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
