@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>1.0.18</Version>
+    <Version>1.0.19</Version>
+    <ChangeLog Version="1.0.19" Date="2015-12-14 12:03:52 UTC">Fixed bug: Autocomplete selection via key shows multiple entries.</ChangeLog>
     <ChangeLog Version="1.0.18" Date="2015-11-23 11:50:46 UTC">- Added support for DynamicField CustomerUserID driver.&#13;
 - Added support for the process management views.</ChangeLog>
     <ChangeLog Version="1.0.17" Date="2015-10-29 08:24:53 UTC">Updated documentation.</ChangeLog>
