@@ -453,12 +453,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // and the content will get re-rendered, so all events are lost :)
                 // See: https://dev.ckeditor.com/ticket/6633
                 CKEDITOR.instances[ FieldID ].setData( Content || '' );
+                Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
             }
             else {
                 $('#'+ FieldID).val( Content || '' );
                 if (TriggerChange) {
                     $('#'+ FieldID).trigger('change');
                 }
+                Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
             }
         }
         else if (
@@ -508,6 +510,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                         Core.Agent.CustomerSearch.AddTicketCustomer($(Event.target).attr('id'), CustomerValue, CustomerKey, SetAsTicketCustomer);
 
+                        Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
+
                         SetAsTicketCustomer = false;
                     });
                 } );
@@ -544,6 +548,12 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                             $('#'+ FieldID).autocomplete('close');
                             $('#'+ FieldID).val(CustomerValue);
+
+                            if (TriggerChange) {
+                                $('#'+ FieldID).trigger('change');
+                            }
+
+                            Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
 
                             Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
 
@@ -586,6 +596,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                             $('#'+ FieldID +'Autocomplete').val(CustomerValue);
                             $('#'+ FieldID).val(CustomerKey);
 
+                            if (TriggerChange) {
+                                $('#'+ FieldID).trigger('change');
+                                $('#'+ FieldID +'Autocomplete').trigger('change');
+                            }
+
+                            Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
+
                             return false;
                         });
                     }
@@ -601,6 +618,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 if (TriggerChange) {
                     $('#'+ FieldID).trigger('change');
                 }
+
+                Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
             }
         }
         else if ( Type == 'checkbox' ) {
@@ -613,6 +632,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             if (TriggerChange) {
                 $('#'+ FieldID).trigger('change');
             }
+
+            Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
         }
         else if ( Type == 'select' ) {
 
@@ -664,6 +685,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             if (TriggerChange) {
                 $('#'+ FieldID).trigger('change');
             }
+
+            Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
         }
         // TODO: Date / DateTime ?
         // TODO: Attachments?
