@@ -535,6 +535,12 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                         $('#'+ FieldID).autocomplete('close');
                         $('#'+ FieldID).val(CustomerValue);
 
+                        if (TriggerChange) {
+                            $('#'+ FieldID).trigger('change');
+                        }
+
+                        Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
+
                         Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
                     }
                     else if( KeyOrValue == 'Key' && Result.content.length > 1 ) {
