@@ -21,22 +21,23 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     var AttributFieldIDMapping = {
         AgentTicketActionCommon: {
-            ArticleTypeID: 'ArticleTypeID',
-            NewOwnerID:    'NewOwnerID',
-            OldOwnerID:    'OldOwnerID',
-            NewPriorityID: 'NewPriorityID',
-            PriorityID:    'NewPriorityID',
-            NewQueueID:    'NewQueueID',
-            QueueID:       'NewQueueID',
-            ResponsibleID: 'NewResponsibleID',
-            RichText:      'RichText',
-            ServiceID:     'ServiceID',
-            SLAID:         'SLAID',
-            NewStateID:    'NewStateID',
-            StateID:       'NewStateID',
-            Subject:       'Subject',
-            Title:         'Title',
-            TypeID:        'TypeID',
+            ArticleTypeID:    'ArticleTypeID',
+            NewOwnerID:       'NewOwnerID',
+            OldOwnerID:       'OldOwnerID',
+            NewPriorityID:    'NewPriorityID',
+            PriorityID:       'NewPriorityID',
+            NewQueueID:       'NewQueueID',
+            QueueID:          'NewQueueID',
+            NewResponsibleID: 'NewResponsibleID',
+            ResponsibleID:    'NewResponsibleID',
+            RichText:         'RichText',
+            ServiceID:        'ServiceID',
+            SLAID:            'SLAID',
+            NewStateID:       'NewStateID',
+            StateID:          'NewStateID',
+            Subject:          'Subject',
+            Title:            'Title',
+            TypeID:           'TypeID',
         },
 
         AgentTicketBounce: {
@@ -704,6 +705,34 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         return true;
     };
+
+    TargetNS.Hide = function ( Attribute ) {
+
+        var FieldID       = TargetNS.FieldID( Attribute );
+
+        if ( !FieldID ) {
+            return false;
+        }
+
+        $('#'+ FieldID).parent().hide();
+        $("label[for='" + FieldID + "']").hide();
+
+        return true;
+    }
+
+    TargetNS.Show = function ( Attribute ) {
+
+        var FieldID       = TargetNS.FieldID( Attribute );
+
+        if ( !FieldID ) {
+            return false;
+        }
+
+        $('#'+ FieldID).parent().show();
+        $("label[for='" + FieldID + "']").show();
+
+        return true;
+    }
 
     // special queue handling
     function QueueIDExtract (Key, Value) {
