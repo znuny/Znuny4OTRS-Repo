@@ -303,8 +303,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         if ( typeof Options !== 'object' ) return;
 
-        var KeyOrValue = Options.KeyOrValue || 'Key';
-        var FieldID    = TargetNS.FieldID( Attribute );
+        var KeyOrValue     = Options.KeyOrValue || 'Key';
+        var PossibleValues = Options.PossibleValues; // Affects currently only select fields (no dynamic field support)
+        var FieldID        = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) return;
 
@@ -383,10 +384,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
         else if ( Type == 'select' ) {
 
-            if ( $('#'+ FieldID).prop('multiple') ) {
+            if ( $('#'+ FieldID).prop('multiple') || Options.PossibleValues ) {
 
                 var Result = [];
-                $('#'+ FieldID +' option:selected').each(function(Index, Element) {
+                var SelectedAffix = '';
+                if ( !Options.PossibleValues ) {
+                    SelectedAffix = ':selected';
+                }
+
+                $('#' + FieldID + ' option' + SelectedAffix).each(function(Index, Element) {
 
                     if ( KeyOrValue == 'Key' ) {
                         var Value = QueueIDExtract( $(Element).val(), $(Element).text() );
@@ -396,6 +402,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                         Result.push( $.trim( $(Element).text() ) );
                     }
                 });
+
                 return Result;
             }
             else {
