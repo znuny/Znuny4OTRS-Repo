@@ -260,6 +260,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     TargetNS.FieldID = function ( Attribute ) {
 
+        if (!Attribute) return false;
+
         var Module = TargetNS.Module();
 
         if ( Attribute.indexOf('DynamicField_') === 0 ) {
