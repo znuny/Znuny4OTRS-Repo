@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.10</Version>
+    <Version>3.0.11</Version>
+    <ChangeLog Version="3.0.11" Date="2016-01-18 11:41:34 UTC">Added check for required Attribute for FieldID lookup.</ChangeLog>
     <ChangeLog Version="3.0.10" Date="2016-01-14 08:24:55 UTC">Added hide and show function to Core.Form.Znuny4OTRSInput.</ChangeLog>
     <ChangeLog Version="3.0.9" Date="2016-01-11 13:37:56 UTC">Added PubSub event.</ChangeLog>
     <ChangeLog Version="3.0.8" Date="2015-12-14 12:04:43 UTC">Fixed bug: Autocomplete selection via key shows multiple entries.</ChangeLog>
