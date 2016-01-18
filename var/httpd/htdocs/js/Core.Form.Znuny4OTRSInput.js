@@ -709,7 +709,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         TargetNS.Hide = function ( Attribute ) {
 
-        var FieldID       = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
@@ -723,7 +723,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     TargetNS.Show = function ( Attribute ) {
 
-        var FieldID       = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
