@@ -744,6 +744,59 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return true;
     }
 
+
+
+    /*
+    Manipulates the configuration of RichText input fields. It takes a config structure where the key is the Editor FieldID and the value is another structure with the config items it should set. It's possible to use the meta key 'Global' to set the config of all RichText instances on the current site. Notice that old configurations will be kept and extended instead of removed. For a complete list of possible config attributes visit the CKEdior documentation: http://docs.ckeditor.com/#!/api/CKEDITOR.config
+
+    var Result = Core.Form.Znuny4OTRSInput.RichTextConfig({
+      'RichText': {
+        toolbarCanCollapse:     true,
+        toolbarStartupExpanded: false,
+      }
+    })
+
+    Returns:
+
+      Result = true
+    */
+    TargetNS.RichTextConfig = function (NewConfig) {
+
+        Core.UI.RichTextEditor.InitAll = function () {
+
+            $('textarea.RichText').each(function () {
+                var EditorID;
+                var Editor;
+                var EditorConfig;
+                var ExtendedConfig;
+
+                Core.UI.RichTextEditor.Init($(this));
+
+                EditorID = $(this).attr('id');
+
+                if (typeof NewConfig != 'object') return true;
+
+                ExtendedConfig = NewConfig[ EditorID ] || NewConfig['Global'];
+                if (typeof ExtendedConfig != 'object') return true;
+
+                Editor = CKEDITOR.instances[EditorID];
+
+                if (!Editor) return true;
+
+                EditorConfig = Editor.config;
+
+                $.each(ExtendedConfig, function(Attribute, Value) {
+                  EditorConfig[ Attribute ] = Value;
+                });
+
+                Editor.destroy(true);
+                CKEDITOR.replace(EditorID, EditorConfig);
+            });
+        };
+
+        Core.UI.RichTextEditor.InitAll();
+    }
+
     // special queue handling
     function QueueIDExtract (Key, Value) {
         var QueueName   = $.trim( Value );
