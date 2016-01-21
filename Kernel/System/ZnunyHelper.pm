@@ -1,6 +1,5 @@
 # --
-# Kernel/System/ZnunyHelper.pm - provides some useful functions
-# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -1907,17 +1906,10 @@ sub _ITSMVersionGet {
     my %VersionConfigItem;
     $VersionConfigItem{XMLData} ||= {};
     if ( IsHashRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1] ) ) {
-
-        FIELD:
-        for my $Field ( sort keys %{ $VersionRef->{XMLData}->[1]->{Version}->[1] } ) {
-            next FIELD if !IsArrayRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field} );
-
-            my $Value = $VersionRef->{XMLData}->[1]->{Version}->[1]->{$Field}->[1]->{Content};
-
-            next FIELD if !defined $Value;
-
-            $VersionConfigItem{XMLData}->{$Field} = $Value;
-        }
+        $Self->_ParseXMLData(
+            Result => $VersionConfigItem{XMLData},
+            Data   => $VersionRef->{XMLData}->[1]->{Version}->[1],
+        );
     }
 
     for my $Field (qw(ConfigItemID Name DefinitionID DeplStateID DeplState InciStateID InciState)) {
@@ -1925,6 +1917,73 @@ sub _ITSMVersionGet {
     }
 
     return %VersionConfigItem;
+}
+
+=item _ParseXMLData()
+
+this is a internal function for _ITSMVersionGet to parse the additional data
+stored in XMLData.
+
+    my $Success = $ZnunyHelperObject->_ParseXMLData(
+        Parent => $Identifier,          # optional: contains the field name of the parent xml
+        Result => $Result,              # contains the reference to the result hash
+        Data   => $Data{$Field}->[1],   # contains the xml hash we want to parse
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _ParseXMLData {
+    my ( $Self, %Param ) = @_;
+
+    my $Result = $Param{Result};
+    my $Parent = $Param{Parent} || '';
+    my %Data   = %{ $Param{Data} || {} };
+
+    FIELD:
+    for my $Field ( sort keys %Data ) {
+        next FIELD if !IsArrayRefWithData( $Data{$Field} );
+
+        my $Identifier = ($Parent) ? $Parent . '_' . $Field : $Field;
+
+        if ( @{ $Data{$Field} } > 2 ) {
+            $Result->{$Identifier} = [];
+
+            for my $Index ( 1 .. $#{ $Data{$Field} } ) {
+                my $Value = $Data{$Field}->[$Index]->{Content};
+
+                push @{ $Result->{$Identifier} }, {};
+
+                $Self->_ParseXMLData(
+                    Parent => $Identifier,
+                    Result => $Result->{$Identifier}->[-1],
+                    Data   => $Data{$Field}->[$Index],
+                );
+
+                next FIELD if !defined $Value;
+
+                $Result->{$Identifier}->[-1]->{$Identifier} = $Value;
+            }
+        }
+        else {
+            my $Value = $Data{$Field}->[1]->{Content};
+
+            $Self->_ParseXMLData(
+                Parent => $Identifier,
+                Result => $Result,
+                Data   => $Data{$Field}->[1],
+            );
+
+            next FIELD if !defined $Value;
+
+            $Result->{$Identifier} = $Value;
+        }
+    }
+
+    return 1;
 }
 
 =item _WebserviceCreateIfNotExists()
