@@ -1755,7 +1755,8 @@ sub _ITSMVersionExists {
 get a config item version.
 
     my %Version = $ZnunyHelperObject->_ITSMVersionGet(
-        ConfigItemID  => 12345,
+        ConfigItemID    => 12345,
+        XMLDataMultiple => 1,      # default: 0, This option will return a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
     );
 
 Returns:
@@ -1813,6 +1814,7 @@ sub _ITSMVersionGet {
     $VersionConfigItem{XMLData} ||= {};
     if ( IsHashRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1] ) ) {
         $Self->_ParseXMLData(
+            %Param,
             Result => $VersionConfigItem{XMLData},
             Data   => $VersionRef->{XMLData}->[1]->{Version}->[1],
         );
@@ -1831,9 +1833,10 @@ this is a internal function for _ITSMVersionGet to parse the additional data
 stored in XMLData.
 
     my $Success = $ZnunyHelperObject->_ParseXMLData(
-        Parent => $Identifier,          # optional: contains the field name of the parent xml
-        Result => $Result,              # contains the reference to the result hash
-        Data   => $Data{$Field}->[1],   # contains the xml hash we want to parse
+        Parent          => $Identifier,          # optional: contains the field name of the parent xml
+        Result          => $Result,              # contains the reference to the result hash
+        Data            => $Data{$Field}->[1],   # contains the xml hash we want to parse
+        XMLDataMultiple => 1,                    # default: 0, This option will return a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
     );
 
 Returns:
@@ -1845,9 +1848,10 @@ Returns:
 sub _ParseXMLData {
     my ( $Self, %Param ) = @_;
 
-    my $Result = $Param{Result};
-    my $Parent = $Param{Parent} || '';
-    my %Data   = %{ $Param{Data} || {} };
+    my $Result          = $Param{Result};
+    my $XMLDataMultiple = $Param{XMLDataMultiple};
+    my $Parent          = $Param{Parent} || '';
+    my %Data            = %{ $Param{Data} || {} };
 
     FIELD:
     for my $Field ( sort keys %Data ) {
@@ -1855,23 +1859,27 @@ sub _ParseXMLData {
 
         my $Identifier = ($Parent) ? $Parent . '_' . $Field : $Field;
 
-        if ( @{ $Data{$Field} } > 2 ) {
+        if ( $XMLDataMultiple ) {
             $Result->{$Identifier} = [];
 
             for my $Index ( 1 .. $#{ $Data{$Field} } ) {
                 my $Value = $Data{$Field}->[$Index]->{Content};
 
-                push @{ $Result->{$Identifier} }, {};
+                my $CurrentResult = {};
 
                 $Self->_ParseXMLData(
                     Parent => $Identifier,
-                    Result => $Result->{$Identifier}->[-1],
+                    Result => $CurrentResult,
                     Data   => $Data{$Field}->[$Index],
                 );
 
-                next FIELD if !defined $Value;
+                if ( defined $Value ) {
+                    $CurrentResult->{ $Identifier } = $Value;
+                }
 
-                $Result->{$Identifier}->[-1]->{$Identifier} = $Value;
+                if ( keys %{ $CurrentResult } ) {
+                    push @{ $Result->{$Identifier} }, $CurrentResult;
+                }
             }
         }
         else {
