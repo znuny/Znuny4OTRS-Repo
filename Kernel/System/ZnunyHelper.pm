@@ -1953,7 +1953,7 @@ sub _ParseXMLData {
 
         my $Identifier = ($Parent) ? $Parent . '_' . $Field : $Field;
 
-        if ( $XMLDataMultiple ) {
+        if ($XMLDataMultiple) {
             $Result->{$Identifier} = [];
 
             for my $Index ( 1 .. $#{ $Data{$Field} } ) {
@@ -1968,10 +1968,10 @@ sub _ParseXMLData {
                 );
 
                 if ( defined $Value ) {
-                    $CurrentResult->{ $Identifier } = $Value;
+                    $CurrentResult->{$Identifier} = $Value;
                 }
 
-                if ( keys %{ $CurrentResult } ) {
+                if ( keys %{$CurrentResult} ) {
                     push @{ $Result->{$Identifier} }, $CurrentResult;
                 }
             }
