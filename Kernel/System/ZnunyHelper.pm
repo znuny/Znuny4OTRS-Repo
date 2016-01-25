@@ -1741,17 +1741,15 @@ sub _ITSMVersionAdd {
         {
             'Version' => [
                 undef,
-                {
-                    map {
-                        $_ => [
-                            undef,
-                            { 'Content' => $ConfigItem{$_} }
-                            ]
-                        } sort keys %ConfigItem
-                },
+                {},
             ],
         },
     ];
+    $Self->_ParseData2XML(
+        %Param,
+        Result => $XMLData->[1]->{Version}->[-1],
+        Data   => \%ConfigItem,
+    );
 
     my $VersionID = $ConfigItemObject->VersionAdd(
         ConfigItemID => $ConfigItemID,
@@ -1858,13 +1856,13 @@ Returns:
     my %Version = (
         ConfigItemID  => 12345,
 
-        DefinitionID  => 1234,
-        DeplStateID   => 1234,
-        DeplStateName => 'Production',
-        InciStateID   => 1234,
-        InciStateName => 'Operational',
-        Name          => 'example name',
-        XMLData => {
+        DefinitionID => 1234,
+        DeplStateID  => 1234,
+        DeplState    => 'Production',
+        InciStateID  => 1234,
+        InciState    => 'Operational',
+        Name         => 'example name',
+        XMLData      => {
             'Priority'    => 'high',
             'Product'     => 'test',
             'Description' => 'test'
@@ -1907,26 +1905,26 @@ sub _ITSMVersionGet {
     my %VersionConfigItem;
     $VersionConfigItem{XMLData} ||= {};
     if ( IsHashRefWithData( $VersionRef->{XMLData}->[1]->{Version}->[1] ) ) {
-        $Self->_ParseXMLData(
+        $Self->_ParseXML2Data(
             %Param,
             Result => $VersionConfigItem{XMLData},
             Data   => $VersionRef->{XMLData}->[1]->{Version}->[1],
         );
     }
 
-    for my $Field (qw(ConfigItemID Name DefinitionID DeplStateID DeplState InciStateID InciState)) {
+    for my $Field (qw(ConfigItemID Name ClassID Class DefinitionID DeplStateID DeplState InciStateID InciState)) {
         $VersionConfigItem{$Field} = $VersionRef->{$Field};
     }
 
     return %VersionConfigItem;
 }
 
-=item _ParseXMLData()
+=item _ParseXML2Data()
 
 this is a internal function for _ITSMVersionGet to parse the additional data
 stored in XMLData.
 
-    my $Success = $ZnunyHelperObject->_ParseXMLData(
+    my $Success = $ZnunyHelperObject->_ParseXML2Data(
         Parent          => $Identifier,          # optional: contains the field name of the parent xml
         Result          => $Result,              # contains the reference to the result hash
         Data            => $Data{$Field}->[1],   # contains the xml hash we want to parse
@@ -1939,7 +1937,7 @@ Returns:
 
 =cut
 
-sub _ParseXMLData {
+sub _ParseXML2Data {
     my ( $Self, %Param ) = @_;
 
     my $Result          = $Param{Result};
@@ -1961,7 +1959,8 @@ sub _ParseXMLData {
 
                 my $CurrentResult = {};
 
-                $Self->_ParseXMLData(
+                $Self->_ParseXML2Data(
+                    %Param,
                     Parent => $Identifier,
                     Result => $CurrentResult,
                     Data   => $Data{$Field}->[$Index],
@@ -1979,7 +1978,7 @@ sub _ParseXMLData {
         else {
             my $Value = $Data{$Field}->[1]->{Content};
 
-            $Self->_ParseXMLData(
+            $Self->_ParseXML2Data(
                 Parent => $Identifier,
                 Result => $Result,
                 Data   => $Data{$Field}->[1],
@@ -1988,6 +1987,75 @@ sub _ParseXMLData {
             next FIELD if !defined $Value;
 
             $Result->{$Identifier} = $Value;
+        }
+    }
+
+    return 1;
+}
+
+=item _ParseData2XML()
+
+this is a internal function for _ITSMVersionAdd to parse the additional data
+for xml storage.
+
+    my $Success = $ZnunyHelperObject->_ParseData2XML(
+        Parent          => $Identifier,          # optional: contains the field name of the parent xml
+        Result          => $Result,              # contains the reference to the result hash
+        Data            => $Data{$Field}->[1],   # contains the xml hash we want to parse
+        XMLDataMultiple => 1,                    # default: 0, This option will return a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _ParseData2XML {
+    my ( $Self, %Param ) = @_;
+
+    my $XMLDataMultiple = $Param{XMLDataMultiple};
+    my $Result          = $Param{Result};
+    my $Parent          = $Param{Parent} || '';
+    my %Data            = %{ $Param{Data} || {} };
+
+    ITEM:
+    for my $ItemID ( sort keys %Data ) {
+        next ITEM if $ItemID eq $Parent;
+
+        my $Identifier = $ItemID;
+        if ($Parent) {
+            $Identifier =~ s{$Parent\_}{};
+        }
+
+        my $Item = $Data{$ItemID};
+
+        if ( IsArrayRefWithData($Item) ) {
+
+            $Result->{$Identifier} = [undef];
+
+            for my $Index ( 0 .. $#{$Item} ) {
+                my $ItemData = $Item->[$Index];
+
+                push @{ $Result->{$Identifier} }, {
+                    'Content' => $Item->[$Index]->{$ItemID},
+                };
+
+                $Self->_ParseData2XML(
+                    %Param,
+                    Parent => $ItemID,
+                    Result => $Result->{$Identifier}->[-1],
+                    Data   => $Data{$ItemID}->[$Index],
+                );
+            }
+        }
+        elsif ( !$XMLDataMultiple ) {
+            $Result->{$Identifier} = [
+                undef,
+                {
+                    'Content' => $Item,
+                }
+            ];
         }
     }
 
