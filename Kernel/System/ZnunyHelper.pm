@@ -1985,7 +1985,7 @@ sub _ParseXML2Data {
 
             next FIELD if !defined $Value;
 
-            $Result->{Content} = $Value;
+            $Result->{$Field} = $Value;
         }
     }
 
