@@ -1595,6 +1595,7 @@ adds or updates a config item version.
             'Product'     => 'test',
             'Description' => 'test'
         },
+        XMLDataMultiple => 1, # default: 0, This option will save a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
     );
 
 Returns:
@@ -1949,10 +1950,8 @@ sub _ParseXML2Data {
     for my $Field ( sort keys %Data ) {
         next FIELD if !IsArrayRefWithData( $Data{$Field} );
 
-        my $Identifier = ($Parent) ? $Parent . '_' . $Field : $Field;
-
         if ($XMLDataMultiple) {
-            $Result->{$Identifier} = [];
+            $Result->{$Field} = [];
 
             for my $Index ( 1 .. $#{ $Data{$Field} } ) {
                 my $Value = $Data{$Field}->[$Index]->{Content};
@@ -1961,17 +1960,17 @@ sub _ParseXML2Data {
 
                 $Self->_ParseXML2Data(
                     %Param,
-                    Parent => $Identifier,
+                    Parent => $Field,
                     Result => $CurrentResult,
                     Data   => $Data{$Field}->[$Index],
                 );
 
                 if ( defined $Value ) {
-                    $CurrentResult->{$Identifier} = $Value;
+                    $CurrentResult->{Content} = $Value;
                 }
 
                 if ( keys %{$CurrentResult} ) {
-                    push @{ $Result->{$Identifier} }, $CurrentResult;
+                    push @{ $Result->{$Field} }, $CurrentResult;
                 }
             }
         }
@@ -1979,14 +1978,14 @@ sub _ParseXML2Data {
             my $Value = $Data{$Field}->[1]->{Content};
 
             $Self->_ParseXML2Data(
-                Parent => $Identifier,
+                Parent => $Field,
                 Result => $Result,
                 Data   => $Data{$Field}->[1],
             );
 
             next FIELD if !defined $Value;
 
-            $Result->{$Identifier} = $Value;
+            $Result->{Content} = $Value;
         }
     }
 
@@ -2023,34 +2022,29 @@ sub _ParseData2XML {
     for my $ItemID ( sort keys %Data ) {
         next ITEM if $ItemID eq $Parent;
 
-        my $Identifier = $ItemID;
-        if ($Parent) {
-            $Identifier =~ s{$Parent\_}{};
-        }
-
         my $Item = $Data{$ItemID};
 
         if ( IsArrayRefWithData($Item) ) {
 
-            $Result->{$Identifier} = [undef];
+            $Result->{$ItemID} = [undef];
 
             for my $Index ( 0 .. $#{$Item} ) {
                 my $ItemData = $Item->[$Index];
 
-                push @{ $Result->{$Identifier} }, {
-                    'Content' => $Item->[$Index]->{$ItemID},
+                push @{ $Result->{$ItemID} }, {
+                    'Content' => $Item->[$Index]->{Content},
                 };
 
                 $Self->_ParseData2XML(
                     %Param,
                     Parent => $ItemID,
-                    Result => $Result->{$Identifier}->[-1],
+                    Result => $Result->{$ItemID}->[-1],
                     Data   => $Data{$ItemID}->[$Index],
                 );
             }
         }
         elsif ( !$XMLDataMultiple ) {
-            $Result->{$Identifier} = [
+            $Result->{$ItemID} = [
                 undef,
                 {
                     'Content' => $Item,
