@@ -1883,12 +1883,6 @@ sub _ParseXML2Data {
         else {
             my $Value = $Data{$Field}->[1]->{Content};
 
-            $Self->_ParseXML2Data(
-                Parent => $Field,
-                Result => $Result,
-                Data   => $Data{$Field}->[1],
-            );
-
             next FIELD if !defined $Value;
 
             $Result->{$Field} = $Value;
