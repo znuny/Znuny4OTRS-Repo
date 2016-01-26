@@ -1873,10 +1873,10 @@ sub _ParseXML2Data {
 
                 if ( defined $Value ) {
                     $CurrentResult->{Content} = $Value;
-                }
 
-                if ( keys %{$CurrentResult} ) {
-                    push @{ $Result->{$Field} }, $CurrentResult;
+                    if ( keys %{$CurrentResult} ) {
+                        push @{ $Result->{$Field} }, $CurrentResult;
+                    }
                 }
             }
         }
