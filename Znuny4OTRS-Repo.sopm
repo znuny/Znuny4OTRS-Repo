@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>1.0.23</Version>
+    <Version>1.0.24</Version>
+    <ChangeLog Version="1.0.24" Date="2016-01-28 11:09:34 UTC">Added new meta key 'CustomerUserID' to prevent confusion.</ChangeLog>
     <ChangeLog Version="1.0.23" Date="2016-01-18 13:37:47 UTC">Improved get function to return all possible values on parameter 'PossibleValues'.</ChangeLog>
     <ChangeLog Version="1.0.22" Date="2016-01-18 11:47:12 UTC">Added check for required Attribute for FieldID lookup.</ChangeLog>
     <ChangeLog Version="1.0.21" Date="2016-01-14 08:25:46 UTC">Added hide and show function to Core.Form.Znuny4OTRSInput.</ChangeLog>
