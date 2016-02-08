@@ -1459,17 +1459,62 @@ sub _QueueCreateIfNotExists {
         return;
     }
 
-    my %QueuesReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList();
-    %QueuesReversed = reverse %QueuesReversed;
+    my $Name = $Param{Name};
 
-    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %QueuesReversed );
+    my %QueueReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList(
+        UserID => 1
+    );
+    %QueueReversed = reverse %QueueReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Name, %QueueReversed );
     return $ItemID if $ItemID;
 
-    return $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
-        ValidID => 1,
-        UserID  => 1,
-        %Param,
-    );
+    # split string to check for possible sub Queues
+    my @QueueArray = split( '::', $Name );
+
+    # create Queue with parent
+    my $CompleteQueueName = '';
+    my $QueueID;
+
+    QUEUE:
+    for my $QueueName (@QueueArray) {
+
+        if ($CompleteQueueName) {
+            $CompleteQueueName .= '::';
+        }
+
+        $CompleteQueueName .= $QueueName;
+
+        my $ItemID = $Self->_ItemReverseListGet( $CompleteQueueName, %QueueReversed );
+        if ($ItemID) {
+            $QueueID = $ItemID;
+            next QUEUE;
+        }
+
+        $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+            %Param,
+            Name          => $CompleteQueueName,
+            ParentQueueID => $QueueID,
+            ValidID       => 1,
+            UserID        => 1,
+        );
+
+        if ( !$QueueID ) {
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Error while adding new Queue '$QueueName' ($QueueID).",
+            );
+            return;
+        }
+
+        %QueueReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList(
+            UserID => 1,
+        );
+        %QueueReversed = reverse %QueueReversed;
+    }
+
+    return $QueueID;
 }
 
 =item _GeneralCatalogItemCreateIfNotExists()
