@@ -68,6 +68,13 @@
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Notification/AgentOTRSBusiness.pm"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Notification/CustomerOTRSBusiness.pm"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminCloudServices.tt"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminNotificationEvent.tt"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminPackageManager.tt"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminProcessManagement.tt"/>
+        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/FooterJS.tt"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
         <br/>

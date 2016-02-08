@@ -1,8 +1,12 @@
 # VERSION:1.1
 # --
 # Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
-# Copyright (C) 2001-2015 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# --
+# $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34e/Kernel/System/Package.pm
+# $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34e/Kernel/System/CloudService/Backend/Run.pm
+# $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34eKernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -128,8 +132,7 @@ sub Kernel::System::CloudService::Backend::Run::new {
     return $Self;
 }
 
-
-sub Kernel::System::Package::_Download {
+sub Kernel::System::Package::_Download { ## no critic
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
