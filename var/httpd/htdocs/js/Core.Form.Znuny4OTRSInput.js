@@ -1,6 +1,5 @@
 // --
-// Core.Form.Znuny4OTRSInput.js - normalizes the input experience
-// Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+// Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -38,7 +37,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             StateID:          'NewStateID',
             Subject:          'Subject',
             Title:            'Title',
-            TypeID:           'TypeID',
+            TypeID:           'TypeID'
         },
 
         AgentTicketBounce: {
@@ -47,7 +46,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             CustomerID:    'CustomerID',
             RichText:      'RichText',
             Subject:       'Subject',
-            To:            'To',
+            To:            'To'
         },
 
         AgentTicketBulk: {
@@ -62,7 +61,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             StateID:       'EmailStateID',
             EmailSubject:  'EmailSubject', // TODO: Which one?
             Subject:       'Subject',
-            TypeID:        'TypeID',
+            TypeID:        'TypeID'
         },
 
         AgentTicketCompose: {
@@ -74,14 +73,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Subject:        'Subject',
             ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
-            CustomerUserID: 'ToCustomer',
+            CustomerUserID: 'ToCustomer'
         },
 
         AgentTicketCustomer: {
             CustomerAutoComplete: 'CustomerAutoComplete',
             Customer:             'CustomerAutoComplete',
             CustomerUserID:       'CustomerAutoComplete',
-            CustomerID:           'CustomerID',
+            CustomerID:           'CustomerID'
         },
 
         AgentTicketEmail: {
@@ -104,7 +103,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             ToCustomer:       'ToCustomer',
             Customer:         'ToCustomer',
             CustomerUserID:   'ToCustomer',
-            TypeID:           'TypeID',
+            TypeID:           'TypeID'
         },
 
         AgentTicketEmailOutbound: {
@@ -117,7 +116,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Subject:        'Subject',
             ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
-            CustomerUserID: 'ToCustomer',
+            CustomerUserID: 'ToCustomer'
         },
 
         AgentTicketForward: {
@@ -130,14 +129,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Subject:        'Subject',
             ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
-            CustomerUserID: 'ToCustomer',
+            CustomerUserID: 'ToCustomer'
         },
 
         AgentTicketMerge: {
             From:     'From',
             RichText: 'RichText',
             Subject:  'Subject',
-            To:       'To',
+            To:       'To'
         },
 
         AgentTicketMove: {
@@ -150,22 +149,22 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             NewUserID:     'NewUserID',
             OldUserID:     'OldUserID',
             RichText:      'RichText',
-            Subject:       'Subject',
+            Subject:       'Subject'
         },
 
         AgentTicketOverviewMedium: {
             DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID',
+            QueueID:     'DestQueueID'
         },
 
         AgentTicketOverviewPreview: {
             DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID',
+            QueueID:     'DestQueueID'
         },
 
         AgentTicketOverviewSmall: {
             DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID',
+            QueueID:     'DestQueueID'
         },
 
         AgentTicketPhone: {
@@ -186,19 +185,19 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             NextStateID:      'NextStateID',
             StateID:          'NextStateID',
             Subject:          'Subject',
-            TypeID:           'TypeID',
+            TypeID:           'TypeID'
         },
 
         AgentTicketPhoneCommon: {
             RichText:    'RichText',
             NextStateID: 'NextStateID',
             StateID:     'NextStateID',
-            Subject:     'Subject',
+            Subject:     'Subject'
         },
 
         AgentTicketZoom: {
             DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID',
+            QueueID:     'DestQueueID'
         },
 
         CustomerTicketMessage: {
@@ -209,14 +208,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             ServiceID:  'ServiceID',
             SLAID:      'SLAID',
             Subject:    'Subject',
-            TypeID:     'TypeID',
+            TypeID:     'TypeID'
         },
 
         CustomerTicketZoom: {
             PriorityID: 'PriorityID',
             RichText:   'RichText',
             StateID:    'StateID',
-            Subject:    'Subject',
+            Subject:    'Subject'
         },
 
         AgentTicketProcess: {
@@ -234,7 +233,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             PriorityID:     'PriorityID',
             QueueID:        'QueueID',
             StateID:        'StateID',
-            TypeID:         'TypeID',
+            TypeID:         'TypeID'
         },
 
         CustomerTicketProcess: {
@@ -252,7 +251,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             PriorityID:     'PriorityID',
             QueueID:        'QueueID',
             StateID:        'StateID',
-            TypeID:         'TypeID',
+            TypeID:         'TypeID'
         }
     };
 
@@ -263,16 +262,17 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketOwner:       'AgentTicketActionCommon',
         AgentTicketPending:     'AgentTicketActionCommon',
         AgentTicketPriority:    'AgentTicketActionCommon',
-        AgentTicketResponsible: 'AgentTicketActionCommon',
+        AgentTicketResponsible: 'AgentTicketActionCommon'
     }
 
-    TargetNS.FieldID = function ( Attribute ) {
+    TargetNS.FieldID = function (Attribute) {
+        var Module;
 
         if (!Attribute) return false;
 
-        var Module = TargetNS.Module();
+        Module = TargetNS.Module();
 
-        if ( Attribute.indexOf('DynamicField_') === 0 ) {
+        if (Attribute.indexOf('DynamicField_') === 0) {
             return Attribute;
         }
 
@@ -283,42 +283,53 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             return false;
         }
 
-        return AttributFieldIDMapping[ Module ][ Attribute ];
+        return AttributFieldIDMapping[Module][Attribute];
     }
 
-    TargetNS.SetFieldIDMapping = function ( Action, AttributeFieldIDs ) {
+    TargetNS.SetFieldIDMapping = function (Action, AttributeFieldIDs) {
 
-        var Module = TargetNS.Module( Action );
+        var Module = TargetNS.Module(Action);
 
-        AttributFieldIDMapping[ Module ] = AttributeFieldIDs;
+        AttributFieldIDMapping[Module] = AttributeFieldIDs;
 
         return true;
     }
 
-    TargetNS.Module = function ( Action ) {
+    TargetNS.Module = function (Action) {
 
         Action = Action || Core.Config.Get('Action');
 
-        if ( ActionModuleMapping[ Action ] ) {
-            return ActionModuleMapping[ Action ];
+        if (ActionModuleMapping[Action]) {
+            return ActionModuleMapping[Action];
         }
 
         return Action;
     }
 
-    TargetNS.Get = function ( Attribute, Options ) {
+    TargetNS.Get = function (Attribute, Options) {
+
+        var FieldID;
+        var KeyOrValue;
+        var LookupClass;
+        var PossibleValues; // Affects currently only select fields (no dynamic field support)
+        var Prefix;
+        var Result;
+        var SelectedAffix;
+        var Type;
+        var Value;
+        var $Element;
 
         Options = Options || {};
 
-        if ( typeof Options !== 'object' ) return;
+        if (typeof Options !== 'object') return;
 
-        var KeyOrValue     = Options.KeyOrValue || 'Key';
-        var PossibleValues = Options.PossibleValues; // Affects currently only select fields (no dynamic field support)
-        var FieldID        = TargetNS.FieldID( Attribute );
+        KeyOrValue     = Options.KeyOrValue || 'Key';
+        PossibleValues = Options.PossibleValues; // Affects currently only select fields (no dynamic field support)
+        FieldID        = TargetNS.FieldID(Attribute);
 
-        if ( !FieldID ) return;
+        if (!FieldID) return;
 
-        var Type = TargetNS.Type( FieldID );
+        Type = TargetNS.Type(FieldID);
 
         if (
             Type == 'text'
@@ -329,31 +340,30 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 Type == 'text'
                 && $('#'+ FieldID).hasClass('CustomerAutoComplete')
             ) {
-                var Prefix = FieldID;
+                Prefix = FieldID;
                 Prefix     = Prefix.replace(/^ToCustomer$/, 'Customer');
                 Prefix     = Prefix.replace(/^FromCustomer$/, 'Customer');
 
-                var LookupClass;
-                if ( KeyOrValue == 'Key' ) {
+                if (KeyOrValue == 'Key') {
                     LookupClass = 'CustomerKey';
                 }
                 else {
                     LookupClass = 'CustomerTicketText';
                 }
 
-                var Result = [];
-                $('.'+ LookupClass).each( function (Index, Element) {
+                Result = [];
+                $('.'+LookupClass).each(function(Index, Element) {
 
-                    if ( $(Element).attr('id').indexOf( Prefix ) != 0 ) return true;
+                    if ($(Element).attr('id').indexOf(Prefix) != 0) return true;
 
-                    var Value = $.trim( $(Element).val() );
+                    Value = $.trim($(Element).val());
 
-                    if ( Value.length === 0 ) return true;
+                    if (Value.length === 0) return true;
 
                     // only get selected customers if option is set
-                    if ( Options.Selected && !$(Element).siblings('.CustomerTicketRadio').prop('checked') ) return true;
+                    if (Options.Selected && !$(Element).siblings('.CustomerTicketRadio').prop('checked')) return true;
 
-                    Result.push( Value );
+                    Result.push(Value);
                 });
 
                 return Result;
@@ -363,7 +373,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 Type == 'text'
                 && FieldID === 'CustomerAutoComplete'
             ) {
-                if ( KeyOrValue == 'Key' ) {
+                if (KeyOrValue == 'Key') {
                     return $('#SelectedCustomerUser').val();
                 }
                 else {
@@ -376,7 +386,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 && FieldID.indexOf('DynamicField_') == 0
                 && $('#'+ FieldID +'Autocomplete').length > 0
             ) {
-                if ( KeyOrValue == 'Key' ) {
+                if (KeyOrValue == 'Key') {
                     return $('#'+ FieldID).val();
                 }
                 else {
@@ -388,42 +398,42 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 return $('#'+ FieldID).val();
             }
         }
-        else if ( Type == 'checkbox' ) {
+        else if (Type == 'checkbox') {
             return $('#'+ FieldID).prop('checked');
         }
-        else if ( Type == 'select' ) {
+        else if (Type == 'select') {
 
-            if ( $('#'+ FieldID).prop('multiple') || Options.PossibleValues ) {
+            if ($('#'+ FieldID).prop('multiple') || PossibleValues) {
 
-                var Result = [];
-                var SelectedAffix = '';
-                if ( !Options.PossibleValues ) {
+                Result = [];
+                SelectedAffix = '';
+                if (!Options.PossibleValues) {
                     SelectedAffix = ':selected';
                 }
 
                 $('#' + FieldID + ' option' + SelectedAffix).each(function(Index, Element) {
 
-                    if ( KeyOrValue == 'Key' ) {
-                        var Value = QueueIDExtract( $(Element).val(), $(Element).text() );
-                        Result.push( Value );
+                    if (KeyOrValue == 'Key') {
+                        Value = QueueIDExtract($(Element).val(), $(Element).text());
+                        Result.push(Value);
                     }
                     else {
-                        Result.push( $.trim( $(Element).text() ) );
+                        Result.push($.trim($(Element).text()));
                     }
                 });
 
                 return Result;
             }
             else {
-                var $Element = $('#'+ FieldID +' option:selected');
+                $Element = $('#'+ FieldID +' option:selected');
 
                 if (!$Element.length) return;
 
-                if ( KeyOrValue == 'Key' ) {
-                    return QueueIDExtract( $Element.val(), $Element.text() );
+                if (KeyOrValue == 'Key') {
+                    return QueueIDExtract($Element.val(), $Element.text());
                 }
                 else {
-                    return $.trim( $Element.text() );
+                    return $.trim($Element.text());
                 }
             }
         }
@@ -433,49 +443,64 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return;
     }
 
-    TargetNS.Type = function ( FieldID ) {
+    TargetNS.Type = function (FieldID) {
 
-        if ( $('#'+ FieldID).length == 0 ) return;
+        if ($('#'+ FieldID).length == 0) return;
 
-        if ( $('#'+ FieldID)[0].tagName == 'INPUT' ) {
+        if ($('#'+ FieldID)[0].tagName == 'INPUT') {
             return $('#'+ FieldID)[0].type.toLowerCase();
         }
         return $('#'+ FieldID)[0].tagName.toLowerCase();
     }
 
-    TargetNS.Set = function ( Attribute, Content, Options ) {
+    TargetNS.Set = function (Attribute, Content, Options) {
+
+        var Checked;
+        var CompareKeyOrValue;
+        var CustomerKey;
+        var CustomerValue;
+        var Exists;
+        var FieldID;
+        var KeyOrValue;
+        var Prefix;
+        var Selected;
+        var SelectValue;
+        var SetSelected;
+        var TriggerChange;
+        var Type;
+        var SetAsTicketCustomer;
 
         Options = Options || {};
 
-        if ( typeof Options !== 'object' ) return;
+        if (typeof Options !== 'object') return;
 
-        var TriggerChange = true;
-        if ( typeof Options.TriggerChange === 'boolean' ) {
+        TriggerChange = true;
+        if (typeof Options.TriggerChange === 'boolean') {
             TriggerChange = Options.TriggerChange;
         }
 
-        var KeyOrValue = Options.KeyOrValue || 'Key';
-        var FieldID    = TargetNS.FieldID( Attribute );
+        KeyOrValue = Options.KeyOrValue || 'Key';
+        FieldID    = TargetNS.FieldID(Attribute);
 
-        if ( !FieldID ) {
+        if (!FieldID) {
             return false;
         }
 
-        var Type = TargetNS.Type( FieldID );
+        Type = TargetNS.Type(FieldID);
 
-        if ( FieldID === 'RichText' ) {
+        if (FieldID === 'RichText') {
             if (
                 typeof CKEDITOR !== 'undefined'
-                && CKEDITOR.instances[ FieldID ]
+                && CKEDITOR.instances[FieldID]
             ) {
                 // Attention: No 'change' event will get triggered
                 // and the content will get re-rendered, so all events are lost :)
                 // See: https://dev.ckeditor.com/ticket/6633
-                CKEDITOR.instances[ FieldID ].setData( Content || '' );
+                CKEDITOR.instances[FieldID].setData(Content || '');
                 Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
             }
             else {
-                $('#'+ FieldID).val( Content || '' );
+                $('#'+ FieldID).val(Content || '');
                 if (TriggerChange) {
                     $('#'+ FieldID).trigger('change');
                 }
@@ -492,31 +517,31 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 && $('#'+ FieldID).hasClass('CustomerAutoComplete')
             ) {
                 // register event listener to fetch and set result
-                $('#'+ FieldID).one('autocompleteresponse', function( Event, Result ) {
+                $('#'+ FieldID).one('autocompleteresponse', function(Event, Result) {
 
                     $('#'+ FieldID).autocomplete('close');
 
-                    var Prefix = FieldID;
+                    Prefix     = FieldID;
                     Prefix     = Prefix.replace(/^ToCustomer$/, 'Customer');
                     Prefix     = Prefix.replace(/^FromCustomer$/, 'Customer');
 
-                    var SetAsTicketCustomer = $('#'+ Prefix +'TicketText').hasClass('Radio');
+                    SetAsTicketCustomer = $('#'+ Prefix +'TicketText').hasClass('Radio');
                     $.each(Result.content, function (Index, CustomerUser) {
 
-                        var CustomerKey   = CustomerUser.key,
-                            CustomerValue = CustomerUser.value;
+                        CustomerKey   = CustomerUser.key,
+                        CustomerValue = CustomerUser.value;
 
-                        var Exists = false;
-                        $('input.CustomerTicketText').each( function (Index, Element) {
+                        Exists = false;
+                        $('input.CustomerTicketText').each(function (Index, Element) {
 
-                            if ( $(Element).val() != CustomerValue ) return true;
+                            if ($(Element).val() != CustomerValue) return true;
 
-                            if ( SetAsTicketCustomer ) {
-                                var Index = $(Element).attr('id');
+                            if (SetAsTicketCustomer) {
+                                Index = $(Element).attr('id');
                                 Index     = Index.replace('CustomerTicketText_', '');
 
                                 if (TriggerChange) {
-                                    $('#CustomerSelected_'+ Index ).trigger('click');
+                                    $('#CustomerSelected_'+Index).trigger('click');
                                 }
 
                                 SetAsTicketCustomer = false;
@@ -525,7 +550,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                             Exists = true;
                         });
 
-                        if ( Exists ) return true;
+                        if (Exists) return true;
 
                         Core.Agent.CustomerSearch.AddTicketCustomer($(Event.target).attr('id'), CustomerValue, CustomerKey, SetAsTicketCustomer);
 
@@ -533,10 +558,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                         SetAsTicketCustomer = false;
                     });
-                } );
+                });
 
                 // start search
-                $('#'+ FieldID).autocomplete('search', Content);
+                $('#'+FieldID).autocomplete('search', Content);
             }
             // AgentTicketCustomer
             else if (
@@ -544,12 +569,12 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 && FieldID === 'CustomerAutoComplete'
             ) {
                 // register event listener to fetch and set result
-                $('#'+ FieldID).one('autocompleteresponse', function( Event, Result ) {
+                $('#'+ FieldID).one('autocompleteresponse', function(Event, Result) {
 
-                    if ( Result.content.length === 1 ) {
+                    if (Result.content.length === 1) {
 
-                        var CustomerKey   = Result.content[0].key,
-                            CustomerValue = Result.content[0].value;
+                        CustomerKey   = Result.content[0].key,
+                        CustomerValue = Result.content[0].value;
 
                         $('#'+ FieldID).autocomplete('close');
                         $('#'+ FieldID).val(CustomerValue);
@@ -562,14 +587,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                         Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
                     }
-                    else if( KeyOrValue == 'Key' && Result.content.length > 1 ) {
+                    else if(KeyOrValue == 'Key' && Result.content.length > 1) {
 
                         $.each(Result.content, function(Index,Element){
 
                             if(Element.key != Content) return true;
 
-                            var CustomerKey   = Element.key,
-                                CustomerValue = Element.value;
+                            CustomerKey   = Element.key,
+                            CustomerValue = Element.value;
 
                             $('#'+ FieldID).autocomplete('close');
                             $('#'+ FieldID).val(CustomerValue);
@@ -585,7 +610,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                             return false;
                         });
                     }
-                } );
+                });
 
                 // start search
                 $('#'+ FieldID).autocomplete('search', Content);
@@ -597,25 +622,25 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 && $('#'+ FieldID +'Autocomplete').length > 0
             ) {
                 // register event listener to fetch and set result
-                $('#'+ FieldID +'Autocomplete').one('autocompleteresponse', function( Event, Result ) {
+                $('#'+ FieldID +'Autocomplete').one('autocompleteresponse', function(Event, Result) {
 
-                    if ( Result.content.length === 1 ) {
+                    if (Result.content.length === 1) {
 
-                        var CustomerKey   = Result.content[0].key,
-                            CustomerValue = Result.content[0].value;
+                        CustomerKey   = Result.content[0].key,
+                        CustomerValue = Result.content[0].value;
 
                         $('#'+ FieldID +'Autocomplete').autocomplete('close');
                         $('#'+ FieldID +'Autocomplete').val(CustomerValue);
                         $('#'+ FieldID).val(CustomerKey);
                     }
-                    else if( KeyOrValue == 'Key' && Result.content.length > 1 ) {
+                    else if(KeyOrValue == 'Key' && Result.content.length > 1) {
 
                         $.each(Result.content, function(Index,Element){
 
                             if(Element.key != Content) return true;
 
-                            var CustomerKey   = Element.key,
-                                CustomerValue = Element.value;
+                            CustomerKey   = Element.key,
+                            CustomerValue = Element.value;
 
                             $('#'+ FieldID +'Autocomplete').autocomplete('close');
                             $('#'+ FieldID +'Autocomplete').val(CustomerValue);
@@ -631,14 +656,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                             return false;
                         });
                     }
-                } );
+                });
 
                 // start search
                 $('#'+ FieldID +'Autocomplete').autocomplete('search', Content);
             }
             // regular fields
             else {
-                $('#'+ FieldID).val( Content || '' );
+                $('#'+ FieldID).val(Content || '');
 
                 if (TriggerChange) {
                     $('#'+ FieldID).trigger('change');
@@ -647,10 +672,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
             }
         }
-        else if ( Type == 'checkbox' ) {
+        else if (Type == 'checkbox') {
 
-            var Checked = false;
-            if ( Content ) {
+            Checked = false;
+            if (Content) {
                 Checked = true;
             }
             $('#'+ FieldID).prop('checked', Checked);
@@ -660,14 +685,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
         }
-        else if ( Type == 'select' ) {
+        else if (Type == 'select') {
 
             // reset selection
             $('#'+ FieldID +' option').prop('selected', false);
 
             // get selected values as an array
-            var SetSelected = [];
-            if ( Content ) {
+            SetSelected = [];
+            if (Content) {
                 if (
                     $('#'+ FieldID).prop('multiple')
                     && $.isArray(Content)
@@ -675,29 +700,27 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     SetSelected = Content;
                 }
                 else {
-                    SetSelected = [ Content ];
+                    SetSelected = [Content];
                 }
             }
 
             // cast to strings
-            SetSelected = jQuery.map( SetSelected, function( Element ) {
+            SetSelected = jQuery.map(SetSelected, function(Element) {
               return Element.toString();
             });
 
-            var SelectValue;
             $('#'+ FieldID +' option').filter(function() {
 
-                var CompareKeyOrValue;
-                if ( KeyOrValue == 'Key' ) {
-                    CompareKeyOrValue = QueueIDExtract( $(this).val(), $(this).text() );
+                if (KeyOrValue == 'Key') {
+                    CompareKeyOrValue = QueueIDExtract($(this).val(), $(this).text());
                 }
                 else {
                     CompareKeyOrValue = $(this).text();
                 }
 
-                var Selected = false;
+                Selected = false;
                 // may want to use $.trim in here?
-                if ( SetSelected.indexOf( $.trim( CompareKeyOrValue ) ) != -1 ) {
+                if (SetSelected.indexOf($.trim(CompareKeyOrValue)) != -1) {
                     Selected = true;
                     SelectValue = $(this).val();
                 }
@@ -724,11 +747,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return true;
     };
 
-    TargetNS.Hide = function ( Attribute ) {
+    TargetNS.Hide = function (Attribute) {
 
-        var FieldID = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID(Attribute);
 
-        if ( !FieldID ) {
+        if (!FieldID) {
             return false;
         }
 
@@ -738,11 +761,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return true;
     }
 
-    TargetNS.Show = function ( Attribute ) {
+    TargetNS.Show = function (Attribute) {
 
-        var FieldID = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID(Attribute);
 
-        if ( !FieldID ) {
+        if (!FieldID) {
             return false;
         }
 
@@ -807,10 +830,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     // special queue handling
     function QueueIDExtract (Key, Value) {
-        var QueueName   = $.trim( Value );
-        QueueName       = escapeRegExp( QueueName );
+        var QueueName   = $.trim(Value);
         var QueueExp    = '^(\\d*)\\|\\|'+ QueueName +'$';
         var QueueRegExp = new RegExp(QueueExp);
+        QueueName       = escapeRegExp(QueueName);
 
         return Key.replace(QueueRegExp, "$1");
     }
