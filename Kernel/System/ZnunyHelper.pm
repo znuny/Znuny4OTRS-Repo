@@ -1245,6 +1245,74 @@ sub _StateDisable {
     return $Success;
 }
 
+=item _StateTypeCreateIfNotExists()
+
+creates statetypes if not exists
+
+    my $StateTypeID = $ZnunyHelperObject->_StateTypeCreateIfNotExists(
+        Name    => 'New StateType',
+        Comment => 'some comment',
+        UserID  => 123,
+    );
+
+=cut
+
+sub _StateTypeCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    for my $Needed (qw(Name UserID)) {
+        if ( !$Param{$Needed} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Need $Needed!"
+            );
+            return;
+        }
+    }
+
+    # check if exists
+    $Kernel::OM->Get('Kernel::System::DB')->Prepare(
+        SQL  => 'SELECT name FROM ticket_state_type WHERE name = ?',
+        Bind => [ \$Param{Name} ],
+        Limit => 1,
+    );
+    my $Exists;
+    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
+        $Exists = 1;
+    }
+    return 1 if $Exists;
+
+    # create new
+    return if !$Kernel::OM->Get('Kernel::System::DB')->Do(
+        SQL => 'INSERT INTO ticket_state_type (name, comments,'
+            . ' create_time, create_by, change_time, change_by)'
+            . ' VALUES (?, ?, current_timestamp, ?, current_timestamp, ?)',
+        Bind => [
+            \$Param{Name}, \$Param{Comment},
+            \$Param{UserID}, \$Param{UserID},
+        ],
+    );
+
+    # get new statetype id
+    return if !$Kernel::OM->Get('Kernel::System::DB')->Prepare(
+        SQL   => 'SELECT id FROM ticket_state_type WHERE name = ?',
+        Bind  => [ \$Param{Name} ],
+        Limit => 1,
+    );
+
+    # fetch the result
+    my $ID;
+    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
+        $ID = $Row[0];
+    }
+
+    return if !$ID;
+
+    return $ID;
+
+}
+
 =item _ServiceCreateIfNotExists()
 
 creates Service if not exists
@@ -1456,7 +1524,7 @@ sub _QueueCreateIfNotExists {
 
 =item _NotificationCreateIfNotExists()
 
-creates notification if not texts
+creates notification if not exists
 
     my $Success = $ZnunyHelperObject->_NotificationCreateIfNotExists(
         'Agent::PvD::NewTicket',   # Notification type
