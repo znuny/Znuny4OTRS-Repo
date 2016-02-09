@@ -52,7 +52,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::Output::FilterElementPost###Znuny4OTRSRepo" Required="1" Valid="1">
-        <Description Translatable="1">This configuration registers a Output pre-filter to extend package verification.</Description>
+        <Description Translatable="1">This configuration registers a Output post-filter to extend package verification.</Description>
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>OutputFilter</SubGroup>
         <Setting>
