@@ -12,13 +12,13 @@ Mit diesem Paket können Znuny Pakete über OTRS verifiziert werden.
 
 Im OTRS Standard ist es nicht möglich Pakete ohne Anbindung an das Internet als verifiziert anzeigen zu lassen. Das kann zu einer langen, unübersichtlichen Liste von Fehlermeldungen in der Paketverwaltung führen. Dieses Paket ermöglicht es die Paketverifizierung über die SysConfig 'PackageVerification' zu steuern und zu deaktivieren. Ist die Paketverifizierung deaktiviert, werden alle Pakete als verifiziert angezeigt. Generell ist es ratsam die Paketverifizierung nur in Sonderfällen zu deaktivieren.
 
-# Werbung ausblenden
+# Ausblenden von Nicht-Systemmeldungen
 
-Seit Version 5 wird in OTRS vermehrt Werbung eingeblendet. Dieses Paket blendet diese Werbung aus.
+Seit Version 5 werden in der freien Version von OTRS vermehrt irrelevante Meldungen und Hinweistexte eingeblendet. Diese werden systemweit deaktiviert.
 
-# Deaktivierung von Anfragen an extern
+# Deaktivierung von ungewünschten, ausgehenden Verbindungen
 
-Seit Version 5 wird von OTRS vermehrt Netzwerkverbindungen zum Hersteller aufgenommen. Dieses Paket deaktiviert diese nicht benötigten Verbindungen.
+Seit Version 5 öffnet OTRS ungefragt unerwünschte, ausgehende Netzwerkverbindungen. Diese Verbindungen sind oftmals nicht notwendig oder schlichtweg nicht möglich, aufgrund von Einschränkungen der Netzwerkkonnektivität oder Firewall-Regeln und verursachen Fehler-Einträge im Log. Diese Verbindungen werden automatisch deaktiviert.
 
 ## Hinweise
 Bei der Nutzung von HTTPS als Protokoll, was nach der Installation des Paketes aktiviert ist, besteht die Möglichkeit das ein Fehler 500 beim Zugriff auf das Repository gemeldet wird. Das Problem wird mit der Installation des Perl-Modules LWP::Protocol::https beseitigt, alternativ kann auch in der SysConfig die Einstellung "Znuny4OTRSRepoType" auf HTTP umgeschaltet werden.
