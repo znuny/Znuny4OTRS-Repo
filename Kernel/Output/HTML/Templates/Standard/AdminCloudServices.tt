@@ -76,7 +76,7 @@
                             <td>
                                 [% Translate(Data.CloudService.Description) | html %]
 # ---
-# Znuny4OTRS-FreeOTRS
+# Znuny4OTRS-Repo
 # ---
 #                                [% IF Data.CloudService.IsOTRSBusiness && !Data.OTRSBusinessIsInstalled %]
 #                                <span class="Recomendation">

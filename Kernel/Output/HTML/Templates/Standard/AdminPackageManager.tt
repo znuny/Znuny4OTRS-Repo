@@ -358,7 +358,7 @@
 
 [% RenderBlockStart("FeatureAddonList") %]
 # ---
-# Znuny4OTRS-FreeOTRS
+# Znuny4OTRS-Repo
 # ---
 #            <div class="WidgetSimple">
 #
@@ -383,7 +383,7 @@
 # ---
 [% RenderBlockStart("FeatureAddonData") %]
 # ---
-# Znuny4OTRS-FreeOTRS
+# Znuny4OTRS-Repo
 # ---
 #                            <tr>
 #                                <td><a href="[% Data.Link | html %]" target="_feature_addon_details">[% Data.Title | html %]</a></td>
@@ -392,7 +392,7 @@
 # ---
 [% RenderBlockEnd("FeatureAddonData") %]
 # ---
-# Znuny4OTRS-FreeOTRS
+# Znuny4OTRS-Repo
 # ---
 #                        </tbody>
 #                    </table>
