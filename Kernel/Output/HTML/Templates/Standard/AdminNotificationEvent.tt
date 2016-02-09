@@ -492,9 +492,13 @@ $('.NotificationDelete').bind('click', function (Event) {
                         </div>
 [% RenderBlockEnd("TransportRowDisabled") %]
 [% RenderBlockStart("TransportRowRecommendation") %]
-                        <div class="Field Info">
-                            <a href="[% Env("Baselink") %]Action=AdminOTRSBusiness" class="Button"><i class="fa fa-angle-double-up"></i> [% Translate("Upgrade to %s", OTRSBusinessLabel) %]</a>
-                        </div>
+# ---
+# Znuny4OTRS-Repo
+# ---
+#                         <div class="Field Info">
+#                             <a href="[% Env("Baselink") %]Action=AdminOTRSBusiness" class="Button"><i class="fa fa-angle-double-up"></i> [% Translate("Upgrade to %s", OTRSBusinessLabel) %]</a>
+#                         </div>
+# ---
 [% RenderBlockEnd("TransportRowRecommendation") %]
                         <div class="Clear"></div>
                     </fieldset>
