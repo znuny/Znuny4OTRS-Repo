@@ -52,7 +52,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Frontend::Output::FilterElementPost###Znuny4OTRSRepo" Required="1" Valid="1">
-        <Description Translatable="1">This configuration registers a Output pre-filter to extend package verification.</Description>
+        <Description Translatable="1">This configuration registers a Output post-filter to extend package verification.</Description>
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>OutputFilter</SubGroup>
         <Setting>
@@ -98,6 +98,228 @@
                 <Item Key="0">No</Item>
                 <Item Key="1">Yes</Item>
             </Option>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Daemon::SchedulerCronTaskManager::Task###OTRSBusinessEntitlementCheck" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Checks the entitlement status of OTRS Business Solution™.</Description>
+        <Group>Daemon</Group>
+        <SubGroup>Daemon::SchedulerCronTaskManager::Task</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="TaskName">OTRSBusinessEntitlementCheck</Item>
+                <Item Key="Schedule">25,45 */1 * * *</Item> <!-- default: each hour in the minute 15 and 45 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::OTRSBusiness::EntitlementCheck</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Daemon::SchedulerCronTaskManager::Task###OTRSBusinessAvailabilityCheck" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Checks the availability of OTRS Business Solution™ for this system.</Description>
+        <Group>Daemon</Group>
+        <SubGroup>Daemon::SchedulerCronTaskManager::Task</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="TaskName">OTRSBusinessAvailabilityCheck</Item>
+                <Item Key="Schedule">15,35,55 */1 * * *</Item> <!-- default: each hour in the minute 15,35 and 55 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::OTRSBusiness::AvailabilityCheck</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AgentStatistics" Required="0" Valid="1">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Agent::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Title Translatable="1">Statistics</Title>
+                <Group>stats</Group>
+                <GroupRo>stats</GroupRo>
+                <Description Translatable="1"></Description>
+                <NavBarName>Reports</NavBarName>
+                <NavBar>
+                    <Name Translatable="1">Reports</Name>
+                    <Link>Action=AgentStatistics;Subaction=Overview</Link>
+                    <LinkOption></LinkOption>
+                    <NavBar>Reports</NavBar>
+                    <Type>Menu</Type>
+                    <Description Translatable="1"></Description>
+                    <Prio>8500</Prio>
+                    <Block>ItemArea</Block>
+                    <AccessKey></AccessKey>
+                </NavBar>
+                <NavBar>
+                    <GroupRo>stats</GroupRo>
+                    <Description Translatable="1"></Description>
+                    <Name Translatable="1">Statistics</Name>
+                    <Link>Action=AgentStatistics;Subaction=Overview</Link>
+                    <LinkOption></LinkOption>
+                    <NavBar>Reports</NavBar>
+                    <Prio>200</Prio>
+                    <Type></Type>
+                    <Block></Block>
+                    <AccessKey></AccessKey>
+                </NavBar>
+                <Loader>
+                    <JavaScript>thirdparty/d3-3.5.6/d3.min.js</JavaScript>
+                    <JavaScript>thirdparty/nvd3-1.7.1/nvd3.min.js</JavaScript>
+                    <JavaScript>thirdparty/nvd3-1.7.1/models/OTRSMultiBarChart.js</JavaScript>
+                    <JavaScript>thirdparty/nvd3-1.7.1/models/OTRSStackedAreaChart.js</JavaScript>
+                    <JavaScript>thirdparty/canvg-1.4/rgbcolor.js</JavaScript>
+                    <JavaScript>thirdparty/canvg-1.4/StackBlur.js</JavaScript>
+                    <JavaScript>thirdparty/canvg-1.4/canvg.js</JavaScript>
+                    <JavaScript>thirdparty/StringView-8/stringview.js</JavaScript>
+                    <JavaScript>Core.Agent.Statistics.js</JavaScript>
+                    <JavaScript>Core.UI.AdvancedChart.js</JavaScript>
+                    <CSS>thirdparty/nvd3-1.7.1/nv.d3.css</CSS>
+                    <CSS>Core.Agent.Statistics.css</CSS>
+                </Loader>
+            </FrontendModuleReg>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Notification::Transport###NotificationView" Required="0" Valid="0">
+        <Description Translatable="1">Defines all the parameters for this notification transport.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Admin::AdminNotificationEvent</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::System::Ticket::Event::NotificationEvent::Transport::NotificationView</Item>
+                <Item Key="Name">Web View</Item>
+                <Item Key="Icon">fa fa-th-list</Item>
+                <Item Key="Prio">110</Item>
+                <Item Key="IsOTRSBusinessTransport">1</Item>
+                <Item Key="AgentEnabledByDefault">0</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Notification::Transport###SMS" Required="0" Valid="0">
+        <Description Translatable="1">Defines all the parameters for this notification transport.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Admin::AdminNotificationEvent</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::System::Ticket::Event::NotificationEvent::Transport::SMS</Item>
+                <Item Key="Name">SMS (Short Message Service)</Item>
+                <Item Key="Icon">fa fa-mobile</Item>
+                <Item Key="Prio">120</Item>
+                <Item Key="IsOTRSBusinessTransport">1</Item>
+                <Item Key="AgentEnabledByDefault">0</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AdminSupportDataCollector" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Admin::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title Translatable="1">Support Data Collector</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
+                    <Name Translatable="1">Support Data Collector</Name>
+                    <Description Translatable="1">Manage support data.</Description>
+                    <Block>System</Block>
+                    <Prio>370</Prio>
+                </NavBarModule>
+                <Loader>
+                    <CSS>Core.Agent.Admin.SupportDataCollector.css</CSS>
+                </Loader>
+            </FrontendModuleReg>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AdminCloudServices" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Admin::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title Translatable="1">Cloud Services</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
+                    <Name Translatable="1">Cloud Services</Name>
+                    <Description Translatable="1">Manage OTRS Group cloud services.</Description>
+                    <Block>System</Block>
+                    <Prio>380</Prio>
+                </NavBarModule>
+                <Loader>
+                    <CSS>Core.Agent.Admin.CloudServices.css</CSS>
+                </Loader>
+            </FrontendModuleReg>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AdminOTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Admin::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Admin</Description>
+                <Title>OTRS Business Solution™</Title>
+                <NavBarName>Admin</NavBarName>
+                <NavBarModule>
+                    <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
+                    <Name>OTRS Business Solution™</Name>
+                    <Description Translatable="1">Deploy and manage OTRS Business Solution™.</Description>
+                    <Block>System</Block>
+                    <Prio>360</Prio>
+                </NavBarModule>
+                <Loader>
+                    <CSS>Core.Agent.Admin.OTRSBusiness.css</CSS>
+                </Loader>
+            </FrontendModuleReg>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Daemon::SchedulerCronTaskManager::Task###RegistrationUpdateSend" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Sends registration information to OTRS group.</Description>
+        <Group>Daemon</Group>
+        <SubGroup>Daemon::SchedulerCronTaskManager::Task</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="TaskName">RegistrationUpdateSend</Item>
+                <Item Key="Schedule">30 * * * *</Item> <!-- default: every hour in minute 30 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::Registration::UpdateSend</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Daemon::SchedulerCronTaskManager::Task###SupportDataCollectAsynchronous" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Collect support data for asynchronous plug-in modules.</Description>
+        <Group>Daemon</Group>
+        <SubGroup>Daemon::SchedulerCronTaskManager::Task</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="TaskName">SupportDataCollectAsynchronous</Item>
+                <Item Key="Schedule">1 * * * *</Item> <!-- default: every hour in minute 1 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::SupportData::CollectAsynchronous</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
         </Setting>
     </ConfigItem>
 </otrs_config>
