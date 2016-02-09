@@ -65,19 +65,21 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         },
 
         AgentTicketCompose: {
-            ArticleTypeID: 'ArticleTypeID',
-            BccCustomer:   'BccCustomer',
-            CcCustomer:    'CcCustomer',
-            RichText:      'RichText',
-            StateID:       'StateID',
-            Subject:       'Subject',
-            ToCustomer:    'ToCustomer',
-            Customer:      'ToCustomer',
+            ArticleTypeID:  'ArticleTypeID',
+            BccCustomer:    'BccCustomer',
+            CcCustomer:     'CcCustomer',
+            RichText:       'RichText',
+            StateID:        'StateID',
+            Subject:        'Subject',
+            ToCustomer:     'ToCustomer',
+            Customer:       'ToCustomer',
+            CustomerUserID: 'ToCustomer',
         },
 
         AgentTicketCustomer: {
             CustomerAutoComplete: 'CustomerAutoComplete',
             Customer:             'CustomerAutoComplete',
+            CustomerUserID:       'CustomerAutoComplete',
             CustomerID:           'CustomerID',
         },
 
@@ -100,6 +102,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Subject:          'Subject',
             ToCustomer:       'ToCustomer',
             Customer:         'ToCustomer',
+            CustomerUserID:   'ToCustomer',
             TypeID:           'TypeID',
         },
 
@@ -113,6 +116,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Subject:        'Subject',
             ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
+            CustomerUserID: 'ToCustomer',
         },
 
         AgentTicketForward: {
@@ -125,6 +129,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Subject:        'Subject',
             ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
+            CustomerUserID: 'ToCustomer',
         },
 
         AgentTicketMerge: {
@@ -165,6 +170,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketPhone: {
             CustomerID:       'CustomerID',
             FromCustomer:     'FromCustomer',
+            CustomerUserID:   'FromCustomer',
             Customer:         'FromCustomer',
             NewUserID:        'NewUserID',
             OwnerID:          'NewUserID',
@@ -213,37 +219,39 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         },
 
         AgentTicketProcess: {
-            Subject:       'Subject',
-            RichText:      'RichText',
-            Customer:      'CustomerAutoComplete',
-            CustomerID:    'CustomerID',
-            Title:         'Title',
-            ResponsibleID: 'ResponsibleID',
-            OwnerID:       'OwnerID',
-            SLAID:         'SLAID',
-            ServiceID:     'ServiceID',
-            LockID:        'LockID',
-            PriorityID:    'PriorityID',
-            QueueID:       'QueueID',
-            StateID:       'StateID',
-            TypeID:        'TypeID',
+            Subject:        'Subject',
+            RichText:       'RichText',
+            Customer:       'CustomerAutoComplete',
+            CustomerUserID: 'CustomerAutoComplete',
+            CustomerID:     'CustomerID',
+            Title:          'Title',
+            ResponsibleID:  'ResponsibleID',
+            OwnerID:        'OwnerID',
+            SLAID:          'SLAID',
+            ServiceID:      'ServiceID',
+            LockID:         'LockID',
+            PriorityID:     'PriorityID',
+            QueueID:        'QueueID',
+            StateID:        'StateID',
+            TypeID:         'TypeID',
         },
 
         CustomerTicketProcess: {
-            Subject:       'Subject',
-            RichText:      'RichText',
-            Customer:      'CustomerAutoComplete',
-            CustomerID:    'CustomerID',
-            Title:         'Title',
-            ResponsibleID: 'ResponsibleID',
-            OwnerID:       'OwnerID',
-            SLAID:         'SLAID',
-            ServiceID:     'ServiceID',
-            LockID:        'LockID',
-            PriorityID:    'PriorityID',
-            QueueID:       'QueueID',
-            StateID:       'StateID',
-            TypeID:        'TypeID',
+            Subject:        'Subject',
+            RichText:       'RichText',
+            Customer:       'CustomerAutoComplete',
+            CustomerUserID: 'CustomerAutoComplete',
+            CustomerID:     'CustomerID',
+            Title:          'Title',
+            ResponsibleID:  'ResponsibleID',
+            OwnerID:        'OwnerID',
+            SLAID:          'SLAID',
+            ServiceID:      'ServiceID',
+            LockID:         'LockID',
+            PriorityID:     'PriorityID',
+            QueueID:        'QueueID',
+            StateID:        'StateID',
+            TypeID:         'TypeID',
         }
     };
 
@@ -258,6 +266,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     }
 
     TargetNS.FieldID = function ( Attribute ) {
+
+        if (!Attribute) return false;
 
         var Module = TargetNS.Module();
 
@@ -301,8 +311,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         if ( typeof Options !== 'object' ) return;
 
-        var KeyOrValue = Options.KeyOrValue || 'Key';
-        var FieldID    = TargetNS.FieldID( Attribute );
+        var KeyOrValue     = Options.KeyOrValue || 'Key';
+        var PossibleValues = Options.PossibleValues; // Affects currently only select fields (no dynamic field support)
+        var FieldID        = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) return;
 
@@ -381,10 +392,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
         else if ( Type == 'select' ) {
 
-            if ( $('#'+ FieldID).prop('multiple') ) {
+            if ( $('#'+ FieldID).prop('multiple') || Options.PossibleValues ) {
 
                 var Result = [];
-                $('#'+ FieldID +' option:selected').each(function(Index, Element) {
+                var SelectedAffix = '';
+                if ( !Options.PossibleValues ) {
+                    SelectedAffix = ':selected';
+                }
+
+                $('#' + FieldID + ' option' + SelectedAffix).each(function(Index, Element) {
 
                     if ( KeyOrValue == 'Key' ) {
                         var Value = QueueIDExtract( $(Element).val(), $(Element).text() );
@@ -394,6 +410,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                         Result.push( $.trim( $(Element).text() ) );
                     }
                 });
+
                 return Result;
             }
             else {
@@ -708,7 +725,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     TargetNS.Hide = function ( Attribute ) {
 
-        var FieldID       = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
@@ -722,7 +739,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     TargetNS.Show = function ( Attribute ) {
 
-        var FieldID       = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID( Attribute );
 
         if ( !FieldID ) {
             return false;
@@ -732,6 +749,59 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         $("label[for='" + FieldID + "']").show();
 
         return true;
+    }
+
+
+
+    /*
+    Manipulates the configuration of RichText input fields. It takes a config structure where the key is the Editor FieldID and the value is another structure with the config items it should set. It's possible to use the meta key 'Global' to set the config of all RichText instances on the current site. Notice that old configurations will be kept and extended instead of removed. For a complete list of possible config attributes visit the CKEdior documentation: http://docs.ckeditor.com/#!/api/CKEDITOR.config
+
+    var Result = Core.Form.Znuny4OTRSInput.RichTextConfig({
+      'RichText': {
+        toolbarCanCollapse:     true,
+        toolbarStartupExpanded: false,
+      }
+    })
+
+    Returns:
+
+      Result = true
+    */
+    TargetNS.RichTextConfig = function (NewConfig) {
+
+        Core.UI.RichTextEditor.InitAll = function () {
+
+            $('textarea.RichText').each(function () {
+                var EditorID;
+                var Editor;
+                var EditorConfig;
+                var ExtendedConfig;
+
+                Core.UI.RichTextEditor.Init($(this));
+
+                EditorID = $(this).attr('id');
+
+                if (typeof NewConfig != 'object') return true;
+
+                ExtendedConfig = NewConfig[ EditorID ] || NewConfig['Global'];
+                if (typeof ExtendedConfig != 'object') return true;
+
+                Editor = CKEDITOR.instances[EditorID];
+
+                if (!Editor) return true;
+
+                EditorConfig = Editor.config;
+
+                $.each(ExtendedConfig, function(Attribute, Value) {
+                  EditorConfig[ Attribute ] = Value;
+                });
+
+                Editor.destroy(true);
+                CKEDITOR.replace(EditorID, EditorConfig);
+            });
+        };
+
+        Core.UI.RichTextEditor.InitAll();
     }
 
     // special queue handling
