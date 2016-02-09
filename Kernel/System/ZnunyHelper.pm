@@ -26,6 +26,7 @@ use Kernel::System::Group;
 use Kernel::System::User;
 use Kernel::System::Valid;
 use Kernel::System::Type;
+use Kernel::System::State;
 use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::DynamicFieldValue;
@@ -112,11 +113,46 @@ sub new {
     $Self->{UserObject}                = Kernel::System::User->new( %{$Self} );
     $Self->{ValidObject}               = Kernel::System::Valid->new( %{$Self} );
     $Self->{TypeObject}                = Kernel::System::Type->new( %{$Self} );
+    $Self->{StateObject}               = Kernel::System::State->new( %{$Self} );
     $Self->{DynamicFieldObject}        = Kernel::System::DynamicField->new( %{$Self} );
     $Self->{DynamicFieldBackendObject} = Kernel::System::DynamicField::Backend->new( %{$Self} );
     $Self->{DynamicFieldValueObject}   = Kernel::System::DynamicFieldValue->new( %{$Self} );
 
     return $Self;
+}
+
+=item _ItemReverseListGet()
+
+checks if a item (for example a service name) is in a reverse item list (for example reverse %ServiceList)
+with case sensitive check
+
+    my $ItemID = $ZnunyHelperObject->_ItemReverseListGet($ServiceName, %ServiceListReverse);
+
+Returns:
+
+    my $ItemID = 123;
+
+=cut
+
+sub _ItemReverseListGet {
+    my ( $Self, $ItemName, %ItemListReverse ) = @_;
+
+    return if !$ItemName;
+
+    $ItemName =~ s{\A\s*}{}g;
+    $ItemName =~ s{\s*\z}{}g;
+
+    my $ItemID;
+    if ( $Self->{DBObject}->{Backend}->{'DB::CaseSensitive'} ) {
+        $ItemID = $ItemListReverse{$ItemName};
+    }
+    else {
+        my %ItemListReverseLC = map { lc $_ => $ItemListReverse{$_} } keys %ItemListReverse;
+
+        $ItemID = $ItemListReverseLC{ lc $ItemName };
+    }
+
+    return $ItemID;
 }
 
 # File => '/path/to/file'
@@ -873,6 +909,7 @@ sub _DynamicFieldsCreate {
     return 1;
 }
 
+
 =item _TypeCreateIfNotExists()
 
 creates Type if not exists
@@ -917,6 +954,123 @@ sub _TypeCreateIfNotExists {
         %Param,
     );
 }
+
+=item _StateCreateIfNotExists()
+
+creates State if not exists
+
+    my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
+        Name => 'Some State Name',
+        # e.g. new|open|closed|pending reminder|pending auto|removed|merged
+        Type => $Self->{StateObject}->StateTypeLookup( StateType => 'pending auto' ),
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _StateCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %StatesReversed = $Self->{StateObject}->StateList(
+        Valid  => 0,
+        UserID => 1
+    );
+    %StatesReversed = reverse %StatesReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %StatesReversed );
+    return $ItemID if $ItemID;
+
+    return $Self->{StateObject}->StateAdd(
+        %Param,
+        ValidID => 1,
+        UserID  => 1,
+    );
+}
+
+=item _StateTypeCreateIfNotExists()
+
+creates statetypes if not texts
+
+    my $StateTypeID = $ZnunyHelperObject->_StateTypeCreateIfNotExists(
+        Name    => 'New StateType',
+        Comment => 'some comment',
+        UserID  => 123,
+    );
+
+=cut
+
+sub _StateTypeCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    for my $Needed (qw(Name UserID)) {
+        if ( !$Param{$Needed} ) {
+            $Self->{LogObject}->Log(
+                Priority => 'error',
+                Message  => "Need $Needed!"
+            );
+            return;
+        }
+    }
+
+    # check if exists
+    $Self->{DBObject}->Prepare(
+        SQL  => 'SELECT name FROM ticket_state_type WHERE name = ?',
+        Bind => [ \$Param{Name} ],
+        Limit => 1,
+    );
+    my $Exists;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        $Exists = 1;
+    }
+    return 1 if $Exists;
+
+    # create new
+    return if !$Self->{DBObject}->Do(
+        SQL => 'INSERT INTO ticket_state_type (name, comments,'
+            . ' create_time, create_by, change_time, change_by)'
+            . ' VALUES (?, ?, current_timestamp, ?, current_timestamp, ?)',
+        Bind => [
+            \$Param{Name}, \$Param{Comment},
+            \$Param{UserID}, \$Param{UserID},
+        ],
+    );
+
+    # get new statetype id
+    return if !$Self->{DBObject}->Prepare(
+        SQL   => 'SELECT id FROM ticket_state_type WHERE name = ?',
+        Bind  => [ \$Param{Name} ],
+        Limit => 1,
+    );
+
+    # fetch the result
+    my $ID;
+    while ( my @Row = $Self->{DBObject}->FetchrowArray() ) {
+        $ID = $Row[0];
+    }
+
+    return if !$ID;
+
+    return $ID;
+
+}
+
 
 =item _GroupCreateIfNotExists()
 
