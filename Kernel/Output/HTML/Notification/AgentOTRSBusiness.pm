@@ -33,6 +33,11 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+    return '';
+# ---
     my $Output = '';
 
     # get OTRS business object
@@ -59,14 +64,10 @@ sub Run {
             $OTRSBusinessLabel,
             '</a>',
         );
-# ---
-# Znuny4OTRS-FreeOTRS
-# ---
-        # return $LayoutObject->Notify(
-        #     Data     => $Text,
-        #     Priority => 'Info',
-        # );
-# ---
+        return $LayoutObject->Notify(
+            Data     => $Text,
+            Priority => 'Info',
+        );
     }
 
     # all following checks require OTRS Business Solution™ to be installed

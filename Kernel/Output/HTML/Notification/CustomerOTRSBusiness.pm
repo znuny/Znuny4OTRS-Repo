@@ -33,6 +33,11 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+    return '';
+# ---
     my $Output = '';
 
     # get OTRS business object
@@ -43,31 +48,27 @@ sub Run {
     # ----------------------------------------
     # check entitlement status
     # ----------------------------------------
-# ---
-# Znuny4OTRS-FreeOTRS
-# ---
-    # my $EntitlementStatus = $OTRSBusinessObject->OTRSBusinessEntitlementStatus(
-    #     CallCloudService => 0,
-    # );
+    my $EntitlementStatus = $OTRSBusinessObject->OTRSBusinessEntitlementStatus(
+        CallCloudService => 0,
+    );
 
-    # if ( $EntitlementStatus eq 'forbidden' ) {
+    if ( $EntitlementStatus eq 'forbidden' ) {
 
-    #     my $OTRSBusinessLabel = '<b>OTRS Business Solution</b>™';
+        my $OTRSBusinessLabel = '<b>OTRS Business Solution</b>™';
 
-    #     # get layout object
-    #     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+        # get layout object
+        my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    #     my $Text = $LayoutObject->{LanguageObject}->Translate(
-    #         'This system uses the %s without a proper license! Please make contact with %s to renew or activate your contract!',
-    #         $OTRSBusinessLabel,
-    #         'sales@otrs.com',    # no mailto link as these are currently not displayed in the CI
-    #     );
-    #     $Output .= $LayoutObject->Notify(
-    #         Data     => $Text,
-    #         Priority => 'Error',
-    #     );
-    # }
-# ---
+        my $Text = $LayoutObject->{LanguageObject}->Translate(
+            'This system uses the %s without a proper license! Please make contact with %s to renew or activate your contract!',
+            $OTRSBusinessLabel,
+            'sales@otrs.com',    # no mailto link as these are currently not displayed in the CI
+        );
+        $Output .= $LayoutObject->Notify(
+            Data     => $Text,
+            Priority => 'Error',
+        );
+    }
 
     return $Output;
 }
