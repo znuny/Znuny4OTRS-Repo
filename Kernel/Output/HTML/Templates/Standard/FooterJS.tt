@@ -112,7 +112,7 @@ Core.App.Ready(function () {
 [% InsertTemplate("Datepicker.tt") %]
 
 # ---
-# Znuny4OTRS-FreeOTRS
+# Znuny4OTRS-Repo
 # ---
 #[% IF !Data.OTRSBusinessIsInstalled %]
 #    $('body').on('click', 'a.OTRSBusinessRequired', function() {
