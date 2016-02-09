@@ -1005,7 +1005,7 @@ sub _StateCreateIfNotExists {
 
 =item _StateTypeCreateIfNotExists()
 
-creates statetypes if not texts
+creates statetypes if not exists
 
     my $StateTypeID = $ZnunyHelperObject->_StateTypeCreateIfNotExists(
         Name    => 'New StateType',
@@ -1074,7 +1074,7 @@ sub _StateTypeCreateIfNotExists {
 
 =item _GroupCreateIfNotExists()
 
-creates group if not texts
+creates group if not exists
 
     my $Result = $ZnunyHelperObject->_GroupCreateIfNotExists( Name => 'Some Group Name' );
 
@@ -1096,7 +1096,7 @@ sub _GroupCreateIfNotExists {
 
 =item _NotificationCreateIfNotExists()
 
-creates notification if not texts
+creates notification if not exists
 
     my $Result = $ZnunyHelperObject->_NotificationCreateIfNotExists(
         'Agent::PvD::NewTicket',
