@@ -1102,7 +1102,7 @@ creates State if not exists
     my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
         Name => 'Some State Name',
         # e.g. new|open|closed|pending reminder|pending auto|removed|merged
-        Type => $StateObject->StateTypeLookup( StateType => 'pending auto' ),
+        TypeID => $StateObject->StateTypeLookup( StateType => 'pending auto' ),
     );
 
 Returns:
