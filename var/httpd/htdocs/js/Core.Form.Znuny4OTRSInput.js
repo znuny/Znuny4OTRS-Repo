@@ -752,7 +752,50 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return true;
     }
 
+    /*
 
+    Manipulates the field to mandatory or optional field (currently only dynamic field support).
+
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_test', { Mandatory: true });
+
+    Returns:
+
+        Result = true
+    */
+    TargetNS.Mandatory = function ( Attribute, Options ) {
+        Options = Options || {};
+
+        var FieldID   = TargetNS.FieldID( Attribute );
+        var Mandatory = true;
+        if ( Options['Mandatory'] === false ) {
+            Mandatory = false;
+        }
+
+        if ( !FieldID ) {
+            return false;
+        }
+
+        if ( FieldID.match(/DynamicField_/) ) {
+
+            var Input = $('#' + FieldID);
+            var Field = $('#Label' + FieldID);
+
+            if ( Mandatory && !Field.hasClass('Mandatory') ) {
+                Field.addClass('Mandatory');
+                Field.prepend('<span class="Marker">*</span>');
+                Input.addClass('Validate_Required');
+            }
+            else if ( !Mandatory && Field.hasClass('Mandatory') ) {
+                Field.removeClass('Mandatory');
+                Field.find('.Marker').remove();
+                Input.removeClass('Validate_Required');
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 
     /*
     Manipulates the configuration of RichText input fields. It takes a config structure where the key is the Editor FieldID and the value is another structure with the config items it should set. It's possible to use the meta key 'Global' to set the config of all RichText instances on the current site. Notice that old configurations will be kept and extended instead of removed. For a complete list of possible config attributes visit the CKEdior documentation: http://docs.ckeditor.com/#!/api/CKEDITOR.config
