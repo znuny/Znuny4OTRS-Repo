@@ -756,7 +756,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     Manipulates the field to mandatory or optional field (currently only dynamic field support).
 
-    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_test', { Mandatory: true });
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_test');
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_test', { Mandatory: false });
 
     Returns:
 
