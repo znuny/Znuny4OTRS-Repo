@@ -777,48 +777,58 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     /*
 
-    Manipulates the field to mandatory or optional field (currently only dynamic field support).
+    Manipulates the field to mandatory or optional field.
 
-    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_test');
-    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_test', { Mandatory: false });
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_Example', true);
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_Example', false);
 
     Returns:
 
         Result = true
+
+    Or:
+
+    var CurrentState = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_Example');
+
+    Returns:
+
+        CurrentState = true|false
+
     */
-    TargetNS.Mandatory = function ( Attribute, Options ) {
-        Options = Options || {};
+    TargetNS.Mandatory = function ( Attribute, Mandatory ) {
 
-        var FieldID   = TargetNS.FieldID( Attribute );
-        var Mandatory = true;
-        if ( Options['Mandatory'] === false ) {
-            Mandatory = false;
-        }
+        var IsMandatory;
+        var $LabelObject;
+        var FieldID = TargetNS.FieldID( Attribute );
 
-        if ( !FieldID ) {
+        if (!FieldID) {
             return false;
         }
 
-        if ( FieldID.match(/DynamicField_/) ) {
+        $LabelObject = $('[for="'+FieldID+'"]');
 
-            var Input = $('#' + FieldID);
-            var Field = $('#Label' + FieldID);
+        IsMandatory = $LabelObject.hasClass('Mandatory');
 
-            if ( Mandatory && !Field.hasClass('Mandatory') ) {
-                Field.addClass('Mandatory');
-                Field.prepend('<span class="Marker">*</span>');
-                Input.addClass('Validate_Required');
-            }
-            else if ( !Mandatory && Field.hasClass('Mandatory') ) {
-                Field.removeClass('Mandatory');
-                Field.find('.Marker').remove();
-                Input.removeClass('Validate_Required');
-            }
+        if (typeof Mandatory === 'undefined') {
+            return IsMandatory;
+        }
 
+        if (Mandatory === IsMandatory) {
             return true;
         }
 
-        return false;
+        if (IsMandatory) {
+            $LabelObject.removeClass('Mandatory');
+            $LabelObject.find('.Marker').remove();
+            $('#'+FieldID).removeClass('Validate_Required');
+        }
+        else {
+            $LabelObject.addClass('Mandatory');
+            $LabelObject.prepend('<span class="Marker">*</span>');
+            $('#'+FieldID).addClass('Validate_Required');
+        }
+
+        return true;
     }
 
     /*
