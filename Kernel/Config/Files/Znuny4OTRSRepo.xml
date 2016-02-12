@@ -217,29 +217,6 @@
             </Hash>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Frontend::Module###AdminSupportDataCollector" Required="0" Valid="0">
-        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
-        <Group>Framework</Group>
-        <SubGroup>Frontend::Admin::ModuleRegistration</SubGroup>
-        <Setting>
-            <FrontendModuleReg>
-                <Group>admin</Group>
-                <Description>Admin</Description>
-                <Title Translatable="1">Support Data Collector</Title>
-                <NavBarName>Admin</NavBarName>
-                <NavBarModule>
-                    <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
-                    <Name Translatable="1">Support Data Collector</Name>
-                    <Description Translatable="1">Manage support data.</Description>
-                    <Block>System</Block>
-                    <Prio>370</Prio>
-                </NavBarModule>
-                <Loader>
-                    <CSS>Core.Agent.Admin.SupportDataCollector.css</CSS>
-                </Loader>
-            </FrontendModuleReg>
-        </Setting>
-    </ConfigItem>
     <ConfigItem Name="Frontend::Module###AdminCloudServices" Required="0" Valid="0">
         <Description Translatable="1">Frontend module registration for the agent interface.</Description>
         <Group>Framework</Group>
