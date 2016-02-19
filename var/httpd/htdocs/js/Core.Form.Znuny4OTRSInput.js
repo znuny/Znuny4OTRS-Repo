@@ -811,10 +811,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     Manipulates the configuration of RichText input fields. It takes a config structure where the key is the Editor FieldID and the value is another structure with the config items it should set. It's possible to use the meta key 'Global' to set the config of all RichText instances on the current site. Notice that old configurations will be kept and extended instead of removed. For a complete list of possible config attributes visit the CKEdior documentation: http://docs.ckeditor.com/#!/api/CKEDITOR.config
 
     var Result = Core.Form.Znuny4OTRSInput.RichTextConfig({
-      'RichText': {
-        toolbarCanCollapse:     true,
-        toolbarStartupExpanded: false,
-      }
+        'RichText': {
+            toolbarCanCollapse:     true,
+            toolbarStartupExpanded: false,
+        }
     })
 
     Returns:
