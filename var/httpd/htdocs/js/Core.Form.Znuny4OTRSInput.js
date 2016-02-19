@@ -772,6 +772,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         $('#'+ FieldID).parent().show();
         $("label[for='" + FieldID + "']").show();
 
+        // Trigger custom redraw event for InputFields
+        // since hidden elements are not calculated correclty
+        // see https://github.com/OTRS/otrs/pull/1002
+        if ($('#'+ FieldID).hasClass('Modernize')) {
+            $('#'+ FieldID).trigger('redraw.InputField');
+        }
+
         return true;
     }
 
