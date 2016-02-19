@@ -802,11 +802,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         CurrentState = true|false
 
     */
-    TargetNS.Mandatory = function ( Attribute, Mandatory ) {
+    TargetNS.Mandatory = function (Attribute, Mandatory) {
 
         var IsMandatory;
         var $LabelObject;
-        var FieldID = TargetNS.FieldID( Attribute );
+        var FieldID = TargetNS.FieldID(Attribute);
 
         if (!FieldID) {
             return false;
