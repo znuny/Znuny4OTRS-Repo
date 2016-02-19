@@ -1223,8 +1223,8 @@ sub _StateTypeCreateIfNotExists {
 
     # check if exists
     $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-        SQL  => 'SELECT name FROM ticket_state_type WHERE name = ?',
-        Bind => [ \$Param{Name} ],
+        SQL   => 'SELECT name FROM ticket_state_type WHERE name = ?',
+        Bind  => [ \$Param{Name} ],
         Limit => 1,
     );
     my $Exists;
@@ -1239,7 +1239,7 @@ sub _StateTypeCreateIfNotExists {
             . ' create_time, create_by, change_time, change_by)'
             . ' VALUES (?, ?, current_timestamp, ?, current_timestamp, ?)',
         Bind => [
-            \$Param{Name}, \$Param{Comment},
+            \$Param{Name},   \$Param{Comment},
             \$Param{UserID}, \$Param{UserID},
         ],
     );

@@ -337,7 +337,7 @@ Returns:
 sub AddJSOnDocumentCompleteIfNotExists {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
     # check needed stuff
     NEEDED:
