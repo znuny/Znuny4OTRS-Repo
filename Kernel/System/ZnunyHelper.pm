@@ -931,7 +931,7 @@ sub _DynamicFieldsCreate {
                 %{$NewDynamicField},
                 ID         => $OldDynamicFieldConfig{ID},
                 FieldOrder => $OldDynamicFieldConfig{FieldOrder},
-                ValidID    => $ValidID,
+                ValidID    => $NewDynamicField->{ValidID} || $ValidID,
                 Reorder    => 0,
                 UserID     => 1,
             );
@@ -948,7 +948,7 @@ sub _DynamicFieldsCreate {
             FieldType  => $NewDynamicField->{FieldType},
             ObjectType => $NewDynamicField->{ObjectType},
             Config     => $NewDynamicField->{Config},
-            ValidID    => $ValidID,
+            ValidID    => $NewDynamicField->{ValidID} || $ValidID,
             UserID     => 1,
         );
         next DYNAMICFIELD if !$FieldID;
