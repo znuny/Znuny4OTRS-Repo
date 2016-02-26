@@ -511,7 +511,21 @@ This function enables the defined dynamic fields in the needed screens.
             TestDynamicField3 => 1,
             TestDynamicField4 => 1,
             TestDynamicField5 => 1,
-        }
+        },
+        'CustomerTicketZoom###FollowUpDynamicField' => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 1,
+            TestDynamicField3 => 1,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 1,
+        },
+        'AgentTicketSearch###Defaults###DynamicField' => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 1,
+            TestDynamicField3 => 1,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 1,
+        },
     );
 
     my $Success = $ZnunyHelperObject->_DynamicFieldsScreenEnable(%Screens);
@@ -534,23 +548,46 @@ sub _DynamicFieldsScreenEnable {
 
         next VIEW if !IsHashRefWithData( $ScreenDynamicFieldConfig{$View} );
 
-        # get existing config for each screen
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( "Ticket::Frontend::" . $View );
+        # There are special cases for defining the visibility of DynamicFields
+        # Ticket::Frontend::AgentTicketSearch###Defaults###DynamicField
+        # Ticket::Frontend::CustomerTicketZoom###FollowUpDynamicField
+        # Ticket::Frontend::AgentTicketSearch###SearchCSVDynamicField
+        #
+        # on regular calls $View contains for examlpe "AgentTicketEmail"
+        #
+        # for the three special cases $View contains:
+        # AgentTicketSearch###Defaults###DynamicField
+        # CustomerTicketZoom###FollowUpDynamicField
+        # AgentTicketSearch###SearchCSVDynamicField
+        #
+        # so split on '###'
+        # and put the values in the @Keys array
+        #
+        # for regular cases we put in the View name on $Keys[0] and 'DynamicField' on $Keys[1]
+        my @Keys = split '###', "Ticket::Frontend::$View";
 
-        # get existing dynamic field config
-        my %ExistingSetting;
-        if ( IsHashRefWithData( $Config->{DynamicField} ) ) {
-            %ExistingSetting = %{ $Config->{DynamicField} };
+        if (!$#Keys) {
+            push @Keys, 'DynamicField';
         }
+
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($Keys[0]);
+        INDEX:
+        for my $Index ( 1... $#Keys ) {
+            last INDEX if !IsHashRefWithData($Config);
+            $Config = $Config->{ $Keys[ $Index ] };
+        }
+        next VIEW if ref $Config ne 'HASH';
+        my %ExistingSetting = %{ $Config };
 
         # add the new settings
         my %NewDynamicFieldConfig = ( %ExistingSetting, %{ $ScreenDynamicFieldConfig{$View} } );
 
         # update the sysconfig
-        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Frontend::' . $View . '###DynamicField',
+        my $SysConfigKey = join '###', @Keys;
+        my $Success      = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Key   => $SysConfigKey,
             Value => \%NewDynamicFieldConfig,
+            Valid => 1,
         );
     }
 
@@ -568,7 +605,21 @@ This function disables the defined dynamic fields in the needed screens.
             TestDynamicField3 => 1,
             TestDynamicField4 => 1,
             TestDynamicField5 => 1,
-        }
+        },
+        'CustomerTicketZoom###FollowUpDynamicField' => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 1,
+            TestDynamicField3 => 1,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 1,
+        },
+        'AgentTicketSearch###Defaults###DynamicField' => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 1,
+            TestDynamicField3 => 1,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 1,
+        },
     );
 
     my $Success = $ZnunyHelperObject->_DynamicFieldsScreenDisable(%Screens);
@@ -591,14 +642,36 @@ sub _DynamicFieldsScreenDisable {
 
         next VIEW if !IsHashRefWithData( $ScreenDynamicFieldConfig{$View} );
 
-        # get existing config for each screen
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( "Ticket::Frontend::" . $View );
+        # There are special cases for defining the visibility of DynamicFields
+        # Ticket::Frontend::AgentTicketSearch###Defaults###DynamicField
+        # Ticket::Frontend::CustomerTicketZoom###FollowUpDynamicField
+        # Ticket::Frontend::AgentTicketSearch###SearchCSVDynamicField
+        #
+        # on regular calls $View contains for examlpe "AgentTicketEmail"
+        #
+        # for the three special cases $View contains:
+        # AgentTicketSearch###Defaults###DynamicField
+        # CustomerTicketZoom###FollowUpDynamicField
+        # AgentTicketSearch###SearchCSVDynamicField
+        #
+        # so split on '###'
+        # and put the values in the @Keys array
+        #
+        # for regular cases we put in the View name on $Keys[0] and 'DynamicField' on $Keys[1]
+        my @Keys = split '###', "Ticket::Frontend::$View";
 
-        # get existing dynamic field config
-        my %ExistingSetting;
-        if ( IsHashRefWithData( $Config->{DynamicField} ) ) {
-            %ExistingSetting = %{ $Config->{DynamicField} };
+        if (!$#Keys) {
+            push @Keys, 'DynamicField';
         }
+
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($Keys[0]);
+        INDEX:
+        for my $Index ( 1... $#Keys ) {
+            last INDEX if !IsHashRefWithData($Config);
+            $Config = $Config->{ $Keys[ $Index ] };
+        }
+        next VIEW if ref $Config ne 'HASH';
+        my %ExistingSetting = %{ $Config };
 
         my %NewDynamicFieldConfig;
         SETTING:
@@ -609,11 +682,11 @@ sub _DynamicFieldsScreenDisable {
             $NewDynamicFieldConfig{$ExistingSettingKey} = $ExistingSetting{$ExistingSettingKey};
         }
 
-        # update the sysconfig
-        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::Frontend::' . $View . '###DynamicField',
+        my $SysConfigKey = join '###', @Keys;
+        my $Success      = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+            Key   => $SysConfigKey,
             Value => \%NewDynamicFieldConfig,
+            Valid => 1,
         );
     }
 
