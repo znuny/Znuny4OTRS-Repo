@@ -1428,6 +1428,64 @@ sub _SLACreateIfNotExists {
     return $SLAID;
 }
 
+=item _UserCreateIfNotExists()
+
+creates user if not exists
+
+    my $Success = $ZnunyHelperObject->_UserCreateIfNotExists(
+        UserFirstname => 'Huber',
+        UserLastname  => 'Manfred',
+        UserLogin     => 'mhuber',
+        UserPw        => 'some-pass', # not required
+        UserEmail     => 'email@example.com',
+        UserMobile    => '1234567890', # not required
+        ValidID       => 1,
+        ChangeUserID  => 123,
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _UserCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UserLogin)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %UserListReversed = $Kernel::OM->Get('Kernel::System::User')->UserList(
+        Type   => 'Short',
+        UserID => 1,
+    );
+    %UserListReversed = reverse %UserListReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Param{UserLogin}, %UserListReversed );
+    return $ItemID if $ItemID;
+
+    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        Valid => 'valid',
+    );
+    my $UserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+        %Param,
+        ValidID => $ValidID,
+        UserID  => 1,
+    );
+
+    return $UserID;
+}
+
 =item _QueueCreateIfNotExists()
 
 creates Queue if not exists
