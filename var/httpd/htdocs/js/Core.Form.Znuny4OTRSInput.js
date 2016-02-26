@@ -892,9 +892,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     // special queue handling
     function QueueIDExtract (Key, Value) {
         var QueueName   = $.trim(Value);
-        var QueueExp    = '^(\\d*)\\|\\|'+ QueueName +'$';
-        var QueueRegExp = new RegExp(QueueExp);
         QueueName       = escapeRegExp(QueueName);
+        var QueueExp    = '^(\\d*)\\|\\|.*'+ QueueName +'$';
+        var QueueRegExp = new RegExp(QueueExp);
 
         return Key.replace(QueueRegExp, "$1");
     }
