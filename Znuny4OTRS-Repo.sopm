@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>1.0.25</Version>
+    <Version>1.0.26</Version>
+    <ChangeLog Version="1.0.26" Date="2016-03-02 11:21:23 UTC">Added _QueueCreateIfNotExists to ZnunyHelper</ChangeLog>
     <ChangeLog Version="1.0.25" Date="2016-02-09 14:14:17 UTC">Added _StateTypeCreateIfNotExists.</ChangeLog>
     <ChangeLog Version="1.0.24" Date="2016-01-28 11:09:34 UTC">Added new meta key 'CustomerUserID' to prevent confusion.</ChangeLog>
     <ChangeLog Version="1.0.23" Date="2016-01-18 13:37:47 UTC">Improved get function to return all possible values on parameter 'PossibleValues'.</ChangeLog>
