@@ -751,16 +751,70 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return true;
     }
 
+    /*
 
+    Manipulates the field to mandatory or optional field.
+
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_Example', true);
+    var Result = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_Example', false);
+
+    Returns:
+
+        Result = true
+
+    Or:
+
+    var CurrentState = Core.Form.Znuny4OTRSInput.Mandatory('DynamicField_Example');
+
+    Returns:
+
+        CurrentState = true|false
+
+    */
+    TargetNS.Mandatory = function ( Attribute, Mandatory ) {
+
+        var IsMandatory;
+        var $LabelObject;
+        var FieldID = TargetNS.FieldID( Attribute );
+
+        if (!FieldID) {
+            return false;
+        }
+
+        $LabelObject = $('[for="'+FieldID+'"]');
+
+        IsMandatory = $LabelObject.hasClass('Mandatory');
+
+        if (typeof Mandatory === 'undefined') {
+            return IsMandatory;
+        }
+
+        if (Mandatory === IsMandatory) {
+            return true;
+        }
+
+        if (IsMandatory) {
+            $LabelObject.removeClass('Mandatory');
+            $LabelObject.find('.Marker').remove();
+            $('#'+FieldID).removeClass('Validate_Required');
+        }
+        else {
+            $LabelObject.addClass('Mandatory');
+            $LabelObject.prepend('<span class="Marker">*</span>');
+            $('#'+FieldID).addClass('Validate_Required');
+        }
+
+        return true;
+    }
 
     /*
     Manipulates the configuration of RichText input fields. It takes a config structure where the key is the Editor FieldID and the value is another structure with the config items it should set. It's possible to use the meta key 'Global' to set the config of all RichText instances on the current site. Notice that old configurations will be kept and extended instead of removed. For a complete list of possible config attributes visit the CKEdior documentation: http://docs.ckeditor.com/#!/api/CKEDITOR.config
 
     var Result = Core.Form.Znuny4OTRSInput.RichTextConfig({
-      'RichText': {
-        toolbarCanCollapse:     true,
-        toolbarStartupExpanded: false,
-      }
+        'RichText': {
+            toolbarCanCollapse:     true,
+            toolbarStartupExpanded: false,
+        }
     })
 
     Returns:
@@ -808,7 +862,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     function QueueIDExtract (Key, Value) {
         var QueueName   = $.trim( Value );
         QueueName       = escapeRegExp( QueueName );
-        var QueueExp    = '^(\\d*)\\|\\|'+ QueueName +'$';
+        var QueueExp    = '^(\\d*)\\|\\|.*'+ QueueName +'$';
         var QueueRegExp = new RegExp(QueueExp);
 
         return Key.replace(QueueRegExp, "$1");
