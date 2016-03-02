@@ -1,6 +1,6 @@
 # --
 # Kernel/Modules/Znuny4OTRSRepo.pm
-# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -20,10 +20,11 @@ sub new {
     bless( $Self, $Type );
 
     # check needed objects
+    NEEDED:
     for (qw(ParamObject DBObject LogObject ConfigObject)) {
-        if ( !$Self->{$_} ) {
-            $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
-        }
+        next NEEDED if $Self->{$_};
+        $Self->{LayoutObject}->FatalError( Message => "Got no $_!" );
+        last NEEDED;
     }
 
     return $Self;
