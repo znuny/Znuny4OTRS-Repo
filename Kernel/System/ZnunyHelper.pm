@@ -1,6 +1,6 @@
 # --
 # Kernel/System/ZnunyHelper.pm - provides some useful functions
-# Copyright (C) 2012-2015 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -30,6 +30,7 @@ use Kernel::System::State;
 use Kernel::System::DynamicField;
 use Kernel::System::DynamicField::Backend;
 use Kernel::System::DynamicFieldValue;
+use Kernel::System::Queue;
 
 use Kernel::System::Package;
 
@@ -76,6 +77,7 @@ sub new {
     $Self->{MainObject}   = Kernel::System::Main->new( %{$Self} );
     $Self->{TimeObject}   = Kernel::System::Time->new( %{$Self} );
     $Self->{DBObject}     = Kernel::System::DB->new( %{$Self} );
+    $Self->{QueueObject}  = Kernel::System::Queue->new( %{$Self} );
 
     $Self->{XMLObject}       = Kernel::System::XML->new( %{$Self} );
     $Self->{SysConfigObject} = Kernel::System::SysConfig->new( %{$Self} );
@@ -909,7 +911,6 @@ sub _DynamicFieldsCreate {
     return 1;
 }
 
-
 =item _TypeCreateIfNotExists()
 
 creates Type if not exists
@@ -1031,8 +1032,8 @@ sub _StateTypeCreateIfNotExists {
 
     # check if exists
     $Self->{DBObject}->Prepare(
-        SQL  => 'SELECT name FROM ticket_state_type WHERE name = ?',
-        Bind => [ \$Param{Name} ],
+        SQL   => 'SELECT name FROM ticket_state_type WHERE name = ?',
+        Bind  => [ \$Param{Name} ],
         Limit => 1,
     );
     my $Exists;
@@ -1047,7 +1048,7 @@ sub _StateTypeCreateIfNotExists {
             . ' create_time, create_by, change_time, change_by)'
             . ' VALUES (?, ?, current_timestamp, ?, current_timestamp, ?)',
         Bind => [
-            \$Param{Name}, \$Param{Comment},
+            \$Param{Name},   \$Param{Comment},
             \$Param{UserID}, \$Param{UserID},
         ],
     );
@@ -1071,7 +1072,6 @@ sub _StateTypeCreateIfNotExists {
 
 }
 
-
 =item _GroupCreateIfNotExists()
 
 creates group if not exists
@@ -1088,6 +1088,50 @@ sub _GroupCreateIfNotExists {
         return if $Param{Name} eq $Groups{$GroupID};
     }
     return $Self->{GroupObject}->GroupAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
+}
+
+=item _QueueCreateIfNotExists()
+
+creates Queue if not exists
+
+    my $Success = $ZnunyHelperObject->_QueueCreateIfNotExists(
+        Name    => 'Some Queue Name',
+        GroupID => 1,
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _QueueCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name GroupID)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %QueuesReversed = $Self->{QueueObject}->QueueList();
+    %QueuesReversed = reverse %QueuesReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %QueuesReversed );
+    return $ItemID if $ItemID;
+
+    return $Self->{QueueObject}->QueueAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
