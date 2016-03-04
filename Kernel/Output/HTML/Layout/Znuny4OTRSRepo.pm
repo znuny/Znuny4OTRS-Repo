@@ -106,7 +106,7 @@ modifies content and uses outputfilter hooks to get hook content
         Name    => 'DynamicField',
         All     => 1,
         Replace => sub {
-            my ( $Self, %Param ) = @_;
+            my ( %Param ) = @_;
 
             my $Content = $Param{Content};
 
