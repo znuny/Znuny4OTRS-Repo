@@ -162,6 +162,9 @@ Example html for a hook:
             Content => $Content,
         );
 
+        next HOOK if !defined $ContentNew;
+        next HOOK if $Content eq $ContentNew;
+
         ${ $Param{Data} } =~ s{\Q$Content\E}{$ContentNew};
         $Success = 1;
         $Counter++;
