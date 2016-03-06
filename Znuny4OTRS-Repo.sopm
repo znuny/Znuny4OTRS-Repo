@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.27</Version>
+    <Version>2.0.28</Version>
+    <ChangeLog Version="2.0.28" Date="2016-03-06 12:06:24 UTC">- Extended _DynamicFieldsScreenEnalble and _DynamicFieldsScreenDisable with the possibility to handle special sub structures.&#13;
+- Fixed bug: QueueID extraction failed for sub Queues.&#13;
+- Added _UserCreateIfNotExists function.&#13;
+- Added .Mandatory js function.&#13;
+- Improved _QueueCreateIfNotExists() to support sub queues, too.</ChangeLog>
     <ChangeLog Version="2.0.27" Date="2016-02-09 16:55:46 UTC">Added _StateTypeCreateIfNotExists helper function.</ChangeLog>
     <ChangeLog Version="2.0.26" Date="2016-01-28 11:09:09 UTC">Added new meta key 'CustomerUserID' to prevent confusion.</ChangeLog>
     <ChangeLog Version="2.0.25" Date="2016-01-18 13:37:38 UTC">Improved get function to return all possible values on parameter 'PossibleValues'.</ChangeLog>
