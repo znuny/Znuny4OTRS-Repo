@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.16</Version>
+    <Version>3.0.17</Version>
+    <ChangeLog Version="3.0.17" Date="2016-03-06 12:04:23 UTC">- Improved performance for _OutputFilterHookReplace function.&#13;
+- Fixed pod for _OutputFilterHookReplace.&#13;
+- Extended _DynamicFieldsScreenEnalble and _DynamicFieldsScreenDisable with the possibility to handle special sub structures.&#13;
+- Fixed bug: QueueID extraction failed for sub Queues or Queues with special RegExp chars.&#13;
+- Added _UserCreateIfNotExists function.&#13;
+- Added possibility to overwrite ValidID in DynamicField creation.</ChangeLog>
     <ChangeLog Version="3.0.16" Date="2016-02-19 13:13:10 UTC">- Removed disabling of Frontend::Module###AdminSupportDataCollector.&#13;
 - Fixed bug: Hidden modernized select fields end up in an endless loop since width calculation doesn't work properly. See https://github.com/OTRS/otrs/pull/1002.&#13;
 - Added redraw triggering since shown fields have to get rerendered after they where hidden.</ChangeLog>
