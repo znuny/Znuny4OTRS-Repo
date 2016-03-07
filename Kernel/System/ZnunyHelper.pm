@@ -17,29 +17,26 @@ use Kernel::System::VariableCheck qw(:all);
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
+    'Kernel::System::DB',
+    'Kernel::System::DynamicField',
+    'Kernel::System::DynamicField::Backend',
+    'Kernel::System::GeneralCatalog',
+    'Kernel::System::GenericInterface::Webservice',
+    'Kernel::System::Group',
+    'Kernel::System::ITSMConfigItem',
     'Kernel::System::Loader',
     'Kernel::System::Log',
     'Kernel::System::Main',
-    'Kernel::System::Encode',
-    'Kernel::System::GeneralCatalog',
-    'Kernel::System::ITSMConfigItem',
-    'Kernel::System::Time',
-    'Kernel::System::DB',
-    'Kernel::System::XML',
-    'Kernel::System::SysConfig',
-    'Kernel::System::Group',
+    'Kernel::System::NotificationEvent',
+    'Kernel::System::Package',
     'Kernel::System::Queue',
-    'Kernel::System::Type',
-    'Kernel::System::Service',
     'Kernel::System::SLA',
+    'Kernel::System::Service',
     'Kernel::System::State',
+    'Kernel::System::SysConfig',
+    'Kernel::System::Type',
     'Kernel::System::User',
     'Kernel::System::Valid',
-    'Kernel::System::DynamicField',
-    'Kernel::System::DynamicField::Backend',
-    'Kernel::System::DynamicFieldValue',
-    'Kernel::System::Package',
-    'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::YAML',
 );
 
@@ -1720,6 +1717,95 @@ sub _GeneralCatalogItemCreateIfNotExists {
     );
 
     return $ItemID;
+}
+
+=item _NotificationEventCreateIfNotExists()
+
+creates notification event if not exists
+
+    my $Success = $ZnunyHelperObject->_NotificationEventCreateIfNotExists(
+        Name => 'Agent::CustomerVIPPriorityUpdate',
+        Data => {
+            Events => [
+                'TicketPriorityUpdate',
+            ],
+            ArticleAttachmentInclude => [
+                '0'
+            ],
+            LanguageID => [
+                'en',
+                'de'
+            ],
+            NotificationArticleTypeID => [
+                1,
+            ],
+            Recipients => [
+                'Customer',
+            ],
+            TransportEmailTemplate => [
+                'Default',
+            ],
+            Transports => [
+                'Email',
+            ],
+            VisibleForAgent => [
+                '0',
+            ],
+        },
+        Message => {
+            en => {
+                Subject     => 'Priority for your ticket changed',
+                ContentType => 'text/html',
+                Body        => '...',
+            },
+            de => {
+                Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
+                ContentType => 'text/html',
+                Body        => '...',
+            },
+        },
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _NotificationEventCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %NotificationEventReversed = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationList(
+        UserID => 1
+    );
+    %NotificationEventReversed = reverse %NotificationEventReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %NotificationEventReversed );
+    return $ItemID if $ItemID;
+
+    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        Valid => 'valid',
+    );
+    my $NotificationEventID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationAdd(
+        %Param,
+        ValidID => $ValidID,
+        UserID  => 1,
+    );
+
+    return $NotificationEventID;
 }
 
 =item _ITSMVersionAdd()
