@@ -26,6 +26,34 @@ $Self->True(
     'Test basic function call of _ItemReverseListGet()',
 );
 
+# Tests for _EventAdd function
+# my $ResultEventAdd = $ZnunyHelperObject->_EventAdd(
+#     Object => 'Ticket',
+#     Event  => [
+#         'Znuny4OTRSRepoEvent1',
+#         'Znuny4OTRSRepoEvent2',
+#     ]
+# );
+
+# $Self->True(
+#     $ResultEventAdd,
+#     'Test basic function call of _EventAdd()',
+# );
+
+# Tests for _EventRemove function
+my $ResultEventRemove = $ZnunyHelperObject->_EventRemove(
+    Object => 'Ticket',
+    Event  => [
+        'Znuny4OTRSRepoEvent1',
+        'Znuny4OTRSRepoEvent2',
+    ]
+);
+
+$Self->True(
+    $ResultEventRemove,
+    'Test basic function call of _EventRemove()',
+);
+
 # Tests for _LoaderAdd function
 my $ResultLoaderAdd = $ZnunyHelperObject->_LoaderAdd(
     'AgentTicketPhone' => [
