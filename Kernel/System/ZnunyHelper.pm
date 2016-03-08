@@ -297,6 +297,153 @@ sub _PackageUMain {
     return 1;
 }
 
+=item _EventAdd()
+
+This function adds an Event to the list of Events of an Object to the SysConfig.
+
+    my $Success = $ZnunyHelperObject->_EventAdd(
+        Object => 'Ticket', # Ticket, Article, Queue...
+        Event  => 'MyCustomEvent'
+    );
+
+    or
+
+    my $Success = $ZnunyHelperObject->_EventAdd(
+        Object => 'Ticket',
+        Event  => [
+            'MyCustomEvent',
+            'AnotherCustomEvent',
+        ]
+    );
+=cut
+
+sub _EventAdd {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Object Event) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my @AddEvents;
+    if ( IsArrayRefWithData($Param{Event}) ) {
+        @AddEvents = @{ $Param{Event} };
+    }
+    elsif ( IsStringWithData( $Param{Event} ) ) {
+        push @AddEvents, $Param{Event};
+    }
+    else {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter 'Event' should be an ArrayRef of String with data!",
+        );
+        return;
+    }
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    my $Events = $ConfigObject->Get('Events');
+
+    return if !IsHashRefWithData($Events);
+
+    $Events->{ $Param{Object} } ||= [];
+
+    my @ConfigEvents = @{ $Events->{ $Param{Object} } };
+
+    EVENT:
+    for my $AddEvent (@AddEvents) {
+        next EVENT if grep { $AddEvent eq $_ } @ConfigEvents;
+        push @ConfigEvents, $AddEvent;
+    }
+
+    return $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        Valid => 1,
+        Key   => "Events###" . $Param{Object},
+        Value => \@ConfigEvents,
+    );
+}
+
+=item _EventRemove()
+
+This function adds an Event to the list of Events of an Object to the SysConfig.
+
+    my $Success = $ZnunyHelperObject->_EventRemove(
+        Object => 'Ticket', # Ticket, Article, Queue...
+        Event  => 'MyCustomEvent'
+    );
+
+    or
+
+    my $Success = $ZnunyHelperObject->_EventRemove(
+        Object => 'Ticket',
+        Event  => [
+            'MyCustomEvent',
+            'AnotherCustomEvent',
+        ]
+    );
+=cut
+
+sub _EventRemove {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Object Event) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my @RemoveEvents;
+    if ( IsArrayRefWithData($Param{Event}) ) {
+        @RemoveEvents = @{ $Param{Event} };
+    }
+    elsif ( IsStringWithData( $Param{Event} ) ) {
+        push @RemoveEvents, $Param{Event};
+    }
+    else {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter 'Event' should be an ArrayRef of String with data!",
+        );
+        return;
+    }
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    my $Events = $ConfigObject->Get('Events');
+
+    return if !IsHashRefWithData($Events);
+
+    $Events->{ $Param{Object} } ||= [];
+
+    my @ConfigEvents;
+    EVENT:
+    for my $CurrentEvent ( @{ $Events->{ $Param{Object} } } ) {
+        next EVENT if grep { $CurrentEvent eq $_ } @RemoveEvents;
+        push @ConfigEvents, $CurrentEvent;
+    }
+
+    return $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        Valid => 1,
+        Key   => "Events###" . $Param{Object},
+        Value => \@ConfigEvents,
+    );
+}
+
 =item _LoaderAdd()
 
 This function adds JavaScript and CSS files to the load of defined screens.
