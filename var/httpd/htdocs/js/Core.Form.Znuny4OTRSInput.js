@@ -606,6 +606,12 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                         $('#'+ FieldID +'Autocomplete').autocomplete('close');
                         $('#'+ FieldID +'Autocomplete').val(CustomerValue);
                         $('#'+ FieldID).val(CustomerKey);
+
+                        if (TriggerChange) {
+                            $('#'+ FieldID).trigger('change');
+                        }
+
+                        Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
                     }
                     else if( KeyOrValue == 'Key' && Result.content.length > 1 ) {
 
@@ -622,7 +628,6 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                             if (TriggerChange) {
                                 $('#'+ FieldID).trigger('change');
-                                $('#'+ FieldID +'Autocomplete').trigger('change');
                             }
 
                             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
