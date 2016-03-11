@@ -229,6 +229,7 @@ modifies content and uses outputfilter hooks to add content after hook.
     my $Success = $LayoutObject->_OutputFilterHookInsertAfter(
         Name    => 'DynamicField',
         Content => '... html ...',
+        All     => 1,                 # to insert after the last found hook e.g. to insert after the last dynamic field
         %Param,
     );
 
@@ -241,6 +242,7 @@ Returns:
 sub _OutputFilterHookInsertAfter {
     my ( $Self, %Param ) = @_;
 
+    my $All     = $Param{All};
     my $Name    = $Param{Name};
     my $Content = $Param{Content};
 
@@ -266,6 +268,9 @@ Example html for a hook:
     return if !$Self->_OutputFilterHookExists(%Param);
 
     my $HookRegex = qr{ <\!-- \s* HookStart$Name \s* --> .+? <\!-- \s* HookEnd$Name \s* --> }xmsi;
+    if ($All) {
+        $HookRegex = qr{ <\!-- \s* HookStart$Name \s* --> .+ <\!-- \s* HookEnd$Name \s* --> }xmsi;
+    }
 
     ${ $Param{Data} } =~ s{$HookRegex}{ $& $Content }xmsig;
 
@@ -279,6 +284,7 @@ modifies content and uses outputfilter hooks to add content before hook.
     my $Success = $LayoutObject->_OutputFilterHookInsertBefore(
         Name    => 'DynamicField',
         Content => '... html ...',
+        All     => 1,                 # to insert before the first found hook e.g. to insert before the first dynamic field
         %Param,
     );
 
@@ -291,6 +297,7 @@ Returns:
 sub _OutputFilterHookInsertBefore {
     my ( $Self, %Param ) = @_;
 
+    my $All     = $Param{All};
     my $Name    = $Param{Name};
     my $Content = $Param{Content};
 
@@ -316,6 +323,9 @@ Example html for a hook:
     return if !$Self->_OutputFilterHookExists(%Param);
 
     my $HookRegex = qr{ <\!-- \s* HookStart$Name \s* --> .+? <\!-- \s* HookEnd$Name \s* --> }xmsi;
+    if ($All) {
+        $HookRegex = qr{ <\!-- \s* HookStart$Name \s* --> .+ <\!-- \s* HookEnd$Name \s* --> }xmsi;
+    }
 
     ${ $Param{Data} } =~ s{$HookRegex}{ $Content $& }xmsig;
 
