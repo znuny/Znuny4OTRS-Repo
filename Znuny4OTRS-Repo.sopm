@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.19</Version>
+    <Version>3.0.20</Version>
+    <ChangeLog Version="3.0.20" Date="2016-03-16 18:23:43 UTC">Added ProcessEntityID to AgentTicketProcess and CustomerTicketProcess.</ChangeLog>
     <ChangeLog Version="3.0.19" Date="2016-03-09 10:51:35 UTC">Fixed bug: Set function for DynamicField CustomerUserID Autocomplete is broken.</ChangeLog>
     <ChangeLog Version="3.0.18" Date="2016-03-08 13:31:36 UTC">Added _EventAdd and _EventRemove helper functions.</ChangeLog>
     <ChangeLog Version="3.0.17" Date="2016-03-06 12:04:23 UTC">- Improved performance for _OutputFilterHookReplace function.&#13;
