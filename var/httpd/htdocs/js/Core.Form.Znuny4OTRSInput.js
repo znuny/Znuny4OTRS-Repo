@@ -428,12 +428,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                 $('#' + FieldID + ' option' + SelectedAffix).each(function(Index, Element) {
 
+                    var Text = RebuildLevelText( $(Element) );
+
                     if (KeyOrValue == 'Key') {
-                        Value = QueueIDExtract($(Element).val(), $(Element).text());
+                        Value = QueueIDExtract($(Element).val(), Text);
                         Result.push(Value);
                     }
                     else {
-                        Result.push($.trim($(Element).text()));
+                        Result.push($.trim(Text));
                     }
                 });
 
@@ -444,11 +446,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                 if (!$Element.length) return;
 
+                var Text = RebuildLevelText( $Element );
+
                 if (KeyOrValue == 'Key') {
-                    return QueueIDExtract($Element.val(), $Element.text());
+                    return QueueIDExtract($Element.val(), Text);
                 }
                 else {
-                    return $.trim($Element.text());
+                    return $.trim(Text);
                 }
             }
         }
@@ -731,11 +735,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             $('#'+ FieldID +' option').filter(function() {
 
+                var Text = RebuildLevelText( $(this) );
+
                 if (KeyOrValue == 'Key') {
-                    CompareKeyOrValue = QueueIDExtract($(this).val(), $(this).text());
+                    CompareKeyOrValue = QueueIDExtract($(this).val(), Text);
                 }
                 else {
-                    CompareKeyOrValue = $(this).text();
+                    CompareKeyOrValue = Text;
                 }
 
                 Selected = false;
@@ -907,6 +913,44 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         };
 
         Core.UI.RichTextEditor.InitAll();
+    }
+
+    function RebuildLevelText( $Element ) {
+
+        var Levels = [];
+
+        var CurrentText = $Element.text();
+        var Level       = CurrentText.search(/\S/);
+
+        Levels.unshift( $.trim( CurrentText ) );
+
+        var LevelSearch = false;
+        if ( Level > 0 ) {
+            LevelSearch = true;
+        }
+
+        var $TempElement = $Element;
+        while (LevelSearch) {
+
+            $TempElement = $TempElement.prev();
+
+            CurrentText      = $TempElement.text();
+            var CompareLevel = CurrentText.search(/\S/);
+
+            if ( CompareLevel >= Level ) {
+                continue;
+            }
+
+            Level = CompareLevel;
+
+            Levels.unshift( $.trim( CurrentText ) );
+
+            if ( Level == 0 ) {
+                LevelSearch = false;
+            }
+        }
+
+        return Levels.join('::');
     }
 
     // special queue handling
