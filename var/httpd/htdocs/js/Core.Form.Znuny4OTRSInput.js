@@ -748,13 +748,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // may want to use $.trim in here?
                 if (SetSelected.indexOf($.trim(CompareKeyOrValue)) != -1) {
                     Selected = true;
-                    SelectValue = $(this).val();
                 }
 
                 return Selected;
             }).prop('selected', true);
-
-            $('#' + FieldID).val(SelectValue);
 
             if (TriggerChange) {
                 $('#'+ FieldID).trigger('change');
