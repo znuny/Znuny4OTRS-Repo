@@ -172,7 +172,7 @@ sub TestCustomerUserCreate {
 #         ValidID        => 1,
 #         UserID         => 1,
 #     ) || die "Could not create test user";
-    my $TestUser = $ZnunyHelperObject->_UserCreateIfNotExists(
+    my $TestUser = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
         Source         => 'CustomerUser',
         UserFirstname  => $TestUserLogin,
         UserLastname   => $TestUserLogin,
