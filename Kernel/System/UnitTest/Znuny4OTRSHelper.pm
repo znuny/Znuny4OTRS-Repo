@@ -145,6 +145,12 @@ the login name of the new customer user, the password is the same.
 sub TestCustomerUserCreate {
     my ( $Self, %Param ) = @_;
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+# ---
+
     # disable email checks to create new user
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
@@ -152,7 +158,21 @@ sub TestCustomerUserCreate {
     # create test user
     my $TestUserLogin = $Self->GetRandomID();
 
-    my $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     my $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+#         Source         => 'CustomerUser',
+#         UserFirstname  => $TestUserLogin,
+#         UserLastname   => $TestUserLogin,
+#         UserCustomerID => $TestUserLogin,
+#         UserLogin      => $TestUserLogin,
+#         UserPassword   => $TestUserLogin,
+#         UserEmail      => $TestUserLogin . '@localunittest.com',
+#         ValidID        => 1,
+#         UserID         => 1,
+#     ) || die "Could not create test user";
+    my $TestUser = $ZnunyHelperObject->_UserCreateIfNotExists(
         Source         => 'CustomerUser',
         UserFirstname  => $TestUserLogin,
         UserLastname   => $TestUserLogin,
@@ -162,12 +182,9 @@ sub TestCustomerUserCreate {
         UserEmail      => $TestUserLogin . '@localunittest.com',
         ValidID        => 1,
         UserID         => 1,
-# ---
-# Znuny4OTRS-Repo
-# ---
         %Param,
+    );
 # ---
-    ) || die "Could not create test user";
 
     # Remember UserID of the test user to later set it to invalid
     #   in the destructor.
