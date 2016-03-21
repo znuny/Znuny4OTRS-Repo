@@ -288,13 +288,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return AttributFieldIDMapping[Module][Attribute];
     }
 
-    TargetNS.SetFieldIDMapping = function (Action, AttributeFieldIDs) {
+    TargetNS.FieldIDMapping = function (Action, AttributeFieldIDs) {
 
         var Module = TargetNS.Module(Action);
 
-        AttributFieldIDMapping[Module] = AttributeFieldIDs;
+        if ( typeof AttributeFieldIDs === 'object' ) {
+            AttributFieldIDMapping[Module] = AttributeFieldIDs;
+        }
 
-        return true;
+        return AttributFieldIDMapping[Module];
     }
 
     TargetNS.Module = function (Action) {
