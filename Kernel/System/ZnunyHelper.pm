@@ -1705,18 +1705,76 @@ sub _UserCreateIfNotExists {
     return $UserID;
 }
 
+=item _CustomerUserCreateIfNotExists()
+
+creates CustomerUser if not exists
+
+    my $CustomerUserLogin = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
+        Source         => 'CustomerUser', # CustomerUser source config
+        UserFirstname  => 'Huber',
+        UserLastname   => 'Manfred',
+        UserCustomerID => 'A124',
+        UserLogin      => 'mhuber',
+        UserPassword   => 'some-pass', # not required
+        UserEmail      => 'email@example.com',
+    );
+
+Returns:
+
+    my $CustomerUserLogin = 'mhuber';
+
+=cut
+
+sub _CustomerUserCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UserLogin)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %CustomerUserReversed = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerSearch(
+        UserLogin => $Param{UserLogin},
+        Valid     => 1,
+    );
+
+    # shitty solution for the check.
+    # somebody should fix this and use the CustomerKey instead for the check.
+    my $ItemID = $Self->_ItemReverseListGet( $Param{UserLogin}, %CustomerUserReversed );
+    return $Param{UserLogin} if $ItemID;
+
+    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        Valid => 'valid',
+    );
+    my $CustomerUserID = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+        %Param,
+        ValidID => $ValidID,
+        UserID  => 1,
+    );
+
+    return $CustomerUserID;
+}
+
 =item _QueueCreateIfNotExists()
 
 creates Queue if not exists
 
-    my $Success = $ZnunyHelperObject->_QueueCreateIfNotExists(
+    my $QueueID = $ZnunyHelperObject->_QueueCreateIfNotExists(
         Name    => 'Some Queue Name',
         GroupID => 1,
     );
 
 Returns:
 
-    my $Success = 1;
+    my $QueueID = 123;
 
 =cut
 
