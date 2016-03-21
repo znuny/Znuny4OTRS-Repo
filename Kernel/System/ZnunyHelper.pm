@@ -1741,9 +1741,17 @@ sub _CustomerUserCreateIfNotExists {
         return;
     }
 
-    my %CustomerUserReversed = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerSearch(
+    my %CustomerUserReversedValid = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerSearch(
         UserLogin => $Param{UserLogin},
         Valid     => 1,
+    );
+    my %CustomerUserReversedInValid = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerSearch(
+        UserLogin => $Param{UserLogin},
+        Valid     => 0,
+    );
+    my %CustomerUserReversed = (
+        %CustomerUserReversedValid,
+        %CustomerUserReversedInValid,
     );
 
     # shitty solution for the check.
