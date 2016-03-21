@@ -46,6 +46,12 @@ the login name of the new user, the password is the same.
 sub TestUserCreate {
     my ( $Self, %Param ) = @_;
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+# ---
+
     # create test user
     my $TestUserLogin = $Self->GetRandomID();
 
@@ -53,7 +59,20 @@ sub TestUserCreate {
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
 
-    my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+#         UserFirstname => $TestUserLogin,
+#         UserLastname  => $TestUserLogin,
+#         UserLogin     => $TestUserLogin,
+#         UserPw        => $TestUserLogin,
+#         UserEmail     => $TestUserLogin . '@localunittest.com',
+#         ValidID       => 1,
+#         ChangeUserID  => 1,
+#     ) || die "Could not create test user";
+
+    my $TestUserID = $ZnunyHelperObject->_UserCreateIfNotExists(
         UserFirstname => $TestUserLogin,
         UserLastname  => $TestUserLogin,
         UserLogin     => $TestUserLogin,
@@ -61,12 +80,9 @@ sub TestUserCreate {
         UserEmail     => $TestUserLogin . '@localunittest.com',
         ValidID       => 1,
         ChangeUserID  => 1,
-# ---
-# Znuny4OTRS-Repo
-# ---
         %Param,
+    );
 # ---
-    ) || die "Could not create test user";
 
     # Remember UserID of the test user to later set it to invalid
     #   in the destructor.
