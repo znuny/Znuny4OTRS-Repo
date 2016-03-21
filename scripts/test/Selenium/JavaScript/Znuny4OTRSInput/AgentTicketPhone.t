@@ -36,7 +36,6 @@ my $SeleniumTest = sub {
     # setup a full featured test environment
     my $TestEnvironmentData = $Znuny4OTRSHelperObject->SetupTestEnvironment();
 
-
     my %LoaderConfig = (
         AgentTicketPhone => [
             'Core.Form.Znuny4OTRSInput.js',
@@ -49,7 +48,6 @@ my $SeleniumTest = sub {
         $LoaderAddSuccess,
         "Add Core.Form.Znuny4OTRSInput to AgentTicketPhone JS Loader",
     );
-
 
     # create test user and login
     my %TestUser = $Selenium->AgentLogin(
@@ -83,9 +81,7 @@ my $SeleniumTest = sub {
         "Get CustomerUserID is '$CustomerUser->{UserID}'",
     );
 
-
-
-    my $DynamicFieldText = "DynamicFieldText äöüß%\$'\")(}{? - $RandomID";
+    my $DynamicFieldText    = "DynamicFieldText äöüß%\$'\")(}{? - $RandomID";
     my $SetDynamicFieldText = $Selenium->InputSet(
         Attribute   => 'DynamicField_UnitTestText',
         Content     => $DynamicFieldText,
@@ -107,9 +103,7 @@ my $SeleniumTest = sub {
         "Get DynamicFieldText is '$DynamicFieldText'",
     );
 
-
-
-    my $DynamicFieldCheckbox = 'true';
+    my $DynamicFieldCheckbox        = 'true';
     my $SetDynamicFieldCheckboxTrue = $Selenium->InputSet(
         Attribute   => 'DynamicField_UnitTestCheckbox',
         Content     => $DynamicFieldCheckbox,
@@ -151,21 +145,19 @@ my $SeleniumTest = sub {
         "Get DynamicFieldCheckbox is '$DynamicFieldCheckbox'",
     );
 
-
-
     my %DynamicFieldDropdownTestData = (
         Key   => 'Key3',
         Value => 'Value3',
     );
 
-    for my $SetType ( keys %DynamicFieldDropdownTestData ) {
+    for my $SetType ( sort keys %DynamicFieldDropdownTestData ) {
 
         my $SetDynamicFieldDropdown = $Selenium->InputSet(
             Attribute => 'DynamicField_UnitTestDropdown',
-            Content   => $DynamicFieldDropdownTestData{ $SetType },
+            Content   => $DynamicFieldDropdownTestData{$SetType},
             Options   => {
                 KeyOrValue => $SetType,
-            }
+                }
         );
 
         $Self->True(
@@ -173,26 +165,24 @@ my $SeleniumTest = sub {
             "Setting DynamicFieldDropdown '$DynamicFieldDropdownTestData{ $SetType }'",
         );
 
-        for my $GetType ( keys %DynamicFieldDropdownTestData ) {
+        for my $GetType ( sort keys %DynamicFieldDropdownTestData ) {
 
             my $GetDynamicFieldDropdown = $Selenium->InputGet(
                 Attribute => 'DynamicField_UnitTestDropdown',
                 Options   => {
                     KeyOrValue => $GetType,
-                }
+                    }
             );
 
             $Self->Is(
                 $GetDynamicFieldDropdown,
-                $DynamicFieldDropdownTestData{ $GetType },
+                $DynamicFieldDropdownTestData{$GetType},
                 "Get DynamicFieldDropdown is '$DynamicFieldDropdownTestData{ $GetType }'",
             );
         }
     }
 
-
-
-    my $DynamicFieldTextArea = "DynamicFieldTextArea \n\n\n äöüß%\$'\")(}{? \n\n\n - $RandomID";
+    my $DynamicFieldTextArea    = "DynamicFieldTextArea \n\n\n äöüß%\$'\")(}{? \n\n\n - $RandomID";
     my $SetDynamicFieldTextArea = $Selenium->InputSet(
         Attribute   => 'DynamicField_UnitTestTextArea',
         Content     => $DynamicFieldTextArea,
@@ -214,21 +204,19 @@ my $SeleniumTest = sub {
         "Get DynamicFieldTextArea is '$DynamicFieldTextArea'",
     );
 
-
-
     my %DynamicFieldMultiSelectTestData = (
-        Key   => ['Key1', 'Key2'],
-        Value => ['Value1', 'Value2'],
+        Key   => [ 'Key1',   'Key2' ],
+        Value => [ 'Value1', 'Value2' ],
     );
 
-    for my $SetType ( keys %DynamicFieldMultiSelectTestData ) {
+    for my $SetType ( sort keys %DynamicFieldMultiSelectTestData ) {
 
         my $SetDynamicFieldMultiSelect = $Selenium->InputSet(
             Attribute => 'DynamicField_UnitTestMultiSelect',
-            Content   => $DynamicFieldMultiSelectTestData{ $SetType },
+            Content   => $DynamicFieldMultiSelectTestData{$SetType},
             Options   => {
                 KeyOrValue => $SetType,
-            }
+                }
         );
 
         $Self->True(
@@ -236,26 +224,24 @@ my $SeleniumTest = sub {
             "Setting DynamicFieldMultiSelect '$DynamicFieldMultiSelectTestData{ $SetType }'",
         );
 
-        for my $GetType ( keys %DynamicFieldMultiSelectTestData ) {
+        for my $GetType ( sort keys %DynamicFieldMultiSelectTestData ) {
 
             my $GetDynamicFieldMultiSelect = $Selenium->InputGet(
                 Attribute => 'DynamicField_UnitTestMultiSelect',
                 Options   => {
                     KeyOrValue => $GetType,
-                }
+                    }
             );
 
             $Self->IsDeeply(
                 $GetDynamicFieldMultiSelect,
-                $DynamicFieldMultiSelectTestData{ $GetType },
+                $DynamicFieldMultiSelectTestData{$GetType},
                 "Get DynamicFieldMultiSelect is '$DynamicFieldMultiSelectTestData{ $GetType }'",
             );
         }
     }
 
-
-
-    my $Subject = "Subject äöüß%\$'\")(}{? - $RandomID";
+    my $Subject    = "Subject äöüß%\$'\")(}{? - $RandomID";
     my $SetSubject = $Selenium->InputSet(
         Attribute   => 'Subject',
         Content     => $Subject,
@@ -277,8 +263,7 @@ my $SeleniumTest = sub {
         "Get Subject is '$Subject'",
     );
 
-
-    my $RichText = "RichText<br />\n<br />\n<br />\näöüß%\$'\")(}{?<br />\n<br />\n- $RandomID";
+    my $RichText    = "RichText<br />\n<br />\n<br />\näöüß%\$'\")(}{?<br />\n<br />\n- $RandomID";
     my $SetRichText = $Selenium->InputSet(
         Attribute   => 'RichText',
         Content     => $RichText,
@@ -301,9 +286,9 @@ my $SeleniumTest = sub {
     );
 
     ATTRIBUTE:
-    for my $Attribute ( qw(Service SLA Type Queue) ) {
+    for my $Attribute (qw(Service SLA Type Queue)) {
 
-        next ATTRIBUTE if !IsHashRefWithData( $TestEnvironmentData->{ $Attribute } );
+        next ATTRIBUTE if !IsHashRefWithData( $TestEnvironmentData->{$Attribute} );
 
         my $JSAttribute = "${Attribute}ID";
 
@@ -317,7 +302,7 @@ my $SeleniumTest = sub {
             "Found FieldID for $Attribute",
         );
 
-        my $IsDisplayed = $Selenium->find_element("#$ModernizedFieldID", 'css')->is_displayed();
+        my $IsDisplayed = $Selenium->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
 
         $Self->True(
             $IsDisplayed,
@@ -333,7 +318,7 @@ my $SeleniumTest = sub {
             "$FieldID ($Attribute) is set to hidden",
         );
 
-        $IsDisplayed = $Selenium->find_element("#$ModernizedFieldID", 'css')->is_displayed();
+        $IsDisplayed = $Selenium->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
 
         $Self->False(
             $IsDisplayed,
@@ -349,16 +334,16 @@ my $SeleniumTest = sub {
             "$FieldID ($Attribute) is set to shown",
         );
 
-        $IsDisplayed = $Selenium->find_element("#$ModernizedFieldID", 'css')->is_displayed();
+        $IsDisplayed = $Selenium->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
 
         $Self->True(
             $IsDisplayed,
             "$FieldID ($Attribute) InputShow success",
         );
 
-        for my $AttributeValue ( sort keys %{ $TestEnvironmentData->{ $Attribute } } ) {
+        for my $AttributeValue ( sort keys %{ $TestEnvironmentData->{$Attribute} } ) {
 
-            my $AttributeKey = $TestEnvironmentData->{ $Attribute }->{ $AttributeValue };
+            my $AttributeKey = $TestEnvironmentData->{$Attribute}->{$AttributeValue};
 
             my %SetContentMapping = (
                 Key   => $AttributeKey,
@@ -372,7 +357,7 @@ my $SeleniumTest = sub {
                     Content   => $SetContentMapping{$SetType},
                     Options   => {
                         KeyOrValue => $SetType,
-                    }
+                        }
                 );
 
                 $Self->True(
@@ -394,7 +379,7 @@ my $SeleniumTest = sub {
                     Attribute => $JSAttribute,
                     Options   => {
                         KeyOrValue => 'Value',
-                    }
+                        }
                 );
 
                 $Self->Is(

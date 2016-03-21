@@ -292,7 +292,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         var Module = TargetNS.Module(Action);
 
-        if ( typeof AttributeFieldIDs === 'object' ) {
+        if (typeof AttributeFieldIDs === 'object') {
             AttributFieldIDMapping[Module] = AttributeFieldIDs;
         }
 
@@ -428,7 +428,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                 $('#' + FieldID + ' option' + SelectedAffix).each(function(Index, Element) {
 
-                    var Text = RebuildLevelText( $(Element) );
+                    var Text = RebuildLevelText($(Element));
 
                     if (KeyOrValue == 'Key') {
                         Value = QueueIDExtract($(Element).val(), Text);
@@ -446,7 +446,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                 if (!$Element.length) return;
 
-                var Text = RebuildLevelText( $Element );
+                var Text = RebuildLevelText($Element);
 
                 if (KeyOrValue == 'Key') {
                     return QueueIDExtract($Element.val(), Text);
@@ -483,7 +483,6 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         var KeyOrValue;
         var Prefix;
         var Selected;
-        var SelectValue;
         var SetSelected;
         var TriggerChange;
         var Type;
@@ -735,7 +734,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             $('#'+ FieldID +' option').filter(function() {
 
-                var Text = RebuildLevelText( $(this) );
+                var Text = RebuildLevelText($(this));
 
                 if (KeyOrValue == 'Key') {
                     CompareKeyOrValue = QueueIDExtract($(this).val(), Text);
@@ -912,17 +911,17 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         Core.UI.RichTextEditor.InitAll();
     }
 
-    function RebuildLevelText( $Element ) {
+    function RebuildLevelText($Element) {
 
         var Levels = [];
 
         var CurrentText = $Element.text();
         var Level       = CurrentText.search(/\S/);
 
-        Levels.unshift( $.trim( CurrentText ) );
+        Levels.unshift($.trim(CurrentText));
 
         var LevelSearch = false;
-        if ( Level > 0 ) {
+        if (Level > 0) {
             LevelSearch = true;
         }
 
@@ -934,15 +933,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             CurrentText      = $TempElement.text();
             var CompareLevel = CurrentText.search(/\S/);
 
-            if ( CompareLevel >= Level ) {
+            if (CompareLevel >= Level) {
                 continue;
             }
 
             Level = CompareLevel;
 
-            Levels.unshift( $.trim( CurrentText ) );
+            Levels.unshift($.trim(CurrentText));
 
-            if ( Level == 0 ) {
+            if (Level == 0) {
                 LevelSearch = false;
             }
         }

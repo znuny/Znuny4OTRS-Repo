@@ -117,14 +117,7 @@ sub InputSet {
         $OptionsParameter = ", $OptionsJSON";
     }
 
-    open ERLOG, ">>/tmp/znuny.otrs.log";
-    print ERLOG "return Core.Form.Znuny4OTRSInput.Set('$Param{Attribute}', $Content $OptionsParameter);\n";
-    close ERLOG;
     my $Result = $Self->execute_script("return Core.Form.Znuny4OTRSInput.Set('$Param{Attribute}', $Content $OptionsParameter);");
-
-    open ERLOG, ">>/tmp/znuny.otrs.log";
-    print ERLOG "$Result\n";
-    close ERLOG;
 
     if (
         !defined $Param{WaitForAJAX}

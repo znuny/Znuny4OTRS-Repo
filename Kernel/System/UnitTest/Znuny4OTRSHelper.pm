@@ -1,6 +1,8 @@
 # --
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
+# $origin: https://github.com/OTRS/otrs/blob/18c50cfbdbec354d24076bf97c824582bbfc85da/Kernel/System/UnitTest/Helper.pm
+# --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
@@ -16,6 +18,7 @@ use utf8;
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::CustomerUser',
+    'Kernel::System::Group',
     'Kernel::System::Service',
     'Kernel::System::SysConfig',
     'Kernel::System::Ticket',
@@ -169,7 +172,6 @@ sub TestCustomerUserCreate {
     return $TestUser;
 }
 
-
 =item CheckNumberOfEventExecution()
 
 This function checks the number of executions of an Event via the TicketHistory
@@ -198,7 +200,7 @@ sub CheckNumberOfEventExecution {
 
     for my $Event ( sort keys %{ $Param{Events} } ) {
 
-        my $NumEvents = $Param{Events}->{ $Event };
+        my $NumEvents = $Param{Events}->{$Event};
 
         my @EventLines = grep { $_->{Name} =~ m{\s*\Q$Event\E$} } @Lines;
 
@@ -359,7 +361,7 @@ sub ConfigureViews {
     VIEW:
     for my $View ( sort %Param ) {
 
-        next VIEW if !IsStringWithData( $View );
+        next VIEW if !IsStringWithData($View);
 
         my $ConfigKey = "Ticket::Frontend::$View";
         my $OldConfig = $ConfigObject->Get($ConfigKey);
@@ -799,7 +801,7 @@ sub FillTestEnvironment {
     );
 
     ATTRIBUTE:
-    for my $Attribute ( @PossibleTicketAttributes ) {
+    for my $Attribute (@PossibleTicketAttributes) {
 
         next ATTRIBUTE if !IsHashRefWithData( $WantedTicketAttributes{$Attribute} );
 
@@ -838,7 +840,7 @@ sub FillTestEnvironment {
         $AdditionalAttributeCreateData{SLA}->{ServiceIDs} = \@ServiceIDs;
 
         # add services as defalut service for all customers
-        for my $ServiceID ( @ServiceIDs ) {
+        for my $ServiceID (@ServiceIDs) {
 
             $ServiceObject->CustomerUserServiceMemberAdd(
                 CustomerUserLogin => '<DEFAULT>',
