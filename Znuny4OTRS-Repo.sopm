@@ -87,6 +87,7 @@
         <File Permission="644" Location="Kernel/System/UnitTest/Znuny4OTRSSelenium.pm"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
+        <File Permission="644" Location="scripts/test/Selenium/JavaScript/Znuny4OTRSInput/AgentTicketPhone.t"/>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.UI.InputFields.js"/>
