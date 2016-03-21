@@ -1651,7 +1651,7 @@ sub _SLACreateIfNotExists {
 
 creates user if not exists
 
-    my $Success = $ZnunyHelperObject->_UserCreateIfNotExists(
+    my $UserID = $ZnunyHelperObject->_UserCreateIfNotExists(
         UserFirstname => 'Huber',
         UserLastname  => 'Manfred',
         UserLogin     => 'mhuber',
@@ -1664,7 +1664,7 @@ creates user if not exists
 
 Returns:
 
-    my $Success = 1;
+    my $User = 123;
 
 =cut
 
