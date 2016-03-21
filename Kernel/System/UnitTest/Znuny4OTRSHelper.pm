@@ -237,7 +237,7 @@ sub CheckNumberOfEventExecution {
 
         my @EventLines = grep { $_->{Name} =~ m{\s*\Q$Event\E$} } @Lines;
 
-        $Self->Is(
+        $Self->{UnitTestObject}->Is(
             scalar @EventLines,
             $NumEvents,
             "check num of $Event events, $Comment",
