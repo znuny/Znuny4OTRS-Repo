@@ -335,7 +335,18 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         Type = TargetNS.Type(FieldID);
 
-        if (
+        if (FieldID === 'RichText') {
+            if (
+                typeof CKEDITOR !== 'undefined'
+                && CKEDITOR.instances[FieldID]
+            ) {
+                return CKEDITOR.instances[FieldID].getData();
+            }
+            else {
+                return $('#'+ FieldID).val();
+            }
+        }
+        else if (
             Type == 'text'
             || Type == 'hidden'
             || Type == 'textarea'
