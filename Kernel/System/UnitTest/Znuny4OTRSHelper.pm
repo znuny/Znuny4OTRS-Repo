@@ -39,6 +39,11 @@ the login name of the new user, the password is the same.
     my $TestUserLogin = $Helper->TestUserCreate(
         Groups => ['admin', 'users'],           # optional, list of groups to add this user to (rw rights)
         Language => 'de'                        # optional, defaults to 'en' if not set
+# ---
+# Znuny4OTRS-Repo
+# ---
+        KeepValid => 1, # optional, default 0
+# ---
     );
 
 =cut
@@ -88,6 +93,14 @@ sub TestUserCreate {
     #   in the destructor.
     $Self->{TestUsers} ||= [];
     push( @{ $Self->{TestUsers} }, $TestUserID );
+# ---
+# Znuny4OTRS-Repo
+# ---
+    if ( $Param{KeepValid} ) {
+        $Self->{TestUsersKeepValid} ||= [];
+        push( @{ $Self->{TestUsersKeepValid} }, $TestUserID );
+    }
+# ---
 
     $Self->{UnitTestObject}->True( 1, "Created test user $TestUserID" );
 
@@ -138,6 +151,11 @@ the login name of the new customer user, the password is the same.
 
     my $TestUserLogin = $Helper->TestCustomerUserCreate(
         Language => 'de',   # optional, defaults to 'en' if not set
+# ---
+# Znuny4OTRS-Repo
+# ---
+        KeepValid => 1, # optional, default 0
+# ---
     );
 
 =cut
@@ -190,6 +208,14 @@ sub TestCustomerUserCreate {
     #   in the destructor.
     $Self->{TestCustomerUsers} ||= [];
     push( @{ $Self->{TestCustomerUsers} }, $TestUser );
+# ---
+# Znuny4OTRS-Repo
+# ---
+    if ( $Param{KeepValid} ) {
+        $Self->{TestCustomerUsersKeepValid} ||= [];
+        push( @{ $Self->{TestCustomerUsersKeepValid} }, $TestUser );
+    }
+# ---
 
     $Self->{UnitTestObject}->True( 1, "Created test customer user $TestUser" );
 
@@ -1091,6 +1117,27 @@ Calls the DESTROY function of the framework UnitTest Helper object and undos cha
 
 sub DESTROY {
     my ( $Self, %Param ) = @_;
+
+    # some Users or CustomerUsers should be kept valid (development)
+    USERTYPE:
+    for my $UserType ( qw( User CustomerUser ) ) {
+
+        my $Key          = "Test$UserType";
+        my $KeyKeepValid = "${Key}KeepValid";
+
+        next USERTYPE if !IsArrayRefWithData( $Self->{$KeyKeepValid} );
+
+        my @SetInvalid;
+        USER:
+        for my $User ( @{ $Self->{$Key} } ) {
+
+            next USER if grep { $_ eq $User } @{ $Self->{$KeyKeepValid} };
+
+            push @SetInvalid, $User;
+        }
+
+        $Self->{$Key} = \@SetInvalid;
+    }
 
     $Self->SUPER::DESTROY(@_);
 
