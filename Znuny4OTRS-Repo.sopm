@@ -84,6 +84,7 @@
         <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/FooterJS.tt"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Znuny4OTRSHelper.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/Znuny4OTRSSelenium.pm"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>
