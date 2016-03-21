@@ -234,7 +234,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             QueueID:         'QueueID',
             StateID:         'StateID',
             TypeID:          'TypeID',
-            ProcessEntityID: 'ProcessEntityID',
+            ProcessEntityID: 'ProcessEntityID'
         },
 
         CustomerTicketProcess: {
@@ -253,7 +253,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             QueueID:         'QueueID',
             StateID:         'StateID',
             TypeID:          'TypeID',
-            ProcessEntityID: 'ProcessEntityID',
+            ProcessEntityID: 'ProcessEntityID'
         }
     };
 
