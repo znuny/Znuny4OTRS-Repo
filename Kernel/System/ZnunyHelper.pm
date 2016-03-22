@@ -1939,7 +1939,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
 creates notification event if not exists
 
-    my $Success = $ZnunyHelperObject->_NotificationEventCreateIfNotExists(
+    my $NotificationID = $ZnunyHelperObject->_NotificationEventCreateIfNotExists(
         Name => 'Agent::CustomerVIPPriorityUpdate',
         Data => {
             Events => [
@@ -1984,7 +1984,7 @@ creates notification event if not exists
 
 Returns:
 
-    my $Success = 1;
+    my $NotificationID = 123;
 
 =cut
 
