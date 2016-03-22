@@ -17,6 +17,7 @@ use Kernel::System::VariableCheck qw(:all);
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
+    'Kernel::System::CustomerUser',
     'Kernel::System::DB',
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
@@ -30,8 +31,8 @@ our @ObjectDependencies = (
     'Kernel::System::NotificationEvent',
     'Kernel::System::Package',
     'Kernel::System::Queue',
-    'Kernel::System::SLA',
     'Kernel::System::Service',
+    'Kernel::System::SLA',
     'Kernel::System::State',
     'Kernel::System::SysConfig',
     'Kernel::System::Type',
