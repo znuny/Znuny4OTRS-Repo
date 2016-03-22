@@ -22,19 +22,19 @@ $Kernel::OM->ObjectParamAdd(
 );
 
 # get the Znuny4OTRS Selenium object
-my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Znuny4OTRSSelenium');
+my $SeleniumObject = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 
 # store test function in variable so the Selenium object can handle errors/exceptions/dies etc.
 my $SeleniumTest = sub {
 
     # initialize Znuny4OTRS Helpers and other needed objects
-    my $Znuny4OTRSHelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Znuny4OTRSHelper');
-    my $ZnunyHelperObject      = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+    my $HelperObject      = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 
-    my $RandomID = $Znuny4OTRSHelperObject->GetRandomID();
+    my $RandomID = $HelperObject->GetRandomID();
 
     # setup a full featured test environment
-    my $TestEnvironmentData = $Znuny4OTRSHelperObject->SetupTestEnvironment();
+    my $TestEnvironmentData = $HelperObject->SetupTestEnvironment();
 
     my %LoaderConfig = (
         AgentTicketPhone => [
@@ -50,18 +50,18 @@ my $SeleniumTest = sub {
     );
 
     # create test user and login
-    my %TestUser = $Selenium->AgentLogin(
+    my %TestUser = $SeleniumObject->AgentLogin(
         Groups => [ 'admin', 'users' ],
     );
 
-    $Selenium->AgentInterface(
+    $SeleniumObject->AgentInterface(
         Action      => 'AgentTicketPhone',
         WaitForAJAX => 0,
     );
 
     my $CustomerUser = $TestEnvironmentData->{CustomerUser}->[0];
 
-    my $SetCustomerUserID = $Selenium->InputSet(
+    my $SetCustomerUserID = $SeleniumObject->InputSet(
         Attribute => 'CustomerUserID',
         Content   => $CustomerUser->{UserID},
     );
@@ -71,7 +71,7 @@ my $SeleniumTest = sub {
         "Setting CustomerUserID '$CustomerUser->{UserID}'",
     );
 
-    my $GetCustomerUserID = $Selenium->InputGet(
+    my $GetCustomerUserID = $SeleniumObject->InputGet(
         Attribute => 'CustomerUserID',
     );
 
@@ -82,7 +82,7 @@ my $SeleniumTest = sub {
     );
 
     my $DynamicFieldText    = "DynamicFieldText äöüß%\$'\")(}{? - $RandomID";
-    my $SetDynamicFieldText = $Selenium->InputSet(
+    my $SetDynamicFieldText = $SeleniumObject->InputSet(
         Attribute   => 'DynamicField_UnitTestText',
         Content     => $DynamicFieldText,
         WaitForAJAX => 0,
@@ -93,7 +93,7 @@ my $SeleniumTest = sub {
         "Setting DynamicFieldText '$DynamicFieldText'",
     );
 
-    my $GetDynamicFieldText = $Selenium->InputGet(
+    my $GetDynamicFieldText = $SeleniumObject->InputGet(
         Attribute => 'DynamicField_UnitTestText',
     );
 
@@ -104,7 +104,7 @@ my $SeleniumTest = sub {
     );
 
     my $DynamicFieldCheckbox        = 'true';
-    my $SetDynamicFieldCheckboxTrue = $Selenium->InputSet(
+    my $SetDynamicFieldCheckboxTrue = $SeleniumObject->InputSet(
         Attribute   => 'DynamicField_UnitTestCheckbox',
         Content     => $DynamicFieldCheckbox,
         WaitForAJAX => 0,
@@ -115,7 +115,7 @@ my $SeleniumTest = sub {
         "Setting DynamicFieldCheckbox '$DynamicFieldCheckbox'",
     );
 
-    my $GetDynamicFieldCheckboxTrue = $Selenium->InputGet(
+    my $GetDynamicFieldCheckboxTrue = $SeleniumObject->InputGet(
         Attribute => 'DynamicField_UnitTestCheckbox',
     );
 
@@ -125,7 +125,7 @@ my $SeleniumTest = sub {
     );
 
     $DynamicFieldCheckbox = 'false';
-    my $SetDynamicFieldCheckboxFalse = $Selenium->InputSet(
+    my $SetDynamicFieldCheckboxFalse = $SeleniumObject->InputSet(
         Attribute   => 'DynamicField_UnitTestCheckbox',
         Content     => $DynamicFieldCheckbox,
         WaitForAJAX => 0,
@@ -136,7 +136,7 @@ my $SeleniumTest = sub {
         "Setting DynamicFieldCheckbox '$DynamicFieldCheckbox'",
     );
 
-    my $GetDynamicFieldCheckboxFalse = $Selenium->InputGet(
+    my $GetDynamicFieldCheckboxFalse = $SeleniumObject->InputGet(
         Attribute => 'DynamicField_UnitTestCheckbox',
     );
 
@@ -152,7 +152,7 @@ my $SeleniumTest = sub {
 
     for my $SetType ( sort keys %DynamicFieldDropdownTestData ) {
 
-        my $SetDynamicFieldDropdown = $Selenium->InputSet(
+        my $SetDynamicFieldDropdown = $SeleniumObject->InputSet(
             Attribute => 'DynamicField_UnitTestDropdown',
             Content   => $DynamicFieldDropdownTestData{$SetType},
             Options   => {
@@ -167,7 +167,7 @@ my $SeleniumTest = sub {
 
         for my $GetType ( sort keys %DynamicFieldDropdownTestData ) {
 
-            my $GetDynamicFieldDropdown = $Selenium->InputGet(
+            my $GetDynamicFieldDropdown = $SeleniumObject->InputGet(
                 Attribute => 'DynamicField_UnitTestDropdown',
                 Options   => {
                     KeyOrValue => $GetType,
@@ -183,7 +183,7 @@ my $SeleniumTest = sub {
     }
 
     my $DynamicFieldTextArea    = "DynamicFieldTextArea \n\n\n äöüß%\$'\")(}{? \n\n\n - $RandomID";
-    my $SetDynamicFieldTextArea = $Selenium->InputSet(
+    my $SetDynamicFieldTextArea = $SeleniumObject->InputSet(
         Attribute   => 'DynamicField_UnitTestTextArea',
         Content     => $DynamicFieldTextArea,
         WaitForAJAX => 0,
@@ -194,7 +194,7 @@ my $SeleniumTest = sub {
         "Setting DynamicFieldTextArea '$DynamicFieldTextArea'",
     );
 
-    my $GetDynamicFieldTextArea = $Selenium->InputGet(
+    my $GetDynamicFieldTextArea = $SeleniumObject->InputGet(
         Attribute => 'DynamicField_UnitTestTextArea',
     );
 
@@ -211,7 +211,7 @@ my $SeleniumTest = sub {
 
     for my $SetType ( sort keys %DynamicFieldMultiSelectTestData ) {
 
-        my $SetDynamicFieldMultiSelect = $Selenium->InputSet(
+        my $SetDynamicFieldMultiSelect = $SeleniumObject->InputSet(
             Attribute => 'DynamicField_UnitTestMultiSelect',
             Content   => $DynamicFieldMultiSelectTestData{$SetType},
             Options   => {
@@ -226,7 +226,7 @@ my $SeleniumTest = sub {
 
         for my $GetType ( sort keys %DynamicFieldMultiSelectTestData ) {
 
-            my $GetDynamicFieldMultiSelect = $Selenium->InputGet(
+            my $GetDynamicFieldMultiSelect = $SeleniumObject->InputGet(
                 Attribute => 'DynamicField_UnitTestMultiSelect',
                 Options   => {
                     KeyOrValue => $GetType,
@@ -242,7 +242,7 @@ my $SeleniumTest = sub {
     }
 
     my $Subject    = "Subject äöüß%\$'\")(}{? - $RandomID";
-    my $SetSubject = $Selenium->InputSet(
+    my $SetSubject = $SeleniumObject->InputSet(
         Attribute   => 'Subject',
         Content     => $Subject,
         WaitForAJAX => 0,
@@ -253,7 +253,7 @@ my $SeleniumTest = sub {
         "Setting Subject '$Subject'",
     );
 
-    my $GetSubject = $Selenium->InputGet(
+    my $GetSubject = $SeleniumObject->InputGet(
         Attribute => 'Subject',
     );
 
@@ -264,7 +264,7 @@ my $SeleniumTest = sub {
     );
 
     my $RichText    = "RichText<br />\n<br />\n<br />\näöüß%\$'\")(}{?<br />\n<br />\n- $RandomID";
-    my $SetRichText = $Selenium->InputSet(
+    my $SetRichText = $SeleniumObject->InputSet(
         Attribute   => 'RichText',
         Content     => $RichText,
         WaitForAJAX => 0,
@@ -275,7 +275,7 @@ my $SeleniumTest = sub {
         "Setting RichText '$RichText'",
     );
 
-    my $GetRichText = $Selenium->InputGet(
+    my $GetRichText = $SeleniumObject->InputGet(
         Attribute => 'RichText',
     );
 
@@ -292,7 +292,7 @@ my $SeleniumTest = sub {
 
         my $JSAttribute = "${Attribute}ID";
 
-        my $FieldID = $Selenium->InputFieldID(
+        my $FieldID = $SeleniumObject->InputFieldID(
             Attribute => $JSAttribute,
         );
         my $ModernizedFieldID = "${FieldID}_Search";
@@ -302,14 +302,14 @@ my $SeleniumTest = sub {
             "Found FieldID for $Attribute",
         );
 
-        my $IsDisplayed = $Selenium->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
+        my $IsDisplayed = $SeleniumObject->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
 
         $Self->True(
             $IsDisplayed,
             "$FieldID ($Attribute) is displayed",
         );
 
-        my $HiddenResult = $Selenium->InputHide(
+        my $HiddenResult = $SeleniumObject->InputHide(
             Attribute => $JSAttribute,
         );
 
@@ -318,14 +318,14 @@ my $SeleniumTest = sub {
             "$FieldID ($Attribute) is set to hidden",
         );
 
-        $IsDisplayed = $Selenium->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
+        $IsDisplayed = $SeleniumObject->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
 
         $Self->False(
             $IsDisplayed,
             "$FieldID ($Attribute) InputHide success",
         );
 
-        my $ShowResult = $Selenium->InputShow(
+        my $ShowResult = $SeleniumObject->InputShow(
             Attribute => $JSAttribute,
         );
 
@@ -334,7 +334,7 @@ my $SeleniumTest = sub {
             "$FieldID ($Attribute) is set to shown",
         );
 
-        $IsDisplayed = $Selenium->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
+        $IsDisplayed = $SeleniumObject->find_element( "#$ModernizedFieldID", 'css' )->is_displayed();
 
         $Self->True(
             $IsDisplayed,
@@ -352,7 +352,7 @@ my $SeleniumTest = sub {
 
             for my $SetType (qw(Key Value)) {
 
-                my $SetValueResult = $Selenium->InputSet(
+                my $SetValueResult = $SeleniumObject->InputSet(
                     Attribute => $JSAttribute,
                     Content   => $SetContentMapping{$SetType},
                     Options   => {
@@ -365,7 +365,7 @@ my $SeleniumTest = sub {
                     "Set $SetType '$SetContentMapping{$SetType}' for $FieldID ($Attribute)",
                 );
 
-                my $GetKeyResult = $Selenium->InputGet(
+                my $GetKeyResult = $SeleniumObject->InputGet(
                     Attribute => $JSAttribute,
                 );
 
@@ -375,7 +375,7 @@ my $SeleniumTest = sub {
                     "Get key '$AttributeKey' for $FieldID ($Attribute)",
                 );
 
-                my $GetValueResult = $Selenium->InputGet(
+                my $GetValueResult = $SeleniumObject->InputGet(
                     Attribute => $JSAttribute,
                     Options   => {
                         KeyOrValue => 'Value',
@@ -393,6 +393,6 @@ my $SeleniumTest = sub {
 };
 
 # finally run the test(s) in the browser
-$Selenium->RunTest($SeleniumTest);
+$SeleniumObject->RunTest($SeleniumTest);
 
 1;

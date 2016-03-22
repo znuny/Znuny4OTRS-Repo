@@ -1,4 +1,5 @@
 # --
+# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
 # $origin: https://github.com/OTRS/otrs/blob/18c50cfbdbec354d24076bf97c824582bbfc85da/Kernel/System/UnitTest/Helper.pm
@@ -8,34 +9,157 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::UnitTest::Znuny4OTRSHelper;
+package Kernel::System::UnitTest::Helper;
+## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
 
 use strict;
 use warnings;
 
+use Kernel::System::SysConfig;
+# ---
+# Znuny4OTRS-Repo
+# ---
 use utf8;
+use Kernel::System::VariableCheck qw(:all);
+# ---
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::System::DB',
+    'Kernel::System::Cache',
     'Kernel::System::CustomerUser',
     'Kernel::System::Group',
+    'Kernel::System::Main',
+    'Kernel::System::UnitTest',
+    'Kernel::System::User',
+# ---
+# Znuny4OTRS-Repo
+# ---
     'Kernel::System::Service',
     'Kernel::System::SysConfig',
     'Kernel::System::Ticket',
-    'Kernel::System::User',
     'Kernel::System::ZnunyHelper',
+# ---
 );
 
-use base qw( Kernel::System::UnitTest::Helper );
+=head1 NAME
 
-use Kernel::System::VariableCheck qw(:all);
+Kernel::System::UnitTest::Helper - unit test helper functions
+
+=over 4
+
+=cut
+
+=item new()
+
+construct a helper object.
+
+    use Kernel::System::ObjectManager;
+    local $Kernel::OM = Kernel::System::ObjectManager->new(
+        'Kernel::System::UnitTest::Helper' => {
+            RestoreSystemConfiguration => 1,        # optional, save ZZZAuto.pm
+                                                    # and restore it in the destructor
+            RestoreDatabase            => 1,        # runs the test in a transaction,
+                                                    # and roll it back in the destructor
+        },
+    );
+    my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
+=cut
+
+sub new {
+    my ( $Type, %Param ) = @_;
+
+    # allocate new hash for object
+    my $Self = {};
+    bless( $Self, $Type );
+
+    $Self->{Debug} = $Param{Debug} || 0;
+
+    $Self->{UnitTestObject} = $Kernel::OM->Get('Kernel::System::UnitTest');
+
+    # make backup of system configuration if needed
+    if ( $Param{RestoreSystemConfiguration} ) {
+        $Self->{SysConfigObject} = Kernel::System::SysConfig->new();
+
+        $Self->{SysConfigBackup} = $Self->{SysConfigObject}->Download();
+
+        $Self->{UnitTestObject}->True( 1, 'Creating backup of the system configuration.' );
+    }
+
+    # set environment variable to skip SSL certificate verification if needed
+    if ( $Param{SkipSSLVerify} ) {
+
+        # remember original value
+        $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
+
+        # set environment value to 0
+        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+
+        $Self->{RestoreSSLVerify} = 1;
+        $Self->{UnitTestObject}->True( 1, 'Skipping SSL certificates verification' );
+    }
+
+    if ( $Param{RestoreDatabase} ) {
+        $Self->{RestoreDatabase} = 1;
+        my $StartedTransaction = $Self->BeginWork();
+        $Self->{UnitTestObject}->True( $StartedTransaction, 'Started database transaction.' );
+
+    }
+
+    return $Self;
+}
+
+=item GetRandomID()
+
+creates a random ID that can be used in tests as a unique identifier.
+
+It is guaranteed that within a test this function will never return a duplicate.
+
+Please note that these numbers are not really random and should only be used
+to create test data.
+
+=cut
+
+sub GetRandomID {
+    my ( $Self, %Param ) = @_;
+
+    return 'test' . $Self->GetRandomNumber();
+}
+
+=item GetRandomNumber()
+
+creates a random Number that can be used in tests as a unique identifier.
+
+It is guaranteed that within a test this function will never return a duplicate.
+
+Please note that these numbers are not really random and should only be used
+to create test data.
+
+=cut
+
+# Use package variables here (instead of attributes in $Self)
+# to make it work across several unit tests that run during the same second.
+my $GetRandomNumberPreviousEpoch = 0;
+my $GetRandomNumberCounter       = 0;
+
+sub GetRandomNumber {
+    my ( $Self, %Param ) = @_;
+
+    my $Epoch = time();
+    $GetRandomNumberPreviousEpoch //= 0;
+    if ( $GetRandomNumberPreviousEpoch != $Epoch ) {
+        $GetRandomNumberPreviousEpoch = $Epoch;
+        $GetRandomNumberCounter       = 0;
+    }
+
+    return $Epoch . $GetRandomNumberCounter++;
+}
 
 =item TestUserCreate()
-
 creates a test user that can be used in tests. It will
 be set to invalid automatically during the destructor. Returns
 the login name of the new user, the password is the same.
-
     my $TestUserLogin = $Helper->TestUserCreate(
         Groups => ['admin', 'users'],           # optional, list of groups to add this user to (rw rights)
         Language => 'de'                        # optional, defaults to 'en' if not set
@@ -45,7 +169,6 @@ the login name of the new user, the password is the same.
         KeepValid => 1, # optional, default 0
 # ---
     );
-
 =cut
 
 sub TestUserCreate {
@@ -144,11 +267,9 @@ sub TestUserCreate {
 }
 
 =item TestCustomerUserCreate()
-
 creates a test customer user that can be used in tests. It will
 be set to invalid automatically during the destructor. Returns
 the login name of the new customer user, the password is the same.
-
     my $TestUserLogin = $Helper->TestCustomerUserCreate(
         Language => 'de',   # optional, defaults to 'en' if not set
 # ---
@@ -157,7 +278,6 @@ the login name of the new customer user, the password is the same.
         KeepValid => 1, # optional, default 0
 # ---
     );
-
 =cut
 
 sub TestCustomerUserCreate {
@@ -231,11 +351,315 @@ sub TestCustomerUserCreate {
     return $TestUser;
 }
 
+=item BeginWork()
+
+    $Helper->BeginWork()
+
+Starts a database transaction (in order to isolate the test from the static database).
+
+=cut
+
+sub BeginWork {
+    my ( $Self, %Param ) = @_;
+    my $DBObject = $Kernel::OM->Get('Kernel::System::DB');
+    $DBObject->Connect();
+    return $DBObject->{dbh}->begin_work();
+}
+
+=item Rollback()
+
+    $Helper->Rollback()
+
+Rolls back the current database transaction.
+
+=cut
+
+sub Rollback {
+    my ( $Self, %Param ) = @_;
+    my $DatabaseHandle = $Kernel::OM->Get('Kernel::System::DB')->{dbh};
+
+    # if there is no database handle, there's nothing to rollback
+    if ($DatabaseHandle) {
+        return $DatabaseHandle->rollback();
+    }
+    return 1;
+}
+
+=item GetTestHTTPHostname()
+
+returns a hostname for HTTP based tests, possibly including the port.
+
+=cut
+
+sub GetTestHTTPHostname {
+    my ( $Self, %Param ) = @_;
+
+    my $Host = $Kernel::OM->Get('Kernel::Config')->Get('TestHTTPHostname');
+    return $Host if $Host;
+
+    my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
+
+    # try to resolve fqdn host
+    if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
+        $Host = $FQDN;
+    }
+
+    # try to resolve localhost instead
+    if ( !$Host && gethostbyname('localhost') ) {
+        $Host = 'localhost';
+    }
+
+    # use hardcoded localhost ip address
+    if ( !$Host ) {
+        $Host = '127.0.0.1';
+    }
+
+    return $Host;
+}
+
+my $FixedTime;
+
+=item FixedTimeSet()
+
+makes it possible to override the system time as long as this object lives.
+You can pass an optional time parameter that should be used, if not,
+the current system time will be used.
+
+All regular perl calls to time(), localtime() and gmtime() will use this
+fixed time afterwards. If this object goes out of scope, the 'normal' system
+time will be used again.
+
+=cut
+
+sub FixedTimeSet {
+    my ( $Self, $TimeToSave ) = @_;
+
+    $FixedTime = $TimeToSave // CORE::time();
+
+    # This is needed to reload objects that directly use the time functions
+    #   to get a hold of the overrides.
+    my @Objects = (
+        'Kernel::System::Time',
+        'Kernel::System::Cache::FileStorable',
+        'Kernel::System::PID',
+    );
+
+    for my $Object (@Objects) {
+        my $FilePath = $Object;
+        $FilePath =~ s{::}{/}xmsg;
+        $FilePath .= '.pm';
+        if ( $INC{$FilePath} ) {
+            no warnings 'redefine';
+            delete $INC{$FilePath};
+            $Kernel::OM->Get('Kernel::System::Main')->Require($Object);
+        }
+    }
+
+    return $FixedTime;
+}
+
+=item FixedTimeUnset()
+
+restores the regular system time behaviour.
+
+=cut
+
+sub FixedTimeUnset {
+    my ($Self) = @_;
+
+    undef $FixedTime;
+
+    return;
+}
+
+=item FixedTimeAddSeconds()
+
+adds a number of seconds to the fixed system time which was previously
+set by FixedTimeSet(). You can pass a negative value to go back in time.
+
+=cut
+
+sub FixedTimeAddSeconds {
+    my ( $Self, $SecondsToAdd ) = @_;
+
+    return if ( !defined $FixedTime );
+    $FixedTime += $SecondsToAdd;
+    return;
+}
+
+# See http://perldoc.perl.org/5.10.0/perlsub.html#Overriding-Built-in-Functions
+BEGIN {
+    *CORE::GLOBAL::time = sub {
+        return defined $FixedTime ? $FixedTime : CORE::time();
+    };
+    *CORE::GLOBAL::localtime = sub {
+        my ($Time) = @_;
+        if ( !defined $Time ) {
+            $Time = defined $FixedTime ? $FixedTime : CORE::time();
+        }
+        return CORE::localtime($Time);
+    };
+    *CORE::GLOBAL::gmtime = sub {
+        my ($Time) = @_;
+        if ( !defined $Time ) {
+            $Time = defined $FixedTime ? $FixedTime : CORE::time();
+        }
+        return CORE::gmtime($Time);
+    };
+}
+
+sub DESTROY {
+    my $Self = shift;
+# ---
+# Znuny4OTRS-Repo
+# ---
+    # some Users or CustomerUsers should be kept valid (development)
+    USERTYPE:
+    for my $UserType ( qw( User CustomerUser ) ) {
+
+        my $Key          = "Test$UserType";
+        my $KeyKeepValid = "${Key}KeepValid";
+
+        next USERTYPE if !IsArrayRefWithData( $Self->{$KeyKeepValid} );
+
+        my @SetInvalid;
+        USER:
+        for my $User ( @{ $Self->{$Key} } ) {
+
+            next USER if grep { $_ eq $User } @{ $Self->{$KeyKeepValid} };
+
+            push @SetInvalid, $User;
+        }
+
+        $Self->{$Key} = \@SetInvalid;
+    }
+# ---
+
+    # Reset time freeze
+    FixedTimeUnset();
+
+    #
+    # Restore system configuration if needed
+    #
+    if ( $Self->{SysConfigBackup} ) {
+        $Self->{SysConfigObject}->Upload( Content => $Self->{SysConfigBackup} );
+        $Self->{UnitTestObject}->True( 1, 'Restored the system configuration' );
+    }
+
+    #
+    # Restore environment variable to skip SSL certificate verification if needed
+    #
+    if ( $Self->{RestoreSSLVerify} ) {
+
+        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME};
+
+        $Self->{RestoreSSLVerify} = 0;
+
+        $Self->{UnitTestObject}->True( 1, 'Restored SSL certificates verification' );
+    }
+
+    # Restore database, clean caches
+    if ( $Self->{RestoreDatabase} ) {
+        my $RollbackSuccess = $Self->Rollback();
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
+        $Self->{UnitTestObject}->True( $RollbackSuccess, 'Rolled back all database changes and cleaned up the cache.' );
+    }
+
+    # disable email checks to create new user
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    local $ConfigObject->{CheckEmailAddresses} = 0;
+
+    # invalidate test users
+    if ( ref $Self->{TestUsers} eq 'ARRAY' && @{ $Self->{TestUsers} } ) {
+        TESTUSERS:
+        for my $TestUser ( @{ $Self->{TestUsers} } ) {
+
+            my %User = $Kernel::OM->Get('Kernel::System::User')->GetUserData(
+                UserID => $TestUser,
+            );
+
+            if ( !$User{UserID} ) {
+
+                # if no such user exists, there is no need to set it to invalid;
+                # happens when the test user is created inside a transaction
+                # that is later rolled back.
+                next TESTUSERS;
+            }
+
+            # make test user invalid
+            my $Success = $Kernel::OM->Get('Kernel::System::User')->UserUpdate(
+                %User,
+                ValidID      => 2,
+                ChangeUserID => 1,
+            );
+
+            $Self->{UnitTestObject}->True( $Success, "Set test user $TestUser to invalid" );
+        }
+    }
+
+    # invalidate test customer users
+    if ( ref $Self->{TestCustomerUsers} eq 'ARRAY' && @{ $Self->{TestCustomerUsers} } ) {
+        TESTCUSTOMERUSERS:
+        for my $TestCustomerUser ( @{ $Self->{TestCustomerUsers} } ) {
+
+            my %CustomerUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserDataGet(
+                User => $TestCustomerUser,
+            );
+
+            if ( !$CustomerUser{UserLogin} ) {
+
+                # if no such customer user exists, there is no need to set it to invalid;
+                # happens when the test customer user is created inside a transaction
+                # that is later rolled back.
+                next TESTCUSTOMERUSERS;
+            }
+
+            my $Success = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserUpdate(
+                %CustomerUser,
+                ID      => $CustomerUser{UserID},
+                ValidID => 2,
+                UserID  => 1,
+            );
+
+            $Self->{UnitTestObject}->True(
+                $Success, "Set test customer user $TestCustomerUser to invalid"
+            );
+        }
+    }
+# ---
+# Znuny4OTRS-Repo
+# ---
+    my $TicketObject      = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+
+    if ( IsArrayRefWithData( $Self->{TestTickets} ) ) {
+
+        TICKET:
+        for my $TicketID ( sort @{ $Self->{TestTickets} } ) {
+
+            next TICKET if !$TicketID;
+
+            $TicketObject->TicketDelete(
+                TicketID => $TicketID,
+                UserID   => 1,
+            );
+        }
+    }
+
+    return if !IsArrayRefWithData( $Self->{TestDynamicFields} );
+
+    $ZnunyHelperObject->_DynamicFieldsDelete( @{ $Self->{TestDynamicFields} } );
+# ---
+}
+# ---
+# Znuny4OTRS-Repo
+# ---
+
 =item CheckNumberOfEventExecution()
 
 This function checks the number of executions of an Event via the TicketHistory
 
-    my $Result = $Znuny4OTRSHelperObject->CheckNumberOfEventExecution(
+    my $Result = $HelperObject->CheckNumberOfEventExecution(
         TicketID => $TicketID,
         Events   => {
             AnExampleHistoryEntry      => 2,
@@ -280,7 +704,7 @@ sub CheckNumberOfEventExecution {
 
 This function calls a list of other helper functions to setup a test environment with various test data.
 
-    my $Result = $Znuny4OTRSHelperObject->SetupTestEnvironment(
+    my $Result = $HelperObject->SetupTestEnvironment(
         ... # Parameters get passed to the FillTestEnvironment and ConfigureViews function
     );
 
@@ -343,7 +767,7 @@ sub SetupTestEnvironment {
 
 Toggles settings for a given view like AgentTicketNote or CustomerTicketMessage.
 
-    my $Result = $Znuny4OTRSHelperObject->ConfigureViews(
+    my $Result = $HelperObject->ConfigureViews(
         AgentTicketNote => {
             Note             => 1,
             NoteMandatory    => 1,
@@ -450,7 +874,7 @@ sub ConfigureViews {
 
 This function activates the given DynamicFields in each agent view.
 
-    $Znuny4OTRSHelperObject->ActivateDynamicFields(
+    $HelperObject->ActivateDynamicFields(
         'UnitTestDropdown',
         'UnitTestCheckbox',
         'UnitTestText',
@@ -498,7 +922,7 @@ sub ActivateDynamicFields {
 
 This function adds one of each default dynamic fields to the system and activates them for each agent view.
 
-    my $Result = $Znuny4OTRSHelperObject->ActivateDefaultDynamicFields();
+    my $Result = $HelperObject->ActivateDefaultDynamicFields();
 
     $Result = {
         {
@@ -675,7 +1099,7 @@ sub ActivateDefaultDynamicFields {
 
 Activates Type, Service and Responsible feature.
 
-    $Znuny4OTRSHelperObject->FullFeature();
+    $HelperObject->FullFeature();
 =cut
 
 sub FullFeature {
@@ -708,7 +1132,7 @@ Fills the system with test data. Data creation can be manipulated with own param
 Default parameters contain various special chars.
 
     # would do nothing -> return an empty HashRef
-    my $Result = $Znuny4OTRSHelperObject->FillTestEnvironment(
+    my $Result = $HelperObject->FillTestEnvironment(
         User         => 0, # optional, default 5
         CustomerUser => 0, # optional, default 5
         Service      => 0, # optional, default 1 (true)
@@ -718,7 +1142,7 @@ Default parameters contain various special chars.
     );
 
     # create everything with defaults, except Type
-    my $Result = $Znuny4OTRSHelperObject->FillTestEnvironment(
+    my $Result = $HelperObject->FillTestEnvironment(
         Type => {
             'Type 1::Sub Type ÄÖÜ' => 1,
             ...
@@ -726,7 +1150,7 @@ Default parameters contain various special chars.
     );
 
     # create everything with defaults, except 20 agents
-    my $Result = $Znuny4OTRSHelperObject->FillTestEnvironment(
+    my $Result = $HelperObject->FillTestEnvironment(
         User => 20,
     );
 
@@ -917,7 +1341,7 @@ sub FillTestEnvironment {
 
 Calls TestUserCreate and returns the whole UserData instead only the Login.
 
-    my %UserData = $Znuny4OTRSHelperObject->TestUserDataGet(
+    my %UserData = $HelperObject->TestUserDataGet(
         Groups => ['admin', 'users'],           # optional, list of groups to add this user to (rw rights)
         Language => 'de'                        # optional, defaults to 'en' if not set
     );
@@ -951,7 +1375,7 @@ sub TestUserDataGet {
 
 Calls TestCustomerUserCreate and returns the whole CustomerUserData instead only the Login.
 
-    my %CustomerUserData = $Znuny4OTRSHelperObject->TestCustomerUserDataGet(
+    my %CustomerUserData = $HelperObject->TestCustomerUserDataGet(
         Language => 'de' # optional, defaults to 'en' if not set
     );
 
@@ -986,11 +1410,11 @@ sub TestCustomerUserDataGet {
 
 Creates a Ticket with dummy data and tests the creation. All Ticket attributes are optional.
 
-    my $TicketID = $Znuny4OTRSHelperObject->TicketCreate();
+    my $TicketID = $HelperObject->TicketCreate();
 
     is equals:
 
-    my $TicketID = $Znuny4OTRSHelperObject->TicketCreate(
+    my $TicketID = $HelperObject->TicketCreate(
         Title        => 'UnitTest ticket',
         Queue        => 'Raw',
         Lock         => 'unlock',
@@ -1004,7 +1428,7 @@ Creates a Ticket with dummy data and tests the creation. All Ticket attributes a
 
     To overwrite:
 
-    my $TicketID = $Znuny4OTRSHelperObject->TicketCreate(
+    my $TicketID = $HelperObject->TicketCreate(
         CustomerUser => 'another_customer@example.com',
     );
 
@@ -1049,13 +1473,13 @@ sub TicketCreate {
 
 Creates an Article with dummy data and tests the creation. All Article attributes except the TicketID are optional.
 
-    my $ArticleID = $Znuny4OTRSHelperObject->ArticleCreate(
+    my $ArticleID = $HelperObject->ArticleCreate(
         TicketID => 1337,
     );
 
     is equals:
 
-    my $ArticleID = $Znuny4OTRSHelperObject->ArticleCreate(
+    my $ArticleID = $HelperObject->ArticleCreate(
         TicketID       => 1337,
         ArticleType    => 'note-internal',
         SenderType     => 'agent',
@@ -1070,7 +1494,7 @@ Creates an Article with dummy data and tests the creation. All Article attribute
 
     To overwrite:
 
-    my $ArticleID = $Znuny4OTRSHelperObject->ArticleCreate(
+    my $ArticleID = $HelperObject->ArticleCreate(
         TicketID   => 1337,
         SenderType => 'customer',
     );
@@ -1108,61 +1532,18 @@ sub ArticleCreate {
     return $ArticleID;
 }
 
-=item DESTROY()
-
-Calls the DESTROY function of the framework UnitTest Helper object and undos changes made by this module.
-
-    $Object->DESTROY();
-=cut
-
-sub DESTROY {
-    my ( $Self, %Param ) = @_;
-
-    # some Users or CustomerUsers should be kept valid (development)
-    USERTYPE:
-    for my $UserType ( qw( User CustomerUser ) ) {
-
-        my $Key          = "Test$UserType";
-        my $KeyKeepValid = "${Key}KeepValid";
-
-        next USERTYPE if !IsArrayRefWithData( $Self->{$KeyKeepValid} );
-
-        my @SetInvalid;
-        USER:
-        for my $User ( @{ $Self->{$Key} } ) {
-
-            next USER if grep { $_ eq $User } @{ $Self->{$KeyKeepValid} };
-
-            push @SetInvalid, $User;
-        }
-
-        $Self->{$Key} = \@SetInvalid;
-    }
-
-    $Self->SUPER::DESTROY(@_);
-
-    my $TicketObject      = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
-
-    if ( IsArrayRefWithData( $Self->{TestTickets} ) ) {
-
-        TICKET:
-        for my $TicketID ( sort @{ $Self->{TestTickets} } ) {
-
-            next TICKET if !$TicketID;
-
-            $TicketObject->TicketDelete(
-                TicketID => $TicketID,
-                UserID   => 1,
-            );
-        }
-    }
-
-    return if !IsArrayRefWithData( $Self->{TestDynamicFields} );
-
-    $ZnunyHelperObject->_DynamicFieldsDelete( @{ $Self->{TestDynamicFields} } );
-
-    return 1;
-}
+# ---
 
 1;
+
+=back
+
+=head1 TERMS AND CONDITIONS
+
+This software is part of the OTRS project (L<http://otrs.org/>).
+
+This software comes with ABSOLUTELY NO WARRANTY. For details, see
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+
+=cut

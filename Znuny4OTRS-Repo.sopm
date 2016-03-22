@@ -71,6 +71,8 @@
     <Description Lang="de">Aktiviert Znuny4OTRS Repositories um Pakete direkt in der Paket-Verwaltung zu installieren oder zu aktuallisieren.</Description>
     <Filelist>
         <File Permission="644" Location="Custom/Kernel/Output/Template/Document.pm"/>
+        <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
+        <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
@@ -83,11 +85,9 @@
         <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminProcessManagement.tt"/>
         <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/FooterJS.tt"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
-        <File Permission="644" Location="Kernel/System/UnitTest/Znuny4OTRSHelper.pm"/>
-        <File Permission="644" Location="Kernel/System/UnitTest/Znuny4OTRSSelenium.pm"/>
-        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Selenium/JavaScript/Znuny4OTRSInput/AgentTicketPhone.t"/>
+        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.UI.InputFields.js"/>
