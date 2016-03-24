@@ -86,6 +86,7 @@
         <File Permission="644" Location="Custom/Kernel/Output/Template/Document.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
+        <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
