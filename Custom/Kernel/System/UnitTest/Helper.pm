@@ -1557,7 +1557,7 @@ sub TestUserPreferencesSet {
         $UserObject->SetPreferences(
             Key    => $Key,
             Value  => $Param{Preferences}->{$Key} // '',
-            UserID => $User{UserID},
+            UserID => $Param{UserID},
         );
     }
 
