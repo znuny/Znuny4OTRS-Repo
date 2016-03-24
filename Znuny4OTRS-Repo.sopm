@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.21</Version>
+    <Version>3.0.22</Version>
+    <ChangeLog Version="3.0.22" Date="2016-03-24 14:10:32 UTC">Added WebElement.pm which was introduced in later OTRS 5 versions and might crash if not present.</ChangeLog>
     <ChangeLog Version="3.0.21" Date="2016-03-24 10:19:57 UTC">- Fixed pod.&#13;
 - Added flag to keep users valid.&#13;
 - Fixed bug: Is should be used of UnitTest object instead of Self.&#13;
