@@ -156,61 +156,6 @@ sub GetRandomNumber {
     return $Epoch . $GetRandomNumberCounter++;
 }
 
-# ---
-# Znuny4OTRS-Repo
-# ---
-=item TestUserPreferencesSet()
-sets preferences for a given Login or UserID
-    my $Success = $Helper->TestUserPreferencesSet(
-        UserID => 1,                 # UserID _or_ Login is required
-        Login  => 'agent-1',
-        Set    => {                  # "Set" hashref is required
-            OutOfOffice  => 1,       # example Key -> Value pair for User Preferences
-            UserMobile   => undef,   # example for deleting a UserPreferences Key's value
-            UserLanguage => '',      # example for deleting a UserPreferences Key's value
-        },
-    );
-=cut
-
-sub TestUserPreferencesSet {
-    my ( $Self, %Param ) = @_;
-
-    return if ( ! $Param{UserID} && ! $Param{Login} );
-    return if ( ! IsHashRefWithData( $Param{Set} ) );
-
-    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
-    
-    my %User;
-
-    if ( $Param{Login} ) {
-        %User = $UserObject->GetUserData(
-            User => $Param{Login},
-        );
-    }
-    else {
-        %User = $UserObject->GetUserData(
-            UserID => $Param{UserID},
-        );
-    }
-
-    return if ( ! IsHashRefWithData( \%User ));
-
-    my $UserID = $User{UserID};
-
-    for my $Key ( sort keys %{ $Param{Set} } ) {
-        $Param{Set}->{$Key} // '';
-        $UserObject->SetPreferences(
-            Key    => $Key,
-            Value  => $Param{Set}->{$Key},
-            UserID => $UserID,
-        );
-    }
-
-    return 1;
-};
-
-# ---
-
 =item TestUserCreate()
 creates a test user that can be used in tests. It will
 be set to invalid automatically during the destructor. Returns
@@ -1586,6 +1531,38 @@ sub ArticleCreate {
 
     return $ArticleID;
 }
+
+=item TestUserPreferencesSet()
+sets preferences for a given Login or UserID
+    my $Success = $Helper->TestUserPreferencesSet(
+        UserID      => 123,
+        Preferences => {                  # "Preferences" hashref is required
+            OutOfOffice  => 1,            # example Key -> Value pair for User Preferences
+            UserMobile   => undef,        # example for deleting a UserPreferences Key's value
+            UserLanguage => '',           # example for deleting a UserPreferences Key's value
+        },
+    );
+=cut
+
+sub TestUserPreferencesSet {
+    my ( $Self, %Param ) = @_;
+
+    return if !$Param{UserID};
+    return if !IsHashRefWithData( $Param{Preferences} );
+
+    my $UserObject = $Kernel::OM->Get('Kernel::System::User');
+
+    for my $Key ( sort keys %{ $Param{Preferences} } ) {
+
+        $UserObject->SetPreferences(
+            Key    => $Key,
+            Value  => $Param{Preferences}->{$Key} // '',
+            UserID => $User{UserID},
+        );
+    }
+
+    return 1;
+};
 
 # ---
 
