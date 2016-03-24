@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.20</Version>
+    <Version>3.0.21</Version>
+    <ChangeLog Version="3.0.21" Date="2016-03-24 10:19:57 UTC">- Fixed pod.&#13;
+- Added flag to keep users valid.&#13;
+- Fixed bug: Is should be used of UnitTest object instead of Self.&#13;
+- Added _CustomerUserCreateIfNotExists function.&#13;
+- Added Selenium test for AgentTicketPhone.&#13;
+- Added Znuny4OTRS Selenium helper.&#13;
+- Added Znuny4OTRS UnitTest helper.&#13;
+- Fixed bug: Only last value for Multiselect fields are set.&#13;
+- Fixed bug: SubStructures indent by spaces return only the last level text.&#13;
+- Added missing functionality to get RichText content.&#13;
+- Improved FieldIDMapping function to set or get FieldID mapping.&#13;
+- Added editorconfig.&#13;
+- Added fix for bug #11954.</ChangeLog>
     <ChangeLog Version="3.0.20" Date="2016-03-16 18:23:43 UTC">Added ProcessEntityID to AgentTicketProcess and CustomerTicketProcess.</ChangeLog>
     <ChangeLog Version="3.0.19" Date="2016-03-09 10:51:35 UTC">Fixed bug: Set function for DynamicField CustomerUserID Autocomplete is broken.</ChangeLog>
     <ChangeLog Version="3.0.18" Date="2016-03-08 13:31:36 UTC">Added _EventAdd and _EventRemove helper functions.</ChangeLog>
