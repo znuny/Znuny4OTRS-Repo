@@ -809,7 +809,7 @@ This function adds one of each default dynamic fields to the system and activate
 
     my $Result = $HelperObject->ActivateDefaultDynamicFields();
 
-    $Result = {
+    $Result = [
         {
             Name          => 'UnitTestText',
             Label         => "UnitTestText",
@@ -882,7 +882,7 @@ This function adds one of each default dynamic fields to the system and activate
                 TranslatableValues => '0',
             },
         },
-    };
+    ];
 
 =cut
 
@@ -1419,7 +1419,7 @@ sub ArticleCreate {
 
 =item TestUserPreferencesSet()
 sets preferences for a given Login or UserID
-    my $Success = $Helper->TestUserPreferencesSet(
+    my $Success = $HelperObject->TestUserPreferencesSet(
         UserID      => 123,
         Preferences => {                  # "Preferences" hashref is required
             OutOfOffice  => 1,            # example Key -> Value pair for User Preferences
