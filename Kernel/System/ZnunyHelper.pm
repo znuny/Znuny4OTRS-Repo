@@ -30,6 +30,7 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::NotificationEvent',
     'Kernel::System::Package',
+    'Kernel::System::Priority',
     'Kernel::System::Queue',
     'Kernel::System::Service',
     'Kernel::System::SLA',
@@ -1309,6 +1310,51 @@ sub _TypeCreateIfNotExists {
     return $ItemID if $ItemID;
 
     return $Kernel::OM->Get('Kernel::System::Type')->TypeAdd(
+        ValidID => 1,
+        UserID  => 1,
+        %Param,
+    );
+}
+
+=item _PriorityCreateIfNotExists()
+
+creates Priority if not exists
+
+    my $Success = $ZnunyHelperObject->_PriorityCreateIfNotExists(
+        Name => 'Some Priority Name',
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PriorityCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %PrioritysReversed = $Kernel::OM->Get('Kernel::System::Priority')->PriorityList(
+        Valid => 0,
+    );
+    %PrioritysReversed = reverse %PrioritysReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %PrioritysReversed );
+    return $ItemID if $ItemID;
+
+    return $Kernel::OM->Get('Kernel::System::Priority')->PriorityAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
