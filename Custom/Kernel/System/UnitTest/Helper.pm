@@ -21,6 +21,9 @@ use Kernel::System::SysConfig;
 # ---
 use utf8;
 use Kernel::System::VariableCheck qw(:all);
+
+# for mocking purposes
+use Kernel::GenericInterface::Transport;
 # ---
 
 our @ObjectDependencies = (
@@ -1563,6 +1566,124 @@ sub TestUserPreferencesSet {
 
     return 1;
 };
+
+=item MockWebservice()
+
+Mocks all outgoing requests to a given mapping.
+
+    my $Result = $HelperObject->MockWebservice(
+        InvokerName123 => [
+            {
+                Data => {
+                    OutgoingData => 'Value'
+                },
+                Result => {
+                    Success      => 1,
+                    ErrorMessage => '',
+                    Data         => {
+                        YAY => 'so true',
+                    },
+                }
+            },
+            ...
+        ],
+        ...
+    );
+
+
+    Now you can use the regular framework RequesterObject to perform this request like:
+
+    my $RequesterObject = $Kernel::OM->Get('Kernel::GenericInterface::Requester');
+
+    my $Result = $RequesterObject->Run(
+        WebserviceID => 1,                      # ID of the configured remote web service to use
+        Invoker      => 'InvokerName123',       # Name of the Invoker to be used for sending the request
+        Data         => {                       # Data payload for the Invoker request (remote webservice)
+            OutgoingData => 'Value'
+        },
+    );
+
+    $Result = {
+        Success => 1,
+        Data    => {
+            YAY => 'so true',
+        },
+    };
+
+=cut
+
+sub MockWebservice {
+    my ( $Self, %Param ) = @_;
+
+    # temporary store the given request data
+    for my $InvokerName ( sort keys %Param ) {
+
+        $Kernel::OM->Get('Kernel::System::Cache')->Set(
+            Type  => 'MockWebservice',
+            Key   => $InvokerName,
+            Value => $Param{ $InvokerName },
+            TTL   => 60 * 60 * 24,
+        );
+    }
+
+    {
+        no warnings 'redefine';
+
+        sub Kernel::GenericInterface::Transport::RequesterPerformRequest {
+            my ( $Self, %Param ) = @_;
+
+            if ( !$Param{Operation} ) {
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => 'Missing parameter Operation.',
+                );
+            }
+
+            if ( $Param{Data} && ref $Param{Data} ne 'HASH' ) {
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => 'Data is not a hash reference.',
+                );
+            }
+
+            my $InvokerData = $Kernel::OM->Get('Kernel::System::Cache')->Get(
+                Type => 'MockWebservice',
+                Key  => $Param{Operation},
+            );
+
+            if ( !IsArrayRefWithData($InvokerData) ) {
+                return $Self->{DebuggerObject}->Error(
+                    Summary => "Can't find Mock data for Invoker '$Param{Operation}'.",
+                );
+            }
+
+            my $Result;
+
+            REQUEST:
+            for my $PossibleRequest ( @{ $InvokerData } ) {
+
+                next REQUEST if DataIsDifferent(
+                    Data1 => $PossibleRequest->{Data},
+                    Data2 => $Param{Data},
+                );
+
+                $Result = $PossibleRequest->{Result};
+
+                last REQUEST;
+            }
+
+            if ( !IsHashRefWithData( $Result ) ) {
+                return $Self->{DebuggerObject}->Error(
+                    Summary => "Can't find Mock data for Invoker '$Param{Operation}' matching the given request Data structure.",
+                );
+            }
+
+            return $Result;
+        }
+    }
+
+    return 1;
+}
 
 # ---
 
