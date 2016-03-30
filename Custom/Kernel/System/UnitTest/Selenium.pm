@@ -739,7 +739,7 @@ Sets OR returns the mapping structure of the given Action.
 
     $Result = {
         DestQueueID => 'DestQueueID',
-        QueueID =>     'DestQueueID'
+        QueueID     => 'DestQueueID'
     };
 =cut
 
