@@ -1539,7 +1539,7 @@ sub MockWebservice {
             if ( !IsArrayRefWithData($InvokerData) ) {
 
                 my $RequestData  = $Kernel::OM->Get('Kernel::System::Main')->Dump($Param{Data});
-                my $ErrorMessage = "Can't find Mock data for Invoker '$Param{Operation}' (Data:  $RequestData).";
+                my $ErrorMessage = "Can't find Mock data for Invoker '$Param{Operation}'.";
 
                 $HelperObject->{UnitTestObject}->_Print( 0, $ErrorMessage .  " Data: $RequestData" );
 
