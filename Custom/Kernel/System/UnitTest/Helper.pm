@@ -1514,6 +1514,8 @@ sub MockWebservice {
         sub Kernel::GenericInterface::Transport::RequesterPerformRequest {
             my ( $Self, %Param ) = @_;
 
+            my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+
             if ( !$Param{Operation} ) {
 
                 return $Self->{DebuggerObject}->Error(
@@ -1525,6 +1527,7 @@ sub MockWebservice {
 
                 return $Self->{DebuggerObject}->Error(
                     Summary => 'Data is not a hash reference.',
+                    Data    => $Param{Data},
                 );
             }
 
@@ -1534,15 +1537,24 @@ sub MockWebservice {
             );
 
             if ( !IsArrayRefWithData($InvokerData) ) {
+
+                my $RequestData  = $Kernel::OM->Get('Kernel::System::Main')->Dump($Param{Data});
+                my $ErrorMessage = "Can't find Mock data for Invoker '$Param{Operation}' (Data:  $RequestData).";
+
+                $HelperObject->{UnitTestObject}->_Print( 0, $ErrorMessage .  " Data: $RequestData" );
+
                 return $Self->{DebuggerObject}->Error(
-                    Summary => "Can't find Mock data for Invoker '$Param{Operation}'.",
+                    Summary => $ErrorMessage,
+                    Data    => $Param{Data},
                 );
             }
 
+            my $Counter = 0;
             my $Result;
-
             REQUEST:
             for my $PossibleRequest ( @{ $InvokerData } ) {
+
+                $Counter++;
 
                 next REQUEST if DataIsDifferent(
                     Data1 => $PossibleRequest->{Data},
@@ -1555,10 +1567,20 @@ sub MockWebservice {
             }
 
             if ( !IsHashRefWithData( $Result ) ) {
+
+               my $RequestData  = $Kernel::OM->Get('Kernel::System::Main')->Dump($Param{Data});
+               my $ErrorMessage = "Can't find Mock data for Invoker '$Param{Operation}' matching the given request Data structure.";
+
+                $HelperObject->{UnitTestObject}->_Print( 0, $ErrorMessage .  " Data: $RequestData" );
+
                 return $Self->{DebuggerObject}->Error(
-                    Summary => "Can't find Mock data for Invoker '$Param{Operation}' matching the given request Data structure.",
+                    Summary => $ErrorMessage,
+                    Data    => $Param{Data},
                 );
             }
+
+            my $RequestData = $Kernel::OM->Get('Kernel::System::Main')->Dump($Param{Data});
+            $HelperObject->{UnitTestObject}->_Print( 1, "Invoker '$Param{Operation}' result #$Counter succcessfully executed (Data: $RequestData)." );
 
             return $Result;
         }
