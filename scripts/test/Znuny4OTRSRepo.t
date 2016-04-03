@@ -14,6 +14,8 @@ use vars (qw($Self));
 
 # get needed objects
 my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
+my $SysConfigObject   = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 # Tests for _ItemReverseListGet function
 my $ResultItemReverseListGet = $ZnunyHelperObject->_ItemReverseListGet(
@@ -79,12 +81,14 @@ $Self->True(
     'Test basic function call of _LoaderRemove()',
 );
 
+
+my %DynamicFieldsScreen = (
+    'TestDynamicField1' => 1,
+    'TestDynamicField2' => 1,
+);
 # Tests for _DynamicFieldsScreenEnable function
 my $ResultDynamicFieldsScreenEnable = $ZnunyHelperObject->_DynamicFieldsScreenEnable(
-    'AgentTicketFreeText' => {
-        'TestDynamicField1' => 1,
-        'TestDynamicField2' => 1,
-        }
+    'AgentTicketFreeText' => \%DynamicFieldsScreen
 );
 
 $Self->True(
@@ -92,18 +96,42 @@ $Self->True(
     'Test basic function call of _DynamicFieldsScreenEnable()',
 );
 
+$ZnunyHelperObject->_PackageSetupInit();
+$SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+$ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
+my $AgentTicketFreeTextFrontendConfig = $ConfigObject->Get('Ticket::Frontend::AgentTicketFreeText');
+
+for my $DynamicFieldScreen ( sort keys %DynamicFieldsScreen ) {
+    $Self->Is(
+        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{ $DynamicFieldScreen },
+        $DynamicFieldsScreen{ $DynamicFieldScreen },
+        "_DynamicFieldsScreenEnable() for $DynamicFieldScreen in AgentTicketFreeText",
+    );
+}
+
 # Tests for _DynamicFieldsScreenDisable function
 my $ResultDynamicFieldsScreenDisable = $ZnunyHelperObject->_DynamicFieldsScreenDisable(
-    'AgentTicketFreeText' => {
-        'TestDynamicField1' => 1,
-        'TestDynamicField2' => 1,
-        }
+    'AgentTicketFreeText' => \%DynamicFieldsScreen,
 );
 
 $Self->True(
     $ResultDynamicFieldsScreenDisable,
     'Test basic function call of _DynamicFieldsScreenDisable()',
 );
+
+$ZnunyHelperObject->_PackageSetupInit();
+$SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+$ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
+$AgentTicketFreeTextFrontendConfig = $ConfigObject->Get('Ticket::Frontend::AgentTicketFreeText');
+
+for my $DynamicFieldScreen ( sort keys %DynamicFieldsScreen ) {
+    $Self->False(
+        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{ $DynamicFieldScreen },
+        "_DynamicFieldsScreenDisable() for $DynamicFieldScreen in AgentTicketFreeText",
+    );
+}
 
 # Tests for _DynamicFieldsCreateIfNotExists function
 my $ResultDynamicFieldsCreateIfNotExists = $ZnunyHelperObject->_DynamicFieldsCreateIfNotExists(
