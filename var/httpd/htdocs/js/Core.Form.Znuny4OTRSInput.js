@@ -31,6 +31,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             NewResponsibleID: 'NewResponsibleID',
             ResponsibleID:    'NewResponsibleID',
             RichText:         'RichText',
+            Body:             'RichText',
             ServiceID:        'ServiceID',
             SLAID:            'SLAID',
             NewStateID:       'NewStateID',
@@ -45,12 +46,14 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             BounceTo:      'BounceTo',
             CustomerID:    'CustomerID',
             RichText:      'RichText',
+            Body:          'RichText',
             Subject:       'Subject',
             To:            'To'
         },
 
         AgentTicketBulk: {
             ArticleTypeID: 'ArticleTypeID',
+            RichText:      'Body',
             Body:          'Body',
             EmailBody:     'EmailBody',
             OwnerID:       'OwnerID',
@@ -69,6 +72,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             BccCustomer:    'BccCustomer',
             CcCustomer:     'CcCustomer',
             RichText:       'RichText',
+            Body:           'RichText',
             StateID:        'StateID',
             Subject:        'Subject',
             ToCustomer:     'ToCustomer',
@@ -95,6 +99,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             NewResponsibleID: 'NewResponsibleID',
             ResponsibleID:    'NewResponsibleID',
             RichText:         'RichText',
+            Body:             'RichText',
             ServiceID:        'ServiceID',
             SLAID:            'SLAID',
             NextStateID:      'NextStateID',
@@ -111,6 +116,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             BccCustomer:    'BccCustomer',
             CcCustomer:     'CcCustomer',
             RichText:       'RichText',
+            Body:           'RichText',
             ComposeStateID: 'ComposeStateID',
             StateID:        'ComposeStateID',
             Subject:        'Subject',
@@ -124,6 +130,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             BccCustomer:    'BccCustomer',
             CcCustomer:     'CcCustomer',
             RichText:       'RichText',
+            Body:           'RichText',
             ComposeStateID: 'ComposeStateID',
             StateID:        'ComposeStateID',
             Subject:        'Subject',
@@ -135,6 +142,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketMerge: {
             From:     'From',
             RichText: 'RichText',
+            Body:     'RichText',
             Subject:  'Subject',
             To:       'To'
         },
@@ -149,6 +157,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             NewUserID:     'NewUserID',
             OldUserID:     'OldUserID',
             RichText:      'RichText',
+            Body:          'RichText',
             Subject:       'Subject'
         },
 
@@ -180,6 +189,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             NewResponsibleID: 'NewResponsibleID',
             ResponsibleID:    'NewResponsibleID',
             RichText:         'RichText',
+            Body:             'RichText',
             ServiceID:        'ServiceID',
             SLAID:            'SLAID',
             NextStateID:      'NextStateID',
@@ -190,6 +200,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         AgentTicketPhoneCommon: {
             RichText:    'RichText',
+            Body:        'RichText',
             NextStateID: 'NextStateID',
             StateID:     'NextStateID',
             Subject:     'Subject'
@@ -205,6 +216,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             QueueID:    'Dest',
             PriorityID: 'PriorityID',
             RichText:   'RichText',
+            Body:       'RichText',
             ServiceID:  'ServiceID',
             SLAID:      'SLAID',
             Subject:    'Subject',
@@ -214,6 +226,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         CustomerTicketZoom: {
             PriorityID: 'PriorityID',
             RichText:   'RichText',
+            Body:       'RichText',
             StateID:    'StateID',
             Subject:    'Subject'
         },
@@ -221,6 +234,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketProcess: {
             Subject:         'Subject',
             RichText:        'RichText',
+            Body:            'RichText',
             Customer:        'CustomerAutoComplete',
             CustomerUserID:  'CustomerAutoComplete',
             CustomerID:      'CustomerID',
@@ -240,6 +254,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         CustomerTicketProcess: {
             Subject:         'Subject',
             RichText:        'RichText',
+            Body:            'RichText',
             Customer:        'CustomerAutoComplete',
             CustomerUserID:  'CustomerAutoComplete',
             CustomerID:      'CustomerID',
