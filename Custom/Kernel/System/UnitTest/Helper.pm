@@ -883,6 +883,8 @@ This function activates the given DynamicFields in each agent view.
         'UnitTestText',
         'UnitTestMultiSelect',
         'UnitTestTextArea',
+        'UnitTestDate',
+        'UnitTestDateTime',
     );
 =cut
 
@@ -1000,6 +1002,34 @@ This function adds one of each default dynamic fields to the system and activate
                 TranslatableValues => '0',
             },
         },
+        {
+            Name          => 'UnitTestDate',
+            Label         => "UnitTestDate",
+            ObjectType    => 'Ticket',
+            FieldType     => 'UnitTestDate',
+            InternalField => 0,
+            Config        => {
+                DefaultValue  => "0",
+                YearsPeriod   => "0",
+                YearsInFuture => "5",
+                YearsInPast   => "5",
+                Link          => '',
+            },
+        },
+        {
+            Name          => 'UnitTestDateTime',
+            Label         => "UnitTestDateTime",
+            ObjectType    => 'Ticket',
+            FieldType     => 'UnitTestDateTime',
+            InternalField => 0,
+            Config        => {
+                DefaultValue  => "0",
+                YearsPeriod   => "0",
+                YearsInFuture => "5",
+                YearsInPast   => "5",
+                Link          => '',
+            },
+        },
     ];
 
 =cut
@@ -1080,6 +1110,34 @@ sub ActivateDefaultDynamicFields {
                 TreeView           => '0',
                 PossibleNone       => '0',
                 TranslatableValues => '0',
+            },
+        },
+        {
+            Name          => 'UnitTestDate',
+            Label         => "UnitTestDate",
+            ObjectType    => 'Ticket',
+            FieldType     => 'UnitTestDate',
+            InternalField => 0,
+            Config        => {
+                DefaultValue  => "0",
+                YearsPeriod   => "0",
+                YearsInFuture => "5",
+                YearsInPast   => "5",
+                Link          => '',
+            },
+        },
+        {
+            Name          => 'UnitTestDateTime',
+            Label         => "UnitTestDateTime",
+            ObjectType    => 'Ticket',
+            FieldType     => 'UnitTestDateTime',
+            InternalField => 0,
+            Config        => {
+                DefaultValue  => "0",
+                YearsPeriod   => "0",
+                YearsInFuture => "5",
+                YearsInPast   => "5",
+                Link          => '',
             },
         },
     );
