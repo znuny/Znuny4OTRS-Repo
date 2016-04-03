@@ -888,7 +888,7 @@ This function adds one of each default dynamic fields to the system and activate
             Name          => 'UnitTestDate',
             Label         => "UnitTestDate",
             ObjectType    => 'Ticket',
-            FieldType     => 'UnitTestDate',
+            FieldType     => 'Date',
             InternalField => 0,
             Config        => {
                 DefaultValue  => "0",
@@ -902,7 +902,7 @@ This function adds one of each default dynamic fields to the system and activate
             Name          => 'UnitTestDateTime',
             Label         => "UnitTestDateTime",
             ObjectType    => 'Ticket',
-            FieldType     => 'UnitTestDateTime',
+            FieldType     => 'DateTime',
             InternalField => 0,
             Config        => {
                 DefaultValue  => "0",
@@ -998,7 +998,7 @@ sub ActivateDefaultDynamicFields {
             Name          => 'UnitTestDate',
             Label         => "UnitTestDate",
             ObjectType    => 'Ticket',
-            FieldType     => 'UnitTestDate',
+            FieldType     => 'Date',
             InternalField => 0,
             Config        => {
                 DefaultValue  => "0",
@@ -1012,7 +1012,7 @@ sub ActivateDefaultDynamicFields {
             Name          => 'UnitTestDateTime',
             Label         => "UnitTestDateTime",
             ObjectType    => 'Ticket',
-            FieldType     => 'UnitTestDateTime',
+            FieldType     => 'DateTime',
             InternalField => 0,
             Config        => {
                 DefaultValue  => "0",
