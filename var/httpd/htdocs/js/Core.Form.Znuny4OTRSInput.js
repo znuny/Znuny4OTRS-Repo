@@ -275,6 +275,16 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         Module = TargetNS.Module();
 
         if (Attribute.indexOf('DynamicField_') === 0) {
+
+            // check if we have a Date or DateTime DynamicField
+            var DynamicFieldDateCheckboxID = Attribute + 'Used';
+            if (
+                $('#' + DynamicFieldDateCheckboxID)
+                && $('#' + DynamicFieldDateCheckboxID).length == 1
+            ) {
+                return DynamicFieldDateCheckboxID;
+            }
+
             return Attribute;
         }
 
@@ -456,7 +466,36 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 }
             }
         }
-        // TODO: Date / DateTime?
+        // DynamicField Date or DateTime
+        else if (
+            Type == 'DynamicField_Date'
+            || Type == 'DynamicField_DateTime'
+        ) {
+            // ATTENTION - SPECIAL CASE: For DynamicFields Date or DateTime the Attribute is used as FieldID
+            // to handle input actions since FieldID maps to the Checkbox element
+
+            var DateStructure = {};
+            $.each( ['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+
+                if (
+                    $('#'+ Attribute + Suffix)
+                    && $('#'+ Attribute + Suffix).length == 1
+                ) {
+                    DateStructure[ Suffix ] = parseInt( $('#'+ Attribute + Suffix).val(), 10);
+                }
+                // exit loop
+                else {
+                    return false;
+                }
+            });
+
+            // add checkbox state
+            DateStructure.Used = $('#'+ FieldID).prop('checked');
+
+            // new Date(DateStructure.Year, DateStructure.Month, DateStructure.Day, DateStructure.Hour, DateStructure.Minute, DateStructure.Second);
+            return DateStructure;
+        }
+        // TODO: Other Date / DateTime elements (Pending etc.)?
         // TODO: Attachments?
 
         return;
@@ -466,10 +505,24 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         if ($('#'+ FieldID).length == 0) return;
 
-        if ($('#'+ FieldID)[0].tagName == 'INPUT') {
-            return $('#'+ FieldID)[0].type.toLowerCase();
+        if ($('#'+ FieldID)[0].tagName != 'INPUT') {
+            return $('#'+ FieldID)[0].tagName.toLowerCase();
         }
-        return $('#'+ FieldID)[0].tagName.toLowerCase();
+        var Type = $('#'+ FieldID)[0].type.toLowerCase();
+
+        // special DynamicField Date and DateTime handling
+        if ( Type != 'checkbox' ) return Type;
+
+        if ( FieldID.indexOf('DynamicField_') != 0 ) return Type;
+
+        var Attribute = FieldID.replace(/Used$/, '');
+        if ( FieldID == Attribute ) return Type;
+
+        if ($('#'+ Attribute + 'Year').length == 0) return Type;
+
+        if ($('#'+ Attribute + 'Minute').length == 0) return 'DynamicField_Date';
+
+        return 'DynamicField_DateTime';
     }
 
     TargetNS.Set = function (Attribute, Content, Options) {
@@ -757,6 +810,39 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             }
 
             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
+        }
+        // DynamicField Date or DateTime
+        else if (
+            Type == 'DynamicField_Date'
+            || Type == 'DynamicField_DateTime'
+        ) {
+            // ATTENTION - SPECIAL CASE: For DynamicFields Date or DateTime the Attribute is used as FieldID
+            // to handle input actions since FieldID maps to the Checkbox element
+
+            var DateStructure = {};
+            $.each( ['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+
+                // skip if no value is given
+                if ( typeof Content[ Suffix ] === 'undefined' ) return true;
+
+                if (
+                    $('#'+ Attribute + Suffix)
+                    && $('#'+ Attribute + Suffix).length == 1
+                ) {
+                    $('#'+ Attribute + Suffix).val( Content[ Suffix ] );
+                }
+                // exit loop
+                else {
+                    return false;
+                }
+            });
+
+            if ( typeof Content.Used === 'undefined' ) return true;
+
+            // set checkbox state
+            $('#'+ FieldID).prop('checked', Content.Used );
+
+            return true;
         }
         // TODO: Date / DateTime ?
         // TODO: Attachments?

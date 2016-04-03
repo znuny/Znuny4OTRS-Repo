@@ -241,6 +241,61 @@ my $SeleniumTest = sub {
         }
     }
 
+    my @DynamicDateOrDateTimeData = (
+        {
+            Year   => 2014,
+            Month  => 6,
+            Day    => 12,
+            Hour   => 10,
+            Minute => 28,
+            Used   => 1,
+        },
+        {
+            Year   => 2015,
+            Month  => 10,
+            Day    => 9,
+            Hour   => 2,
+            Minute => 55,
+            Used   => 0,
+        },
+    );
+    DATEORDATETIME:
+    for my $DateOrDateTime ( qw(Date DateTime) ) {
+
+        my $Counter = 1;
+        for my $DateOrDateTimeValue ( @DynamicDateOrDateTimeData ) {
+
+            my $SetDynamicFieldDateOrDateTimeResult = $SeleniumObject->InputSet(
+                Attribute   => "DynamicField_UnitTest$DateOrDateTime",
+                Content     => $DateOrDateTimeValue,
+                WaitForAJAX => 0,
+            );
+
+            $Self->True(
+                $SetDynamicFieldDateOrDateTimeResult,
+                "Setting DynamicField_UnitTest$DateOrDateTime #$Counter",
+            );
+
+            my $GetDynamicFieldDateOrDateTimeResult = $SeleniumObject->InputGet(
+                Attribute => "DynamicField_UnitTest$DateOrDateTime",
+            );
+
+            my %CompareData = %{ $DateOrDateTimeValue };
+            if ( $DateOrDateTime eq 'Date' ) {
+                delete $CompareData{Hour};
+                delete $CompareData{Minute};
+            }
+
+            $Self->IsDeeply(
+                $GetDynamicFieldDateOrDateTimeResult,
+                \%CompareData,
+                "Getting DynamicField_UnitTest$DateOrDateTime #$Counter",
+            );
+
+            $Counter++;
+        }
+    }
+
     my $Subject    = "Subject äöüß%\$'\")(}{? - $RandomID";
     my $SetSubject = $SeleniumObject->InputSet(
         Attribute   => 'Subject',
