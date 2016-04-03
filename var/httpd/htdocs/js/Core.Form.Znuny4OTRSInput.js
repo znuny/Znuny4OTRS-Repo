@@ -281,6 +281,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             if (
                 $('#' + DynamicFieldDateCheckboxID)
                 && $('#' + DynamicFieldDateCheckboxID).length == 1
+                && $('#'+ Attribute + 'Year').length == 1
             ) {
                 return DynamicFieldDateCheckboxID;
             }
