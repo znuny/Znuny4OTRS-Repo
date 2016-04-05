@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.24</Version>
+    <Version>3.0.25</Version>
+    <ChangeLog Version="3.0.25" Date="2016-04-05 10:45:47 UTC">- Added latest framework version of Core.UI.InputFields.js for bugfix purposes.</ChangeLog>
     <ChangeLog Version="3.0.24" Date="2016-04-03 14:22:06 UTC">- Added Body alias for RichText element.&#13;
 - Added functionality to handle DynamicFields of type Date and DateTime.&#13;
 - Improved MockWebservice functionality.</ChangeLog>
