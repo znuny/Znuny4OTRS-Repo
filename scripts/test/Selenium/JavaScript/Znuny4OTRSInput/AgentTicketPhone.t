@@ -260,10 +260,10 @@ my $SeleniumTest = sub {
         },
     );
     DATEORDATETIME:
-    for my $DateOrDateTime ( qw(Date DateTime) ) {
+    for my $DateOrDateTime (qw(Date DateTime)) {
 
         my $Counter = 1;
-        for my $DateOrDateTimeValue ( @DynamicDateOrDateTimeData ) {
+        for my $DateOrDateTimeValue (@DynamicDateOrDateTimeData) {
 
             my $SetDynamicFieldDateOrDateTimeResult = $SeleniumObject->InputSet(
                 Attribute   => "DynamicField_UnitTest$DateOrDateTime",
@@ -280,7 +280,7 @@ my $SeleniumTest = sub {
                 Attribute => "DynamicField_UnitTest$DateOrDateTime",
             );
 
-            my %CompareData = %{ $DateOrDateTimeValue };
+            my %CompareData = %{$DateOrDateTimeValue};
             if ( $DateOrDateTime eq 'Date' ) {
                 delete $CompareData{Hour};
                 delete $CompareData{Minute};
