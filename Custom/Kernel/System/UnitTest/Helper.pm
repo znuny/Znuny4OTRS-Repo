@@ -11,6 +11,7 @@
 
 package Kernel::System::UnitTest::Helper;
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
+## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
 
 use strict;
 use warnings;
@@ -38,7 +39,13 @@ our @ObjectDependencies = (
 # ---
     'Kernel::System::Service',
     'Kernel::System::SysConfig',
-    'Kernel::System::Ticket',
+    # There is a cause we don't have the
+    # 'Kernel::System::Ticket',
+    # as a dependency: Since we wan't to use
+    # $Kernel::OM->ObjectsDiscard in our UnitTests
+    # we have to load our TicketObject via the MainObject
+    # otherwise this object will get destroyed by the OM, too
+    # which causes a database and SysConfig rollback
     'Kernel::System::ZnunyHelper',
 # ---
 );
@@ -514,6 +521,17 @@ sub DESTROY {
 # ---
 # Znuny4OTRS-Repo
 # ---
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $TicketObjectLoaded = $MainObject->Require(
+        'Kernel::System::Ticket',
+    );
+
+    $Self->{UnitTestObject}->True(
+        $TicketObjectLoaded,
+        'Loaded TicketObject via MainObject',
+    );
+
     my $TicketObject      = $Kernel::OM->Get('Kernel::System::Ticket');
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 
@@ -556,6 +574,17 @@ This function checks the number of executions of an Event via the TicketHistory
 
 sub CheckNumberOfEventExecution {
     my ( $Self, %Param ) = @_;
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $TicketObjectLoaded = $MainObject->Require(
+        'Kernel::System::Ticket',
+    );
+
+    $Self->{UnitTestObject}->True(
+        $TicketObjectLoaded,
+        'Loaded TicketObject via MainObject',
+    );
 
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -1382,6 +1411,17 @@ Creates a Ticket with dummy data and tests the creation. All Ticket attributes a
 sub TicketCreate {
     my ( $Self, %Param ) = @_;
 
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $TicketObjectLoaded = $MainObject->Require(
+        'Kernel::System::Ticket',
+    );
+
+    $Self->{UnitTestObject}->True(
+        $TicketObjectLoaded,
+        'Loaded TicketObject via MainObject',
+    );
+
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
     my %TicketAttributes = (
@@ -1448,6 +1488,17 @@ Creates an Article with dummy data and tests the creation. All Article attribute
 
 sub ArticleCreate {
     my ( $Self, %Param ) = @_;
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $TicketObjectLoaded = $MainObject->Require(
+        'Kernel::System::Ticket',
+    );
+
+    $Self->{UnitTestObject}->True(
+        $TicketObjectLoaded,
+        'Loaded TicketObject via MainObject',
+    );
 
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -1569,7 +1620,7 @@ sub MockWebservice {
     {
         no warnings 'redefine';
 
-        sub Kernel::GenericInterface::Transport::RequesterPerformRequest {
+        sub Kernel::GenericInterface::Transport::RequesterPerformRequest { ## no critic
             my ( $Self, %Param ) = @_;
 
             my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
