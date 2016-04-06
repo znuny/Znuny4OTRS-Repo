@@ -365,6 +365,7 @@ This function adds an Event to the list of Events of an Object to the SysConfig.
             'AnotherCustomEvent',
         ]
     );
+
 =cut
 
 sub _EventAdd {
@@ -372,9 +373,9 @@ sub _EventAdd {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Object Event) ) {
+    for my $Needed (qw(Object Event)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -384,7 +385,7 @@ sub _EventAdd {
     }
 
     my @AddEvents;
-    if ( IsArrayRefWithData($Param{Event}) ) {
+    if ( IsArrayRefWithData( $Param{Event} ) ) {
         @AddEvents = @{ $Param{Event} };
     }
     elsif ( IsStringWithData( $Param{Event} ) ) {
@@ -439,6 +440,7 @@ This function adds an Event to the list of Events of an Object to the SysConfig.
             'AnotherCustomEvent',
         ]
     );
+
 =cut
 
 sub _EventRemove {
@@ -446,9 +448,9 @@ sub _EventRemove {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Object Event) ) {
+    for my $Needed (qw(Object Event)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $Kernel::OM->Get('Kernel::System::Log')->Log(
             Priority => 'error',
@@ -458,7 +460,7 @@ sub _EventRemove {
     }
 
     my @RemoveEvents;
-    if ( IsArrayRefWithData($Param{Event}) ) {
+    if ( IsArrayRefWithData( $Param{Event} ) ) {
         @RemoveEvents = @{ $Param{Event} };
     }
     elsif ( IsStringWithData( $Param{Event} ) ) {
@@ -760,25 +762,25 @@ sub _DynamicFieldsScreenEnable {
         # for regular cases we put in the View name on $Keys[0] and 'DynamicField' on $Keys[1]
         my @Keys = split '###', "Ticket::Frontend::$View";
 
-        if (!$#Keys) {
+        if ( !$#Keys ) {
             push @Keys, 'DynamicField';
         }
 
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($Keys[0]);
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $Keys[0] );
         INDEX:
-        for my $Index ( 1... $#Keys ) {
+        for my $Index ( 1 ... $#Keys ) {
             last INDEX if !IsHashRefWithData($Config);
-            $Config = $Config->{ $Keys[ $Index ] };
+            $Config = $Config->{ $Keys[$Index] };
         }
         next VIEW if ref $Config ne 'HASH';
-        my %ExistingSetting = %{ $Config };
+        my %ExistingSetting = %{$Config};
 
         # add the new settings
         my %NewDynamicFieldConfig = ( %ExistingSetting, %{ $ScreenDynamicFieldConfig{$View} } );
 
         # update the sysconfig
         my $SysConfigKey = join '###', @Keys;
-        my $Success      = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Key   => $SysConfigKey,
             Value => \%NewDynamicFieldConfig,
             Valid => 1,
@@ -854,18 +856,18 @@ sub _DynamicFieldsScreenDisable {
         # for regular cases we put in the View name on $Keys[0] and 'DynamicField' on $Keys[1]
         my @Keys = split '###', "Ticket::Frontend::$View";
 
-        if (!$#Keys) {
+        if ( !$#Keys ) {
             push @Keys, 'DynamicField';
         }
 
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get($Keys[0]);
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $Keys[0] );
         INDEX:
-        for my $Index ( 1... $#Keys ) {
+        for my $Index ( 1 ... $#Keys ) {
             last INDEX if !IsHashRefWithData($Config);
-            $Config = $Config->{ $Keys[ $Index ] };
+            $Config = $Config->{ $Keys[$Index] };
         }
         next VIEW if ref $Config ne 'HASH';
-        my %ExistingSetting = %{ $Config };
+        my %ExistingSetting = %{$Config};
 
         my %NewDynamicFieldConfig;
         SETTING:
@@ -877,7 +879,7 @@ sub _DynamicFieldsScreenDisable {
         }
 
         my $SysConfigKey = join '###', @Keys;
-        my $Success      = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Key   => $SysConfigKey,
             Value => \%NewDynamicFieldConfig,
             Valid => 1,
@@ -1490,8 +1492,8 @@ sub _StateTypeCreateIfNotExists {
 
     # check if exists
     $Kernel::OM->Get('Kernel::System::DB')->Prepare(
-        SQL  => 'SELECT name FROM ticket_state_type WHERE name = ?',
-        Bind => [ \$Param{Name} ],
+        SQL   => 'SELECT name FROM ticket_state_type WHERE name = ?',
+        Bind  => [ \$Param{Name} ],
         Limit => 1,
     );
     my $Exists;
@@ -1506,7 +1508,7 @@ sub _StateTypeCreateIfNotExists {
             . ' create_time, create_by, change_time, change_by)'
             . ' VALUES (?, ?, current_timestamp, ?, current_timestamp, ?)',
         Bind => [
-            \$Param{Name}, \$Param{Comment},
+            \$Param{Name},   \$Param{Comment},
             \$Param{UserID}, \$Param{UserID},
         ],
     );
