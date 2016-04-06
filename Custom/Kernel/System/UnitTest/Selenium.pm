@@ -459,7 +459,24 @@ sub InputGet {
         $OptionsParameter = ", $OptionsJSON";
     }
 
-    return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Get('$Param{Attribute}' $OptionsParameter);");
+    my $Result = $Self->execute_script("return Core.Form.Znuny4OTRSInput.Get('$Param{Attribute}' $OptionsParameter);");
+
+    return $Result if !IsHashRefWithData( $Result );
+
+    # should be recursive sometimes
+    KEY:
+    for my $Key ( sort keys %{ $Result } ) {
+
+        my $Value = $Result->{ $Key };
+
+        next KEY if !defined $Value;
+        next KEY if ref $Value ne 'JSON::PP::Boolean';
+
+
+        $Result->{ $Key } = $Value ? 1 : 0;
+    }
+
+    return $Result;
 }
 
 =item InputSet()
