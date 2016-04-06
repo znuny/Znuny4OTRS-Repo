@@ -81,11 +81,11 @@ $Self->True(
     'Test basic function call of _LoaderRemove()',
 );
 
-
 my %DynamicFieldsScreen = (
     'TestDynamicField1' => 1,
     'TestDynamicField2' => 1,
 );
+
 # Tests for _DynamicFieldsScreenEnable function
 my $ResultDynamicFieldsScreenEnable = $ZnunyHelperObject->_DynamicFieldsScreenEnable(
     'AgentTicketFreeText' => \%DynamicFieldsScreen
@@ -104,8 +104,8 @@ my $AgentTicketFreeTextFrontendConfig = $ConfigObject->Get('Ticket::Frontend::Ag
 
 for my $DynamicFieldScreen ( sort keys %DynamicFieldsScreen ) {
     $Self->Is(
-        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{ $DynamicFieldScreen },
-        $DynamicFieldsScreen{ $DynamicFieldScreen },
+        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{$DynamicFieldScreen},
+        $DynamicFieldsScreen{$DynamicFieldScreen},
         "_DynamicFieldsScreenEnable() for $DynamicFieldScreen in AgentTicketFreeText",
     );
 }
@@ -128,7 +128,7 @@ $AgentTicketFreeTextFrontendConfig = $ConfigObject->Get('Ticket::Frontend::Agent
 
 for my $DynamicFieldScreen ( sort keys %DynamicFieldsScreen ) {
     $Self->False(
-        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{ $DynamicFieldScreen },
+        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{$DynamicFieldScreen},
         "_DynamicFieldsScreenDisable() for $DynamicFieldScreen in AgentTicketFreeText",
     );
 }
