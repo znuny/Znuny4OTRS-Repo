@@ -302,6 +302,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             ActualStartTime:  'ActualStartTime',
             ActualEndTime:    'ActualEndTime',
             AccountedTime:    'AccountedTime'
+        },
+
+        AgentITSMWorkOrderAdd: {
+            WorkOrderTitle:   'WorkOrderTitle',
+            RichText:         'RichText',
+            WorkOrderTypeID:  'WorkOrderTypeID',
+            PlannedStartTime: 'PlannedStartTime',
+            PlannedEndTime:   'PlannedEndTime',
+            PlannedEffort:    'PlannedEffort',
         }
     };
 
