@@ -269,6 +269,39 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             StateID:         'StateID',
             TypeID:          'TypeID',
             ProcessEntityID: 'ProcessEntityID'
+        },
+
+        AgentITSMChangeEdit: {
+            ChangeTitle:   'ChangeTitle',
+            RichText1:     'RichText1',
+            RichText2:     'RichText2',
+            CategoryID:    'CategoryID',
+            ImpactID:      'ImpactID',
+            PriorityID:    'PriorityID',
+            ChangeStateID: 'ChangeStateID'
+        },
+
+        AgentITSMChangeAdd: {
+            ChangeTitle: 'ChangeTitle',
+            RichText1:   'RichText1',
+            RichText2:   'RichText2',
+            CategoryID:  'CategoryID',
+            ImpactID:    'ImpactID',
+            PriorityID:  'PriorityID'
+        },
+
+        AgentITSMWorkOrderReport: {
+            RichText:         'RichText',
+            WorkOrderStateID: 'WorkOrderStateID',
+            AccountedTime:    'AccountedTime'
+        },
+
+        AgentITSMWorkOrderBulk: {
+            RichText:         'RichText',
+            WorkOrderStateID: 'WorkOrderStateID',
+            ActualStartTime:  'ActualStartTime',
+            ActualEndTime:    'ActualEndTime',
+            AccountedTime:    'AccountedTime'
         }
     };
 
