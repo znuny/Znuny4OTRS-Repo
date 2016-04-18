@@ -310,7 +310,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             WorkOrderTypeID:  'WorkOrderTypeID',
             PlannedStartTime: 'PlannedStartTime',
             PlannedEndTime:   'PlannedEndTime',
-            PlannedEffort:    'PlannedEffort',
+            PlannedEffort:    'PlannedEffort'
         }
     };
 
@@ -533,13 +533,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             // to handle input actions since FieldID maps to the Checkbox element
 
             var DateStructure = {};
-            $.each( ['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+            $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
 
                 if (
                     $('#'+ Attribute + Suffix)
                     && $('#'+ Attribute + Suffix).length == 1
                 ) {
-                    DateStructure[ Suffix ] = parseInt( $('#'+ Attribute + Suffix).val(), 10);
+                    DateStructure[ Suffix ] = parseInt($('#'+ Attribute + Suffix).val(), 10);
                 }
                 // exit loop
                 else {
@@ -569,12 +569,12 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         var Type = $('#'+ FieldID)[0].type.toLowerCase();
 
         // special DynamicField Date and DateTime handling
-        if ( Type != 'checkbox' ) return Type;
+        if (Type != 'checkbox') return Type;
 
-        if ( FieldID.indexOf('DynamicField_') != 0 ) return Type;
+        if (FieldID.indexOf('DynamicField_') != 0) return Type;
 
         var Attribute = FieldID.replace(/Used$/, '');
-        if ( FieldID == Attribute ) return Type;
+        if (FieldID == Attribute) return Type;
 
         if ($('#'+ Attribute + 'Year').length == 0) return Type;
 
@@ -877,17 +877,16 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             // ATTENTION - SPECIAL CASE: For DynamicFields Date or DateTime the Attribute is used as FieldID
             // to handle input actions since FieldID maps to the Checkbox element
 
-            var DateStructure = {};
-            $.each( ['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+            $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
 
                 // skip if no value is given
-                if ( typeof Content[ Suffix ] === 'undefined' ) return true;
+                if (typeof Content[ Suffix ] === 'undefined') return true;
 
                 if (
                     $('#'+ Attribute + Suffix)
                     && $('#'+ Attribute + Suffix).length == 1
                 ) {
-                    $('#'+ Attribute + Suffix).val( Content[ Suffix ] );
+                    $('#'+ Attribute + Suffix).val(Content[ Suffix ]);
                 }
                 // exit loop
                 else {
@@ -895,10 +894,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 }
             });
 
-            if ( typeof Content.Used === 'undefined' ) return true;
+            if (typeof Content.Used === 'undefined') return true;
 
             // set checkbox state
-            $('#'+ FieldID).prop('checked', Content.Used );
+            $('#'+ FieldID).prop('checked', Content.Used);
 
             return true;
         }
