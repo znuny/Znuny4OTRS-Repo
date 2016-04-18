@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.27</Version>
+    <Version>3.0.28</Version>
+    <ChangeLog Version="3.0.28" Date="2016-04-18 08:22:38 UTC">Removed wrong / in sopm.</ChangeLog>
     <ChangeLog Version="3.0.27" Date="2016-04-18 06:52:18 UTC">Added $.unshiftOn function to add event registrations before the framework registrations.</ChangeLog>
     <ChangeLog Version="3.0.26" Date="2016-04-08 10:50:31 UTC">Improved WebserviceMocking.</ChangeLog>
     <ChangeLog Version="3.0.25" Date="2016-04-05 10:45:47 UTC">- Added latest framework version of Core.UI.InputFields.js for bugfix purposes.</ChangeLog>
