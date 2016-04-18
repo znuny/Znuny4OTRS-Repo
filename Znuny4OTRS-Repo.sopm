@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.33</Version>
+    <Version>2.0.34</Version>
+    <ChangeLog Version="2.0.34" Date="2016-04-18 08:23:13 UTC">Removed wrong / in sopm.</ChangeLog>
     <ChangeLog Version="2.0.33" Date="2016-04-18 06:52:28 UTC">Added $.unshiftOn function to add event registrations before the framework registrations.</ChangeLog>
     <ChangeLog Version="2.0.32" Date="2016-04-08 10:50:50 UTC">Backported UnitTest helpers.</ChangeLog>
     <ChangeLog Version="2.0.31" Date="2016-03-16 18:24:02 UTC">Added ProcessEntityID to AgentTicketProcess and CustomerTicketProcess.</ChangeLog>
