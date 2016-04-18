@@ -16,10 +16,10 @@ use warnings;
 use Kernel::GenericInterface::Transport;
 
 our @ObjectDependencies = (
+    'Kernel::GenericInterface::Provider',
+    'Kernel::GenericInterface::Requester',
     'Kernel::System::Cache',
-    'Kernel::System::DB',
     'Kernel::System::Log',
-    'Kernel::System::Valid',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -58,7 +58,98 @@ sub new {
     $Self->{CacheType} = 'UnitTestWebservice';
     $Self->{CacheTTL}  = 60 * 60 * 24 * 20;
 
+    $Self->_RedefineTransport();
+
     return $Self;
+}
+
+=item Process()
+
+This function simulate an incomming webservice call to test operations and the mapping.
+
+    my $Response = $UnitTestWebserviceObject->Process(
+        UnitTestObject => $Self,
+        Webservice     => 'Name123', # or
+        WebserviceID   => 123,
+        Operation      => 'DesiredOperation',
+        Payload        => {
+            ...
+        },
+        Response => {               # optional, you can validate the response manually in the UnitTest via $Self->IsDeeply
+            Success      => 1,
+            ErrorMessage => '',
+            Data         => {
+                ...
+            },
+        }
+    );
+
+    my $Response = {
+        Success      => 1,
+        ErrorMessage => '',
+        Data         => {
+            ...
+        },
+    };
+
+=cut
+
+sub Process {
+    my ( $Self, %Param ) = @_;
+
+    my $CacheObject    = $Kernel::OM->Get('Kernel::System::Cache');
+    my $ProviderObject = $Kernel::OM->Get('Kernel::GenericInterface::Provider');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject Operation Payload)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    NAMEORID:
+    for my $NameOrID (qw(Webservice WebserviceID)) {
+
+        next NAMEORID if !$Param{$NameOrID};
+
+        $ENV{REQUEST_URI} = "nph-genericinterface.pl/$NameOrID/$Param{$NameOrID}/";
+
+        last NAMEORID;
+    }
+
+    $CacheObject->Set(
+        Type  => $Self->{CacheType},
+        Key   => 'Payload',
+        TTL   => $Self->{CacheTTL},
+        Value => {
+            Success   => 1,
+            Operation => $Param{Operation},
+            Data      => $Param{Payload},
+            }
+    );
+
+    $ProviderObject->Run();
+
+    my $Response = $CacheObject->Get(
+        Type => $Self->{CacheType},
+        Key  => 'Response',
+    );
+
+    return $Response if !IsHashRefWithData( $Param{Response} );
+
+    $Param{UnitTestObject}->IsDeeply(
+        $Response,
+        $Param{Response},
+        'Response to mocked provider call',
+    );
+
+    return $Response;
 }
 
 =item Mock()
@@ -109,170 +200,17 @@ Mocks all outgoing requests to a given mapping.
 sub Mock {
     my ( $Self, %Param ) = @_;
 
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
     # temporary store the given request data
     for my $InvokerName ( sort keys %Param ) {
 
-        $Kernel::OM->Get('Kernel::System::Cache')->Set(
+        $CacheObject->Set(
             Type  => $Self->{CacheType},
             Key   => $InvokerName,
             Value => $Param{$InvokerName},
             TTL   => $Self->{CacheTTL},
         );
-    }
-
-    {
-        no warnings 'redefine';
-
-        sub Kernel::GenericInterface::Transport::RequesterPerformRequest {    ## no critic
-            my ( $Self, %Param ) = @_;
-
-            my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
-
-            my $CacheType       = 'UnitTestWebservice';
-            my $CacheTTL        = 60 * 60 * 24 * 20;
-            my $CacheKeyResults = 'Results';
-
-            my $StoredResults = $CacheObject->Get(
-                Type => $CacheType,
-                Key  => $CacheKeyResults,
-            );
-            $StoredResults ||= [];
-
-            if ( !$Param{Operation} ) {
-
-                my $ErrorMessage = 'Missing parameter Operation.';
-
-                push @{$StoredResults}, {
-                    Success      => 0,
-                    ErrorMessage => $ErrorMessage,
-                    Invoker      => $Param{Operation},
-                    Data         => $Param{Data},
-                };
-
-                $Kernel::OM->Get('Kernel::System::Cache')->Set(
-                    Type  => $CacheType,
-                    Key   => $CacheKeyResults,
-                    Value => $StoredResults,
-                    TTL   => $CacheTTL,
-                );
-
-                return $Self->{DebuggerObject}->Error(
-                    Summary => $ErrorMessage,
-                    Data    => $Param{Data},
-                );
-            }
-
-            if ( $Param{Data} && ref $Param{Data} ne 'HASH' ) {
-
-                my $ErrorMessage = 'Data is not a hash reference.';
-
-                push @{$StoredResults}, {
-                    Success      => 0,
-                    ErrorMessage => $ErrorMessage,
-                    Invoker      => $Param{Operation},
-                    Data         => $Param{Data},
-                };
-
-                $Kernel::OM->Get('Kernel::System::Cache')->Set(
-                    Type  => $CacheType,
-                    Key   => $CacheKeyResults,
-                    Value => $StoredResults,
-                    TTL   => $CacheTTL,
-                );
-
-                return $Self->{DebuggerObject}->Error(
-                    Summary => $ErrorMessage,
-                    Data    => $Param{Data},
-                );
-            }
-
-            my $InvokerData = $CacheObject->Get(
-                Type => $CacheType,
-                Key  => $Param{Operation},
-            );
-
-            if ( !IsArrayRefWithData($InvokerData) ) {
-
-                my $ErrorMessage = "Can't find matching Mock data.";
-
-                push @{$StoredResults}, {
-                    Success      => 0,
-                    ErrorMessage => $ErrorMessage,
-                    Invoker      => $Param{Operation},
-                    Data         => $Param{Data},
-                };
-
-                $Kernel::OM->Get('Kernel::System::Cache')->Set(
-                    Type  => $CacheType,
-                    Key   => $CacheKeyResults,
-                    Value => $StoredResults,
-                    TTL   => $CacheTTL,
-                );
-
-                return $Self->{DebuggerObject}->Error(
-                    Summary => $ErrorMessage,
-                    Data    => $Param{Data},
-                );
-            }
-
-            my $Counter = 0;
-            my $Result;
-            REQUEST:
-            for my $PossibleRequest ( @{$InvokerData} ) {
-
-                $Counter++;
-
-                next REQUEST if DataIsDifferent(
-                    Data1 => $PossibleRequest->{Data},
-                    Data2 => $Param{Data},
-                );
-
-                $Result = $PossibleRequest->{Result};
-
-                last REQUEST;
-            }
-
-            if ( !IsHashRefWithData($Result) ) {
-
-                my $ErrorMessage = "Can't find Mock data matching the given request Data structure.";
-
-                push @{$StoredResults}, {
-                    Success      => 0,
-                    ErrorMessage => $ErrorMessage,
-                    Invoker      => $Param{Operation},
-                    Data         => $Param{Data},
-                };
-
-                $Kernel::OM->Get('Kernel::System::Cache')->Set(
-                    Type  => $CacheType,
-                    Key   => $CacheKeyResults,
-                    Value => $StoredResults,
-                    TTL   => $CacheTTL,
-                );
-
-                return $Self->{DebuggerObject}->Error(
-                    Summary => $ErrorMessage,
-                    Data    => $Param{Data},
-                );
-            }
-
-            push @{$StoredResults}, {
-                Success       => 1,
-                Invoker       => $Param{Operation},
-                Data          => $Param{Data},
-                Result        => $Result,
-                ResultCounter => $Counter,
-            };
-
-            $Kernel::OM->Get('Kernel::System::Cache')->Set(
-                Type  => $CacheType,
-                Key   => $CacheKeyResults,
-                Value => $StoredResults,
-                TTL   => $CacheTTL,
-            );
-
-            return $Result;
-        }
     }
 
     return 1;
@@ -434,6 +372,229 @@ sub ValidateResult {
     );
 
     return $MockResults;
+}
+
+=item _RedefineTransport()
+
+This function redefines the functions of the transport object to handle tests and provide the results.
+
+    $Object->_RedefineTransport();
+
+=cut
+
+sub _RedefineTransport {
+    my ( $Self, %Param ) = @_;
+
+    {
+        no warnings 'redefine';
+
+        sub Kernel::GenericInterface::Transport::ProviderProcessRequest {    ## no critic
+            my ( $Self, %Param ) = @_;
+
+            my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
+            return $CacheObject->Get(
+                Type => 'UnitTestWebservice',
+                Key  => 'Payload',
+            );
+        }
+
+        sub Kernel::GenericInterface::Transport::ProviderGenerateResponse {    ## no critic
+            my ( $Self, %Param ) = @_;
+
+            my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
+            my $CacheType = 'UnitTestWebservice';
+            my $CacheKey  = 'Response';
+            my $CacheTTL  = 60 * 60 * 24 * 20;
+
+            $CacheObject->Delete(
+                Type => $CacheType,
+                Key  => $CacheKey,
+            );
+
+            if ( !defined $Param{Success} ) {
+
+                my $ErrorMessage = 'Missing parameter Success.';
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => 'Missing parameter Success.',
+                );
+            }
+
+            if ( $Param{Data} && ref $Param{Data} ne 'HASH' ) {
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => 'Data is not a hash reference.',
+                    Data    => $Param{Data},
+                );
+            }
+
+            $CacheObject->Set(
+                Type  => $CacheType,
+                Key   => $CacheKey,
+                Value => \%Param,
+                TTL   => $CacheTTL,
+            );
+
+            return {
+                Success => 1,
+                }
+        }
+
+        sub Kernel::GenericInterface::Transport::RequesterPerformRequest {    ## no critic
+            my ( $Self, %Param ) = @_;
+
+            my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+
+            my $CacheType       = 'UnitTestWebservice';
+            my $CacheTTL        = 60 * 60 * 24 * 20;
+            my $CacheKeyResults = 'Results';
+
+            my $StoredResults = $CacheObject->Get(
+                Type => $CacheType,
+                Key  => $CacheKeyResults,
+            );
+            $StoredResults ||= [];
+
+            if ( !$Param{Operation} ) {
+
+                my $ErrorMessage = 'Missing parameter Operation.';
+
+                push @{$StoredResults}, {
+                    Success      => 0,
+                    ErrorMessage => $ErrorMessage,
+                    Invoker      => $Param{Operation},
+                    Data         => $Param{Data},
+                };
+
+                $CacheObject->Set(
+                    Type  => $CacheType,
+                    Key   => $CacheKeyResults,
+                    Value => $StoredResults,
+                    TTL   => $CacheTTL,
+                );
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => $ErrorMessage,
+                    Data    => $Param{Data},
+                );
+            }
+
+            if ( $Param{Data} && ref $Param{Data} ne 'HASH' ) {
+
+                my $ErrorMessage = 'Data is not a hash reference.';
+
+                push @{$StoredResults}, {
+                    Success      => 0,
+                    ErrorMessage => $ErrorMessage,
+                    Invoker      => $Param{Operation},
+                    Data         => $Param{Data},
+                };
+
+                $CacheObject->Set(
+                    Type  => $CacheType,
+                    Key   => $CacheKeyResults,
+                    Value => $StoredResults,
+                    TTL   => $CacheTTL,
+                );
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => $ErrorMessage,
+                    Data    => $Param{Data},
+                );
+            }
+
+            my $InvokerData = $CacheObject->Get(
+                Type => $CacheType,
+                Key  => $Param{Operation},
+            );
+
+            if ( !IsArrayRefWithData($InvokerData) ) {
+
+                my $ErrorMessage = "Can't find matching Mock data.";
+
+                push @{$StoredResults}, {
+                    Success      => 0,
+                    ErrorMessage => $ErrorMessage,
+                    Invoker      => $Param{Operation},
+                    Data         => $Param{Data},
+                };
+
+                $CacheObject->Set(
+                    Type  => $CacheType,
+                    Key   => $CacheKeyResults,
+                    Value => $StoredResults,
+                    TTL   => $CacheTTL,
+                );
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => $ErrorMessage,
+                    Data    => $Param{Data},
+                );
+            }
+
+            my $Counter = 0;
+            my $Result;
+            REQUEST:
+            for my $PossibleRequest ( @{$InvokerData} ) {
+
+                $Counter++;
+
+                next REQUEST if DataIsDifferent(
+                    Data1 => $PossibleRequest->{Data},
+                    Data2 => $Param{Data},
+                );
+
+                $Result = $PossibleRequest->{Result};
+
+                last REQUEST;
+            }
+
+            if ( !IsHashRefWithData($Result) ) {
+
+                my $ErrorMessage = "Can't find Mock data matching the given request Data structure.";
+
+                push @{$StoredResults}, {
+                    Success      => 0,
+                    ErrorMessage => $ErrorMessage,
+                    Invoker      => $Param{Operation},
+                    Data         => $Param{Data},
+                };
+
+                $CacheObject->Set(
+                    Type  => $CacheType,
+                    Key   => $CacheKeyResults,
+                    Value => $StoredResults,
+                    TTL   => $CacheTTL,
+                );
+
+                return $Self->{DebuggerObject}->Error(
+                    Summary => $ErrorMessage,
+                    Data    => $Param{Data},
+                );
+            }
+
+            push @{$StoredResults}, {
+                Success       => 1,
+                Invoker       => $Param{Operation},
+                Data          => $Param{Data},
+                Result        => $Result,
+                ResultCounter => $Counter,
+            };
+
+            $CacheObject->Set(
+                Type  => $CacheType,
+                Key   => $CacheKeyResults,
+                Value => $StoredResults,
+                TTL   => $CacheTTL,
+            );
+
+            return $Result;
+        }
+    }
+
+    return 1;
 }
 
 1;
