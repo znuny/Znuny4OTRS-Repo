@@ -215,6 +215,40 @@ $Self->True(
     'Test basic function call of _SLACreateIfNotExists()',
 );
 
+# Tests for _UserCreateIfNotExists function
+my $ResultUserCreateIfNotExists = $ZnunyHelperObject->_UserCreateIfNotExists(
+    UserFirstname => 'Huber',
+    UserLastname  => 'Manfred',
+    UserLogin     => 'mhuber',
+    UserPw        => 'some-pass',
+    UserEmail     => 'email@example.com',
+    UserMobile    => '1234567890',
+    ValidID       => 1,
+    ChangeUserID  => 123,
+);
+
+$Self->True(
+    $ResultUserCreateIfNotExists,
+    'Test basic function call of _UserCreateIfNotExists()',
+);
+
+# Tests for _CustomerUserCreateIfNotExists function
+my $ResultCustomerUserCreateIfNotExists = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
+    Source         => 'CustomerUser',
+    UserFirstname  => 'Huber',
+    UserLastname   => 'Manfred',
+    UserCustomerID => 'A124',
+    UserLogin      => 'mhuber',
+    UserPassword   => 'some-pass',
+    UserEmail      => 'email@example.com',
+);
+
+$Self->True(
+    $ResultCustomerUserCreateIfNotExists,
+    'Test basic function call of _CustomerUserCreateIfNotExists()',
+);
+
+
 # Tests for _QueueCreateIfNotExists function
 my $ResultQueueCreateIfNotExists = $ZnunyHelperObject->_QueueCreateIfNotExists(
     Name    => 'Some Queue Name',
