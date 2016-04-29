@@ -2956,7 +2956,7 @@ sub UserRoles {
         # returns the GroupName instead of the RoleName
         # when passing the parameter Hash or Name m(
         if (
-            !$Param{Result}
+            $Param{Result}
             && $Param{Result} eq 'Name'
             )
         {
