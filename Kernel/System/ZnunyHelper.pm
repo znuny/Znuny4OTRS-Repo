@@ -2945,6 +2945,90 @@ sub _PackageSetupInit {
     return 1;
 }
 
+=item UserRoles()
+
+This function returns the Role IDs or Names of a given User.
+
+    my @RoleIDs = $HelperObject->UserRoles(
+        UserID => 123,
+        Result => 'Name', # default 'ID', Name|ID
+    );
+
+    @RoleIDs = (1, 3, 6);
+
+=cut
+
+sub UserRoles {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(UserID) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    # get each Group for the current Agent
+    # since OTRS doesn't provide a function
+    # to get all Roles for a User
+    my @UserGroups = $GroupObject->GroupMemberList(
+        UserID => $Param{UserID},
+        Result => 'ID',
+        Type   => $Param{Permission} || 'ro',
+    );
+
+    my %Result;
+
+    # loop over each Group a User is in
+    for my $GroupID (@UserGroups) {
+
+        # get all RoleIDs for the current group
+        my @UserRoles = $GroupObject->GroupRoleMemberList(
+            GroupID => $GroupID,
+            Result  => 'ID',
+            Type    => $Param{Permission} || 'ro',
+        );
+
+        # if the requested Result is 'Name' we need to look up
+        # the RoleName for the ID since GroupRoleMemberList
+        # returns the GroupName instead of the RoleName
+        # when passing the parameter Hash or Name m(
+        if (
+            !$Param{Result}
+            && $Param{Result} eq 'Name'
+            )
+        {
+            my @RoleNames;
+
+            for my $RoleID (@UserRoles) {
+
+                my $RoleName = $GroupObject->RoleLookup( RoleID => $RoleID );
+                push @RoleNames, $RoleName;
+            }
+
+            @UserRoles = @RoleNames;
+        }
+
+        my %GroupRoles = map { $_ => 1 } @UserRoles;
+
+        %Result = (
+            %Result,
+            %GroupRoles
+        );
+    }
+
+    return keys %Result;
+}
+
 1;
 
 =back
