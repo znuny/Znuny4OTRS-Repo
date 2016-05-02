@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.34</Version>
+    <Version>2.0.35</Version>
+    <ChangeLog Version="2.0.35" Date="2016-05-02 09:55:53 UTC">Added functionality to handle DynamicFields of type Date and DateTime.&#13;
+Added functionality to test operation calls.&#13;
+Added _CustomerUserCreateIfNotExists function and improved UnitTest for _CustomerUserCreateIfNotExists and _UserCreateIfNotExists.&#13;
+Added UserRoles function.</ChangeLog>
     <ChangeLog Version="2.0.34" Date="2016-04-18 08:23:13 UTC">Removed wrong / in sopm.</ChangeLog>
     <ChangeLog Version="2.0.33" Date="2016-04-18 06:52:28 UTC">Added $.unshiftOn function to add event registrations before the framework registrations.</ChangeLog>
     <ChangeLog Version="2.0.32" Date="2016-04-08 10:50:50 UTC">Backported UnitTest helpers.</ChangeLog>
