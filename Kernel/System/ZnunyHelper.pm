@@ -2958,8 +2958,9 @@ sub _PackageSetupInit {
 This function returns the Role IDs or Names of a given User.
 
     my @RoleIDs = $HelperObject->UserRoles(
-        UserID => 123,
-        Result => 'Name', # default 'ID', Name|ID
+        UserID     => 123,
+        Result     => 'Name', # default 'ID', Name|ID
+        Permission => 'rw',   # default ro, ro,move_into,priority,create,rw
     );
 
     @RoleIDs = (1, 3, 6);
