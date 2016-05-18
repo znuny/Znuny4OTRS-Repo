@@ -1562,6 +1562,10 @@ sub _ServiceCreateIfNotExists {
 
     my $Name = $Param{Name};
 
+    # ITSMParams
+    $Param{TypeID}      ||= '2';
+    $Param{Criticality} ||= '3 normal';
+
     my %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
         Valid  => 0,
         UserID => 1
@@ -1673,6 +1677,10 @@ sub _SLACreateIfNotExists {
         );
         return;
     }
+
+    # ITSMParams
+    $Param{TypeID}      ||= '2';
+    $Param{Criticality} ||= '3 normal';
 
     my %SLAReversed = $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
         UserID => 1
