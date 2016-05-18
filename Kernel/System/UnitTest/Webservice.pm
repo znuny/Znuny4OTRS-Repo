@@ -483,7 +483,7 @@ sub _RedefineTransport {
 
             if ( $Param{Data} && ref $Param{Data} ne 'HASH' ) {
 
-                my $ErrorMessage = 'Data is not a hash reference.';
+                my $ErrorMessage = "Data is not a hash reference for Invoker '$Param{Operation}'.";
 
                 push @{$StoredResults}, {
                     Success      => 0,
@@ -512,7 +512,7 @@ sub _RedefineTransport {
 
             if ( !IsArrayRefWithData($InvokerData) ) {
 
-                my $ErrorMessage = "Can't find matching Mock data.";
+                my $ErrorMessage = "Can't find matching Mock data for Invoker '$Param{Operation}'.";
 
                 push @{$StoredResults}, {
                     Success      => 0,
@@ -553,7 +553,7 @@ sub _RedefineTransport {
 
             if ( !IsHashRefWithData($Result) ) {
 
-                my $ErrorMessage = "Can't find Mock data matching the given request Data structure.";
+                my $ErrorMessage = "Can't find Mock data matching the given request Data structure for Invoker '$Param{Operation}'.";
 
                 push @{$StoredResults}, {
                     Success      => 0,

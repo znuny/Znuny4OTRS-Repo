@@ -424,8 +424,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 && $('#'+ FieldID).hasClass('CustomerAutoComplete')
             ) {
                 Prefix = FieldID;
-                Prefix     = Prefix.replace(/^ToCustomer$/, 'Customer');
-                Prefix     = Prefix.replace(/^FromCustomer$/, 'Customer');
+                Prefix = Prefix.replace(/^ToCustomer$/, 'Customer');
+                Prefix = Prefix.replace(/^FromCustomer$/, 'Customer');
 
                 if (KeyOrValue == 'Key') {
                     LookupClass = 'CustomerKey';
@@ -650,9 +650,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                     $('#'+ FieldID).autocomplete('close');
 
-                    Prefix     = FieldID;
-                    Prefix     = Prefix.replace(/^ToCustomer$/, 'Customer');
-                    Prefix     = Prefix.replace(/^FromCustomer$/, 'Customer');
+                    Prefix = FieldID;
+                    Prefix = Prefix.replace(/^ToCustomer$/, 'Customer');
+                    Prefix = Prefix.replace(/^FromCustomer$/, 'Customer');
 
                     SetAsTicketCustomer = $('#'+ Prefix +'TicketText').hasClass('Radio');
                     $.each(Result.content, function (Index, CustomerUser) {
@@ -667,7 +667,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                             if (SetAsTicketCustomer) {
                                 Index = $(Element).attr('id');
-                                Index     = Index.replace('CustomerTicketText_', '');
+                                Index = Index.replace('CustomerTicketText_', '');
 
                                 if (TriggerChange) {
                                     $('#CustomerSelected_'+Index).trigger('click');
