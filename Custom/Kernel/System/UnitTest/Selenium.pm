@@ -888,7 +888,7 @@ sub SwitchToPopUp {
 
 =item PageContains()
 
-Checks if the currelty opened page contains the given String
+Checks if the currently opened page contains the given String
 
     $SeleniumObject->PageContains(
         String  => 'Ticked locked.',
@@ -903,6 +903,28 @@ sub PageContains {
     $UnitTestMessage  ||= "Page contains '$Param{String}'";
 
     $Self->{UnitTestObject}->True(
+        index( $Self->get_page_source(), $Param{String} ) > -1,
+        $UnitTestMessage,
+    );
+}
+
+=item PageContainsNot()
+
+Checks if the currently opened page doesn't contain the given String
+
+    $SeleniumObject->PageContainsNot(
+        String  => 'Ticked locked.',
+        Message => "Page contains 'Ticket locked.'" # optional - default
+    );
+=cut
+
+sub PageContainsNot {
+    my ( $Self, %Param ) = @_;
+
+    my $UnitTestMessage = $Param{Message};
+    $UnitTestMessage  ||= "Page contains '$Param{String}'";
+
+    $Self->{UnitTestObject}->False(
         index( $Self->get_page_source(), $Param{String} ) > -1,
         $UnitTestMessage,
     );
