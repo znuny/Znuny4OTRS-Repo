@@ -2910,12 +2910,12 @@ sub _PackageSetupInit {
 
 This function returns the Role IDs or Names of a given User.
 
-    my @RoleIDs = $HelperObject->UserRoles(
+    my @Roles = $HelperObject->UserRoles(
         UserID => 123,
         Result => 'Name', # default 'ID', Name|ID
     );
 
-    @RoleIDs = (1, 3, 6);
+    @Roles = (1, 3, 6);
 
 =cut
 
@@ -2937,6 +2937,13 @@ sub UserRoles {
         );
         return;
     }
+
+    # get each directly linked role for current Agent
+    my @Roles = $GroupObject->GroupUserRoleMemberList(
+        UserID => $Param{UserID},
+        Result => $Param{Result},
+        Type   => $Param{Permission} || 'ro',
+    );
 
     # get each Group for the current Agent
     # since OTRS doesn't provide a function
@@ -2987,7 +2994,9 @@ sub UserRoles {
         );
     }
 
-    return keys %Result;
+    push @Roles, keys %Result;
+
+    return @Roles;
 }
 
 1;
