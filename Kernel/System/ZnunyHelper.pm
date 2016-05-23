@@ -2609,13 +2609,13 @@ creates webservices that not exist yet
 
     # installs all .yml files in $OTRS/scripts/webservices/
     # name of the file will be the name of the webservice
-    my $Result = $CodeObject->_WebserviceCreateIfNotExists(
+    my $Result = $ZnunyHelperObject->_WebserviceCreateIfNotExists(
         SubDir => 'Znuny4OTRSAssetDesk', # optional
     );
 
 OR:
 
-    my $Result = $CodeObject->_WebserviceCreateIfNotExists(
+    my $Result = $ZnunyHelperObject->_WebserviceCreateIfNotExists(
         Webservices => {
             'New Webservice 1234' => '/path/to/Webservice.yml',
             ...
@@ -2705,13 +2705,13 @@ creates or updates webservices
 
     # installs all .yml files in $OTRS/scripts/webservices/
     # name of the file will be the name of the webservice
-    my $Result = $CodeObject->_WebserviceCreate(
+    my $Result = $ZnunyHelperObject->_WebserviceCreate(
         SubDir => 'Znuny4OTRSAssetDesk', # optional
     );
 
 OR:
 
-    my $Result = $CodeObject->_WebserviceCreate(
+    my $Result = $ZnunyHelperObject->_WebserviceCreate(
         Webservices => {
             'New Webservice 1234' => '/path/to/Webservice.yml',
             ...
@@ -2806,13 +2806,13 @@ deletes webservices
 
     # deletes all .yml files webservices in $OTRS/scripts/webservices/
     # name of the file will be the name of the webservice
-    my $Result = $CodeObject->_WebserviceDelete(
+    my $Result = $ZnunyHelperObject->_WebserviceDelete(
         SubDir => 'Znuny4OTRSAssetDesk', # optional
     );
 
 OR:
 
-    my $Result = $CodeObject->_WebserviceDelete(
+    my $Result = $ZnunyHelperObject->_WebserviceDelete(
         Webservices => {
             'Not needed Webservice 1234' => 1, # value is not used
             ...
@@ -2871,7 +2871,7 @@ sub _WebserviceDelete {
 
 gets a list of .yml files from $OTRS/scripts/webservices
 
-    my $Result = $CodeObject->_WebservicesGet(
+    my $Result = $ZnunyHelperObject->_WebservicesGet(
         SubDir => 'Znuny4OTRSAssetDesk', # optional
     );
 
@@ -2957,13 +2957,13 @@ sub _PackageSetupInit {
 
 This function returns the Role IDs or Names of a given User.
 
-    my @RoleIDs = $HelperObject->UserRoles(
+    my @Roles = $ZnunyHelperObject->UserRoles(
         UserID     => 123,
         Result     => 'Name', # default 'ID', Name|ID
         Permission => 'rw',   # default ro, ro,move_into,priority,create,rw
     );
 
-    @RoleIDs = (1, 3, 6);
+    @Roles = (1, 3, 6);
 
 =cut
 
@@ -2985,6 +2985,13 @@ sub UserRoles {
         );
         return;
     }
+
+    # get each directly linked role for current Agent
+    my @Roles = $GroupObject->GroupUserRoleMemberList(
+        UserID => $Param{UserID},
+        Result => $Param{Result},
+        Type   => $Param{Permission} || 'ro',
+    );
 
     # get each Group for the current Agent
     # since OTRS doesn't provide a function
@@ -3035,7 +3042,9 @@ sub UserRoles {
         );
     }
 
-    return keys %Result;
+    push @Roles, keys %Result;
+
+    return @Roles;
 }
 
 1;
