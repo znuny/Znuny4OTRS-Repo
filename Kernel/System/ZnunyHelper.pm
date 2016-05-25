@@ -674,6 +674,20 @@ This function enables the defined dynamic fields in the needed screens.
             TestDynamicField4 => 1,
             TestDynamicField5 => 1,
         },
+        'ITSMChange::Frontend::AgentITSMChangeEdit###DynamicField' => {
+            ChangeFreeText1 => 1,
+            ChangeFreeText2 => 1,
+            ChangeFreeText3 => 1,
+            ChangeFreeText4 => 1,
+            ChangeFreeText5 => 1,
+        },
+        'ITSMWorkOrder::Frontend::AgentITSMWorkOrderEdit###DynamicField' => {
+            WorkOrderFreeText1 => 1,
+            WorkOrderFreeText2 => 1,
+            WorkOrderFreeText3 => 1,
+            WorkOrderFreeText4 => 1,
+            WorkOrderFreeText5 => 1,
+        },
     );
 
     my $Success = $ZnunyHelperObject->_DynamicFieldsScreenEnable(%Screens);
@@ -708,11 +722,21 @@ sub _DynamicFieldsScreenEnable {
         # CustomerTicketZoom###FollowUpDynamicField
         # AgentTicketSearch###SearchCSVDynamicField
         #
+        # or calls for itsm change management for example
+        #
+        # ITSMChange::Frontend::AgentITSMChangeEdit###DynamicField
+        # ITSMWorkOrder::Frontend::AgentITSMWorkOrderEdit###DynamicField
+        #
         # so split on '###'
         # and put the values in the @Keys array
         #
         # for regular cases we put in the View name on $Keys[0] and 'DynamicField' on $Keys[1]
-        my @Keys = split '###', "Ticket::Frontend::$View";
+
+        my $FrontendPath = "Ticket::Frontend::$View";
+        if ( $View =~ m{(\w+::)+\w+}xmsi ) {
+            $FrontendPath = $View;
+        }
+        my @Keys = split '###', $FrontendPath;
 
         if ( !$#Keys ) {
             push @Keys, 'DynamicField';
@@ -768,6 +792,20 @@ This function disables the defined dynamic fields in the needed screens.
             TestDynamicField4 => 1,
             TestDynamicField5 => 1,
         },
+        'ITSMChange::Frontend::AgentITSMChangeEdit###DynamicField' => {
+            ChangeFreeText1 => 1,
+            ChangeFreeText2 => 1,
+            ChangeFreeText3 => 1,
+            ChangeFreeText4 => 1,
+            ChangeFreeText5 => 1,
+        },
+        'ITSMWorkOrder::Frontend::AgentITSMWorkOrderEdit###DynamicField' => {
+            WorkOrderFreeText1 => 1,
+            WorkOrderFreeText2 => 1,
+            WorkOrderFreeText3 => 1,
+            WorkOrderFreeText4 => 1,
+            WorkOrderFreeText5 => 1,
+        },
     );
 
     my $Success = $ZnunyHelperObject->_DynamicFieldsScreenDisable(%Screens);
@@ -802,11 +840,21 @@ sub _DynamicFieldsScreenDisable {
         # CustomerTicketZoom###FollowUpDynamicField
         # AgentTicketSearch###SearchCSVDynamicField
         #
+        # or calls for itsm change management for example
+        #
+        # ITSMChange::Frontend::AgentITSMChangeEdit###DynamicField
+        # ITSMWorkOrder::Frontend::AgentITSMWorkOrderEdit###DynamicField
+        #
         # so split on '###'
         # and put the values in the @Keys array
         #
         # for regular cases we put in the View name on $Keys[0] and 'DynamicField' on $Keys[1]
-        my @Keys = split '###', "Ticket::Frontend::$View";
+
+        my $FrontendPath = "Ticket::Frontend::$View";
+        if ( $View =~ m{(\w+::)+\w+}xmsi ) {
+            $FrontendPath = $View;
+        }
+        my @Keys = split '###', $FrontendPath;
 
         if ( !$#Keys ) {
             push @Keys, 'DynamicField';
