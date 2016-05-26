@@ -46,6 +46,7 @@ our @ObjectDependencies = (
     # otherwise this object will get destroyed by the OM, too
     # which causes a database and SysConfig rollback
     'Kernel::System::ZnunyHelper',
+    'Kernel::System::PostMaster',
 # ---
 );
 
@@ -1672,6 +1673,49 @@ sub TestUserPreferencesSet {
 
     return 1;
 };
+
+=item PostMaster()
+
+This functions reads in a given file and calls the PostMaster on it. It returns the result of the PostMaster.
+
+    my @Result = $HelperObject->PostMaster(
+        Location => $ConfigObject->Get('Home') . '/scripts/test/sample/Sample-1.box',
+    );
+
+    @Result = (1, $TicketID);
+
+=cut
+
+sub PostMaster {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Location) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $FileArray = $MainObject->FileRead(
+        Location => $Param{Location},
+        Result   => 'ARRAY',
+    );
+
+    my $PostMasterObject = Kernel::System::PostMaster->new(
+        Email => $FileArray,
+    );
+
+    return $PostMasterObject->Run();
+}
 
 # ---
 
