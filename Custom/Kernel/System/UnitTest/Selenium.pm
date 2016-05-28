@@ -854,7 +854,7 @@ Checks if the currently opened page doesn't contain the given String
 
     $SeleniumObject->PageContainsNot(
         String  => 'Ticked locked.',
-        Message => "Page contains 'Ticket locked.'" # optional - default
+        Message => "Page doesn't contain 'Ticket locked.'" # optional - default
     );
 =cut
 
@@ -862,7 +862,7 @@ sub PageContainsNot {
     my ( $Self, %Param ) = @_;
 
     my $UnitTestMessage = $Param{Message};
-    $UnitTestMessage  ||= "Page contains '$Param{String}'";
+    $UnitTestMessage  ||= "Page doesn't contain '$Param{String}'";
 
     $Self->{UnitTestObject}->False(
         index( $Self->get_page_source(), $Param{String} ) > -1,
