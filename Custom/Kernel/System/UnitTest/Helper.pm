@@ -682,12 +682,13 @@ This function checks the number of executions of an Event via the TicketHistory
 
     my $Result = $HelperObject->CheckNumberOfEventExecution(
         TicketID => $TicketID,
+        Comment  => 'after article create',
         Events   => {
             AnExampleHistoryEntry      => 2,
             AnotherExampleHistoryEntry => 0,
         },
-        Comment  => 'after article create',
     );
+
 =cut
 
 sub CheckNumberOfEventExecution {
@@ -743,6 +744,7 @@ This function calls a list of other helper functions to setup a test environment
     $Result = {
         ... # Combined result of the ActivateDefaultDynamicFields, FillTestEnvironment and ConfigureViews functions
     }
+
 =cut
 
 sub SetupTestEnvironment {
@@ -859,7 +861,6 @@ Toggles settings for a given view like AgentTicketNote or CustomerTicketMessage.
             ArticleType      => 'note-external',
             ...
         },
-
     }
 
 =cut
@@ -915,6 +916,7 @@ This function activates the given DynamicFields in each agent view.
         'UnitTestDate',
         'UnitTestDateTime',
     );
+
 =cut
 
 sub ActivateDynamicFields {
@@ -1190,6 +1192,7 @@ sub ActivateDefaultDynamicFields {
 Activates Type, Service and Responsible feature.
 
     $HelperObject->FullFeature();
+
 =cut
 
 sub FullFeature {
@@ -1480,6 +1483,7 @@ Calls TestCustomerUserCreate and returns the whole CustomerUserData instead only
         UserEmail      => $TestUserLogin . '@localunittest.com',
         ValidID        => 1,
     }
+
 =cut
 
 sub TestCustomerUserDataGet {
@@ -1524,6 +1528,7 @@ Creates a Ticket with dummy data and tests the creation. All Ticket attributes a
 
     Result:
     $TicketID = 1337;
+
 =cut
 
 sub TicketCreate {
@@ -1602,6 +1607,7 @@ Creates an Article with dummy data and tests the creation. All Article attribute
 
     Result:
     $ArticleID = 1337;
+
 =cut
 
 sub ArticleCreate {
@@ -1645,7 +1651,9 @@ sub ArticleCreate {
 }
 
 =item TestUserPreferencesSet()
-sets preferences for a given Login or UserID
+
+Sets preferences for a given Login or UserID
+
     my $Success = $HelperObject->TestUserPreferencesSet(
         UserID      => 123,
         Preferences => {                  # "Preferences" hashref is required
@@ -1654,6 +1662,7 @@ sets preferences for a given Login or UserID
             UserLanguage => '',           # example for deleting a UserPreferences Key's value
         },
     );
+
 =cut
 
 sub TestUserPreferencesSet {
