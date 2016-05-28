@@ -2934,15 +2934,20 @@ sub _PackageSetupInit {
         'ZZZAuto.pm',
     );
 
-    # reload the ZZZ files (mod_perl workaround)
-    for my $ZZZFile (@ZZZFiles) {
+    # disable redefine warnings in this scope
+    {
+        no warnings 'redefine';
 
-        PREFIX:
-        for my $Prefix (@INC) {
-            my $File = $Prefix . '/Kernel/Config/Files/' . $ZZZFile;
-            next PREFIX if !-f $File;
-            do $File;
-            last PREFIX;
+        # reload the ZZZ files (mod_perl workaround)
+        for my $ZZZFile (@ZZZFiles) {
+
+            PREFIX:
+            for my $Prefix (@INC) {
+                my $File = $Prefix . '/Kernel/Config/Files/' . $ZZZFile;
+                next PREFIX if !-f $File;
+                do $File;
+                last PREFIX;
+            }
         }
     }
 
