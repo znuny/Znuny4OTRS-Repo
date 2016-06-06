@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.36</Version>
+    <Version>2.0.37</Version>
+    <ChangeLog Version="2.0.37" Date="2016-06-06 07:34:08 UTC">Added and improved internal helper functions.</ChangeLog>
     <ChangeLog Version="2.0.36" Date="2016-05-19 12:36:50 UTC">Improvement of unit test functions.</ChangeLog>
     <ChangeLog Version="2.0.35" Date="2016-05-02 09:55:53 UTC">Added functionality to handle DynamicFields of type Date and DateTime.&#13;
 Added functionality to test operation calls.&#13;
