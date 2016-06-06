@@ -22,6 +22,8 @@ use Kernel::System::SysConfig;
 # ---
 use utf8;
 use Kernel::System::VariableCheck qw(:all);
+use Kernel::System::PostMaster;
+
 # ---
 
 our @ObjectDependencies = (
