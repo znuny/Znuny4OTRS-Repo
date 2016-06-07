@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.31</Version>
+    <Version>3.0.32</Version>
+    <ChangeLog Version="3.0.32" Date="2016-06-07 07:43:38 UTC">Added possibility to create invalid notifications.</ChangeLog>
     <ChangeLog Version="3.0.31" Date="2016-06-06 07:33:54 UTC">Added and improved internal helper functions.</ChangeLog>
     <ChangeLog Version="3.0.30" Date="2016-05-19 12:36:07 UTC">Improvement of unit test functions.</ChangeLog>
     <ChangeLog Version="3.0.29" Date="2016-05-17 14:53:36 UTC">- Added UserRoles function.&#13;
