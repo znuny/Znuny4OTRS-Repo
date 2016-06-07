@@ -1952,7 +1952,7 @@ sub _NotificationEventCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %NotificationEventReversed );
     return $ItemID if $ItemID;
 
-    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $ValidID = $Param{ValidID} // $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
         Valid => 'valid',
     );
     my $NotificationEventID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationAdd(
