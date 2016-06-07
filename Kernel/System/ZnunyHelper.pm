@@ -1875,6 +1875,124 @@ sub _GeneralCatalogItemCreateIfNotExists {
     return $ItemID;
 }
 
+=item _NotificationEventCreate()
+
+create or update notification event
+
+    my $Success = $ZnunyHelperObject->_NotificationEventCreate(
+        [
+            {
+                Name => 'Agent::CustomerVIPPriorityUpdate',
+                Data => {
+                    Events => [
+                        'TicketPriorityUpdate',
+                    ],
+                    ArticleAttachmentInclude => [
+                        '0'
+                    ],
+                    LanguageID => [
+                        'en',
+                        'de'
+                    ],
+                    NotificationArticleTypeID => [
+                        1,
+                    ],
+                    Recipients => [
+                        'Customer',
+                    ],
+                    TransportEmailTemplate => [
+                        'Default',
+                    ],
+                    Transports => [
+                        'Email',
+                    ],
+                    VisibleForAgent => [
+                        '0',
+                    ],
+                },
+                Message => {
+                    en => {
+                        Subject     => 'Priority for your ticket changed',
+                        ContentType => 'text/html',
+                        Body        => '...',
+                    },
+                    de => {
+                        Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
+                        ContentType => 'text/html',
+                        Body        => '...',
+                    },
+                },
+            },
+            # ...
+        ]
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _NotificationEventCreate {
+    my ( $Self, @NotificationEvents ) = @_;
+
+    my $Success = 1;
+
+    NOTIFICATIONEVENT:
+    for my $NotificationEvent (@NotificationEvents) {
+        next NOTIFICATIONEVENT if !IsHashRefWithData($NotificationEvent);
+
+        # check needed stuff
+        NEEDED:
+        for my $Needed (qw(Name)) {
+
+            next NEEDED if defined $NotificationEvent->{$Needed};
+
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "Parameter '$Needed' is needed!",
+            );
+            return;
+        }
+
+        my %NotificationEventReversed = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationList(
+            UserID => 1
+        );
+        %NotificationEventReversed = reverse %NotificationEventReversed;
+
+        my $ItemID = $Self->_ItemReverseListGet( $NotificationEvent->{Name}, %NotificationEventReversed );
+        my $ValidID = $NotificationEvent->{ValidID} // $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+            Valid => 'valid',
+        );
+
+        if ($ItemID) {
+            my $UpdateSuccess = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationUpdate(
+                %{$NotificationEvent},
+                ID      => $ItemID,
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$UpdateSuccess ) {
+                $Success = 0;
+            }
+        }
+        else {
+            my $CreateID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationAdd(
+                %{$NotificationEvent},
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$CreateID ) {
+                $Success = 0;
+            }
+        }
+    }
+
+    return $Success;
+}
+
 =item _NotificationEventCreateIfNotExists()
 
 creates notification event if not exists
@@ -2819,9 +2937,9 @@ sub UserRoles {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(UserID) ) {
+    for my $Needed (qw(UserID)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $LogObject->Log(
             Priority => 'error',
