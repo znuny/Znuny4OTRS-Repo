@@ -486,6 +486,107 @@ sub _LoaderRemove {
     return 1;
 }
 
+
+=item _DefaultColumnsGet()
+
+This function returns the defined DynamicFields in DefaultColumns in the screens.
+
+    my @Configs = (
+        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketQueue###DefaultColumns',
+        'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketWatchView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketLockedView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketSearch###DefaultColumns',
+        'Ticket::Frontend::AgentTicketService###DefaultColumns',
+
+        # substructure of DefaultColumns
+        'DashboardBackend###0100-TicketPendingReminder',
+        'DashboardBackend###0110-TicketEscalation',
+        'DashboardBackend###0120-TicketNew',
+        'DashboardBackend###0130-TicketOpen',
+
+        # substructure of DefaultColumns
+        'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder',
+        'AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation',
+        'AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew',
+        'AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen',
+    );
+
+    my %Configs = $ZnunyHelperObject->_DefaultColumnsGet(@Configs);
+
+Returns:
+
+    my %Configs = (
+        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns' => {
+            Title                     => 2,
+            CustomerUserID            => 1
+            DynamicField_DropdownTest => 1,
+            DynamicField_Anotherone   => 2,
+        },
+        'DashboardBackend###0100-TicketPendingReminder' => {
+            Title                     => 2,
+            CustomerUserID            => 1
+            DynamicField_DropdownTest => 1,
+            DynamicField_Anotherone   => 2,
+        },
+    );
+
+=cut
+
+sub _DefaultColumnsGet {
+    my ( $Self, @ScreenConfig ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    return 1 if !@ScreenConfig;
+    my %Configs;
+
+    VIEW:
+    for my $View ( @ScreenConfig ) {
+
+        my $RegEx = "(DashboardBackend|AgentCustomerInformationCenter::Backend)";
+
+        my $FrontendPath = $View;
+
+        if ( $View =~ m{$RegEx}xmsi ) {
+            $FrontendPath = $View;
+        }
+        elsif ( $View !~ m{(\w+::)+\w+}xmsi ) {
+            $FrontendPath = "Ticket::Frontend::$View";
+        }
+
+        my @Keys   = split '###', $FrontendPath;
+        my $Config = $ConfigObject->Get( $Keys[0] );
+
+        # check if config has DefaultColumns attribute and set it
+        if( !$#Keys && $Config->{DefaultColumns} ){
+            push @Keys, "DefaultColumns";
+        }
+
+        INDEX:
+        for my $Index ( 1 ... $#Keys ) {
+            last INDEX if !IsHashRefWithData($Config);
+            $Config = $Config->{ $Keys[$Index] };
+        }
+        next VIEW if ref $Config ne 'HASH';
+        my %ExistingSetting = %{$Config};
+        $Configs{ $View } ||= {};
+
+        # checks if substructure of DefaultColumns exists in settings
+        if( $ExistingSetting{DefaultColumns} ){
+            $Configs{ $View } = $ExistingSetting{DefaultColumns},
+        }
+        else{
+            $Configs{ $View } = \%ExistingSetting,
+        }
+    }
+
+    return %Configs;
+}
+
+
 =item _DynamicFieldsScreenEnable()
 
 This function enables the defined dynamic fields in the needed screens.
