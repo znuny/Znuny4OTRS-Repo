@@ -1,5 +1,4 @@
 # --
-# Znuny4OTRSRepo.t
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
@@ -15,6 +14,8 @@ use vars (qw($Self));
 
 # get needed objects
 my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
+my $SysConfigObject   = $Kernel::OM->Get('Kernel::System::SysConfig');
 
 # Tests for _ItemReverseListGet function
 my $ResultItemReverseListGet = $ZnunyHelperObject->_ItemReverseListGet(
@@ -80,12 +81,61 @@ $Self->True(
     'Test basic function call of _LoaderRemove()',
 );
 
+my $Success;
+my %DefaultColumns = (
+    Title                     => 1,
+    CustomerUserID            => 1,
+    DynamicField_DropdownTest => 1,
+    DynamicField_Anotherone   => 1,
+);
+
+my %DefaultColumnsConfigs = (
+    'Ticket::Frontend::AgentTicketStatusView###DefaultColumns'      => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketQueue###DefaultColumns'           => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns' => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'       => \%DefaultColumns,
+
+    'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'     => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns' => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketSearch###DefaultColumns'         => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketService###DefaultColumns'        => \%DefaultColumns,
+
+    'DashboardBackend###0100-TicketPendingReminder' => \%DefaultColumns,
+    'DashboardBackend###0110-TicketEscalation'      => \%DefaultColumns,
+    'DashboardBackend###0120-TicketNew'             => \%DefaultColumns,
+    'DashboardBackend###0130-TicketOpen'            => \%DefaultColumns,
+    'DashboardBackend###0140-RunningTicketProcess'  => \%DefaultColumns,
+
+    'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder' => \%DefaultColumns,
+    'AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation'      => \%DefaultColumns,
+    'AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew'             => \%DefaultColumns,
+    'AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen'            => \%DefaultColumns,
+);
+
+# Tests for _DefaultColumnsEnable function
+$Success = $ZnunyHelperObject->_DefaultColumnsEnable(%DefaultColumnsConfigs);
+
+$Self->True(
+    $Success,
+    'Test basic function call of _DefaultColumnsEnable()',
+);
+
+# Tests for _DefaultColumnsDisable function
+$Success = $ZnunyHelperObject->_DefaultColumnsDisable(%DefaultColumnsConfigs);
+
+$Self->True(
+    $Success,
+    'Test basic function call of _DefaultColumnsDisable()',
+);
+
+my %DynamicFieldsScreen = (
+    'TestDynamicField1' => 1,
+    'TestDynamicField2' => 1,
+);
+
 # Tests for _DynamicFieldsScreenEnable function
 my $ResultDynamicFieldsScreenEnable = $ZnunyHelperObject->_DynamicFieldsScreenEnable(
-    'AgentTicketFreeText' => {
-        'TestDynamicField1' => 1,
-        'TestDynamicField2' => 1,
-        }
+    'AgentTicketFreeText' => \%DynamicFieldsScreen
 );
 
 $Self->True(
@@ -93,18 +143,42 @@ $Self->True(
     'Test basic function call of _DynamicFieldsScreenEnable()',
 );
 
+$ZnunyHelperObject->_PackageSetupInit();
+$SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+$ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
+my $AgentTicketFreeTextFrontendConfig = $ConfigObject->Get('Ticket::Frontend::AgentTicketFreeText');
+
+for my $DynamicFieldScreen ( sort keys %DynamicFieldsScreen ) {
+    $Self->Is(
+        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{$DynamicFieldScreen},
+        $DynamicFieldsScreen{$DynamicFieldScreen},
+        "_DynamicFieldsScreenEnable() for $DynamicFieldScreen in AgentTicketFreeText",
+    );
+}
+
 # Tests for _DynamicFieldsScreenDisable function
 my $ResultDynamicFieldsScreenDisable = $ZnunyHelperObject->_DynamicFieldsScreenDisable(
-    'AgentTicketFreeText' => {
-        'TestDynamicField1' => 1,
-        'TestDynamicField2' => 1,
-        }
+    'AgentTicketFreeText' => \%DynamicFieldsScreen,
 );
 
 $Self->True(
     $ResultDynamicFieldsScreenDisable,
     'Test basic function call of _DynamicFieldsScreenDisable()',
 );
+
+$ZnunyHelperObject->_PackageSetupInit();
+$SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+$ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
+$AgentTicketFreeTextFrontendConfig = $ConfigObject->Get('Ticket::Frontend::AgentTicketFreeText');
+
+for my $DynamicFieldScreen ( sort keys %DynamicFieldsScreen ) {
+    $Self->False(
+        $AgentTicketFreeTextFrontendConfig->{DynamicField}->{$DynamicFieldScreen},
+        "_DynamicFieldsScreenDisable() for $DynamicFieldScreen in AgentTicketFreeText",
+    );
+}
 
 # Tests for _DynamicFieldsCreateIfNotExists function
 my $ResultDynamicFieldsCreateIfNotExists = $ZnunyHelperObject->_DynamicFieldsCreateIfNotExists(
@@ -214,40 +288,6 @@ $Self->True(
     $ResultSLACreateIfNotExists,
     'Test basic function call of _SLACreateIfNotExists()',
 );
-
-# Tests for _UserCreateIfNotExists function
-my $ResultUserCreateIfNotExists = $ZnunyHelperObject->_UserCreateIfNotExists(
-    UserFirstname => 'Huber',
-    UserLastname  => 'Manfred',
-    UserLogin     => 'mhuber',
-    UserPw        => 'some-pass',
-    UserEmail     => 'email@example.com',
-    UserMobile    => '1234567890',
-    ValidID       => 1,
-    ChangeUserID  => 123,
-);
-
-$Self->True(
-    $ResultUserCreateIfNotExists,
-    'Test basic function call of _UserCreateIfNotExists()',
-);
-
-# Tests for _CustomerUserCreateIfNotExists function
-my $ResultCustomerUserCreateIfNotExists = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
-    Source         => 'CustomerUser',
-    UserFirstname  => 'Huber',
-    UserLastname   => 'Manfred',
-    UserCustomerID => 'A124',
-    UserLogin      => 'mhuber',
-    UserPassword   => 'some-pass',
-    UserEmail      => 'email@example.com',
-);
-
-$Self->True(
-    $ResultCustomerUserCreateIfNotExists,
-    'Test basic function call of _CustomerUserCreateIfNotExists()',
-);
-
 
 # Tests for _QueueCreateIfNotExists function
 my $ResultQueueCreateIfNotExists = $ZnunyHelperObject->_QueueCreateIfNotExists(
