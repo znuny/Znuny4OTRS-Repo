@@ -81,6 +81,54 @@ $Self->True(
     'Test basic function call of _LoaderRemove()',
 );
 
+my $Success;
+my %DefaultColumns = (
+    Title                     => 1,
+    CustomerUserID            => 1,
+    DynamicField_DropdownTest => 1,
+    DynamicField_Anotherone   => 1,
+);
+
+my %DefaultColumnsConfigs = (
+    'Ticket::Frontend::AgentTicketStatusView###DefaultColumns'      => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketQueue###DefaultColumns'           => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns' => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'       => \%DefaultColumns,
+
+    'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'      => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns'  => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketSearch###DefaultColumns'          => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketService###DefaultColumns'         => \%DefaultColumns,
+
+    'DashboardBackend###0100-TicketPendingReminder' => \%DefaultColumns,
+    'DashboardBackend###0110-TicketEscalation'      => \%DefaultColumns,
+    'DashboardBackend###0120-TicketNew'             => \%DefaultColumns,
+    'DashboardBackend###0130-TicketOpen'            => \%DefaultColumns,
+    'DashboardBackend###0140-RunningTicketProcess'  => \%DefaultColumns,
+
+    'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder' => \%DefaultColumns,
+    'AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation'      => \%DefaultColumns,
+    'AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew'             => \%DefaultColumns,
+    'AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen'            => \%DefaultColumns,
+);
+
+# Tests for _DefaultColumnsEnable function
+$Success = $ZnunyHelperObject->_DefaultColumnsEnable(%DefaultColumnsConfigs);
+
+$Self->True(
+    $Success,
+    'Test basic function call of _DefaultColumnsEnable()',
+);
+
+# Tests for _DefaultColumnsDisable function
+$Success = $ZnunyHelperObject->_DefaultColumnsDisable(%DefaultColumnsConfigs);
+
+$Self->True(
+    $Success,
+    'Test basic function call of _DefaultColumnsDisable()',
+);
+
+
 my %DynamicFieldsScreen = (
     'TestDynamicField1' => 1,
     'TestDynamicField2' => 1,
