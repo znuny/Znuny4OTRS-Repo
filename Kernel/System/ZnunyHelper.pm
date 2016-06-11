@@ -696,6 +696,122 @@ sub _DefaultColumnsEnable {
 
 }
 
+=item _DefaultColumnsDisable()
+
+This function disables the defined dynamic fields in the needed screens.
+
+    my %Configs = (
+        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns' => {
+            Title                     => 2,
+            CustomerUserID            => 1
+            DynamicField_DropdownTest => 1,
+            DynamicField_Anotherone   => 2,
+        },
+        'DashboardBackend###0100-TicketPendingReminder' => {
+            Title                     => 2,
+            CustomerUserID            => 1
+            DynamicField_DropdownTest => 1,
+            DynamicField_Anotherone   => 2,
+        },
+        'Ticket::Frontend::AgentTicketQueue###DefaultColumns'           => {},
+        'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns' => {},
+        'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'       => {},
+        'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'      => {},
+        'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns'  => {},
+        'Ticket::Frontend::AgentTicketSearch###DefaultColumns'          => {},
+        'Ticket::Frontend::AgentTicketService###DefaultColumns'         => {},
+
+        'DashboardBackend###0110-TicketEscalation'                                 => {},
+        'DashboardBackend###0120-TicketNew'                                        => {},
+        'DashboardBackend###0130-TicketOpen'                                       => {},
+        'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder' => {},
+        'AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation'      => {},
+        'AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew'             => {},
+        'AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen'            => {},
+    );
+
+    my $Success = $ZnunyHelperObject->_DefaultColumnsDisable(%Configs);
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _DefaultColumnsDisable {
+    my ( $Self, %Param ) = @_;
+
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
+    my %ScreenConfig = %Param;
+
+    VIEW:
+    for my $View ( %ScreenConfig ) {
+
+        next VIEW if !IsHashRefWithData( $ScreenConfig{$View} );
+
+        my $RegEx = "(DashboardBackend|AgentCustomerInformationCenter::Backend)";
+
+        my $FrontendPath = $View;
+
+        if ( $View =~ m{$RegEx}xmsi ) {
+            $FrontendPath = $View;
+        }
+        elsif ( $View !~ m{(\w+::)+\w+}xmsi ) {
+            $FrontendPath = "Ticket::Frontend::$View";
+        }
+
+        my @Keys = split '###', $FrontendPath;
+        my $Config = $ConfigObject->Get( $Keys[0] );
+
+        # check if config has DefaultColumns attribute and set it
+        if( !$#Keys && $Config->{DefaultColumns} ){
+            push @Keys, "DefaultColumns";
+        }
+
+        INDEX:
+        for my $Index ( 1 ... $#Keys ) {
+            last INDEX if !IsHashRefWithData($Config);
+            $Config = $Config->{ $Keys[$Index] };
+        }
+        next VIEW if ref $Config ne 'HASH';
+        my %ExistingSetting = %{$Config};
+
+        # add the new settings
+        my %NewDynamicFieldConfig;
+        if ($ExistingSetting{DefaultColumns}){
+
+            %NewDynamicFieldConfig = %ExistingSetting;
+            delete $NewDynamicFieldConfig{DefaultColumns};
+
+            SETTING:
+            for my $ExistingSettingKey ( sort keys %{$ExistingSetting{DefaultColumns}} ) {
+
+                next SETTING if $ScreenConfig{$View}->{$ExistingSettingKey};
+                $NewDynamicFieldConfig{DefaultColumns}->{$ExistingSettingKey} = $ExistingSetting{DefaultColumns}->{$ExistingSettingKey};
+            }
+        }
+        else{
+
+            SETTING:
+            for my $ExistingSettingKey ( sort keys %ExistingSetting ) {
+
+                next SETTING if $ScreenConfig{$View}->{$ExistingSettingKey};
+                $NewDynamicFieldConfig{$ExistingSettingKey} = $ExistingSetting{$ExistingSettingKey};
+            }
+        }
+
+        my $SysConfigKey = join '###', @Keys;
+        my $Success = $SysConfigObject->ConfigItemUpdate(
+            Key   => $SysConfigKey,
+            Value => \%NewDynamicFieldConfig,
+            Valid => 1,
+        );
+    }
+
+    return 1;
+}
 
 =item _DynamicFieldsScreenEnable()
 
