@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.33</Version>
+    <Version>3.0.34</Version>
+    <ChangeLog Version="3.0.34" Date="2016-06-17 14:31:07 UTC">Added Selenium helper function to switch to the main window (after PopUp interactions).&#13;
+Added UnitTest helper function to execute Database XML.&#13;
+Added _DefaultColumns* helper functions.</ChangeLog>
     <ChangeLog Version="3.0.33" Date="2016-06-10 13:48:08 UTC">Added _NotificationEventCreate function to create or update notifications.</ChangeLog>
     <ChangeLog Version="3.0.32" Date="2016-06-07 07:43:38 UTC">Added possibility to create invalid notifications.</ChangeLog>
     <ChangeLog Version="3.0.31" Date="2016-06-06 07:33:54 UTC">Added and improved internal helper functions.</ChangeLog>
