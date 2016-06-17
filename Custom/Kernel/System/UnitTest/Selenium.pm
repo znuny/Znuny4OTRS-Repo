@@ -886,6 +886,32 @@ sub SwitchToPopUp {
     $Self->AJAXCompleted();
 }
 
+=item SwitchToMainWindow()
+
+Switches the Selenium conetext to the main window
+
+    $SeleniumObject->SwitchToMainWindow(
+        WaitForAJAX => 0, # optional, default 1
+    );
+
+=cut
+
+sub SwitchToMainWindow {
+    my ( $Self, %Param ) = @_;
+
+    my $Handles = $Self->get_window_handles();
+    $Self->switch_to_window( $Handles->[0] );
+
+    if (
+        defined $Param{WaitForAJAX}
+        && !$Param{WaitForAJAX}
+    ) {
+        return;
+    }
+
+    $Self->AJAXCompleted();
+}
+
 =item PageContains()
 
 Checks if the currently opened page contains the given String
