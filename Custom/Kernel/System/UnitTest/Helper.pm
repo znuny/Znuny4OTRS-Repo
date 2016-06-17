@@ -1728,6 +1728,62 @@ sub PostMaster {
     return $PostMasterObject->Run();
 }
 
+=item DatabaseXML()
+
+This function takes a file location of a XML file, generates and executes the SQL
+
+    my $Success = $HelperObject->DatabaseXML(
+        Location => $ConfigObject->Get('Home') . '/scripts/development/db/schema.xml',
+    );
+
+=cut
+
+sub DatabaseXML {
+    my ( $Self, %Param ) = @_;
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $DBObject   = $Kernel::OM->Get('Kernel::System::DB');
+    my $XMLObject  = $Kernel::OM->Get('Kernel::System::XML');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Location) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    # read file
+    my $XML = $MainObject->FileRead(
+        Location => $Param{Location},
+    );
+
+    # convert to array
+    my @XMLArray = $XMLObject->XMLParse( String => $XML );
+
+    my @SQL = $DBObject->SQLProcessor(
+        Database => \@XMLArray,
+    );
+
+    for my $SQL ( @SQL ) {
+        return if !$DBObject->Do( SQL => $SQL );
+    }
+
+    my @SQLPost = $DBObject->SQLProcessorPost();
+
+    for my $SQL ( @SQLPost ) {
+        return if !$DBObject->Do( SQL => $SQL );
+    }
+
+    return 1;
+}
+
 # ---
 
 1;
