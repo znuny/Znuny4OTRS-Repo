@@ -486,10 +486,9 @@ sub _LoaderRemove {
     return 1;
 }
 
-
 =item _DefaultColumnsGet()
 
-This function returns the defined DynamicFields in DefaultColumns in the screens.
+This function returns the DefaultColumn Attributes of the requested SysConfigs.
 
     my @Configs = (
         'Ticket::Frontend::AgentTicketStatusView###DefaultColumns',
@@ -544,25 +543,24 @@ sub _DefaultColumnsGet {
     my %Configs;
 
     VIEW:
-    for my $View ( @ScreenConfig ) {
-
-        my $RegEx = "(DashboardBackend|AgentCustomerInformationCenter::Backend)";
+    for my $View (@ScreenConfig) {
 
         my $FrontendPath = $View;
 
-        if ( $View =~ m{$RegEx}xmsi ) {
-            $FrontendPath = $View;
-        }
-        elsif ( $View !~ m{(\w+::)+\w+}xmsi ) {
+        if (
+            $View !~ m{(DashboardBackend|AgentCustomerInformationCenter::Backend)}xmsi
+            && $View !~ m{(\w+::)+\w+}xmsi
+            )
+        {
             $FrontendPath = "Ticket::Frontend::$View";
         }
 
-        my @Keys   = split '###', $FrontendPath;
+        my @Keys = split '###', $FrontendPath;
         my $Config = $ConfigObject->Get( $Keys[0] );
 
         # check if config has DefaultColumns attribute and set it
-        if( !$#Keys && $Config->{DefaultColumns} ){
-            push @Keys, "DefaultColumns";
+        if ( !$#Keys && $Config->{DefaultColumns} ) {
+            push @Keys, 'DefaultColumns';
         }
 
         INDEX:
@@ -570,16 +568,18 @@ sub _DefaultColumnsGet {
             last INDEX if !IsHashRefWithData($Config);
             $Config = $Config->{ $Keys[$Index] };
         }
+
         next VIEW if ref $Config ne 'HASH';
+
         my %ExistingSetting = %{$Config};
-        $Configs{ $View } ||= {};
+        $Configs{$View} ||= {};
 
         # checks if substructure of DefaultColumns exists in settings
-        if( $ExistingSetting{DefaultColumns} ){
-            $Configs{ $View } = $ExistingSetting{DefaultColumns},
+        if ( $ExistingSetting{DefaultColumns} ) {
+            $Configs{$View} = $ExistingSetting{DefaultColumns},
         }
-        else{
-            $Configs{ $View } = \%ExistingSetting,
+        else {
+            $Configs{$View} = \%ExistingSetting,
         }
     }
 
@@ -588,7 +588,7 @@ sub _DefaultColumnsGet {
 
 =item _DefaultColumnsEnable()
 
-This function enables the defined dynamic fields in the needed screens.
+This function enables the given Attributes for the requested DefaultColumns.
 
     my %Configs = (
         'Ticket::Frontend::AgentTicketStatusView###DefaultColumns' => {
@@ -636,20 +636,18 @@ sub _DefaultColumnsEnable {
 
     my %ScreenConfig = %Param;
 
-
     VIEW:
-    for my $View ( %ScreenConfig ) {
+    for my $View (%ScreenConfig) {
 
         next VIEW if !IsHashRefWithData( $ScreenConfig{$View} );
 
-        my $RegEx = "(DashboardBackend|AgentCustomerInformationCenter::Backend)";
-
         my $FrontendPath = $View;
 
-        if ( $View =~ m{$RegEx}xmsi ) {
-            $FrontendPath = $View;
-        }
-        elsif ( $View !~ m{(\w+::)+\w+}xmsi ) {
+        if (
+            $View !~ m{(DashboardBackend|AgentCustomerInformationCenter::Backend)}xmsi
+            && $View !~ m{(\w+::)+\w+}xmsi
+            )
+        {
             $FrontendPath = "Ticket::Frontend::$View";
         }
 
@@ -657,8 +655,8 @@ sub _DefaultColumnsEnable {
         my $Config = $ConfigObject->Get( $Keys[0] );
 
         # check if config has DefaultColumns attribute and set it
-        if( !$#Keys && $Config->{DefaultColumns} ){
-            push @Keys, "DefaultColumns";
+        if ( !$#Keys && $Config->{DefaultColumns} ) {
+            push @Keys, 'DefaultColumns';
         }
 
         INDEX:
@@ -666,24 +664,32 @@ sub _DefaultColumnsEnable {
             last INDEX if !IsHashRefWithData($Config);
             $Config = $Config->{ $Keys[$Index] };
         }
+
         next VIEW if ref $Config ne 'HASH';
+
         my %ExistingSetting = %{$Config};
 
         # add the new settings
         my %NewDynamicFieldConfig;
 
         # checks if DefaultColumns exists in settings (DashboardBackend###0130-TicketOpen)
-        if( $ExistingSetting{DefaultColumns} ) {
+        if ( $ExistingSetting{DefaultColumns} ) {
 
-            %{ $ExistingSetting{DefaultColumns} } = ( %{ $ExistingSetting{DefaultColumns} }, %{ $ScreenConfig{$View} } );
+            %{ $ExistingSetting{DefaultColumns} } = (
+                %{ $ExistingSetting{DefaultColumns} },
+                %{ $ScreenConfig{$View} }
+            );
+
             %NewDynamicFieldConfig = %ExistingSetting;
         }
-        else{
-
-            %NewDynamicFieldConfig = ( %ExistingSetting, %{ $ScreenConfig{$View} } );
+        else {
+            %NewDynamicFieldConfig = (
+                %ExistingSetting,
+                %{ $ScreenConfig{$View} }
+            );
         }
 
-        # update the sysconfig
+        # update the SysConfig
         my $SysConfigKey = join '###', @Keys;
         my $Success = $SysConfigObject->ConfigItemUpdate(
             Key   => $SysConfigKey,
@@ -693,12 +699,11 @@ sub _DefaultColumnsEnable {
     }
 
     return 1;
-
 }
 
 =item _DefaultColumnsDisable()
 
-This function disables the defined dynamic fields in the needed screens.
+This function disables the given Attributes for the requested DefaultColumns.
 
     my %Configs = (
         'Ticket::Frontend::AgentTicketStatusView###DefaultColumns' => {
@@ -747,18 +752,17 @@ sub _DefaultColumnsDisable {
     my %ScreenConfig = %Param;
 
     VIEW:
-    for my $View ( %ScreenConfig ) {
+    for my $View (%ScreenConfig) {
 
         next VIEW if !IsHashRefWithData( $ScreenConfig{$View} );
 
-        my $RegEx = "(DashboardBackend|AgentCustomerInformationCenter::Backend)";
-
         my $FrontendPath = $View;
 
-        if ( $View =~ m{$RegEx}xmsi ) {
-            $FrontendPath = $View;
-        }
-        elsif ( $View !~ m{(\w+::)+\w+}xmsi ) {
+        if (
+            $View !~ m{(DashboardBackend|AgentCustomerInformationCenter::Backend)}xmsi
+            && $View !~ m{(\w+::)+\w+}xmsi
+            )
+        {
             $FrontendPath = "Ticket::Frontend::$View";
         }
 
@@ -766,8 +770,8 @@ sub _DefaultColumnsDisable {
         my $Config = $ConfigObject->Get( $Keys[0] );
 
         # check if config has DefaultColumns attribute and set it
-        if( !$#Keys && $Config->{DefaultColumns} ){
-            push @Keys, "DefaultColumns";
+        if ( !$#Keys && $Config->{DefaultColumns} ) {
+            push @Keys, 'DefaultColumns';
         }
 
         INDEX:
@@ -775,24 +779,27 @@ sub _DefaultColumnsDisable {
             last INDEX if !IsHashRefWithData($Config);
             $Config = $Config->{ $Keys[$Index] };
         }
+
         next VIEW if ref $Config ne 'HASH';
+
         my %ExistingSetting = %{$Config};
 
         # add the new settings
         my %NewDynamicFieldConfig;
-        if ($ExistingSetting{DefaultColumns}){
+        if ( $ExistingSetting{DefaultColumns} ) {
 
             %NewDynamicFieldConfig = %ExistingSetting;
             delete $NewDynamicFieldConfig{DefaultColumns};
 
             SETTING:
-            for my $ExistingSettingKey ( sort keys %{$ExistingSetting{DefaultColumns}} ) {
+            for my $ExistingSettingKey ( sort keys %{ $ExistingSetting{DefaultColumns} } ) {
 
                 next SETTING if $ScreenConfig{$View}->{$ExistingSettingKey};
-                $NewDynamicFieldConfig{DefaultColumns}->{$ExistingSettingKey} = $ExistingSetting{DefaultColumns}->{$ExistingSettingKey};
+                $NewDynamicFieldConfig{DefaultColumns}->{$ExistingSettingKey}
+                    = $ExistingSetting{DefaultColumns}->{$ExistingSettingKey};
             }
         }
-        else{
+        else {
 
             SETTING:
             for my $ExistingSettingKey ( sort keys %ExistingSetting ) {

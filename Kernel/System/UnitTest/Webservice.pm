@@ -553,7 +553,8 @@ sub _RedefineTransport {
 
             if ( !IsHashRefWithData($Result) ) {
 
-                my $ErrorMessage = "Can't find Mock data matching the given request Data structure for Invoker '$Param{Operation}'.";
+                my $ErrorMessage
+                    = "Can't find Mock data matching the given request Data structure for Invoker '$Param{Operation}'.";
 
                 push @{$StoredResults}, {
                     Success      => 0,

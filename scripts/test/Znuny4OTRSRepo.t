@@ -95,10 +95,10 @@ my %DefaultColumnsConfigs = (
     'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns' => \%DefaultColumns,
     'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'       => \%DefaultColumns,
 
-    'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'      => \%DefaultColumns,
-    'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns'  => \%DefaultColumns,
-    'Ticket::Frontend::AgentTicketSearch###DefaultColumns'          => \%DefaultColumns,
-    'Ticket::Frontend::AgentTicketService###DefaultColumns'         => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'     => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns' => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketSearch###DefaultColumns'         => \%DefaultColumns,
+    'Ticket::Frontend::AgentTicketService###DefaultColumns'        => \%DefaultColumns,
 
     'DashboardBackend###0100-TicketPendingReminder' => \%DefaultColumns,
     'DashboardBackend###0110-TicketEscalation'      => \%DefaultColumns,
@@ -127,7 +127,6 @@ $Self->True(
     $Success,
     'Test basic function call of _DefaultColumnsDisable()',
 );
-
 
 my %DynamicFieldsScreen = (
     'TestDynamicField1' => 1,
