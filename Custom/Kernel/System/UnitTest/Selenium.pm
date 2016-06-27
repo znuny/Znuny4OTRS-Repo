@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/3d0b968537b3fffc972bc8dba1c378d5c0b3ddef/Kernel/System/UnitTest/Selenium.pm
+# $origin: https://github.com/OTRS/otrs/blob/4ebb8939473f309b64d1d5d666a0541d0a4b47bf/Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -15,7 +15,11 @@ package Kernel::System::UnitTest::Selenium;
 use strict;
 use warnings;
 
+# ---
+# Znuny4OTRS-Repo
+# ---
 use base qw(Selenium::Remote::Driver);
+# ---
 use MIME::Base64();
 use File::Temp();
 
@@ -33,6 +37,7 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Log',
     'Kernel::System::Main',
+    'Kernel::System::Time',
     'Kernel::System::UnitTest',
 # ---
 # Znuny4OTRS-Repo
@@ -72,6 +77,8 @@ Specify the connection details in Config.pm, like this:
         port                => '4444',
         browser_name        => 'phantomjs',
         platform            => 'ANY',
+        window_height       => 1200,    # optional, default 1000
+        window_width        => 1600,    # optional, default 1200
     };
 
 Then you can use the full API of Selenium::Remote::Driver on this object.
@@ -99,12 +106,25 @@ sub new {
         }
     }
 
-    my $Self = $Class->SUPER::new(%SeleniumTestsConfig);
+    $Kernel::OM->Get('Kernel::System::Main')->RequireBaseClass('Selenium::Remote::Driver')
+        || die "Could not load Selenium::Remote::Driver";
+
+    $Kernel::OM->Get('Kernel::System::Main')->Require('Kernel::System::UnitTest::Selenium::WebElement')
+        || die "Could not load Kernel::System::UnitTest::Selenium::WebElement";
+
+    my $Self = $Class->SUPER::new(
+        webelement_class => 'Kernel::System::UnitTest::Selenium::WebElement',
+        %SeleniumTestsConfig
+    );
     $Self->{UnitTestObject}      = $Param{UnitTestObject};
     $Self->{SeleniumTestsActive} = 1;
 
     #$Self->debug_on();
-    $Self->set_window_size( 1024, 768 );
+
+    # set screen size from config or use defauls
+    my $Height = $SeleniumTestsConfig{window_height} || 1000;
+    my $Width  = $SeleniumTestsConfig{window_width}  || 1200;
+    $Self->set_window_size( $Height, $Width );
 
     # get remote host with some precautions for certain unit test systems
     my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
@@ -187,6 +207,10 @@ sub _execute_command {    ## no critic
 =item get()
 
 Override get method of base class to prepend the correct base URL.
+
+    $SeleniumObject->get(
+        $URL,
+    );
 
 =cut
 
@@ -277,8 +301,6 @@ sub Login {
     $Self->{UnitTestObject}->True( 1, 'Initiating login...' );
 
     eval {
-        $Self->delete_all_cookies();
-
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
         if ( $Param{Type} eq 'Agent' ) {
@@ -293,32 +315,16 @@ sub Login {
         $Self->delete_all_cookies();
 
         # Now load it again to login
-        $Self->get("${ScriptAlias}");
+        $Self->VerifiedGet("${ScriptAlias}");
 
-        my $Element = $Self->find_element( 'input#User', 'css' );
-        $Element->is_displayed();
-        $Element->is_enabled();
-        $Element->send_keys( $Param{User} );
-
-        $Element = $Self->find_element( 'input#Password', 'css' );
-        $Element->is_displayed();
-        $Element->is_enabled();
-        $Element->send_keys( $Param{Password} );
+        $Self->find_element( 'input#User',     'css' )->send_keys( $Param{User} );
+        $Self->find_element( 'input#Password', 'css' )->send_keys( $Param{Password} );
 
         # login
-        $Element->submit();
+        $Self->find_element( 'input#User', 'css' )->VerifiedSubmit();
 
-        # Wait until form has loaded, if neccessary
-        ACTIVESLEEP:
-        for my $Second ( 1 .. 20 ) {
-            if ( $Self->execute_script("return \$('a#LogoutButton').length") ) {
-                last ACTIVESLEEP;
-            }
-            sleep 1;
-        }
-
-        # login succressful?
-        $Element = $Self->find_element( 'a#LogoutButton', 'css' );
+        # login successful?
+        $Self->find_element( 'a#LogoutButton', 'css' );    # dies if not found
 
         $Self->{UnitTestObject}->True( 1, 'Login sequence ended...' );
     };
@@ -375,7 +381,7 @@ use this method to handle any Selenium exceptions.
     $SeleniumObject->HandleError($@);
 
 It will create a failing test result and store a screenshot of the page
-for analysis.
+for analysis (in folder /var/otrs-unittest if it exists, in /tmp otherwise).
 
 =cut
 
@@ -389,24 +395,29 @@ sub HandleError {
     return if !$Data;
     $Data = MIME::Base64::decode_base64($Data);
 
-    # This file should survive unit test scenario runs, so save it in a global directory.
-    my ( $FH, $Filename ) = File::Temp::tempfile(
-        DIR    => '/tmp/',
-        SUFFIX => '.png',
-        UNLINK => 0,
-    );
-    close $FH;
+    my $TmpDir = -d '/var/otrs-unittest/' ? '/var/otrs-unittest/' : '/tmp/';
+    $TmpDir .= 'SeleniumScreenshots/';
+    mkdir $TmpDir || return $Self->False( 1, "Could not create $TmpDir." );
+
+    my $Product = $Self->{UnitTestObject}->{Product};
+    $Product =~ s{[^a-z0-9_.\-]+}{_}smxig;
+    $TmpDir .= $Product;
+    mkdir $TmpDir || return $Self->False( 1, "Could not create $TmpDir." );
+
+    my $Filename = $Kernel::OM->Get('Kernel::System::Time')->CurrentTimestamp();
+    $Filename .= '-' . ( int rand 100_000_000 ) . '.png';
+    $Filename =~ s{[ :]}{-}smxg;
+
     $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
-        Location => $Filename,
-        Content  => \$Data,
-    );
+        Directory => $TmpDir,
+        Filename  => $Filename,
+        Content   => \$Data,
+    ) || return $Self->False( 1, "Could not write file $TmpDir/$Filename" );
 
     $Self->{UnitTestObject}->False(
         1,
-        "Saved screenshot in file://$Filename",
+        "Saved screenshot in file://$TmpDir/$Filename",
     );
-
-    #}
 }
 
 =item DESTROY()
