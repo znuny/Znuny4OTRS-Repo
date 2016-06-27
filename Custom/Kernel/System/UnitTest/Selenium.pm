@@ -336,15 +336,56 @@ sub Login {
     return 1;
 }
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+# =item WaitFor()
+#
+# wait with increasing sleep intervals until the given condition is true or the wait time is over.
+# Exactly one condition (JavaScript or WindowCount) must be specified.
+#
+#     my $Success = $SeleniumObject->WaitFor(
+#         JavaScript  => 'return $(".someclass").length',   # Javascript code that checks condition
+#         WindowCount => 2,                                 # Wait until this many windows are open
+#         Time        => 20,                                # optional, wait time in seconds (default 20)
+#     );
+#
+# =cut
+#
+# sub WaitFor {
+#     my ( $Self, %Param ) = @_;
+#
+#     if ( !$Param{JavaScript} && !$Param{WindowCount} ) {
+#         die "Need JavaScript.";
+#     }
+#
+#     $Param{Time} //= 20;
+#     my $WaitedSeconds = 0;
+#     my $Interval      = 0.1;
+#
+#     while ( $WaitedSeconds <= $Param{Time} ) {
+#         if ( $Param{JavaScript} ) {
+#             return 1 if $Self->execute_script( $Param{JavaScript} )
+#         }
+#         elsif ( $Param{WindowCount} ) {
+#             return 1 if scalar( @{ $Self->get_window_handles() } ) == $Param{WindowCount};
+#         }
+#         sleep $Interval;
+#         $WaitedSeconds += $Interval;
+#         $Interval += 0.1;
+#     }
+#     return;
+# }
 =item WaitFor()
 
 wait with increasing sleep intervals until the given condition is true or the wait time is over.
 Exactly one condition (JavaScript or WindowCount) must be specified.
 
     my $Success = $SeleniumObject->WaitFor(
-        JavaScript  => 'return $(".someclass").length',   # Javascript code that checks condition
-        WindowCount => 2,                                 # Wait until this many windows are open
-        Time        => 20,                                # optional, wait time in seconds (default 20)
+        JavaScript   => 'return $(".someclass").length',   # Javascript code that checks condition
+        AlertPresent => 1,                                 # Wait until an alert, confirm or prompt dialog is present
+        WindowCount  => 2,                                 # Wait until this many windows are open
+        Time         => 20,                                # optional, wait time in seconds (default 20)
     );
 
 =cut
@@ -352,9 +393,11 @@ Exactly one condition (JavaScript or WindowCount) must be specified.
 sub WaitFor {
     my ( $Self, %Param ) = @_;
 
-    if ( !$Param{JavaScript} && !$Param{WindowCount} ) {
-        die "Need JavaScript.";
+    if ( !$Param{JavaScript} && !$Param{WindowCount} && !$Param{AlertPresent} ) {
+        die "Need JavaScript, WindowCount or AlertPresent.";
     }
+
+    local $Self->{SuppressCommandRecording} = 1;
 
     $Param{Time} //= 20;
     my $WaitedSeconds = 0;
@@ -367,12 +410,18 @@ sub WaitFor {
         elsif ( $Param{WindowCount} ) {
             return 1 if scalar( @{ $Self->get_window_handles() } ) == $Param{WindowCount};
         }
+        elsif ( $Param{AlertPresent} ) {
+            # Eval is needed because the method would throw if no alert is present (yet).
+            return 1 if eval { $Self->get_alert_text() };
+        }
         sleep $Interval;
         $WaitedSeconds += $Interval;
         $Interval += 0.1;
     }
     return;
 }
+
+# ---
 
 =item HandleError()
 
@@ -441,6 +490,50 @@ sub DESTROY {
 # ---
 # Znuny4OTRS-Repo
 # ---
+
+=item DragAndDrop()
+
+Drag and drop an element
+
+    $SeleniumObject->DragAndDrop(
+        Element => '.Element', # css selector of element which should be dragged
+        Target  => '.Target',  # css selector of element on which the dragged element should be dropped
+    );
+
+=cut
+
+sub DragAndDrop {
+
+    my ( $Self, %Param ) = @_;
+
+    # Value is optional parameter
+    for my $Needed (qw(Element Target)) {
+        if ( !$Param{$Needed} ) {
+            die "Need $Needed";
+        }
+    }
+
+    my $Element = $Self->find_element( $Param{Element}, 'css' );
+    my $Target  = $Self->find_element( $Param{Target},  'css' );
+
+    # Move mouse to from element, drag and drop
+    $Self->mouse_move_to_location( element => $Element );
+
+    # Holds the mouse button on the element
+    $Self->button_down();
+
+    # Move mouse to the destination
+    $Self->mouse_move_to_location(
+        element => $Target,
+        xoffset => 1,
+        yoffset => 1,
+    );
+
+    # Release
+    $Self->button_up();
+
+    return;
+}
 
 =item InputGet()
 
