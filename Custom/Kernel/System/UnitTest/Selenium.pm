@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/1f709d129aec08cad724b485839acf1d61ec1a1a/Kernel/System/UnitTest/Selenium.pm
+# $origin: https://github.com/OTRS/otrs/blob/c5b77b7918dd1ccaf1ae1c20f997ed5c019d3f86/Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -11,6 +11,7 @@
 
 package Kernel::System::UnitTest::Selenium;
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Goto)
+use Kernel::System::UnitTest::Helper;
 
 use strict;
 use warnings;
@@ -116,84 +117,16 @@ sub new {
 
     #$Self->debug_on();
 
-    # Cleanup any leftovers from a previous session
-    my ( $MainHandle, @AdditionalHandles ) = @{ $Self->get_window_handles() // [] };
-    if (@AdditionalHandles) {
-        for my $Handle (@AdditionalHandles) {
-            $Self->switch_to_window($Handle);
-            $Self->close();
-        }
-    }
-    # make sure focus is correct
-    $Self->switch_to_window($MainHandle);
-    eval {
-        # just in case there are pending modal dialogs
-        $Self->dismiss_alert();
-    };
-    $Self->delete_all_cookies();
-    $Self->SUPER::get('about:blank');
-
     # set screen size from config or use defauls
-    my $Height = $SeleniumTestsConfig{window_height} || 1000;
-    my $Width  = $SeleniumTestsConfig{window_width}  || 1200;
+    my $Height = $SeleniumTestsConfig{window_height} || 1200;
+    my $Width  = $SeleniumTestsConfig{window_width}  || 1400;
+
     $Self->set_window_size( $Height, $Width );
 
-    # get remote host with some precautions for certain unit test systems
-    my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
-
-    # try to resolve fqdn host
-    if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
-        $Self->{BaseURL} = $FQDN;
-    }
-
-    # try to resolve localhost instead
-    if ( !$Self->{BaseURL} && gethostbyname('localhost') ) {
-        $Self->{BaseURL} = 'localhost';
-    }
-
-    # use hardcoded localhost ip address
-    if ( !$Self->{BaseURL} ) {
-        $Self->{BaseURL} = '127.0.0.1';
-    }
-
-    $Self->{BaseURL} = $Kernel::OM->Get('Kernel::Config')->Get('HttpType') . '://' . $Self->{BaseURL};
+    $Self->{BaseURL} = $Kernel::OM->Get('Kernel::Config')->Get('HttpType') . '://';
+    $Self->{BaseURL} .= Kernel::System::UnitTest::Helper->GetTestHTTPHostname();
 
     return $Self;
-}
-
-#
-# Reuse Selenium session in subsequent tests. For this, we store the Selenium object in a global instance
-#   variable and take over the SessionID from it if a new one is created.
-#
-
-our $Instance;
-our $SessionRequests;
-
-sub _request_new_session {    ## no critic
-    my ( $Self, $Arguments ) = @_;
-
-    # First time call, or session refresh needed?
-    if ( !$Instance || $SessionRequests++ > 100 ) {
-        $Instance->quit() if $Instance;
-        $Self->SUPER::_request_new_session($Arguments);
-        $SessionRequests = 1;
-    }
-
-    # Reuse session from previous Selenium object.
-    else {
-        $Self->session_id( $Instance->session_id() );
-    }
-
-    # Remember new instance.
-    $Instance = $Self;
-    $Self->auto_close(0);
-}
-
-END {
-    # Cleanup: close Selenium session.
-    if ($Instance) {
-        $Instance->SUPER::quit();
-    }
 }
 
 =item RunTest()
@@ -235,9 +168,6 @@ sub _execute_command {    ## no critic
 
     my $Result = $Self->SUPER::_execute_command( $Res, $Params );
 
-    # Skip the rest if we are in global destruction phase (Selenium scenario shutdown).
-    return $Result if !$Kernel::OM;
-
     my $TestName = 'Selenium command success: ';
     $TestName .= $Kernel::OM->Get('Kernel::System::Main')->Dump(
         {
@@ -246,9 +176,12 @@ sub _execute_command {    ## no critic
         }
     );
 
-    return if !$Self->{UnitTestObject};
-
-    $Self->{UnitTestObject}->True( 1, $TestName );
+    if ( $Self->{SuppressCommandRecording} ) {
+        print $TestName;
+    }
+    else {
+        $Self->{UnitTestObject}->True( 1, $TestName );
+    }
 
     return $Result;
 }
@@ -359,18 +292,9 @@ sub Login {
             $ScriptAlias .= 'customer.pl';
         }
 
-        # First load the page so we can delete any pre-existing cookies
         $Self->get("${ScriptAlias}");
         $Self->delete_all_cookies();
-
-        # Now load it again to login
-        $Self->VerifiedGet("${ScriptAlias}");
-
-        $Self->find_element( 'input#User',     'css' )->send_keys( $Param{User} );
-        $Self->find_element( 'input#Password', 'css' )->send_keys( $Param{Password} );
-
-        # login
-        $Self->find_element( 'input#User', 'css' )->VerifiedSubmit();
+        $Self->VerifiedGet("${ScriptAlias}?Action=Login;User=$Param{User};Password=$Param{Password}");
 
         # login successful?
         $Self->find_element( 'a#LogoutButton', 'css' );    # dies if not found
@@ -391,9 +315,10 @@ wait with increasing sleep intervals until the given condition is true or the wa
 Exactly one condition (JavaScript or WindowCount) must be specified.
 
     my $Success = $SeleniumObject->WaitFor(
-        JavaScript  => 'return $(".someclass").length',   # Javascript code that checks condition
-        WindowCount => 2,                                 # Wait until this many windows are open
-        Time        => 20,                                # optional, wait time in seconds (default 20)
+        JavaScript   => 'return $(".someclass").length',   # Javascript code that checks condition
+        AlertPresent => 1,                                 # Wait until an alert, confirm or prompt dialog is present
+        WindowCount  => 2,                                 # Wait until this many windows are open
+        Time         => 20,                                # optional, wait time in seconds (default 20)
     );
 
 =cut
@@ -401,9 +326,11 @@ Exactly one condition (JavaScript or WindowCount) must be specified.
 sub WaitFor {
     my ( $Self, %Param ) = @_;
 
-    if ( !$Param{JavaScript} && !$Param{WindowCount} ) {
-        die "Need JavaScript.";
+    if ( !$Param{JavaScript} && !$Param{WindowCount} && !$Param{AlertPresent} ) {
+        die "Need JavaScript, WindowCount or AlertPresent.";
     }
+
+    local $Self->{SuppressCommandRecording} = 1;
 
     $Param{Time} //= 20;
     my $WaitedSeconds = 0;
@@ -415,6 +342,10 @@ sub WaitFor {
         }
         elsif ( $Param{WindowCount} ) {
             return 1 if scalar( @{ $Self->get_window_handles() } ) == $Param{WindowCount};
+        }
+        elsif ( $Param{AlertPresent} ) {
+            # Eval is needed because the method would throw if no alert is present (yet).
+            return 1 if eval { $Self->get_alert_text() };
         }
         sleep $Interval;
         $WaitedSeconds += $Interval;
@@ -478,10 +409,10 @@ cleanup. Adds a unit test result to indicate the shutdown.
 sub DESTROY {
     my $Self = shift;
 
-    # # Could be missing on early die.
-    # if ( $Self->{UnitTestObject} ) {
-    #     $Self->{UnitTestObject}->True( 1, "Shutting down Selenium scenario." );
-    # }
+    # Could be missing on early die.
+    if ( $Self->{UnitTestObject} ) {
+        $Self->{UnitTestObject}->True( 1, "Shutting down Selenium scenario." );
+    }
 
     if ( $Self->{SeleniumTestsActive} ) {
         $Self->SUPER::DESTROY();
