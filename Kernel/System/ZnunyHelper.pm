@@ -2261,53 +2261,53 @@ sub _GeneralCatalogItemCreateIfNotExists {
 
 create or update notification event
 
-    my $Success = $ZnunyHelperObject->_NotificationEventCreate(
-        [
-            {
-                Name => 'Agent::CustomerVIPPriorityUpdate',
-                Data => {
-                    Events => [
-                        'TicketPriorityUpdate',
-                    ],
-                    ArticleAttachmentInclude => [
-                        '0'
-                    ],
-                    LanguageID => [
-                        'en',
-                        'de'
-                    ],
-                    NotificationArticleTypeID => [
-                        1,
-                    ],
-                    Recipients => [
-                        'Customer',
-                    ],
-                    TransportEmailTemplate => [
-                        'Default',
-                    ],
-                    Transports => [
-                        'Email',
-                    ],
-                    VisibleForAgent => [
-                        '0',
-                    ],
+    my @NotificationList = (
+        {
+            Name => 'Agent::CustomerVIPPriorityUpdate',
+            Data => {
+                Events => [
+                    'TicketPriorityUpdate',
+                ],
+                ArticleAttachmentInclude => [
+                    '0'
+                ],
+                LanguageID => [
+                    'en',
+                    'de'
+                ],
+                NotificationArticleTypeID => [
+                    1,
+                ],
+                Recipients => [
+                    'Customer',
+                ],
+                TransportEmailTemplate => [
+                    'Default',
+                ],
+                Transports => [
+                    'Email',
+                ],
+                VisibleForAgent => [
+                    '0',
+                ],
+            },
+            Message => {
+                en => {
+                    Subject     => 'Priority for your ticket changed',
+                    ContentType => 'text/html',
+                    Body        => '...',
                 },
-                Message => {
-                    en => {
-                        Subject     => 'Priority for your ticket changed',
-                        ContentType => 'text/html',
-                        Body        => '...',
-                    },
-                    de => {
-                        Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
-                        ContentType => 'text/html',
-                        Body        => '...',
-                    },
+                de => {
+                    Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
+                    ContentType => 'text/html',
+                    Body        => '...',
                 },
             },
-            # ...
-        ]
+        },
+        # ...
     );
+
+    my $Success = $ZnunyHelperObject->_NotificationEventCreate( @NotificationList );
 
 Returns:
 
