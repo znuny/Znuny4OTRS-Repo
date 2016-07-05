@@ -130,7 +130,12 @@ sub new {
     my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
 
     # try to resolve fqdn host
-    if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
+    if ( $FQDN ne 'yourhost.example.com' ) {
+# ---
         $Self->{BaseURL} = $FQDN;
     }
 
