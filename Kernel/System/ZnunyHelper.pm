@@ -186,6 +186,152 @@ sub _JSLoaderRemove {
     return 1;
 }
 
+=item _PostmasterXHeaderAdd()
+
+This function adds a Postmaster X-Header to the list of Postmaster X-Headers to the SysConfig.
+
+    my $Success = $ZnunyHelperObject->_PostmasterXHeaderAdd(
+        Header => 'X-OTRS-OwnHeader'
+    );
+
+    or
+
+    my $Success = $ZnunyHelperObject->_PostmasterXHeaderAdd(
+        Header => [
+            'X-OTRS-OwnHeader',
+            'AnotherHeader',
+        ]
+    );
+
+=cut
+
+sub _PostmasterXHeaderAdd {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Object Header)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my @AddHeaders;
+    if ( IsArrayRefWithData( $Param{Header} ) ) {
+        @AddHeaders = @{ $Param{Header} };
+    }
+    elsif ( IsStringWithData( $Param{Header} ) ) {
+        push @AddHeaders, $Param{Header};
+    }
+    else {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter 'Header' should be an ArrayRef of String with data!",
+        );
+        return;
+    }
+
+    my $Headers = $ConfigObject->Get('PostmasterX-Header');
+
+    return if !ref $Headers ne 'ARRAY';
+
+    my @ConfigHeaders = @{$Headers};
+
+    HEADER:
+    for my $AddHeader (@AddHeaders) {
+        next HEADER if grep { $AddHeader eq $_ } @ConfigHeaders;
+        push @ConfigHeaders, $AddHeader;
+    }
+
+    return $SysConfigObject->ConfigItemUpdate(
+        Valid => 1,
+        Key   => 'PostmasterX-Header',
+        Value => \@ConfigHeaders,
+    );
+}
+
+=item _PostmasterXHeaderRemove()
+
+This function removes a Postmaster X-Header to the list of Postmaster X-Headers to the SysConfig.
+
+    my $Success = $ZnunyHelperObject->_PostmasterXHeaderRemove(
+        Header => 'X-OTRS-OwnHeader'
+    );
+
+    or
+
+    my $Success = $ZnunyHelperObject->_PostmasterXHeaderRemove(
+        Header => [
+            'X-OTRS-OwnHeader',
+            'AnotherHeader',
+        ]
+    );
+
+=cut
+
+sub _PostmasterXHeaderRemove {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Object Header)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my @RemoveHeaders;
+    if ( IsArrayRefWithData( $Param{Header} ) ) {
+        @RemoveHeaders = @{ $Param{Header} };
+    }
+    elsif ( IsStringWithData( $Param{Header} ) ) {
+        push @RemoveHeaders, $Param{Header};
+    }
+    else {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter 'Header' should be an ArrayRef of String with data!",
+        );
+        return;
+    }
+
+    my $Headers = $ConfigObject->Get('PostmasterX-Header');
+
+    return if !ref $Headers ne 'ARRAY';
+
+    my @ConfigHeaders;
+
+    HEADER:
+    for my $CurrentHeader ( @{$Headers} ) {
+        next HEADER if grep { $CurrentHeader eq $_ } @RemoveHeaders;
+        push @ConfigHeaders, $CurrentHeader;
+    }
+
+    return $SysConfigObject->ConfigItemUpdate(
+        Valid => 1,
+        Key   => 'PostmasterX-Header',
+        Value => \@ConfigHeaders,
+    );
+}
+
 =item _EventAdd()
 
 This function adds an Event to the list of Events of an Object to the SysConfig.
@@ -210,13 +356,17 @@ This function adds an Event to the list of Events of an Object to the SysConfig.
 sub _EventAdd {
     my ( $Self, %Param ) = @_;
 
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Object Event)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -231,14 +381,12 @@ sub _EventAdd {
         push @AddEvents, $Param{Event};
     }
     else {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter 'Event' should be an ArrayRef of String with data!",
         );
         return;
     }
-
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my $Events = $ConfigObject->Get('Events');
 
@@ -254,7 +402,7 @@ sub _EventAdd {
         push @ConfigEvents, $AddEvent;
     }
 
-    return $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+    return $SysConfigObject->ConfigItemUpdate(
         Valid => 1,
         Key   => "Events###" . $Param{Object},
         Value => \@ConfigEvents,
@@ -263,7 +411,7 @@ sub _EventAdd {
 
 =item _EventRemove()
 
-This function adds an Event to the list of Events of an Object to the SysConfig.
+This function removes an Event to the list of Events of an Object to the SysConfig.
 
     my $Success = $ZnunyHelperObject->_EventRemove(
         Object => 'Ticket', # Ticket, Article, Queue...
@@ -285,13 +433,17 @@ This function adds an Event to the list of Events of an Object to the SysConfig.
 sub _EventRemove {
     my ( $Self, %Param ) = @_;
 
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Object Event)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -306,14 +458,12 @@ sub _EventRemove {
         push @RemoveEvents, $Param{Event};
     }
     else {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter 'Event' should be an ArrayRef of String with data!",
         );
         return;
     }
-
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my $Events = $ConfigObject->Get('Events');
 
@@ -328,7 +478,7 @@ sub _EventRemove {
         push @ConfigEvents, $CurrentEvent;
     }
 
-    return $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+    return $SysConfigObject->ConfigItemUpdate(
         Valid => 1,
         Key   => "Events###" . $Param{Object},
         Value => \@ConfigEvents,
