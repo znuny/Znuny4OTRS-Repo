@@ -12,6 +12,7 @@
 package Kernel::System::UnitTest::Helper;
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
 
 use strict;
 use warnings;
