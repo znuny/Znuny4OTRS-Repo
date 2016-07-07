@@ -176,12 +176,12 @@ sub _PostmasterXHeaderAdd {
         return;
     }
 
-    my @AddHeaders;
+    my @HeadersToAdd;
     if ( IsArrayRefWithData( $Param{Header} ) ) {
-        @AddHeaders = @{ $Param{Header} };
+        @HeadersToAdd = @{ $Param{Header} };
     }
     elsif ( IsStringWithData( $Param{Header} ) ) {
-        push @AddHeaders, $Param{Header};
+        push @HeadersToAdd, $Param{Header};
     }
     else {
         $LogObject->Log(
@@ -191,22 +191,20 @@ sub _PostmasterXHeaderAdd {
         return;
     }
 
-    my $Headers = $ConfigObject->Get('PostmasterX-Header');
+    my $ConfiguredHeaders = $ConfigObject->Get('PostmasterX-Header');
+    return if ref $ConfiguredHeaders ne 'ARRAY';
 
-    return if !ref $Headers ne 'ARRAY';
-
-    my @ConfigHeaders = @{$Headers};
+    my %ConfiguredHeaders = map { $_ => 1 } @{$ConfiguredHeaders};
 
     HEADER:
-    for my $AddHeader (@AddHeaders) {
-        next HEADER if grep { $AddHeader eq $_ } @ConfigHeaders;
-        push @ConfigHeaders, $AddHeader;
+    for my $HeaderToAdd (@HeadersToAdd) {
+        $ConfiguredHeaders{$HeaderToAdd} = 1;
     }
 
     return $SysConfigObject->ConfigItemUpdate(
         Valid => 1,
         Key   => 'PostmasterX-Header',
-        Value => \@ConfigHeaders,
+        Value => [ sort keys %ConfiguredHeaders ],
     );
 }
 
@@ -249,12 +247,12 @@ sub _PostmasterXHeaderRemove {
         return;
     }
 
-    my @RemoveHeaders;
+    my @HeadersToRemove;
     if ( IsArrayRefWithData( $Param{Header} ) ) {
-        @RemoveHeaders = @{ $Param{Header} };
+        @HeadersToRemove = @{ $Param{Header} };
     }
     elsif ( IsStringWithData( $Param{Header} ) ) {
-        push @RemoveHeaders, $Param{Header};
+        push @HeadersToRemove, $Param{Header};
     }
     else {
         $LogObject->Log(
@@ -264,22 +262,20 @@ sub _PostmasterXHeaderRemove {
         return;
     }
 
-    my $Headers = $ConfigObject->Get('PostmasterX-Header');
+    my $ConfiguredHeaders = $ConfigObject->Get('PostmasterX-Header');
+    return if ref $ConfiguredHeaders ne 'ARRAY';
 
-    return if !ref $Headers ne 'ARRAY';
-
-    my @ConfigHeaders;
+    my %ConfiguredHeaders = map { $_ => 1 } @{$ConfiguredHeaders};
 
     HEADER:
-    for my $CurrentHeader ( @{$Headers} ) {
-        next HEADER if grep { $CurrentHeader eq $_ } @RemoveHeaders;
-        push @ConfigHeaders, $CurrentHeader;
+    for my $HeaderToRemove (@HeadersToRemove) {
+        delete $ConfiguredHeaders{$HeaderToRemove};
     }
 
     return $SysConfigObject->ConfigItemUpdate(
         Valid => 1,
         Key   => 'PostmasterX-Header',
-        Value => \@ConfigHeaders,
+        Value => [ sort keys %ConfiguredHeaders ],
     );
 }
 
