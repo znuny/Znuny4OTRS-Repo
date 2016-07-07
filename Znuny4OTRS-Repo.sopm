@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>2.0.41</Version>
+    <Version>2.0.42</Version>
+    <ChangeLog Version="2.0.42" Date="2016-07-07 13:50:30 UTC">Follow up: Fixed postmaster filter add/remove in ZnunyHelper.</ChangeLog>
     <ChangeLog Version="2.0.41" Date="2016-07-07 09:46:46 UTC">Follow up: Fixed bug: Parameter 'Object' is not needed.</ChangeLog>
     <ChangeLog Version="2.0.40" Date="2016-07-07 09:19:07 UTC">- Added _PostmasterXHeader* helper functions.&#13;
 &#13;
