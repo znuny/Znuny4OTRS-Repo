@@ -261,7 +261,7 @@ sub _PostmasterXHeaderAdd {
 
 =item _PostmasterXHeaderRemove()
 
-This function removes a Postmaster X-Header to the list of Postmaster X-Headers to the SysConfig.
+This function removes a Postmaster X-Header to the list of Postmaster X-Headers from the SysConfig.
 
     my $Success = $ZnunyHelperObject->_PostmasterXHeaderRemove(
         Header => 'X-OTRS-OwnHeader'
