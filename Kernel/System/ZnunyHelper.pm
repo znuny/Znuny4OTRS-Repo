@@ -165,7 +165,7 @@ sub _PostmasterXHeaderAdd {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Object Header)) {
+    for my $Needed (qw(Header)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -238,7 +238,7 @@ sub _PostmasterXHeaderRemove {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Object Header)) {
+    for my $Needed (qw(Header)) {
 
         next NEEDED if defined $Param{$Needed};
 
