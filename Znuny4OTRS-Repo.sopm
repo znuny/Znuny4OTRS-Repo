@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.35</Version>
+    <Version>3.0.36</Version>
+    <ChangeLog Version="3.0.36" Date="2016-07-07 09:46:56 UTC">Follow up: Fixed bug: Parameter 'Object' is not needed.</ChangeLog>
     <ChangeLog Version="3.0.35" Date="2016-07-07 09:18:39 UTC">- Added _PostmasterXHeader* helper functions.&#13;
 &#13;
 UnitTest capabilities:&#13;
