@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.34</Version>
+    <Version>3.0.35</Version>
+    <ChangeLog Version="3.0.35" Date="2016-07-07 09:18:39 UTC">- Added _PostmasterXHeader* helper functions.&#13;
+&#13;
+UnitTest capabilities:&#13;
+- Fixed bug on some systems (e.g. Ubuntu) where gethostbyname don't provide a result for valid FQDNs.&#13;
+- Backport of master functionality DragAndDrop.&#13;
+- Updated Selenium Backend to latest commit of the framework.&#13;
+- Added exclude filter for CacheCleanup check.</ChangeLog>
     <ChangeLog Version="3.0.34" Date="2016-06-17 14:31:07 UTC">Added Selenium helper function to switch to the main window (after PopUp interactions).&#13;
 Added UnitTest helper function to execute Database XML.&#13;
 Added _DefaultColumns* helper functions.</ChangeLog>
