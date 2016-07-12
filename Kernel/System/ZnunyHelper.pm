@@ -493,7 +493,7 @@ sub _LoaderAdd {
         }
 
         LOADERFILE:
-        for my $NewLoaderFile ( sort @{ $LoaderConfig{$View} } ) {
+        for my $NewLoaderFile ( @{ $LoaderConfig{$View} } ) {
 
             next LOADERFILE if $NewLoaderFile !~ m{$ExtensionRegExp}i;
 
