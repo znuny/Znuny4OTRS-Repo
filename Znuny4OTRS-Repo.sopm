@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.0.37</Version>
+    <Version>5.0.1</Version>
+    <ChangeLog Version="5.0.1" Date="2016-07-12 15:33:34 UTC">- Switched to new version naming system.&#13;
+- Fixed LoaderAdd function to represent SOPM configured order for css and js files.&#13;
+- Added documentation for Core.Form.Znuny4OTRSInput.FieldIDMapping().</ChangeLog>
     <ChangeLog Version="3.0.37" Date="2016-07-07 13:50:10 UTC">Follow up: Fixed postmaster filter add/remove in ZnunyHelper.</ChangeLog>
     <ChangeLog Version="3.0.36" Date="2016-07-07 09:46:56 UTC">Follow up: Fixed bug: Parameter 'Object' is not needed.</ChangeLog>
     <ChangeLog Version="3.0.35" Date="2016-07-07 09:18:39 UTC">- Added _PostmasterXHeader* helper functions.&#13;
