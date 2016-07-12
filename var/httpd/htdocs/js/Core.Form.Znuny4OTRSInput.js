@@ -355,7 +355,25 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         return AttributFieldIDMapping[Module][Attribute];
     }
+    
+    /*
 
+    Adds a field mapping to an Action.
+
+        var Result = Core.Form.Znuny4OTRSInput.FieldIDMapping('AdminQueue', 
+            {
+                EscalationStep1Color: 'EscalationStep1Color' # FirstParam = AccessKey
+                                                             # SecondParam = ID of the HTML element on page
+            }
+        );
+
+    Returns:
+
+        Result = {
+            EscalationStep1Color: 'EscalationStep1Color'
+        };
+
+    */
     TargetNS.FieldIDMapping = function (Action, AttributeFieldIDs) {
 
         var Module = TargetNS.Module(Action);
