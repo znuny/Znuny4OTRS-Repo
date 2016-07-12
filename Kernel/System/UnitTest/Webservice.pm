@@ -123,6 +123,16 @@ sub Process {
         last NAMEORID;
     }
 
+# this is needed because somebody decided to initialize
+# a new ObjectManager (!) inside the ProviderObject->Run
+# function, which causes new CacheObjects and maybe other
+# nasty stuff. See: https://github.com/OTRS/otrs/blob/b681f86310169c535e16742f0138bee21a2a3cd6/Kernel/GenericInterface/Provider.pm#L77
+# This is fixed since OTRS 5 with the following commit
+# which wasn't backported: https://github.com/OTRS/otrs/commit/d4fea2adc02b7e0568cf8938362899e1bf449160
+    $CacheObject->CleanUp(
+        Type => 'UnitTestWebservice'
+    );
+
     $CacheObject->Set(
         Type  => $Self->{CacheType},
         Key   => 'Payload',
