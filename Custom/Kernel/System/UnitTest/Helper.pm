@@ -8,11 +8,11 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-
-package Kernel::System::UnitTest::Helper;
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
+
+package Kernel::System::UnitTest::Helper;
 
 use strict;
 use warnings;
@@ -1619,6 +1619,16 @@ This function takes a file location of a XML file, generates and executes the SQ
         Location => $ConfigObject->Get('Home') . '/scripts/development/db/schema.xml',
     );
 
+or string
+
+    my $Success = $HelperObject->DatabaseXML(
+        String => '...',
+    );
+
+Returns:
+
+    my $Success = 1;
+
 =cut
 
 sub DatabaseXML {
@@ -1630,22 +1640,27 @@ sub DatabaseXML {
     my $XMLObject  = $Kernel::OM->Get('Kernel::System::XML');
 
     # check needed stuff
-    NEEDED:
-    for my $Needed ( qw(Location) ) {
-
-        next NEEDED if defined $Param{ $Needed };
-
+    if ( !$Param{String} && !$Param{Location} ) {
         $LogObject->Log(
             Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
+            Message  => "Parameter 'String' or 'Location' is needed!",
         );
         return;
     }
 
-    # read file
-    my $XML = $MainObject->FileRead(
-        Location => $Param{Location},
-    );
+    my $XML;
+    if ( $Param{String} ) {
+
+        # use params as data
+        $XML = $Param{String};
+    }
+    else {
+
+        # read file
+        $XML = $MainObject->FileRead(
+            Location => $Param{Location},
+        );
+    }
 
     # convert to array
     my @XMLArray = $XMLObject->XMLParse( String => $XML );
