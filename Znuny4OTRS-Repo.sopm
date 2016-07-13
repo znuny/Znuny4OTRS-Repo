@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.1</Version>
+    <Version>5.0.2</Version>
+    <ChangeLog Version="5.0.2" Date="2016-07-13 08:41:46 UTC">Added possibility to set database xml also by string.</ChangeLog>
     <ChangeLog Version="5.0.1" Date="2016-07-12 15:33:34 UTC">- Switched to new version naming system.&#13;
 - Fixed LoaderAdd function to represent SOPM configured order for css and js files.&#13;
 - Added documentation for Core.Form.Znuny4OTRSInput.FieldIDMapping().</ChangeLog>
