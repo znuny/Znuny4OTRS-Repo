@@ -621,7 +621,6 @@ sub FixedTimeSetByTimeStamp {
     my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
 
     # check needed stuff
-
     if ( !$TimeStamp ) {
         $LogObject->Log(
             Priority => 'error',
