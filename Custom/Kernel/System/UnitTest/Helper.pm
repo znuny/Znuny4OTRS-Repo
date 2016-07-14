@@ -682,6 +682,86 @@ sub DESTROY {
 # Znuny4OTRS-Repo
 # ---
 
+=item FixedTimeSetByDate()
+
+This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
+possible to set a fixed time by unsing parameters for the TimeObject Date2SystemTime function.
+
+    $Object->FixedTimeSetByDate(
+        Year   => 2016,
+        Month  => 4,
+        Day    => 28,
+        Hour   => 10, # default 0
+        Minute => 0,  # default 0
+        Second => 0,  # default 0
+    );
+
+=cut
+
+sub FixedTimeSetByDate {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Year Month Day) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    for my $Default ( qw(Hour Minute Second) ) {
+        $Param{$Default} ||= 0;
+    }
+
+    my $SystemTime = $TimeObject->Date2SystemTime( %Param );
+
+    $Self->FixedTimeSet($SystemTime);
+
+    return 1;
+}
+
+=item FixedTimeSetByTimeStamp()
+
+This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
+possible to set a fixed time by unsing parameters for the TimeObject TimeStamp2SystemTime function.
+
+    $Object->FixedTimeSetByTimeStamp('2004-08-14 22:45:00');
+
+=cut
+
+sub FixedTimeSetByTimeStamp {
+    my ( $Self, $TimeStamp ) = @_;
+
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+
+    # check needed stuff
+
+    if ( !$TimeStamp ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "TimeStamp is needed!",
+        );
+        return;
+    }
+
+    my $SystemTime = $TimeObject->TimeStamp2SystemTime(
+        String => $TimeStamp,
+    );
+
+    $Self->FixedTimeSet($SystemTime);
+
+    return 1;
+}
+
 =item CheckNumberOfEventExecution()
 
 This function checks the number of executions of an Event via the TicketHistory
