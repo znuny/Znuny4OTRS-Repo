@@ -1008,7 +1008,7 @@ sub PublicInterface {
     my ( $Self, %Param ) = @_;
 
     $Self->_GETInterface(
-        Interface   => 'Customer',
+        Interface   => 'Public',
         WaitForAJAX => delete $Param{WaitForAJAX},
         Param       => \%Param,
     );
