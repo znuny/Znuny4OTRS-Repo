@@ -564,7 +564,7 @@ sub DESTROY {
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
 possible to set a fixed time by unsing parameters for the TimeObject Date2SystemTime function.
 
-    $Object->FixedTimeSetByDate(
+    $HelperObject->FixedTimeSetByDate(
         Year   => 2016,
         Month  => 4,
         Day    => 28,
@@ -610,7 +610,7 @@ sub FixedTimeSetByDate {
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
 possible to set a fixed time by unsing parameters for the TimeObject TimeStamp2SystemTime function.
 
-    $Object->FixedTimeSetByTimeStamp('2004-08-14 22:45:00');
+    $HelperObject->FixedTimeSetByTimeStamp('2004-08-14 22:45:00');
 
 =cut
 
