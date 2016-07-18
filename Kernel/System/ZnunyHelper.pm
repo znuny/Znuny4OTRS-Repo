@@ -2077,8 +2077,8 @@ sub _SLACreateIfNotExists {
 creates user if not exists
 
     my $Success = $ZnunyHelperObject->_UserCreateIfNotExists(
-        UserFirstname => 'Huber',
-        UserLastname  => 'Manfred',
+        UserFirstname => 'Manfred',
+        UserLastname  => 'Huber',
         UserLogin     => 'mhuber',
         UserPw        => 'some-pass', # not required
         UserEmail     => 'email@example.com',
@@ -2136,8 +2136,8 @@ creates CustomerUser if not exists
 
     my $CustomerUserLogin = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
         Source         => 'CustomerUser', # CustomerUser source config
-        UserFirstname  => 'Huber',
-        UserLastname   => 'Manfred',
+        UserFirstname  => 'Manfred',
+        UserLastname   => 'Huber',
         UserCustomerID => 'A124',
         UserLogin      => 'mhuber',
         UserPassword   => 'some-pass', # not required
