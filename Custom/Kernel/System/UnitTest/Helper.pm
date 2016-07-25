@@ -645,6 +645,11 @@ sub DESTROY {
 # ---
 # Znuny4OTRS-Repo
 # ---
+    # Only manually delete created tickets and dynamic fields if RestoreDatabase flag is not set
+    # Otherwise the already delete tickets will be tried to delete again, resulting
+    # in many error messages.
+    return if $Self->{RestoreDatabase};
+
     my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
     my $TicketObjectLoaded = $MainObject->Require(
