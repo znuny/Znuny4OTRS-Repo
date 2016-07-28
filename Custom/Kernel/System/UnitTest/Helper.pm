@@ -1889,6 +1889,273 @@ sub DatabaseXML {
     return 1;
 }
 
+=item TestMailCleanup()
+
+This function:
+    - removes existing mails from Email::Test Backend Object
+
+    my $Success = $HelperObject->TestMailCleanup();
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub TestMailCleanup {
+    my ( $Self, %Param ) = @_;
+
+    my $TestEmailObject = $Kernel::OM->Get('Kernel::System::Email::Test');
+    $TestEmailObject->CleanUp();
+
+    return 1;
+}
+
+
+=item TestMailObjectDiscard()
+
+This function:
+    - discards the objects:
+        'Kernel::System::Ticket',
+        'Kernel::System::Email::Test',
+        'Kernel::System::Email',
+      triggering Transaction notifications
+    - reinitializes the above objects
+
+    my $Success = $HelperObject->TestMailObjectDiscard();
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub TestMailObjectDiscard {
+    my ( $Self, %Param ) = @_;
+
+    $Kernel::OM->ObjectsDiscard(
+        Objects => [
+            'Kernel::System::Ticket',
+            'Kernel::System::Email::Test',
+            'Kernel::System::Email',
+        ],
+    );
+
+    my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $TestEmailObject = $Kernel::OM->Get('Kernel::System::Email::Test');
+    my $EmailObject     = $Kernel::OM->Get('Kernel::System::Email');
+
+    return 1;
+}
+
+=item TestMailBackendSetup()
+
+This function:
+    - sets Kernel::System::Email::Test as MailBackend
+    - turns SysConfig option CHeckEmailAddresses off
+
+    my $Success = $HelperObject->TestMailBackendSetup();
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+sub TestMailBackendSetup {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    $ConfigObject->Set(
+        Key   => 'SendmailModule',
+        Value => 'Kernel::System::Email::Test',
+    );
+
+    $ConfigObject->Set(
+        Key   => 'CheckEmailAddresses',
+        Value => 0,
+    );
+
+    return 1;
+}
+
+=item TestEmailGet()
+
+This function:
+    - Fetches mails from TestMailBackend
+    - returns array of hashes containing mails:
+
+    my @Email = $HelperObject->TestEmailGet();
+
+Returns:
+
+    @Email = (
+        {
+            Header => "Email1 Header text...",
+            Body => "Email1 Header text...",
+            TOArray => ['email1realrecipient1@test.com', 'email1realrecipient2@test.com', 'email1realrecipient1@test.com', ],
+        },
+        {
+            Header => "Email2 Header text...",
+            Body => "Email2 Header text...",
+            TOArray => ['email2realrecipient1@test.com'],
+        },
+        ...
+    );
+    my $Success = 1;
+
+=cut
+sub TestEmailGet {
+    my ( $Self, %Param ) = @_;
+
+    my $TestEmailObject = $Kernel::OM->Get('Kernel::System::Email::Test');
+
+    my @AllEmails;
+
+    my $Emails = $TestEmailObject->EmailsGet();
+
+    return @AllEmails if ! IsArrayRefWithData($Emails);
+
+    EMAILLOOP:
+    for my $Email ( @{ $Emails } ) {
+
+        my $Header  = ${ $Email->{Header} };
+        my $Body    = ${ $Email->{Body} };
+        my @TOArray = @{ $Email->{ToArray} };
+
+        # If debug is set to 1 collect all Emails for return
+        if ( $Param{Debug} ) {
+            push @AllEmails, {
+                Header  => $Header,
+                Body    => $Body,
+                TOArray => \@TOArray,
+            };
+        }
+    }
+    return @AllEmails;
+}
+
+=item TestEmailValidate()
+
+This function:
+    - Takes an Array (result of TestEmailGet())
+    - Takes check routines (regex or strings for Header, Body and TOArray)
+    - checks if the check routine matches one of the found Mails
+    - returns 1 or 0 (for found or not found)
+
+    my @Email = $HelperObject->TestEmailValidate(
+        Email   => \@Email,
+        Header  => qr{To\:\sto\@test.com}xms, # Regex only for header
+        Body    => qr{Hello [ ] World}xms, # Regex or string 'Hello World'
+        TOArray => 'email1realrecipient1@test.com', # or Array with all real recipients
+                                                   # example: ['email1realrecipient1@test.com', 'email1realrecipient2@test.com', ],
+                                                   #
+                                                   # instead of String or Array of Strings
+                                                   # a Regex or an Array of Regexes is possible too
+    );
+
+Returns:
+
+    my $Success = 1; # or 0 if not fount
+
+=cut
+sub TestEmailValidate {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    NEEDEDLOOP:
+    for my $Needed ( qw(Email) ) {
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    if ( ! $Param{SearchHeader}
+         && ! $Param{SearchBody}
+         && ! $Param{SearchTO}
+    ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Need at least SearchHeader OR SearchBody OR SearchTO!",
+        );
+        return;
+    }
+
+    if ( ! IsArrayRefWithData( $Param{Email} )
+    ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Email has to be an array ref!",
+        );
+        return;
+    }
+    my @Emails = @{ $Param{Email} };
+
+    EMAILLOOP:
+    for my $Email ( @Emails ) {
+
+        my %Found;
+        my $SearchParamCount = 0;
+
+        SEARCHLOOP:
+        for my $SearchParam ( qw(Header Body TOArray) ) {
+
+            $Found{ $SearchParam } = 0;
+
+            $SearchParamCount++;
+
+            if ( IsArrayRefWithData( $Param{ $SearchParam } )
+                 && IsArrayRefWithData( $Param{ $Email->{ $SearchParam } } )
+            ) {
+                my $FoundCount = 0;
+
+                SEARCHTERMLOOP:
+                for my $SearchTerm ( @{ $Param{ $SearchParam } } ) {
+                    $FoundCount++ if $Self->_SearchStringOrRegex(
+                        Search => $SearchTerm,
+                        Data   => $Email->{ $SearchParam },
+                    );
+                }
+
+                $Found{ $SearchParam } = 1 if $FoundCount = scalar @{ $Param{ $SearchParam } };
+                next SEARCHLOOP;
+            }
+
+            $Found{ $SearchParam } = 1 if $Self->_SearchStringOrRegex(
+                    Search => $Email->{ $SearchParam },
+                    Data   => $Param{ $SearchParam },
+            );
+            next SEARCHLOOP;
+        }
+
+        return 1 if $SearchParamCount == scalar keys %Found;
+    }
+    return;
+}
+
+sub _SearchStringOrRegex {
+        my ( $Self, %Param ) = @_;
+
+        return if ! $Param{Search} && ! $Param{Data};
+
+        my $Search = $Param{Search};
+
+        if ( ! ref $Search ) {
+            return 1 if $Param{Data} eq $Param{Search};
+        }
+
+        if ( ref $Search eq 'Regexp' ) {
+            return 1 if $Param{Data} =~ m{$Search};
+        }
+
+        return;
+}
+
 # ---
 
 1;
