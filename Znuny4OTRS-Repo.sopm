@@ -125,15 +125,11 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Notification/AgentOTRSBusiness.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Notification/CustomerOTRSBusiness.pm"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminCloudServices.tt"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminNotificationEvent.tt"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminPackageManager.tt"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/AdminProcessManagement.tt"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Templates/Standard/FooterJS.tt"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>

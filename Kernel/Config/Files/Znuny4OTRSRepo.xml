@@ -299,4 +299,23 @@
             </Hash>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Frontend::Output::FilterElementPost###Znuny4OTRSRemoveBSAdvertisements" Required="0" Valid="1">
+        <Description Translatable="1">This configuration registers an OutputFilter module that removes OTRS Business Solution TM advertisements.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core::Web</SubGroup>
+            <Setting>
+                <Hash>
+                    <Item Key="Module">Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRemoveBSAdvertisements</Item>
+                    <Item Key="Templates">
+                        <Hash>
+                            <Item Key="Error">1</Item>
+                            <Item Key="AdminCloudServices">1</Item>
+                            <Item Key="AdminNotificationEvent">1</Item>
+                            <Item Key="AdminProcessManagement">1</Item>
+                            <Item Key="Footer">1</Item>
+                        </Hash>
+                    </Item>
+                </Hash>
+            </Setting>
+    </ConfigItem>
 </otrs_config>
