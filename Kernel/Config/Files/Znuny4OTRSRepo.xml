@@ -263,6 +263,27 @@
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Frontend::NotifyModule###100-OTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Defines the module to display a notification in different interfaces on different occasions for OTRS Business Solution™.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Agent::ModuleNotify</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::Notification::AgentOTRSBusiness</Item>
+                <Item Key="Group">admin</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="CustomerFrontend::NotifyModule###1-OTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Defines the module to display a notification in different interfaces on different occasions for OTRS Business Solution™.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Frontend::Customer::ModuleNotify</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::Notification::CustomerOTRSBusiness</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Daemon::SchedulerCronTaskManager::Task###RegistrationUpdateSend" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
         <Description Translatable="1">Sends registration information to OTRS group.</Description>
         <Group>Daemon</Group>
