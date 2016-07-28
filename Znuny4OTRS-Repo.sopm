@@ -128,8 +128,6 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Notification/AgentOTRSBusiness.pm"/>
-        <File Permission="644" Location="Kernel/Output/HTML/Notification/CustomerOTRSBusiness.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
