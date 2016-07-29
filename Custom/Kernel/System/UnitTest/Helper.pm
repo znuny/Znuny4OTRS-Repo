@@ -2044,7 +2044,7 @@ Example:
 
     my $Success = $HelperObject->TestEmailValidate(
         Email   => \@Email,
-        Header  => qr{To\:\sto\@test.com}xms,       # Regex or Array of Regexes that all have to matche 
+        Header  => qr{To\:\sto\@test.com}xms,       # Regex or Array of Regexes that all have to matche
                                                     # in the Header of one single email
                                                     # example: [qr{To\:\sto\@test.com}xms, qr{To\:\scc\@test.com}xms ],
 
@@ -2090,9 +2090,9 @@ sub TestEmailValidate {
     }
 
     # Header allows only Regexes
-    if ( $Param{Header} 
-        && ref $Param{Header} ne 'Regexp' 
-        && ! IsArrayRefWithData( $Param{Header} ) 
+    if ( $Param{Header}
+        && ref $Param{Header} ne 'Regexp'
+        && ! IsArrayRefWithData( $Param{Header} )
     ) {
         $LogObject->Log(
             Priority => 'error',
@@ -2105,10 +2105,11 @@ sub TestEmailValidate {
     if ( $Param{Body}
          && ref $Param{Body}
          && ref $Param{Body} ne 'Regexp'
+         && ref $Param{Body} ne 'ARRAY'
     ) {
         $LogObject->Log(
             Priority => 'error',
-            Message  => "Just Regex or String allowed in Body!",
+            Message  => "Just Regex, String or Array of Strings or Regexes allowed in Body!",
         );
         return;
     }
@@ -2151,8 +2152,8 @@ sub TestEmailValidate {
                 SEARCHTERMLOOP:
                 for my $SearchTerm ( @{ $Param{ $SearchParam } } ) {
 
-                    # If we had multiple Header Regexes
-                    # the Emails' Header is a String -> just one compare necessary
+                    # If we had multiple Header or Body Regexes
+                    # the Emails' Header/Body is a String -> just one compare necessary
                     if ( ! ref $Email->{ $SearchParam } ) {
 
                         # If matched increase the FoundCount
@@ -2175,8 +2176,8 @@ sub TestEmailValidate {
                     }
                 }
 
-                # If no match was there at all break out
-                return if ! $FoundCount;
+                # If no match in this Email go to the next Mail
+                next EMAILLOOP if ! $FoundCount;
 
                 # If the amount of search params matches the amount of founds *success*
                 $Found{ $SearchParam } = 1 if $FoundCount == scalar @{ $Param{ $SearchParam } };
@@ -2196,8 +2197,8 @@ sub TestEmailValidate {
                     next SEARCHLOOP if $Found{$SearchParam};
                 }
 
-                # If we are here, no TOArray entry matched -> search failed
-                return;
+                # If no match in this Email go to the next Mail
+                next EMAILLOOP;
             }
 
             # For everything else, just compare SearchParam against EmailParam
