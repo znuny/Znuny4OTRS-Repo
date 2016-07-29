@@ -2148,9 +2148,18 @@ sub TestEmailValidate {
                 # Counter for each sucessfully found search term item
                 my $FoundCount = 0;
 
-                # Loop through the search term items of the TOArray
+                # Loop through the search term items of Header or TOArray
                 SEARCHTERMLOOP:
                 for my $SearchTerm ( @{ $Param{ $SearchParam } } ) {
+
+                    if ( $SearchParam eq 'Header' && ref $Param{ $SearchParam } ne 'Regexp'
+                    ) {
+                        $LogObject->Log(
+                            Priority => 'error',
+                            Message  => "Just a Regex or an Array of Regexes are allowed in Header!",
+                        );
+                        return;
+                    }
 
                     # If we had multiple Header or Body Regexes
                     # the Emails' Header/Body is a String -> just one compare necessary
