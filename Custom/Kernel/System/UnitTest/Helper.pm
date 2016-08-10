@@ -2114,8 +2114,7 @@ sub TestEmailValidate {
         return;
     }
 
-    if ( ! IsArrayRefWithData( $Param{Email} )
-    ) {
+    if ( ! IsArrayRefWithData( $Param{Email} ) ) {
         $LogObject->Log(
             Priority => 'error',
             Message  => "Email has to be an array ref!",
@@ -2152,7 +2151,10 @@ sub TestEmailValidate {
                 SEARCHTERMLOOP:
                 for my $SearchTerm ( @{ $Param{ $SearchParam } } ) {
 
-                    if ( $SearchParam eq 'Header' && ref $Param{ $SearchParam } ne 'Regexp'
+                    if ( 
+                        $SearchParam eq 'Header' 
+                        && ref $Param{ $SearchParam } ne 'Regexp'
+                        && ref $Param{ $SearchParam } ne 'ARRAY'
                     ) {
                         $LogObject->Log(
                             Priority => 'error',
@@ -2163,25 +2165,32 @@ sub TestEmailValidate {
 
                     # If we had multiple Header or Body Regexes
                     # the Emails' Header/Body is a String -> just one compare necessary
-                    if ( ! ref $Email->{ $SearchParam } ) {
+                    if ( ! ref $Email->{ $SearchParam } 
+                         || ref $Email->{ $SearchParam } eq 'Regexp' 
+                    ) {
 
                         # If matched increase the FoundCount
-                        $FoundCount++ if $Self->_SearchStringOrRegex(
+                        next SEARCHTERMLOOP if ! $Self->_SearchStringOrRegex(
                             Search => $SearchTerm,
                             Data   => $Email->{ $SearchParam } ,
                         );
 
+                        $FoundCount++;
+                        
                         next SEARCHTERMLOOP;
                     }
 
                     # Check this Mails' SearchParam (e.g. TOArray entries) if the current Search Term matches
+                    EMAILSEARCHPARAMLOOP:                   
                     for my $EmailParam ( @{ $Email->{ $SearchParam } } ) {
 
                         # If matched increase the FoundCount
-                        $FoundCount++ if $Self->_SearchStringOrRegex(
+                        next EMAILSEARCHPARAMLOOP if ! $Self->_SearchStringOrRegex(
                             Search => $SearchTerm,
                             Data   => $EmailParam,
                         );
+
+                        $FoundCount++;
                     }
                 }
 
@@ -2189,7 +2198,9 @@ sub TestEmailValidate {
                 next EMAILLOOP if ! $FoundCount;
 
                 # If the amount of search params matches the amount of founds *success*
-                $Found{ $SearchParam } = 1 if $FoundCount == scalar @{ $Param{ $SearchParam } };
+                if ( $FoundCount == scalar @{ $Param{ $SearchParam } } ) {
+                    $Found{ $SearchParam } = 1;                    
+                }
                 next SEARCHLOOP;
             }
 
@@ -2199,11 +2210,15 @@ sub TestEmailValidate {
 
                 # Go through the TOArray entries and check against our single search param
                 for my $EmailPart ( @{ $Email->{ $SearchParam} } ) {
-                    $Found{ $SearchParam } = 1  if $Self->_SearchStringOrRegex(
-                            Search => $Param{ $SearchParam },
-                            Data   => $EmailPart,
+                    my $Success = $Self->_SearchStringOrRegex(
+                        Search => $Param{ $SearchParam },
+                        Data   => $EmailPart,
                     );
-                    next SEARCHLOOP if $Found{$SearchParam};
+
+                    if ( $Success )  {
+                        $Found{ $SearchParam } = 1;
+                        next SEARCHLOOP;
+                    }
                 }
 
                 # If no match in this Email go to the next Mail
@@ -2211,11 +2226,14 @@ sub TestEmailValidate {
             }
 
             # For everything else, just compare SearchParam against EmailParam
-            $Found{ $SearchParam } = 1 if $Self->_SearchStringOrRegex(
-                    Search => $Param{ $SearchParam },
-                    Data   => $Email->{ $SearchParam },
+            my $Success = $Self->_SearchStringOrRegex(
+                Search => $Param{ $SearchParam },
+                Data   => $Email->{ $SearchParam },
             );
-            next SEARCHLOOP;
+
+            next SEARCHLOOP if ! $Success;
+
+            $Found{ $SearchParam } = 1;
         }
 
         # If the amount of SearchParams matches the amount of found SearchParams
@@ -2226,21 +2244,21 @@ sub TestEmailValidate {
 }
 
 sub _SearchStringOrRegex {
-        my ( $Self, %Param ) = @_;
+    my ( $Self, %Param ) = @_;
 
-        return if ! $Param{Search} && ! $Param{Data};
+    return if ! $Param{Search} && ! $Param{Data};
 
-        my $Search = $Param{Search};
+    my $Search = $Param{Search};
 
-        if ( ! ref $Search ) {
-            return 1 if $Param{Data} eq $Search;
-        }
+    if ( ! ref $Search ) {
+        return 1 if $Param{Data} eq $Search;
+    }
 
-        if ( ref $Search eq 'Regexp' ) {
-            return 1 if $Param{Data} =~ m{$Search};
-        }
+    if ( ref $Search eq 'Regexp' ) {
+        return 1 if $Param{Data} =~ m{$Search};
+    }
 
-        return;
+    return;
 }
 
 # ---
