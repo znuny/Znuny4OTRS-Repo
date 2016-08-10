@@ -1,0 +1,82 @@
+# --
+# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# --
+# This software comes with ABSOLUTELY NO WARRANTY. For details, see
+# the enclosed file COPYING for license information (AGPL). If you
+# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# --
+
+use strict;
+use warnings;
+use utf8;
+
+use vars (qw($Self));
+
+use Kernel::System::VariableCheck qw(:all);
+
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreSystemConfiguration => 1,
+    },
+);
+
+my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+# get needed objects
+my $ZnunyHelperObject   = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $HelperObject        = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $UnitTestEmailObject = $Kernel::OM->Get('Kernel::System::UnitTest::Email');
+my $TicketObject        = $Kernel::OM->Get('Kernel::System::Ticket');
+my $TestEmailObject     = $Kernel::OM->Get('Kernel::System::Email::Test');
+my $EmailObject         = $Kernel::OM->Get('Kernel::System::Email');
+
+my $Success = $UnitTestEmailObject->MailBackendSetup();
+$Self->True($Success, 'Test Mail Backend Setup');
+
+
+my @Email = $UnitTestEmailObject->EmailGet();
+
+$Self->False(
+    scalar @Email,
+    "No Emails received after cleanup",
+);
+
+my $Sent = $EmailObject->Send(
+    From          => 'sender@test.com',
+    To            => 'to@test.com',
+    Cc            => 'cc@test.com',
+    Bcc           => 'bcc@test.com',
+    ReplyTo       => 'ccr@test.com',
+    Subject       => 'MySubject',
+    Charset       => 'utf8',
+    MimeType      => 'text/html',
+    Body          => 'MyBody',
+    Loop          => 1,
+    CustomHeaders => {
+    },
+);
+
+$Self->True(
+    $Sent,
+    'Test Email sent.',
+);
+
+$Success = $UnitTestEmailObject->MailObjectDiscard();
+
+$Self->True($Success, 'Mail Object Discard');    
+
+@Email = $UnitTestEmailObject->EmailGet();
+
+$Success = $UnitTestEmailObject->EmailValidate(
+    Email   => \@Email,
+    Header  => [ qr{To\:[ ]to\@test\.com}xms, qr{CC\:[ ]cc\@test\.com}xms, ],
+    Body    => qr{MyBody}xms,
+    TOArray => [ qr{to\@test\.com}xms, qr{cc\@test\.com}xms, qr{bcc\@test\.com},],
+);
+
+$Self->True($Success, "Had Header:\n\t\tTo to\@test.com\n\t\tCC cc\@test.com\n\tTOArray:\n\t\tto\@test.com\n\t\tcc\@test.com\n\t\tbcc\@test.com\n\tBody:\n\t\tMyBody");
+
+$Success = $UnitTestEmailObject->MailCleanup();
+
+1;
