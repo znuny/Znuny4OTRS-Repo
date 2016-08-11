@@ -53,12 +53,9 @@ sub new {
     my $Self = {};
     bless( $Self, $Type );
 
-    $Self->{CacheType} = 'UnitTestEmail';
-    $Self->{CacheTTL}  = 60 * 60 * 24 * 20;
+    $Self->MailBackendSetup();
+    $Self->MailCleanup();
 
-	$Self->MailBackendSetup();
-	$Self->MailCleanup();
-    
     return $Self;
 }
 
@@ -175,7 +172,6 @@ Returns:
         },
         ...
     );
-    my $Success = 1;
 
 =cut
 sub EmailGet {
@@ -251,9 +247,10 @@ sub EmailValidate {
         return;
     }
 
-    if ( ! $Param{Header}
-         && ! $Param{Body}
-         && ! $Param{TOArray}
+    if (
+        ! $Param{Header}
+        && ! $Param{Body}
+        && ! $Param{TOArray}
     ) {
         $LogObject->Log(
             Priority => 'error',
@@ -263,7 +260,8 @@ sub EmailValidate {
     }
 
     # Header allows only Regexes
-    if ( $Param{Header}
+    if (
+        $Param{Header}
         && ref $Param{Header} ne 'Regexp'
         && ! IsArrayRefWithData( $Param{Header} )
     ) {
@@ -275,10 +273,11 @@ sub EmailValidate {
     }
 
     # Body allows only Regexes or Strings - if ref is defined and not Regex its false
-    if ( $Param{Body}
-         && ref $Param{Body}
-         && ref $Param{Body} ne 'Regexp'
-         && ref $Param{Body} ne 'ARRAY'
+    if (
+        $Param{Body}
+        && ref $Param{Body}
+        && ref $Param{Body} ne 'Regexp'
+        && ref $Param{Body} ne 'ARRAY'
     ) {
         $LogObject->Log(
             Priority => 'error',
@@ -315,8 +314,7 @@ sub EmailValidate {
             $SearchParamCount++;
 
             # If the SearchParam contained an array (e.g. TOArray or Header)
-            if ( IsArrayRefWithData( $Param{ $SearchParam } )
-            ) {
+            if ( IsArrayRefWithData( $Param{ $SearchParam } ) ) {
                 # Counter for each sucessfully found search term item
                 my $FoundCount = 0;
 
@@ -324,8 +322,8 @@ sub EmailValidate {
                 SEARCHTERMLOOP:
                 for my $SearchTerm ( @{ $Param{ $SearchParam } } ) {
 
-                    if ( 
-                        $SearchParam eq 'Header' 
+                    if (
+                        $SearchParam eq 'Header'
                         && ref $Param{ $SearchParam } ne 'Regexp'
                         && ref $Param{ $SearchParam } ne 'ARRAY'
                     ) {
@@ -343,16 +341,16 @@ sub EmailValidate {
                         # If matched increase the FoundCount
                         next SEARCHTERMLOOP if ! $Self->_SearchStringOrRegex(
                             Search => $SearchTerm,
-                            Data   => $Email->{ $SearchParam } ,
+                            Data   => $Email->{ $SearchParam },
                         );
 
                         $FoundCount++;
-                        
+
                         next SEARCHTERMLOOP;
                     }
 
                     # Check this Mails' SearchParam (e.g. TOArray entries) if the current Search Term matches
-                    EMAILSEARCHPARAMLOOP:                   
+                    EMAILSEARCHPARAMLOOP:
                     for my $EmailParam ( @{ $Email->{ $SearchParam } } ) {
 
                         # If matched increase the FoundCount
@@ -365,7 +363,7 @@ sub EmailValidate {
 
                         # If the searchterm (e.g. the Regex or search String)
                         # matched one TOArrayEntry, we can continue to the next searchterm
-                        # 
+                        #
                         # (Regexes may match multiple ToArrayEntries -> matched once is enough)
                         next SEARCHTERMLOOP;
                     }
@@ -376,7 +374,7 @@ sub EmailValidate {
 
                 # If the amount of search params matches the amount of founds *success*
                 if ( $FoundCount == scalar @{ $Param{ $SearchParam } } ) {
-                    $Found{ $SearchParam } = 1;                    
+                    $Found{ $SearchParam } = 1;
                 }
                 next SEARCHLOOP;
             }
@@ -417,6 +415,7 @@ sub EmailValidate {
         # this email matched => *success*
         return 1 if $SearchParamCount == scalar keys %Found;
     }
+
     return;
 }
 
