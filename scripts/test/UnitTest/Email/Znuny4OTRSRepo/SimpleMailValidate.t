@@ -32,8 +32,7 @@ my $TestEmailObject     = $Kernel::OM->Get('Kernel::System::Email::Test');
 my $EmailObject         = $Kernel::OM->Get('Kernel::System::Email');
 
 my $Success = $UnitTestEmailObject->MailBackendSetup();
-$Self->True($Success, 'Test Mail Backend Setup');
-
+$Self->True( $Success, 'Test Mail Backend Setup' );
 
 my @Email = $UnitTestEmailObject->EmailGet();
 
@@ -64,7 +63,7 @@ $Self->True(
 
 $Success = $UnitTestEmailObject->MailObjectDiscard();
 
-$Self->True($Success, 'Mail Object Discard');    
+$Self->True( $Success, 'Mail Object Discard' );
 
 @Email = $UnitTestEmailObject->EmailGet();
 
@@ -72,10 +71,13 @@ $Success = $UnitTestEmailObject->EmailValidate(
     Email   => \@Email,
     Header  => [ qr{To\:[ ]to\@test\.com}xms, qr{CC\:[ ]cc\@test\.com}xms, ],
     Body    => qr{MyBody}xms,
-    TOArray => [ qr{to\@test\.com}xms, qr{cc\@test\.com}xms, qr{bcc\@test\.com},],
+    TOArray => [ qr{to\@test\.com}xms, qr{cc\@test\.com}xms, qr{bcc\@test\.com}, ],
 );
 
-$Self->True($Success, "Had Header:\n\t\tTo to\@test.com\n\t\tCC cc\@test.com\n\tTOArray:\n\t\tto\@test.com\n\t\tcc\@test.com\n\t\tbcc\@test.com\n\tBody:\n\t\tMyBody");
+$Self->True(
+    $Success,
+    "Had Header:\n\t\tTo to\@test.com\n\t\tCC cc\@test.com\n\tTOArray:\n\t\tto\@test.com\n\t\tcc\@test.com\n\t\tbcc\@test.com\n\tBody:\n\t\tMyBody"
+);
 
 $Success = $UnitTestEmailObject->MailCleanup();
 
