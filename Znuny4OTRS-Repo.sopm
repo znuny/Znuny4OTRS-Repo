@@ -141,6 +141,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
+        <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
         <br/>
