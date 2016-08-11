@@ -41,14 +41,14 @@
     <Description Lang="en">Enables Znuny4OTRS repos to install and upgrade packages directly via package manager.</Description>
     <Description Lang="de">Aktiviert Znuny4OTRS Repositories um Pakete direkt in der Paket-Verwaltung zu installieren oder zu aktuallisieren.</Description>
     <Filelist>
-        <File Permission="644" Location="Kernel/Modules/Znuny4OTRSRepo.pm"/>
-        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
+        <File Permission="644" Location="Kernel/Modules/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnunyVerify.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
-        <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
+        <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
     </Filelist>
     <IntroInstall Type="pre" Title="Pre-Install Information" Lang="en"><![CDATA[
@@ -57,7 +57,6 @@
         Welcome to <u>Znuny4OTRS Repo</u>!
         <br/>
         <br/>
-
         <p>
         You are about to install the Znuny4OTRS Repo extension with the following features:
             <ul>
