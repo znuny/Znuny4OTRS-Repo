@@ -1,0 +1,29 @@
+image: otrs5ci
+
+stages:
+  - test
+  - deploy
+
+job_unit_otrs_Znuny4OTRSRepo:
+  stage: test
+  script:
+    - env
+    - pwd
+    - /run.sh
+    - su -c "git clone https://github.com/OTRS/module-tools.git" -s /bin/bash otrs
+    - su -c "module-tools/link.pl . /opt/otrs/" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-Repo.sopm" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Layout/Znuny4OTRSRepo" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Selenium/JavaScript/Znuny4OTRSInput/AgentTicketPhone" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test UnitTest/Email/Znuny4OTRSRepo/SimpleMailValidate" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo" -s /bin/bash otrs
+
+job_deploy_otrs_Znuny4OTRSRepo:
+  stage: deploy
+  script:
+    - git checkout $CI_BUILD_REF_NAME
+    - git pull --rebase origin $CI_BUILD_REF_NAME
+    - git filter-branch --force --index-filter "git rm --cached --ignore-unmatch './.gitlab-ci.yml'" --prune-empty --tag-name-filter cat -- $CI_BUILD_REF_NAME
+    - if git remote | grep github > /dev/null; then git remote rm github; fi
+    - git remote add github git@github.com:znuny/Znuny4OTRS-Repo.git
+    - git push github $CI_BUILD_REF_NAME
