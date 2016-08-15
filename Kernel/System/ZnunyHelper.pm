@@ -37,6 +37,7 @@ our @ObjectDependencies = (
     'Kernel::System::User',
     'Kernel::System::Valid',
     'Kernel::System::YAML',
+    'Kernel::System::ProcessManagement::DB::Process',
 );
 
 =head1 NAME
@@ -3393,6 +3394,194 @@ sub _PackageSetupInit {
     );
 
     return 1;
+}
+
+=item _ProcessCreateIfNotExists()
+
+creates processes if there is no active process with the same name
+
+    # installs all .yml files in $OTRS/scripts/processes/
+    # name of the file will be the name of the process
+    my $Success = $ZnunyHelperObject->_ProcessCreateIfNotExists(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Success = $ZnunyHelperObject->_ProcessCreateIfNotExists(
+        Processes => {
+            'New Process 1234' => '/path/to/Process.yml',
+            ...
+        }
+    );
+
+=cut
+
+sub _ProcessCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
+    my $DBProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
+
+    my $Processes = $Param{Processes};
+
+    if ( !IsHashRefWithData($Processes) ) {
+        $Processes = $Self->_ProcessesGet(
+            SubDir => $Param{SubDir},
+        );
+
+        if ( !IsHashRefWithData($Processes) ) {
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "No Processes found in $Param{SubDir}!"
+            );
+
+            return;
+        }
+    }
+
+    my $ProcessList = $DBProcessObject->ProcessListGet(
+        UserID => 1,
+    );
+
+    if ( !$ProcessList || !IsArrayRefWithData($ProcessList) ) {
+        $ProcessList = [];
+    }
+
+    my $ImportedProcessCounter = 0;
+
+    PROCESSLOOP:
+    for my $ProcessName ( sort keys %{$Processes} ) {
+
+        my $ProcessYAMLPath = $Processes->{$ProcessName};
+
+        # read config
+        my $Content = $MainObject->FileRead(
+            Location => $ProcessYAMLPath,
+            Mode     => 'utf8',
+        );
+
+        if ( !$Content ) {
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "Can't read $ProcessYAMLPath!"
+            );
+            next PROCESSLOOP;
+        }
+        my $ProcessData = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
+
+        if ( !IsHashRefWithData($ProcessData) ) {
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "YAML decode failed for file $ProcessYAMLPath!"
+            );
+            next PROCESSLOOP
+        }
+
+        if ( !IsHashRefWithData( $ProcessData->{Process} ) ) {
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "No Process found in file $ProcessYAMLPath!"
+            );
+            next PROCESSLOOP
+        }
+
+        if ( !IsStringWithData( $ProcessData->{Process}->{Name} ) ) {
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "Process had no Name in file $ProcessYAMLPath!"
+            );
+            next PROCESSLOOP
+        }
+
+        EXISTINGPROCESSLOOP:
+        for my $ExistingProcess ( @{$ProcessList} ) {
+            next EXISTINGPROCESSLOOP if !$ExistingProcess->{Name};
+
+            next EXISTINGPROCESSLOOP if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
+
+            next EXISTINGPROCESSLOOP if !$ExistingProcess->{State};
+
+            next EXISTINGPROCESSLOOP if $ExistingProcess->{State} ne 'Active';
+
+            $LogObject->Log(
+                Priority => 'error',
+                Message =>
+                    "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n\tAn active process with the same name is already existing!"
+            );
+
+            next PROCESSLOOP;
+
+        }
+
+        my %ProcessImport = $DBProcessObject->ProcessImport(
+            Content => ${$Content},
+            UserID  => 1,
+        );
+
+        if (
+            !%ProcessImport
+            || !$ProcessImport{Success}
+            )
+        {
+
+            $ProcessImport{Message} //= '';
+
+            $LogObject->Log(
+                Priority => 'error',
+                Message =>
+                    "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n\tBackend Error Message:\n\t$ProcessImport{Message}!"
+            );
+            next PROCESSLOOP;
+        }
+
+        $ImportedProcessCounter++;
+    }
+
+    return $ImportedProcessCounter;
+}
+
+=item _ProcessesGet()
+
+gets a list of .yml files from $OTRS/scripts/processes
+
+    my $Result = $ZnunyHelperObject->_ProcessesGet(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+    $Result = {
+        'Process'          => '$OTRS/scripts/processes/Znuny4OTRSAssetDesk/Process.yml',
+        'New Process 1234' => '$OTRS/scripts/processes/Znuny4OTRSAssetDesk/New Process 1234.yml',
+    }
+
+=cut
+
+sub _ProcessesGet {
+    my ( $Self, %Param ) = @_;
+
+    my $ProcessDirectory = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+        . '/scripts/processes';
+
+    if ( IsStringWithData( $Param{SubDir} ) ) {
+        $ProcessDirectory .= '/' . $Param{SubDir};
+    }
+
+    my @FilesInDirectory = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+        Directory => $ProcessDirectory,
+        Filter    => '*.yml',
+    );
+
+    my %Processes;
+    for my $FileWithPath (@FilesInDirectory) {
+
+        my $ProcessName = $FileWithPath;
+        $ProcessName =~ s{\A .+? \/ ([^\/]+) \. yml \z}{$1}xms;
+
+        $Processes{$ProcessName} = $FileWithPath;
+    }
+
+    return \%Processes;
 }
 
 1;
