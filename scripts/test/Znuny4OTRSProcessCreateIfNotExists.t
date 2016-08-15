@@ -108,19 +108,4 @@ for my $Test (@Tests) {
     }
 }
 
-# my $Success = $ZnunyHelperObject->_ProcessCreateIfNotExists(
-#     SubDir => 'UnitTestRepo',
-# );
-
-# $Self->True(
-#     $Success,
-#     "_ProcessCreateIfNotExists successful",
-# );
-
-# See the objects following objects for helper functions:
-# Kernel::System::UnitTest::Helper
-# Kernel::System::ZnunyHelper
-
-# alternativly there are SublimeText snippets with the prefix otrs.unittest.backend
-
 1;
