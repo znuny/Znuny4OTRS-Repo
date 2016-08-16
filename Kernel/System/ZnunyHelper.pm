@@ -3497,12 +3497,10 @@ sub _ProcessCreateIfNotExists {
 
         EXISTINGPROCESSLOOP:
         for my $ExistingProcess ( @{$ProcessList} ) {
+
             next EXISTINGPROCESSLOOP if !$ExistingProcess->{Name};
-
             next EXISTINGPROCESSLOOP if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
-
             next EXISTINGPROCESSLOOP if !$ExistingProcess->{State};
-
             next EXISTINGPROCESSLOOP if $ExistingProcess->{State} ne 'Active';
 
             $LogObject->Log(
@@ -3512,7 +3510,6 @@ sub _ProcessCreateIfNotExists {
             );
 
             next PROCESSLOOP;
-
         }
 
         my %ProcessImport = $DBProcessObject->ProcessImport(

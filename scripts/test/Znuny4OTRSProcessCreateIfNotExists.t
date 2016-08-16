@@ -46,6 +46,7 @@ my @Tests = (
             Name     => 'ZnunyProcessTest',
             FilePath => 'ValidYAMLNoProcess.yml'
         },
+        Type => 'False',
     },
     {
         Name    => 'Valid YAML but no Process Name',
@@ -98,7 +99,6 @@ for my $Test (@Tests) {
             $Success,
             $Test->{Name},
         );
-
     }
     elsif ( $Test->{Type} eq 'False' ) {
         $Self->False(
