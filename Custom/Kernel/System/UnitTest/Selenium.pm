@@ -974,6 +974,27 @@ sub AgentInterface {
     );
 }
 
+=item AgentRequest()
+
+Performs a GET request to a non-JS controller in the AgentInterface with the given parameters. Interally _GETRequest is called.
+
+    $SeleniumObject->AgentRequest(
+        Action      => 'CustomerUserSearch',
+        Param       => {
+            Term => 'test-customer-user'
+        }
+    );
+=cut
+
+sub AgentRequest {
+    my ( $Self, %Param ) = @_;
+
+    $Self->_GETRequest(
+        Interface => 'Agent',
+        Param     => \%Param,
+    );
+}
+
 =item CustomerInterface()
 
 Performs a GET request to the CustomerInterface with the given parameters. Interally _GETInterface is called.
@@ -991,6 +1012,27 @@ sub CustomerInterface {
         Interface   => 'Customer',
         WaitForAJAX => delete $Param{WaitForAJAX},
         Param       => \%Param,
+    );
+}
+
+=item CustomerRequest()
+
+Performs a GET request to a non-JS controller in the CustomerInterface with the given parameters. Interally _GETRequest is called.
+
+    $SeleniumObject->CustomerRequest(
+        Action      => 'CustomerUserSearch',
+        Param       => {
+            Term => 'test-customer-user'
+        }
+    );
+=cut
+
+sub CustomerRequest {
+    my ( $Self, %Param ) = @_;
+
+    $Self->_GETRequest(
+        Interface => 'Customer',
+        Param     => \%Param,
     );
 }
 
@@ -1014,6 +1056,27 @@ sub PublicInterface {
     );
 }
 
+=item PublicRequest()
+
+Performs a GET request to a non-JS controller in the PublicInterface with the given parameters. Interally _GETRequest is called.
+
+    $SeleniumObject->PublicRequest(
+        Action      => 'PublicUserSearch',
+        Param       => {
+            Term => 'test-customer-user'
+        }
+    );
+=cut
+
+sub PublicRequest {
+    my ( $Self, %Param ) = @_;
+
+    $Self->_GETRequest(
+        Interface => 'Public',
+        Param     => \%Param,
+    );
+}
+
 =item _GETInterface()
 
 Performs a GET request to the given Interface with the given parameters. Interally VerifiedGet is called.
@@ -1031,20 +1094,7 @@ all AJAX requests are compleded via function AJAXCompleted.
 sub _GETInterface {
     my ( $Self, %Param ) = @_;
 
-    # get script alias
-    my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
-
-    my %InterfaceMapping = (
-        Agent    => 'index',
-        Customer => 'customer',
-        Public   => 'public',
-    );
-
-    my $RequestURL = $ScriptAlias . $InterfaceMapping{ $Param{Interface} } .'.pl';
-    if ( IsHashRefWithData( $Param{Param} ) ) {
-        $RequestURL .= '?';
-        $RequestURL .= $Self->_Hash2GETParamString( %{ $Param{Param} } );
-    }
+    my $RequestURL = $Self->RequestURLBuild( %Param );
 
     $Self->VerifiedGet($RequestURL);
 
@@ -1062,6 +1112,64 @@ sub _GETInterface {
     }
 
     $Self->AJAXCompleted();
+}
+
+=item _GETRequest()
+
+Performs a GET request to a Request endpoint in the given Interface with the given parameters. Interally Seleniums get is called.
+
+    $SeleniumObject->_GETRequest(
+        Interface   => 'Agent',           # or Customer or Public
+        Param       => {                  # optional
+            Action => AgentTicketZoom,
+        }
+    );
+=cut
+sub _GETRequest {
+    my ( $Self, %Param ) = @_;
+
+    my $RequestURL = $Self->RequestURLBuild( %Param );
+
+    $Self->get($RequestURL);
+}
+
+=item RequestURLBuild()
+
+This function builds a requestable HTTP GET URL to the given OTRS interface with the given parameters
+
+    my $RequestURL = $SeleniumObject->RequestURLBuild(
+        Interface   => 'Agent',           # or Customer or Public
+        Param       => {                  # optional
+            Action => AgentTicketZoom,
+        }
+    );
+
+    $RequestURL = 'http://localhost/otrs/index.pl?Action=AgentTicketZoom';
+
+=cut
+
+sub RequestURLBuild {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # get script alias
+    my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
+
+    my %InterfaceMapping = (
+        Agent    => 'index',
+        Customer => 'customer',
+        Public   => 'public',
+    );
+
+    my $RequestURL = $ScriptAlias . $InterfaceMapping{ $Param{Interface} } .'.pl';
+
+    return $RequestURL if !IsHashRefWithData( $Param{Param} );
+
+    $RequestURL .= '?';
+    $RequestURL .= $Self->_Hash2GETParamString( %{ $Param{Param} } );
+
+    return $RequestURL;
 }
 
 =item _Hash2GETParamString()

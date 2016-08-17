@@ -123,8 +123,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
-        <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
+        <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
@@ -133,6 +133,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Selenium/JavaScript/Znuny4OTRSInput/AgentTicketPhone.t"/>
+        <File Permission="644" Location="scripts/test/Selenium/Selenium/Request.t"/>
         <File Permission="644" Location="scripts/test/UnitTest/Email/Znuny4OTRSRepo/SimpleMailValidate.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>

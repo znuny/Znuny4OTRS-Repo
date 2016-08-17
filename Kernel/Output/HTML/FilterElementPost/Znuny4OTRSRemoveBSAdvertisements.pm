@@ -258,7 +258,8 @@ Remove the following block:
 
 =cut
 
-    ${ $Param{Data} } =~ s{ \$\('body'\)\.on\('click', \s 'a\.OTRSBusinessRequired', \s function\(\) \s \{ .*? \); \s* return \s false; \s* \}\); }{}xmsi;
+    ${ $Param{Data} }
+        =~ s{ \$\('body'\)\.on\('click', \s 'a\.OTRSBusinessRequired', \s function\(\) \s \{ .*? \); \s* return \s false; \s* \}\); }{}xmsi;
 
     return 1;
 }
