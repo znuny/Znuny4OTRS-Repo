@@ -24,7 +24,6 @@ job_deploy_otrs_Znuny4OTRSRepo:
   stage: deploy
   script:
     - git checkout $CI_BUILD_REF_NAME
-    - if [ -f $CI_PROJECT_DIR/.git/rebase-apply ]; then rm $CI_PROJECT_DIR/.git/rebase-apply; fi
     - git pull --rebase origin $CI_BUILD_REF_NAME
     - git filter-branch --force --index-filter "git rm --cached --ignore-unmatch './.gitlab-ci.yml'" --prune-empty --tag-name-filter cat -- $CI_BUILD_REF_NAME
     - if git remote | grep github > /dev/null; then git remote rm github; fi
