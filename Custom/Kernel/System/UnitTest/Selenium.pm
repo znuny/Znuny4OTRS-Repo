@@ -1222,7 +1222,7 @@ $Self->{'Frontend::Module'}->{'Example'} =  {
 CONFIG
 
     my $Success = $SeleniumObject->SysConfig(
-        String => $ConfigString,
+        ConfigString => $ConfigString,
     );
 
 =cut
