@@ -140,7 +140,7 @@ $Self->True(
 $Success = $LayoutObject->_OutputFilterHookReplace(
     Name    => 'ActionAdd',
     Replace => sub {
-        my ( %Param ) = @_;
+        my (%Param) = @_;
 
         my $Content = $Param{Content};
 
