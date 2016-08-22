@@ -1238,7 +1238,7 @@ sub SysConfig {
 
         next NEEDED if defined $Param{ $Needed };
 
-        $Self->{LogObject}->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
