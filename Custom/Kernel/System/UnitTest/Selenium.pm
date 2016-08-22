@@ -1245,6 +1245,21 @@ sub SysConfig {
         return;
     }
 
+    my $RestoreSystemConfigurationCheck = IsStringWithData( $Self->{UnitTestObject}->{SysConfigBackup} );
+    $Self->{UnitTestObject}->True(
+        $RestoreSystemConfigurationCheck,
+        "Kernel::System::UnitTest::Helper was initialized with 'RestoreSystemConfiguration'",
+    );
+    return if !$RestoreSystemConfigurationCheck;
+
+    my $ChangedSysConfig = $Self->{UnitTestObject}->{SysConfigBackup};
+
+    # append
+    $ChangedSysConfig =~ s{(\} \s+ 1;\Z)}{$Param{ConfigString}$1}xms;
+
+    $Self->{UnitTestObject}->{SysConfigObject}->Upload( Content => $ChangedSysConfig );
+
+    return 1;
 }
 
 # ---
