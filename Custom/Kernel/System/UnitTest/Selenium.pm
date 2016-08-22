@@ -1266,6 +1266,61 @@ sub _Hash2GETParamString {
     return join ';', @Pairs;
 }
 
+=item SysConfig()
+
+This function sets a permanent entry in the SysConfig via a Perl structure that is available in the Selenium scope.
+
+    my $ConfigString = <<'CONFIG';
+
+$Self->{'Frontend::Module'}->{'Example'} =  {
+  'Description' => 'Admin',
+  'Group' => [
+    'admin'
+  ],
+  'Loader' => {
+    'JavaScript' => [
+      'Core.UI.Table.js'
+    ]
+  },
+  'NavBarModule' => {
+    'Block' => 'System',
+    'Description' => 'View the example.',
+    'Module' => 'Kernel::Output::HTML::NavBar::ModuleAdmin',
+    'Name' => 'Example',
+    'Prio' => '500'
+  },
+  'NavBarName' => 'Admin',
+  'Title' => 'Example'
+};
+
+CONFIG
+
+    my $Success = $SeleniumObject->SysConfig(
+        String => $ConfigString,
+    );
+
+=cut
+
+sub SysConfig {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(ConfigString) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $Self->{LogObject}->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+}
+
 # ---
 
 1;
