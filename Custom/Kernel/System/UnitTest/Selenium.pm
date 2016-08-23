@@ -1237,9 +1237,9 @@ sub SysConfig {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(ConfigString) ) {
+    for my $Needed (qw(ConfigString)) {
 
-        next NEEDED if defined $Param{ $Needed };
+        next NEEDED if defined $Param{$Needed};
 
         $LogObject->Log(
             Priority => 'error',
@@ -1248,13 +1248,35 @@ sub SysConfig {
         return;
     }
 
-    my $RestoreSystemConfigurationCheck = IsStringWithData( $HelperObject->{SysConfigBackup} );
+    my $RestoreSystemConfigurationCheck = IsString( $HelperObject->{SysConfigBackup} );
 
     $Self->{UnitTestObject}->True(
         $RestoreSystemConfigurationCheck,
         "Kernel::System::UnitTest::Helper was initialized with 'RestoreSystemConfiguration'",
     );
     return if !defined $RestoreSystemConfigurationCheck;
+
+    # if there are no changes in the system we have to add
+    # our own ZZZAuto.pm stub that we can extend and that
+    # will get restored which will produce no config
+    # changes as an not existing file would
+    if ( !IsStringWithData( $HelperObject->{SysConfigBackup} ) ) {
+
+        $HelperObject->{SysConfigBackup} = <<'SYSCONFIGTEMPLATE';
+# OTRS config file (automatically generated - NOOOOOOT!)
+# VERSION:1.1
+package Kernel::Config::Files::ZZZAuto;
+use strict;
+use warnings;
+no warnings 'redefine';
+use utf8;
+sub Load {
+my ($File, $Self) = @_;
+
+}
+1;
+SYSCONFIGTEMPLATE
+    }
 
     my $ChangedSysConfig = $HelperObject->{SysConfigBackup};
 
