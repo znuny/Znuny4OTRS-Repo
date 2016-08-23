@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.4</Version>
+    <Version>5.0.5</Version>
+    <ChangeLog Version="5.0.5" Date="2016-08-23 16:16:00 +0200">Fixed bug: Empty ZZZAuto.pm causes wrong SysConfig handling in Selenium tests.</ChangeLog>
     <ChangeLog Version="5.0.4" Date="2016-08-23 10:50:39 +0200">Added SysConfig Selenium helper function.&#13;
 Added Agent-, Customer- and PublicRequest Selenium helpers for non-JS interface requests.&#13;
 Added ProcessImportHelper and Unittest for it.&#13;
