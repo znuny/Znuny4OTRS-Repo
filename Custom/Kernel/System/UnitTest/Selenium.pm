@@ -43,6 +43,7 @@ our @ObjectDependencies = (
 # Znuny4OTRS-Repo
 # ---
     'Kernel::System::JSON',
+    'Kernel::System::SysConfig',
     'Kernel::System::UnitTest::Helper',
 # ---
 );
