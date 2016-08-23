@@ -1304,7 +1304,9 @@ CONFIG
 sub SysConfig {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $HelperObject    = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
     # check needed stuff
     NEEDED:
@@ -1319,19 +1321,20 @@ sub SysConfig {
         return;
     }
 
-    my $RestoreSystemConfigurationCheck = IsStringWithData( $Self->{UnitTestObject}->{SysConfigBackup} );
+    my $RestoreSystemConfigurationCheck = IsStringWithData( $HelperObject->{SysConfigBackup} );
+
     $Self->{UnitTestObject}->True(
         $RestoreSystemConfigurationCheck,
         "Kernel::System::UnitTest::Helper was initialized with 'RestoreSystemConfiguration'",
     );
-    return if !$RestoreSystemConfigurationCheck;
+    return if !defined $RestoreSystemConfigurationCheck;
 
-    my $ChangedSysConfig = $Self->{UnitTestObject}->{SysConfigBackup};
+    my $ChangedSysConfig = $HelperObject->{SysConfigBackup};
 
     # append
     $ChangedSysConfig =~ s{(\} \s+ 1;\Z)}{$Param{ConfigString}$1}xms;
 
-    $Self->{UnitTestObject}->{SysConfigObject}->Upload( Content => $ChangedSysConfig );
+    $SysConfigObject->Upload( Content => $ChangedSysConfig );
 
     return 1;
 }
