@@ -33,14 +33,6 @@ my @Tests = (
         Type      => 'False',
     },
     {
-        Name    => 'Emty YAML file',
-        Process => {
-            Name     => 'ZnunyProcessTest',
-            FilePath => 'EmptyYAML.yml'
-        },
-        Type => 'False',
-    },
-    {
         Name    => 'Valid YAML but no Process',
         Process => {
             Name     => 'ZnunyProcessTest',
