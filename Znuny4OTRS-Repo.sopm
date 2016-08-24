@@ -136,7 +136,6 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
-        <File Permission="644" Location="scripts/processes/UnitTestRepo/EmptyYAML.yml"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ValidProcess/UnitTestRepo.yml"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ValidYAMLMissingActivity.yml"/>
