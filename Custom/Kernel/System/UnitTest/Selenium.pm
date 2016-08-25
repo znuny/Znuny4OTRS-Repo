@@ -1195,97 +1195,15 @@ sub _Hash2GETParamString {
 
 =item SysConfig()
 
-This function sets a permanent entry in the SysConfig via a Perl structure that is available in the Selenium scope.
+DEPRECATED!!!! So yound and already dead :(
 
-    my $ConfigString = <<'CONFIG';
-
-$Self->{'Frontend::Module'}->{'Example'} =  {
-  'Description' => 'Admin',
-  'Group' => [
-    'admin'
-  ],
-  'Loader' => {
-    'JavaScript' => [
-      'Core.UI.Table.js'
-    ]
-  },
-  'NavBarModule' => {
-    'Block' => 'System',
-    'Description' => 'View the example.',
-    'Module' => 'Kernel::Output::HTML::NavBar::ModuleAdmin',
-    'Name' => 'Example',
-    'Prio' => '500'
-  },
-  'NavBarName' => 'Admin',
-  'Title' => 'Example'
-};
-
-CONFIG
-
-    my $Success = $SeleniumObject->SysConfig(
-        ConfigString => $ConfigString,
-    );
+Please use Kernel::System::UnitTest::Helper->ConfigSettingChange instead!
 
 =cut
 
 sub SysConfig {
     my ( $Self, %Param ) = @_;
-
-    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
-    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-    my $HelperObject    = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
-    # check needed stuff
-    NEEDED:
-    for my $Needed (qw(ConfigString)) {
-
-        next NEEDED if defined $Param{$Needed};
-
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
-        );
-        return;
-    }
-
-    my $RestoreSystemConfigurationCheck = IsString( $HelperObject->{SysConfigBackup} );
-
-    $Self->{UnitTestObject}->True(
-        $RestoreSystemConfigurationCheck,
-        "Kernel::System::UnitTest::Helper was initialized with 'RestoreSystemConfiguration'",
-    );
-    return if !defined $RestoreSystemConfigurationCheck;
-
-    # if there are no changes in the system we have to add
-    # our own ZZZAuto.pm stub that we can extend and that
-    # will get restored which will produce no config
-    # changes as an not existing file would
-    if ( !IsStringWithData( $HelperObject->{SysConfigBackup} ) ) {
-
-        $HelperObject->{SysConfigBackup} = <<'SYSCONFIGTEMPLATE';
-# OTRS config file (automatically generated - NOOOOOOT!)
-# VERSION:1.1
-package Kernel::Config::Files::ZZZAuto;
-use strict;
-use warnings;
-no warnings 'redefine';
-use utf8;
-sub Load {
-my ($File, $Self) = @_;
-
-}
-1;
-SYSCONFIGTEMPLATE
-    }
-
-    my $ChangedSysConfig = $HelperObject->{SysConfigBackup};
-
-    # append
-    $ChangedSysConfig =~ s{(\} \s+ 1;\Z)}{$Param{ConfigString}$1}xms;
-
-    $SysConfigObject->Upload( Content => $ChangedSysConfig );
-
-    return 1;
+    die "DEPRECATED! Please use Kernel::System::UnitTest::Helper->ConfigSettingChange instead!\n";
 }
 
 # ---
