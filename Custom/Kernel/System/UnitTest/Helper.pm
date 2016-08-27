@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/f7f95006c412482afb3402b19abe9971d779d063/Kernel/System/UnitTest/Helper.pm
+# $origin: https://github.com/OTRS/otrs/blob/2a125d51a74cb7fd6f4cf7343ffb950b432f61d4/Kernel/System/UnitTest/Helper.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -171,7 +171,10 @@ my %GetRandomNumberPrevious;
 
 sub GetRandomNumber {
 
-    my $Prefix = $$ . substr time(), -5, 5;
+    my $PIDReversed = reverse $$;
+    my $PID = reverse sprintf '%.6d', $PIDReversed;
+
+    my $Prefix = $PID . substr time(), -5, 5;
 
     return $Prefix . $GetRandomNumberPrevious{$Prefix}++ || 0;
 }
