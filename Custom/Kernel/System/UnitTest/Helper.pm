@@ -2032,6 +2032,77 @@ sub DatabaseXML {
     return 1;
 }
 
+=item ConsoleCommand()
+
+This is a helper function for executing ConsoleCommands without the hassle.
+
+    my $Result = $HelperObject->ConsoleCommand(
+        CommandModule => 'Kernel::System::Console::Command::Maint::Cache::Delete',
+    );
+
+    # or
+
+    my $Result = $HelperObject->ConsoleCommand(
+        CommandModule => 'Kernel::System::Console::Command::Maint::Cache::Delete',
+        Parameter     => [ '--type', 'Znuny4OTRSIstCool' ],
+    );
+
+    # or
+
+    my $Result = $HelperObject->ConsoleCommand(
+        CommandModule => 'Kernel::System::Console::Command::Help',
+        Parameter     => 'Lis',
+    );
+
+    $Result = {
+        ExitCode => 0,      # or 1 in case of an error
+        STDOUT   => '...',
+        STDERR   => undef,
+    }
+
+=cut
+
+sub ConsoleCommand {
+    my ( $Self, %Param ) = @_;
+
+    my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
+
+    $Self->{UnitTestObject}->True(
+        scalar IsStringWithData($Param{CommandModule}),
+        'Command module given.',
+    ) || return;
+
+    my $CommandObject = $Kernel::OM->Get( $Param{CommandModule} );
+
+    $Self->{UnitTestObject}->Is(
+        ref $CommandObject,
+        $Param{CommandModule},
+        "CommandObject created from module name '$Param{CommandModule}'",
+    ) || return;
+
+    if ( IsStringWithData($Param{Parameter}) ) {
+        $Param{Parameter} = [ $Param{Parameter} ];
+    }
+    elsif ( !IsArrayRefWithData($Param{Parameter}) ) {
+        $Param{Parameter} = [];
+    }
+
+    my %Result;
+    {
+        local *STDOUT;
+        local *STDERR;
+        open STDOUT, '>:encoding(UTF-8)', \$Result{STDOUT};
+        open STDERR, '>:encoding(UTF-8)', \$Result{STDERR};
+
+        $Result{ExitCode} = $CommandObject->Execute( @{ $Param{Parameter} } );
+
+        $EncodeObject->EncodeInput( \$Result{STDOUT} );
+        $EncodeObject->EncodeInput( \$Result{STDERR} );
+    }
+
+    return \%Result;
+}
+
 # ---
 
 1;
