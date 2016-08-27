@@ -696,6 +696,136 @@ sub DESTROY {
     $ZnunyHelperObject->_DynamicFieldsDelete( @{ $Self->{TestDynamicFields} } );
 # ---
 }
+
+=item ConfigSettingChange()
+
+temporarily change a configuration setting system wide to another value,
+both in the current ConfigObject and also in the system configuration on disk.
+
+This will be reset when the Helper object is destroyed.
+
+Please note that this will not work correctly in clustered environments.
+
+    $Helper->ConfigSettingChange(
+        Valid => 1,            # (optional) enable or disable setting
+        Key   => 'MySetting',  # setting name
+        Value => { ... } ,     # setting value
+    );
+
+=cut
+
+sub ConfigSettingChange {
+    my ( $Self, %Param ) = @_;
+
+    my $Valid = $Param{Valid} // 1;
+    my $Key   = $Param{Key};
+    my $Value = $Param{Value};
+
+    die "Need 'Key'" if !defined $Key;
+
+    my $RandomNumber = $Self->GetRandomNumber();
+
+    my $KeyDump = $Key;
+    $KeyDump =~ s|'|\\'|smxg;
+    $KeyDump = "\$Self->{'$KeyDump'}";
+    $KeyDump =~ s|\#{3}|'}->{'|smxg;
+
+    # Also set at runtime in the ConfigObject. This will be destroyed at the end of the unit test.
+    $Kernel::OM->Get('Kernel::Config')->Set(
+        Key   => $Key,
+        Value => $Valid ? $Value : undef,
+    );
+
+    my $ValueDump;
+    if ($Valid) {
+        $ValueDump = $Kernel::OM->Get('Kernel::System::Main')->Dump($Value);
+        $ValueDump =~ s/\$VAR1/$KeyDump/;
+    }
+    else {
+        $ValueDump = "delete $KeyDump;"
+    }
+
+    my $PackageName = "ZZZZUnitTest$RandomNumber";
+
+    my $Content = <<"EOF";
+# OTRS config file (automatically generated)
+# VERSION:1.1
+package Kernel::Config::Files::$PackageName;
+use strict;
+use warnings;
+no warnings 'redefine';
+use utf8;
+sub Load {
+    my (\$File, \$Self) = \@_;
+    $ValueDump
+}
+1;
+EOF
+    my $Home     = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+    my $FileName = "$Home/Kernel/Config/Files/$PackageName.pm";
+    $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
+        Location => $FileName,
+        Mode     => 'utf8',
+        Content  => \$Content,
+    ) || die "Could not write $FileName";
+
+    return 1;
+}
+
+=item ConfigSettingCleanup()
+
+remove all config setting changes from ConfigSettingChange();
+
+=cut
+
+sub ConfigSettingCleanup {
+    my ( $Self, %Param ) = @_;
+
+    my $Home  = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+    my @Files = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+        Directory => "$Home/Kernel/Config/Files",
+        Filter    => "ZZZZUnitTest*.pm",
+    );
+    for my $File (@Files) {
+        $Kernel::OM->Get('Kernel::System::Main')->FileDelete(
+            Location => $File,
+        ) || die "Could not delete $File";
+    }
+    return 1;
+}
+
+=item UseTmpArticleDir()
+
+switch the article storage directory to a temporary one to prevent collisions;
+
+=cut
+
+sub UseTmpArticleDir {
+    my ( $Self, %Param ) = @_;
+
+    my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+
+    my $TmpArticleDir;
+    TRY:
+    for my $Try ( 1 .. 100 ) {
+
+        $TmpArticleDir = $Home . '/var/tmp/unittest-article-' . $Self->GetRandomNumber();
+
+        next TRY if -e $TmpArticleDir;
+        last TRY;
+    }
+
+    $Self->ConfigSettingChange(
+        Valid => 1,
+        Key   => 'ArticleDir',
+        Value => $TmpArticleDir,
+    );
+
+    $Self->{TmpArticleDir} = $TmpArticleDir;
+
+    return 1;
+}
+
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -1903,135 +2033,6 @@ sub DatabaseXML {
 }
 
 # ---
-
-=item ConfigSettingChange()
-
-temporarily change a configuration setting system wide to another value,
-both in the current ConfigObject and also in the system configuration on disk.
-
-This will be reset when the Helper object is destroyed.
-
-Please note that this will not work correctly in clustered environments.
-
-    $Helper->ConfigSettingChange(
-        Valid => 1,            # (optional) enable or disable setting
-        Key   => 'MySetting',  # setting name
-        Value => { ... } ,     # setting value
-    );
-
-=cut
-
-sub ConfigSettingChange {
-    my ( $Self, %Param ) = @_;
-
-    my $Valid = $Param{Valid} // 1;
-    my $Key   = $Param{Key};
-    my $Value = $Param{Value};
-
-    die "Need 'Key'" if !defined $Key;
-
-    my $RandomNumber = $Self->GetRandomNumber();
-
-    my $KeyDump = $Key;
-    $KeyDump =~ s|'|\\'|smxg;
-    $KeyDump = "\$Self->{'$KeyDump'}";
-    $KeyDump =~ s|\#{3}|'}->{'|smxg;
-
-    # Also set at runtime in the ConfigObject. This will be destroyed at the end of the unit test.
-    $Kernel::OM->Get('Kernel::Config')->Set(
-        Key   => $Key,
-        Value => $Valid ? $Value : undef,
-    );
-
-    my $ValueDump;
-    if ($Valid) {
-        $ValueDump = $Kernel::OM->Get('Kernel::System::Main')->Dump($Value);
-        $ValueDump =~ s/\$VAR1/$KeyDump/;
-    }
-    else {
-        $ValueDump = "delete $KeyDump;"
-    }
-
-    my $PackageName = "ZZZZUnitTest$RandomNumber";
-
-    my $Content = <<"EOF";
-# OTRS config file (automatically generated)
-# VERSION:1.1
-package Kernel::Config::Files::$PackageName;
-use strict;
-use warnings;
-no warnings 'redefine';
-use utf8;
-sub Load {
-    my (\$File, \$Self) = \@_;
-    $ValueDump
-}
-1;
-EOF
-    my $Home     = $Kernel::OM->Get('Kernel::Config')->Get('Home');
-    my $FileName = "$Home/Kernel/Config/Files/$PackageName.pm";
-    $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
-        Location => $FileName,
-        Mode     => 'utf8',
-        Content  => \$Content,
-    ) || die "Could not write $FileName";
-
-    return 1;
-}
-
-=item ConfigSettingCleanup()
-
-remove all config setting changes from ConfigSettingChange();
-
-=cut
-
-sub ConfigSettingCleanup {
-    my ( $Self, %Param ) = @_;
-
-    my $Home  = $Kernel::OM->Get('Kernel::Config')->Get('Home');
-    my @Files = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
-        Directory => "$Home/Kernel/Config/Files",
-        Filter    => "ZZZZUnitTest*.pm",
-    );
-    for my $File (@Files) {
-        $Kernel::OM->Get('Kernel::System::Main')->FileDelete(
-            Location => $File,
-        ) || die "Could not delete $File";
-    }
-    return 1;
-}
-
-=item UseTmpArticleDir()
-
-switch the article storage directory to a temporary one to prevent collisions;
-
-=cut
-
-sub UseTmpArticleDir {
-    my ( $Self, %Param ) = @_;
-
-    my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
-
-    my $TmpArticleDir;
-    TRY:
-    for my $Try ( 1 .. 100 ) {
-
-        $TmpArticleDir = $Home . '/var/tmp/unittest-article-' . $Self->GetRandomNumber();
-
-        next TRY if -e $TmpArticleDir;
-        last TRY;
-    }
-
-    $Self->ConfigSettingChange(
-        Valid => 1,
-        Key   => 'ArticleDir',
-        Value => $TmpArticleDir,
-    );
-
-    $Self->{TmpArticleDir} = $TmpArticleDir;
-
-    return 1;
-}
 
 1;
 
