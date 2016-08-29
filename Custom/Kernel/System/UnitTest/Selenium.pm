@@ -523,7 +523,7 @@ Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Set' function.
         Attribute   => 'QueueID',
         WaitForAJAX => 0,                       # optional, default 1
         Content     => 'Misc',                  # optional, none removes content
-        Options     => {                        # optinal
+        Options     => {                        # optional
             KeyOrValue    => 'Value',           # default is 'Key'
             TriggerChange => 0,                 # default is 1
         }
