@@ -1268,18 +1268,14 @@ sub _Hash2GETParamString {
     my ( $Self, %Param ) = @_;
     my @Pairs;
 
-    PARAMLOOP:
     for my $Key (sort keys %Param) {
-        if ( ! ref $Param{$Key} ) {
-            push @Pairs, join '=', map { uri_escape($_) } $Key, $Param{$Key};
-            next PARAMLOOP
+
+        if ( !IsArrayRefWithData( $Param{$Key} ) ) {
+            $Param{$Key} = [ $Param{$Key} ];
         }
 
-        if ( ref $Param{$Key} eq 'ARRAY' ) {
-            VALLOOP:
-            for my $Value ( @{$Param{$Key}} ) {
-                push @Pairs, join '=', map { uri_escape($_) } $Key, $Value;
-            }
+        for my $Value ( @{$Param{$Key}} ) {
+            push @Pairs, join '=', map { uri_escape($_) } $Key, $Value;
         }
     }
     return join ';', @Pairs;
