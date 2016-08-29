@@ -1181,14 +1181,11 @@ Converts a Hash into a GET Parameter String, without the leading ?. Inspired by 
         Action   => 'AgentTicketZoom',
         TicketID => 1,
     );
-# ---
-# Znuny4OTRS-Repo
-# ---
+
     my $Result = $SeleniumObject->_Hash2GETParamString(
         Action   => 'AgentTicketZoom',
         TicketID => \@TicketIDs,
     );
-# ---
 
     $Result = 'Action=AgentTicketZoom;TicketID=1'
 =cut
@@ -1196,17 +1193,9 @@ Converts a Hash into a GET Parameter String, without the leading ?. Inspired by 
 sub _Hash2GETParamString {
     my ( $Self, %Param ) = @_;
     my @Pairs;
-# ---
-# Znuny4OTRS-Repo
-# ---
-    PARAMLOOP:
-# ---
-    for my $Key (sort keys %Param) {
-# ---
-# Znuny4OTRS-Repo
-# ---
-#        push @Pairs, join '=', map { uri_escape($_) } $Key, $Param{$Key};
 
+    PARAMLOOP:
+    for my $Key (sort keys %Param) {
         if ( ! ref $Param{$Key} ) {
             push @Pairs, join '=', map { uri_escape($_) } $Key, $Param{$Key};
             next PARAMLOOP
@@ -1218,7 +1207,6 @@ sub _Hash2GETParamString {
                 push @Pairs, join '=', map { uri_escape($_) } $Key, $Value;
             }
         }
-# ---
     }
     return join ';', @Pairs;
 }
