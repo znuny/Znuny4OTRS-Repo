@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.6</Version>
+    <Version>5.0.7</Version>
+    <ChangeLog Version="5.0.7" Date="2016-08-30 17:14:06 +0200">- Updated UnitTest helper to backport new Config helper of OTRS 5.0.13.&#13;
+- Added CreateGenericInterfaceMappingObject UnitTest helper function.&#13;
+- Added ConsoleCommand UnitTest helper function.</ChangeLog>
     <ChangeLog Version="5.0.6" Date="2016-08-24 15:33:45 +0200">Removed empty YAML file that broke installation.</ChangeLog>
     <ChangeLog Version="5.0.5" Date="2016-08-23 16:16:00 +0200">Fixed bug: Empty ZZZAuto.pm causes wrong SysConfig handling in Selenium tests.</ChangeLog>
     <ChangeLog Version="5.0.4" Date="2016-08-23 10:50:39 +0200">Added SysConfig Selenium helper function.&#13;
