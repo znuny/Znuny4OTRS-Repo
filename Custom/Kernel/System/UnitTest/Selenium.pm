@@ -541,7 +541,7 @@ For setting DynamicField Date or DateTime Fields the call should look like:
             Hour   => '00',
             Minute => '00',
             Second => '00',
-            Used => 1, # THIS ONE IS IMPORTANT - 
+            Used   => 1, # THIS ONE IS IMPORTANT - 
                        # if not set to 1 field will not get activated and though not transmitted
         },
         WaitForAJAX => 1,
