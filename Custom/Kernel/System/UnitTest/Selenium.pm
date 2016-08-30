@@ -603,6 +603,30 @@ Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Set' function.
         }
     );
 
+!!!! ATTENTION !!!!
+For setting DynamicField Date or DateTime Fields the call should look like:
+
+    my $Result = $SeleniumObject->InputSet(
+        Attribute => 'DynamicField_NameOfYourDateOrDateTimeField',
+        Content   => {
+            Year   => '2016',
+            Month  => '08',
+            Day    => '30',
+            Hour   => '00',
+            Minute => '00',
+            Second => '00',
+            Used   => 1, # THIS ONE IS IMPORTANT -
+                       # if not set to 1 field will not get activated and though not transmitted
+        },
+        WaitForAJAX => 1,
+        Options     => {
+            TriggerChange => 1,
+        }
+    );
+
+Setting the "Used" checkbox to true manually will fail because it is recognized as DateTime field
+so always transmit the "Used" Parameter as described above.
+
     $Result = 1;
 =cut
 
