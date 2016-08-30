@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.5</Version>
+    <Version>4.0.6</Version>
+    <ChangeLog Version="4.0.6" Date="2016-08-30 17:14:15 +0200">Added CreateGenericInterfaceMappingObject UnitTest helper function.</ChangeLog>
     <ChangeLog Version="4.0.5" Date="2016-08-23 16:16:57 +0200">Fixed bug: Empty ZZZAuto.pm causes wrong SysConfig handling in Selenium tests.</ChangeLog>
     <ChangeLog Version="4.0.4" Date="2016-08-23 10:57:36 +0200">Added SysConfig Selenium helper function.&#13;
 Added Agent-, Customer- and PublicRequest Selenium helpers for non-JS interface requests.&#13;
