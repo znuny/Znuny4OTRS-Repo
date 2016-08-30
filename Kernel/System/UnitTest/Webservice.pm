@@ -12,6 +12,9 @@ package Kernel::System::UnitTest::Webservice;
 use strict;
 use warnings;
 
+use Kernel::GenericInterface::Debugger;
+use Kernel::GenericInterface::Mapping;
+
 # for mocking purposes
 use Kernel::GenericInterface::Transport;
 
@@ -19,6 +22,7 @@ our @ObjectDependencies = (
     'Kernel::GenericInterface::Provider',
     'Kernel::GenericInterface::Requester',
     'Kernel::System::Cache',
+    'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Log',
 );
 
@@ -372,6 +376,75 @@ sub ValidateResult {
     );
 
     return $MockResults;
+}
+
+=item CreateGenericInterfaceMappingObject()
+
+Creates a mapping object to be used within unit tests.
+
+    my $MappingObject = $UnitTestWebserviceObject->CreateGenericInterfaceMappingObject(
+        UnitTestObject    => $Self,
+        WebserviceName    => 'MyWebservice',
+        CommunicationType => 'Provider',
+        MappingConfig     => {
+            Type => 'MyMapping', # name of mapping module
+            Config => {
+                # ...
+            },
+        },
+    );
+
+=cut
+
+sub CreateGenericInterfaceMappingObject {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw( UnitTestObject WebserviceName CommunicationType MappingConfig )) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    # Fetch web service
+    my $Webservice = $WebserviceObject->WebserviceGet( Name => $Param{WebserviceName} );
+    $Param{UnitTestObject}->True(
+        scalar IsHashRefWithData($Webservice),
+        "Web service '$Param{WebserviceName}' must exist.",
+    ) || return;
+
+    # Create a debugger instance
+    my $DebuggerObject = Kernel::GenericInterface::Debugger->new(
+        DebuggerConfig => {
+            DebugThreshold => 'debug',
+            TestMode       => 1,
+        },
+        WebserviceID      => $Webservice->{ID},
+        CommunicationType => $Param{CommunicationType},
+    );
+
+    # Create a mapping instance
+    my $MappingObject = Kernel::GenericInterface::Mapping->new(
+        DebuggerObject => $DebuggerObject,
+        MappingConfig  => $Param{MappingConfig},
+    );
+
+    $Param{UnitTestObject}->Is(
+        ref $MappingObject,
+        'Kernel::GenericInterface::Mapping',
+        'Creation of mapping object must be successful.',
+    ) || return;
+
+    return $MappingObject;
 }
 
 =item _RedefineTransport()
