@@ -550,8 +550,17 @@ For setting DynamicField Date or DateTime Fields the call should look like:
         }
     );
 
-Setting the "Used" checkbox to true manually will fail because it is recognized as DateTime field
-so always transmit the "Used" Parameter as described above.
+For Checkboxes the call has to be done with undef,
+everything else like '0', 0,... will fail. Example:
+
+    my $Result = $SeleniumObject->InputSet(
+        Attribute   => 'DynamicField_ExampleCheckbox',
+        WaitForAJAX => 0,                       # optional, default 1
+        Content     => undef,                   # optional, none removes content
+        Options     => {                        # optional
+            TriggerChange => 1,                 # default is 1
+        }
+    );
 
     $Result = 1;
 =cut
