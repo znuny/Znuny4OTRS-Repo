@@ -892,6 +892,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Type == 'DynamicField_Date'
             || Type == 'DynamicField_DateTime'
         ) {
+            // Content is required to change the the dynamic field content
+            if (!Content) return false;
+
             // ATTENTION - SPECIAL CASE: For DynamicFields Date or DateTime the Attribute is used as FieldID
             // to handle input actions since FieldID maps to the Checkbox element
 
