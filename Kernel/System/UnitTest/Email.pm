@@ -156,20 +156,20 @@ This function:
     - Fetches mails from TestMailBackend
     - returns array of hashes containing mails:
 
-    my @Email = $UnitTestEmailObject->EmailGet();
+    my @Emails = $UnitTestEmailObject->EmailGet();
 
 Returns:
 
-    @Email = (
+    @Emails = (
         {
             Header => "Email1 Header text...",
             Body => "Email1 Header text...",
-            TOArray => ['email1realrecipient1@test.com', 'email1realrecipient2@test.com', 'email1realrecipient1@test.com', ],
+            ToArray => ['email1realrecipient1@test.com', 'email1realrecipient2@test.com', 'email1realrecipient1@test.com', ],
         },
         {
             Header => "Email2 Header text...",
             Body => "Email2 Header text...",
-            TOArray => ['email2realrecipient1@test.com'],
+            ToArray => ['email2realrecipient1@test.com'],
         },
         ...
     );
@@ -187,41 +187,83 @@ sub EmailGet {
 
     return @AllEmails if !IsArrayRefWithData($Emails);
 
-    EMAILLOOP:
     for my $Email ( @{$Emails} ) {
 
         my $Header  = ${ $Email->{Header} };
         my $Body    = ${ $Email->{Body} };
-        my @TOArray = @{ $Email->{ToArray} };
+        my @ToArray = @{ $Email->{ToArray} };
 
         push @AllEmails, {
             Header  => $Header,
             Body    => $Body,
-            TOArray => \@TOArray,
+            ToArray => \@ToArray,
         };
     }
     return @AllEmails;
+}
+
+=item EmailSentCount()
+
+This function counts the number of send emails.
+
+    $UnitTestEmailObject->EmailSentCount(
+        UnitTestObject => $Self,
+        Count          => 3,
+        Message        => '3 emails send', # optional
+    );
+
+=cut
+
+sub EmailSentCount {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject Count)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+    $Param{Message} ||= "$Param{Count} email(s) sent";
+
+    my @SendEmails = $Self->EmailGet();
+    $Param{UnitTestObject}->Is(
+        scalar @SendEmails,
+        $Param{Count},
+        $Param{Message},
+    );
+
+    return 1;
 }
 
 =item EmailValidate()
 
 This function:
     - Takes an Array (result of EmailGet())
-    - Takes check parameter (regex or strings for Header, Body and TOArray)
+    - Takes check parameter (regex or strings for Header, Body and ToArray)
     - checks if the check routine matches one of the found Mails
     - returns 1 or 0 (for found or not found)
 
 Example:
 
     my $Success = $UnitTestEmailObject->EmailValidate(
-        Email   => \@Email,
-        Header  => qr{To\:\sto\@test.com}xms,       # Regex or Array of Regexes that all have to matche
-                                                    # in the Header of one single email
-                                                    # example: [qr{To\:\sto\@test.com}xms, qr{To\:\scc\@test.com}xms ],
+        UnitTestObject => $Self,
+        Message        => 'Email send verification',       # optional
+        Email          => \@Email,                         # optional, result of EmailGet will used by default
+        Header         => qr{To\:\sto\@test.com}xms,       # Regex or Array of Regexes that all have to matche
+                                                           # in the Header of one single email
+                                                           # example: [qr{To\:\sto\@test.com}xms, qr{To\:\scc\@test.com}xms ],
 
         Body    => qr{Hello [ ] World}xms,          # Regex or string 'Hello World'
 
-        TOArray => 'email1realrecipient1@test.com', # or Array with all real recipients
+        ToArray => 'email1realrecipient1@test.com', # or Array with all real recipients
                                                     # example: ['email1realrecipient1@test.com', 'email1realrecipient2@test.com', ],
                                                     #
                                                     # instead of String or Array of Strings
@@ -239,9 +281,11 @@ sub EmailValidate {
 
     my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
-    NEEDEDLOOP:
-    for my $Needed (qw(Email)) {
-        next NEEDEDLOOP if defined $Param{$Needed};
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject)) {
+
+        next NEEDED if defined $Param{$Needed};
 
         $LogObject->Log(
             Priority => 'error',
@@ -253,7 +297,7 @@ sub EmailValidate {
     if (
         !$Param{Header}
         && !$Param{Body}
-        && !$Param{TOArray}
+        && !$Param{ToArray}
         )
     {
         $LogObject->Log(
@@ -292,41 +336,40 @@ sub EmailValidate {
         return;
     }
 
-    if ( !IsArrayRefWithData( $Param{Email} ) ) {
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Email has to be an array ref!",
-        );
-        return;
+    my @Emails;
+    if ( IsArrayRefWithData( $Param{Email} ) ) {
+        @Emails = @{ $Param{Email} };
+    }
+    else {
+        @Emails = $Self->EmailGet();
     }
 
-    my @Emails = @{ $Param{Email} };
-
-    EMAILLOOP:
+    my $Result;
+    EMAIL:
     for my $Email (@Emails) {
 
-        # Found will contains Header and/or Body and/or TOArray as keys,
-        # if the submitted Header and/or Body and/or TOArray search matched
+        # Found will contains Header and/or Body and/or ToArray as keys,
+        # if the submitted Header and/or Body and/or ToArray search matched
         my %Found;
 
-        # Counter will hold the amount of SearchParams (1 to 3 depending on Header, Body, TOArray)
+        # Counter will hold the amount of SearchParams (1 to 3 depending on Header, Body, ToArray)
         my $SearchParamCount = 0;
 
-        SEARCHLOOP:
-        for my $SearchParam (qw(Header Body TOArray)) {
+        SEARCH:
+        for my $SearchParam (qw(Header Body ToArray)) {
 
-            next SEARCHLOOP if !$Param{$SearchParam};
+            next SEARCH if !$Param{$SearchParam};
 
             $SearchParamCount++;
 
-            # If the SearchParam contained an array (e.g. TOArray or Header)
+            # If the SearchParam contained an array (e.g. ToArray or Header)
             if ( IsArrayRefWithData( $Param{$SearchParam} ) ) {
 
                 # Counter for each sucessfully found search term item
                 my $FoundCount = 0;
 
-                # Loop through the search term items of Header or TOArray
-                SEARCHTERMLOOP:
+                # Loop through the search term items of Header or ToArray
+                SEARCHTERM:
                 for my $SearchTerm ( @{ $Param{$SearchParam} } ) {
 
                     if (
@@ -347,22 +390,22 @@ sub EmailValidate {
                     if ( !ref $Email->{$SearchParam} ) {
 
                         # If matched increase the FoundCount
-                        next SEARCHTERMLOOP if !$Self->_SearchStringOrRegex(
+                        next SEARCHTERM if !$Self->_SearchStringOrRegex(
                             Search => $SearchTerm,
                             Data   => $Email->{$SearchParam},
                         );
 
                         $FoundCount++;
 
-                        next SEARCHTERMLOOP;
+                        next SEARCHTERM;
                     }
 
-                    # Check this Mails' SearchParam (e.g. TOArray entries) if the current Search Term matches
-                    EMAILSEARCHPARAMLOOP:
+                    # Check this Mails' SearchParam (e.g. ToArray entries) if the current Search Term matches
+                    EMAILSEARCHPARAM:
                     for my $EmailParam ( @{ $Email->{$SearchParam} } ) {
 
                         # If matched increase the FoundCount
-                        next EMAILSEARCHPARAMLOOP if !$Self->_SearchStringOrRegex(
+                        next EMAILSEARCHPARAM if !$Self->_SearchStringOrRegex(
                             Search => $SearchTerm,
                             Data   => $EmailParam,
                         );
@@ -370,48 +413,48 @@ sub EmailValidate {
                         $FoundCount++;
 
                         # If the searchterm (e.g. the Regex or search String)
-                        # matched one TOArrayEntry, we can continue to the next searchterm
+                        # matched one ToArrayEntry, we can continue to the next searchterm
                         #
                         # (Regexes may match multiple ToArrayEntries -> matched once is enough)
-                        next SEARCHTERMLOOP;
+                        next SEARCHTERM;
                     }
 
                     # No Guard-Clause :)
                 }
 
                 # If no match in this Email go to the next Mail
-                next EMAILLOOP if !$FoundCount;
+                next EMAIL if !$FoundCount;
 
                 # If the amount of search params matches the amount of founds *success*
                 if ( $FoundCount == scalar @{ $Param{$SearchParam} } ) {
                     $Found{$SearchParam} = 1;
                 }
-                next SEARCHLOOP;
+                next SEARCH;
             }
 
-            # If we had an email with an ArrayRef (e.g. multiple TOArray entries)
-            # but only one search term for the TOArray
+            # If we had an email with an ArrayRef (e.g. multiple ToArray entries)
+            # but only one search term for the ToArray
             if ( IsArrayRefWithData( $Email->{$SearchParam} ) ) {
 
-                # Go through the TOArray entries and check against our single search param
-                EMAILPARTLOOP:
+                # Go through the ToArray entries and check against our single search param
+                EMAILPART:
                 for my $EmailPart ( @{ $Email->{$SearchParam} } ) {
 
-                    next EMAILPARTLOOP if !$Self->_SearchStringOrRegex(
+                    next EMAILPART if !$Self->_SearchStringOrRegex(
                         Search => $Param{$SearchParam},
                         Data   => $EmailPart,
                     );
 
                     $Found{$SearchParam} = 1;
-                    next SEARCHLOOP;
+                    next SEARCH;
                 }
 
                 # If no match in this Email go to the next Mail
-                next EMAILLOOP;
+                next EMAIL;
             }
 
             # For everything else, just compare SearchParam against EmailParam
-            next SEARCHLOOP if !$Self->_SearchStringOrRegex(
+            next SEARCH if !$Self->_SearchStringOrRegex(
                 Search => $Param{$SearchParam},
                 Data   => $Email->{$SearchParam},
             );
@@ -421,10 +464,19 @@ sub EmailValidate {
 
         # If the amount of SearchParams matches the amount of found SearchParams
         # this email matched => *success*
-        return 1 if $SearchParamCount == scalar keys %Found;
+        next EMAIL if $SearchParamCount != scalar keys %Found;
+
+        $Result = 1;
+
+        last EMAIL;
     }
 
-    return;
+    $Param{UnitTestObject}->True(
+        $Result,
+        $Param{Message} || 'Email send verification',
+    );
+
+    return $Result;
 }
 
 sub _SearchStringOrRegex {
