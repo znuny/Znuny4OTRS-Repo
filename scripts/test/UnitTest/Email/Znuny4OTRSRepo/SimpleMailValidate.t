@@ -65,20 +65,19 @@ $Success = $UnitTestEmailObject->MailObjectDiscard();
 
 $Self->True( $Success, 'Mail Object Discard' );
 
-@Email = $UnitTestEmailObject->EmailGet();
-
-$Success = $UnitTestEmailObject->EmailValidate(
-    Email   => \@Email,
-    Header  => [ qr{To\:[ ]to\@test\.com}xms, qr{CC\:[ ]cc\@test\.com}xms, ],
-    Body    => qr{MyBody}xms,
-    TOArray => [ qr{to\@test\.com}xms, qr{cc\@test\.com}xms, qr{bcc\@test\.com}, ],
-);
-
-$Self->True(
-    $Success,
-    "Had Header:\n\t\tTo to\@test.com\n\t\tCC cc\@test.com\n\tTOArray:\n\t\tto\@test.com\n\t\tcc\@test.com\n\t\tbcc\@test.com\n\tBody:\n\t\tMyBody"
+$UnitTestEmailObject->EmailValidate(
+    UnitTestObject => $Self,
+    Header         => [ qr{To\:[ ]to\@test\.com}xms, qr{CC\:[ ]cc\@test\.com}xms, ],
+    Body           => qr{MyBody}xms,
+    ToArray        => [ qr{to\@test\.com}xms, qr{cc\@test\.com}xms, qr{bcc\@test\.com}, ],
 );
 
 $Success = $UnitTestEmailObject->MailCleanup();
 
+@Email = $UnitTestEmailObject->EmailGet();
+
+$Self->False(
+    scalar @Email,
+    "No Emails after cleanup",
+);
 1;
