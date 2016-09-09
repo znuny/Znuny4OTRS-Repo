@@ -3629,6 +3629,171 @@ sub _ProcessesGet {
     return \%Processes;
 }
 
+=item _ModuleGroupAdd()
+
+This function adds one or more groups to the list of groups of a frontend module registration for any interface.
+
+    my $Success = $HelperObject->_ModuleGroupAdd(
+        Module => 'Admin',
+        Group  => [
+            'users',
+        ],
+        GroupRo => [
+            'some_other_group'
+        ],
+        Frontend => 'Frontend::Module', # Frontend::Module (default), PublicFrontend::Module, CustomerFrontend::Module
+    );
+
+=cut
+
+sub _ModuleGroupAdd {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Module)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    if (
+        !IsArrayRefWithData( $Param{Group} )
+        && !IsArrayRefWithData( $Param{GroupRo} )
+        )
+    {
+        return 1;
+    }
+
+    $Param{Frontend} ||= 'Frontend::Module';
+
+    my $FrontendList = $ConfigObject->Get( $Param{Frontend} );
+    return if !IsHashRefWithData($FrontendList);
+
+    my $ModuleRegistration = $FrontendList->{ $Param{Module} };
+    return if !IsHashRefWithData($ModuleRegistration);
+
+    GROUP:
+    for my $GroupType (qw(Group GroupRo)) {
+
+        my $AddGroups = $Param{$GroupType};
+        next GROUP if !IsArrayRefWithData($AddGroups);
+
+        my $OldGroups = $ModuleRegistration->{$GroupType} || [];
+
+        my %AddGroups = map { $_ => 1 } @{$AddGroups};
+        my %OldGroups = map { $_ => 1 } @{$OldGroups};
+
+        my %NewGroups = (
+            %AddGroups,
+            %OldGroups
+        );
+
+        my @NewGroups = sort keys %NewGroups;
+
+        $ModuleRegistration->{$GroupType} = \@NewGroups;
+
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => $Param{Frontend} . '###' . $Param{Module},
+            Value => $ModuleRegistration,
+        );
+    }
+
+    return 1;
+}
+
+=item _ModuleGroupRemove()
+
+This function removes one or more groups from the list of groups of a frontend module registration for any interface.
+
+    my $Success = $HelperObject->_ModuleGroupRemove(
+        Module => 'Admin',
+        Group  => [
+            'users',
+        ],
+        GroupRo => [
+            'some_other_group'
+        ],
+        Frontend => 'Frontend::Module', # Frontend::Module (default), PublicFrontend::Module, CustomerFrontend::Module
+    );
+
+=cut
+
+sub _ModuleGroupRemove {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Module)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    if (
+        !IsArrayRefWithData( $Param{Group} )
+        && !IsArrayRefWithData( $Param{GroupRo} )
+        )
+    {
+        return 1;
+    }
+
+    $Param{Frontend} ||= 'Frontend::Module';
+
+    my $FrontendList = $ConfigObject->Get( $Param{Frontend} );
+    return if !IsHashRefWithData($FrontendList);
+
+    my $ModuleRegistration = $FrontendList->{ $Param{Module} };
+    return if !IsHashRefWithData($ModuleRegistration);
+
+    GROUP:
+    for my $GroupType (qw(Group GroupRo)) {
+
+        my $RemoveGroups = $Param{$GroupType};
+        next GROUP if !IsArrayRefWithData($RemoveGroups);
+
+        my $OldGroups = $ModuleRegistration->{$GroupType};
+        next GROUP if !IsArrayRefWithData($OldGroups);
+
+        my %OldGroups = map { $_ => 1 } @{$OldGroups};
+
+        for my $RemoveGroup ( @{$RemoveGroups} ) {
+            delete $OldGroups{$RemoveGroup};
+        }
+
+        my @NewGroups = sort keys %OldGroups;
+
+        $ModuleRegistration->{$GroupType} = \@NewGroups;
+
+        $SysConfigObject->ConfigItemUpdate(
+            Valid => 1,
+            Key   => $Param{Frontend} . '###' . $Param{Module},
+            Value => $ModuleRegistration,
+        );
+    }
+
+    return 1;
+}
+
 1;
 
 =back
