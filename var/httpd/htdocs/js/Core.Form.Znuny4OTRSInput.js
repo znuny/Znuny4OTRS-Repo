@@ -315,13 +315,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     };
 
     var ActionModuleMapping = {
-        AgentTicketClose:       'AgentTicketActionCommon',
-        AgentTicketFreeText:    'AgentTicketActionCommon',
-        AgentTicketNote:        'AgentTicketActionCommon',
-        AgentTicketOwner:       'AgentTicketActionCommon',
-        AgentTicketPending:     'AgentTicketActionCommon',
-        AgentTicketPriority:    'AgentTicketActionCommon',
-        AgentTicketResponsible: 'AgentTicketActionCommon'
+        AgentTicketClose:         'AgentTicketActionCommon',
+        AgentTicketFreeText:      'AgentTicketActionCommon',
+        AgentTicketNote:          'AgentTicketActionCommon',
+        AgentTicketOwner:         'AgentTicketActionCommon',
+        AgentTicketPending:       'AgentTicketActionCommon',
+        AgentTicketPriority:      'AgentTicketActionCommon',
+        AgentTicketResponsible:   'AgentTicketActionCommon',
+        AgentTicketPhoneInbound:  'AgentTicketPhoneCommon',
+        AgentTicketPhoneOutbound: 'AgentTicketPhoneCommon'
     }
 
     TargetNS.FieldID = function (Attribute) {
