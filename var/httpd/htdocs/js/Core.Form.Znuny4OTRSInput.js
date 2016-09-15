@@ -323,7 +323,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketPriority:      'AgentTicketActionCommon',
         AgentTicketResponsible:   'AgentTicketActionCommon',
         AgentTicketPhoneInbound:  'AgentTicketPhoneCommon',
-        AgentTicketPhoneOutbound: 'AgentTicketPhoneCommon'        
+        AgentTicketPhoneOutbound: 'AgentTicketPhoneCommon'
     }
 
     TargetNS.FieldID = function (Attribute) {
