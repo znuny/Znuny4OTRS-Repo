@@ -147,6 +147,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ValidYAMLNoProcessName.yml"/>
         <File Permission="644" Location="scripts/test/Layout/Znuny4OTRSRepo.t"/>
         <File Permission="644" Location="scripts/test/Selenium/JavaScript/Znuny4OTRSInput/AgentTicketPhone.t"/>
+        <File Permission="644" Location="scripts/test/Selenium/Selenium/Element.t"/>
         <File Permission="644" Location="scripts/test/Selenium/Selenium/Request.t"/>
         <File Permission="644" Location="scripts/test/UnitTest/Email/Znuny4OTRSRepo/SimpleMailValidate.t"/>
         <File Permission="644" Location="scripts/test/UnitTest/Helper/ConsoleCommand.t"/>
