@@ -3103,7 +3103,6 @@ Returns:
 sub _ParseData2XML {
     my ( $Self, %Param ) = @_;
 
-    my $XMLDataMultiple = $Param{XMLDataMultiple};
     my $Result          = $Param{Result};
     my $Parent          = $Param{Parent} || '';
     my %Data            = %{ $Param{Data} || {} };
@@ -3111,6 +3110,7 @@ sub _ParseData2XML {
     ITEM:
     for my $ItemID ( sort keys %Data ) {
         next ITEM if $ItemID eq $Parent;
+        next ITEM if $ItemID eq 'Content';
 
         my $Item = $Data{$ItemID};
 
