@@ -2634,7 +2634,65 @@ adds or updates a config item version.
             'Product'     => 'test',
             'Description' => 'test'
         },
-        XMLDataMultiple => 1, # default: 0, This option will save a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
+    );
+
+    EXAMPLE Create Computer:
+
+    my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+    my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+    my $ValidObject          = $Kernel::OM->Get('Kernel::System::Valid');
+
+    # get valid id
+    my $ValidID = $ValidObject->ValidLookup(
+        Valid => 'valid',
+    );
+
+    my $ClassListRef = $GeneralCatalogObject->ItemList(
+        Class => 'ITSM::ConfigItem::Class',
+        Valid => $ValidID,
+    );
+    my %ClassList = reverse %{ $ClassListRef || {} };
+
+    my $YesNoRef = $GeneralCatalogObject->ItemList(
+        Class => 'ITSM::ConfigItem::YesNo',
+        Valid => $ValidID,
+    );
+    my %YesNoList = reverse %{ $YesNoRef || {} };
+
+    my $ConfigItemID = $ConfigItemObject->ConfigItemAdd(
+        ClassID => $ClassList{Computer},
+        UserID  => 1,
+    );
+
+    # create new version of config item
+    my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
+        ConfigItemID  => $ConfigItemID,
+        Name          => 'blub',
+        ClassName     => 'Computer',
+        DeplStateName => 'Production',
+        InciStateName => 'Operational',
+        XMLData => {
+            OtherEquipment         => '...',
+            Note                   => '...',
+            WarrantyExpirationDate => '2016-01-01',
+            InstallDate            => '2016-01-01',
+            NIC                    => [
+                {
+                    Content => 'NIC',
+                    IPoverDHCP => [
+                        {
+                            Content => $YesNoList{Yes},
+                        },
+                    ],
+                    IPAddress => [
+                        {
+                            Content => '127.0.0.1'
+                        },
+                    ],
+                },
+            ],
+        },
     );
 
 Returns:
@@ -3031,10 +3089,9 @@ this is a internal function for _ITSMVersionAdd to parse the additional data
 for xml storage.
 
     my $Success = $ZnunyHelperObject->_ParseData2XML(
-        Parent          => $Identifier,          # optional: contains the field name of the parent xml
-        Result          => $Result,              # contains the reference to the result hash
-        Data            => $Data{$Field}->[1],   # contains the xml hash we want to parse
-        XMLDataMultiple => 1,                    # default: 0, This option will return a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
+        Parent => $Identifier,          # optional: contains the field name of the parent xml
+        Result => $Result,              # contains the reference to the result hash
+        Data   => $Data{$Field}->[1],   # contains the xml hash we want to parse
     );
 
 Returns:
@@ -3076,7 +3133,7 @@ sub _ParseData2XML {
                 );
             }
         }
-        elsif ( !$XMLDataMultiple ) {
+        else {
             $Result->{$ItemID} = [
                 undef,
                 {
