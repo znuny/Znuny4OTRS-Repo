@@ -1409,6 +1409,124 @@ SYSCONFIGTEMPLATE
     return 1;
 }
 
+=item FindElementSave()
+
+This function is a wrapper around the 'find_element' function which can be used to check if elements are even present.
+
+    my $Element = $SeleniumObject->FindElementSave(
+        Selector     => '#GroupID',
+        SelectorType => 'css',        # optional
+    );
+
+    is equivalent to:
+
+    $Element = $Self->find_element('#GroupID', 'css');
+
+=cut
+
+sub FindElementSave {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Selector) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+    $Param{SelectorType} ||= 'css';
+
+    my $Element;
+    eval {
+        $Element = $Self->find_element($Param{Selector}, $Param{SelectorType});
+    };
+
+    return $Element;
+}
+
+=item ElementExists()
+
+This function checks if a given element exisits.
+
+    $SeleniumObject->ElementExists(
+        Selector     => '#GroupID',
+        SelectorType => 'css',        # optional
+    );
+
+=cut
+
+sub ElementExists {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Selector) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+    $Param{Message} ||= "Element '$Param{Selector}' exists.";
+
+    my $Element = $Self->FindElementSave( %Param );
+
+    return $Self->{UnitTestObject}->True(
+        $Element,
+        $Param{Message},
+    );
+}
+
+=item ElementExistsNot()
+
+This function checks if a given element doesn't exisit.
+
+    $SeleniumObject->ElementExistsNot(
+        Selector     => '#GroupID',
+        SelectorType => 'css',        # optional
+    );
+
+=cut
+
+sub ElementExistsNot {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Selector) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+    $Param{Message} ||= "Element '$Param{Selector}' doesn't exist.";
+
+    my $Element = $Self->FindElementSave( %Param );
+
+    return $Self->{UnitTestObject}->False(
+        $Element,
+        $Param{Message},
+    );
+}
+
 # ---
 
 1;
