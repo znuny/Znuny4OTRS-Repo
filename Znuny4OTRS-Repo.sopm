@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.8</Version>
+    <Version>5.0.9</Version>
+    <ChangeLog Version="5.0.9" Date="2016-09-23 10:55:26 +0200">Added ITSMConfigItem UnitTest helper.</ChangeLog>
     <ChangeLog Version="5.0.8" Date="2016-09-20 09:18:43 +0200">- Added selenium helper function for easy element handling.&#13;
 - Added mapping for AgentTicketPhoneInbound, AgentTicketPhoneOutbound.&#13;
 - Added _ModuleGroupAdd and _ModuleGroupRemove helper functions.&#13;
