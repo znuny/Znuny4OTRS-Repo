@@ -603,6 +603,12 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return 'DynamicField_DateTime';
     }
 
+    TargetNS.Exists = function (Attribute) {
+        var FieldID = TargetNS.FieldID(Attribute);
+
+        return $('#' + FieldID).length ? true : false;
+    }
+
     TargetNS.Set = function (Attribute, Content, Options) {
 
         var Checked;
