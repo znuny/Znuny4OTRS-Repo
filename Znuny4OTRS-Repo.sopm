@@ -142,6 +142,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
