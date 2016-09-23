@@ -707,6 +707,23 @@ sub InputHide {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Hide('$Param{Attribute}');");
 }
 
+=item InputExists()
+
+Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Exists' function.
+
+    my $Result = $SeleniumObject->InputExists(
+        Attribute => 'QueueID',
+    );
+
+    $Result = 1;
+=cut
+
+sub InputExists {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Exists('$Param{Attribute}');");
+}
+
 =item InputShow()
 
 Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Show' function.
