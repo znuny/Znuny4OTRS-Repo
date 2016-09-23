@@ -93,6 +93,15 @@ my $SeleniumTest = sub {
         "Setting DynamicFieldText '$DynamicFieldText'",
     );
 
+    my $ExistsDynamicFieldText = $SeleniumObject->InputExists(
+        Attribute => 'DynamicField_UnitTestText',
+    );
+
+    $Self->True(
+        $ExistsDynamicFieldText,
+        "DynamicFieldText exists",
+    );
+
     my $GetDynamicFieldText = $SeleniumObject->InputGet(
         Attribute => 'DynamicField_UnitTestText',
     );
