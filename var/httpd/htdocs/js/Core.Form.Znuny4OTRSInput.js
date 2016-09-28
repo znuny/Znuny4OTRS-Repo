@@ -505,11 +505,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             // it is not possible to set arrays via ids like $('#StateList[]')
             // because ids always relating to one element
-            if ($('input[name=\'' + FieldID + '[]\']').length > 1) {
+            if ($('input[name=\'' + FieldID + '\']').length > 1) {
 
                 // check checked status
                 var ReturnValues = [];
-                $('input[name=\'' + FieldID + '[]\']').each(function(){
+                $('input[name=\'' + FieldID + '\']').each(function(){
                     if (!$(this).prop('checked') && !PossibleValues) return true;
 
                     ReturnValues.push($(this).val());
@@ -855,7 +855,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // loop values of checkbox array
                 // it is not possible to set arrays via ids like $('#StateList[]')
                 // because ids always relating to one element
-                $('input[name=\'' + FieldID + '[]\']').each(function() {
+                $('input[name=\'' + FieldID + '\']').each(function() {
 
                     // get value of checkbox element
                     var CheckboxValue = $(this).val();
