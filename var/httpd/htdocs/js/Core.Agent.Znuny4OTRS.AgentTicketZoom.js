@@ -23,4 +23,3 @@ Core.Agent.Znuny4OTRS.AgentTicketZoom = (function (TargetNS) {
     return TargetNS;
 
 }(Core.Agent.Znuny4OTRS.AgentTicketZoom || {}));
-
