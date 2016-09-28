@@ -43,6 +43,50 @@ Core.Znuny4OTRSApp = (function (TargetNS) {
         return ParamCheckSuccess;
     };
 
+
+    /*
+
+    This function creates URL.
+
+    var URL = Core.Znuny4OTRSApp.URL({
+        Action:    Param['Action'],
+        TicketID:  Param['TicketID'],
+        ArticleID: ArticleID
+    });
+
+    */
+
+    TargetNS.URL = function (Param) {
+
+        var URL;
+        URL = Core.Config.Get('Baselink') + TargetNS.SerializeData(Param);
+        URL += TargetNS.SerializeData(Core.App.GetSessionInformation());
+
+        return URL;
+    };
+
+
+    /*
+
+    This function creates URL.
+
+    The encodeURIComponent() function encodes a URI component.
+
+    var EncodedURI = Core.Znuny4OTRSApp.SerializeData(Data);
+
+    */
+
+    TargetNS.SerializeData = function (Data) {
+
+        var QueryString = '';
+
+        $.each(Data, function (Key, Value) {
+            QueryString += encodeURIComponent(Key) + '=' + encodeURIComponent(Value) + ';';
+        });
+
+        return QueryString;
+    }
+
     return TargetNS;
 
 }(Core.Znuny4OTRSApp || {}));

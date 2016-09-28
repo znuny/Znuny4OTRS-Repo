@@ -8,7 +8,9 @@
 
 "use strict";
 
-var Core = Core || {};
+var Core              = Core || {};
+Core.Agent            = Core.Agent || {};
+Core.Agent.Znuny4OTRS = Core.Agent.Znuny4OTRS || {};
 
 /**
  * @namespace
