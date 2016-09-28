@@ -3055,9 +3055,9 @@ Returns:
 sub _ParseData2XML {
     my ( $Self, %Param ) = @_;
 
-    my $Result          = $Param{Result};
-    my $Parent          = $Param{Parent} || '';
-    my %Data            = %{ $Param{Data} || {} };
+    my $Result = $Param{Result};
+    my $Parent = $Param{Parent} || '';
+    my %Data   = %{ $Param{Data} || {} };
 
     ITEM:
     for my $ItemID ( sort keys %Data ) {
