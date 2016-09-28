@@ -502,6 +502,21 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             }
         }
         else if (Type == 'checkbox') {
+
+            if ($('input[name=\'' + FieldID + '\']').length > 1) {
+
+                var CheckedValues = [];
+                $('input[name=\'' + FieldID + '\']').each(function(){
+                    if (!$(this).prop('checked') && !PossibleValues) return true;
+
+                    CheckedValues.push($(this).val());
+
+                    return false;
+                });
+
+                return CheckedValues;
+            }
+
             return $('#'+ FieldID).prop('checked');
         }
         else if (Type == 'select') {
@@ -838,9 +853,25 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             if (Content) {
                 Checked = true;
             }
-            $('#'+ FieldID).prop('checked', Checked);
+
+            var $Element;
+            if (Options.Value) {
+
+                $('input[name=\'' + FieldID + '\']').each(function(){
+                    if ($(this).val() != Options.Value) return true;
+
+                    $Element = $(this);
+
+                    return false;
+                });
+            }
+            else {
+                $Element = $('#' + FieldID);
+            }
+
+            $Element.prop('checked', Checked);
             if (TriggerChange) {
-                $('#'+ FieldID).trigger('change');
+                $Element.trigger('change');
             }
 
             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
