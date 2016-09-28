@@ -503,18 +503,19 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
         else if (Type == 'checkbox') {
 
-            if ($('input[name=\'' + FieldID + '\']').length > 1) {
+            // it is not possible to set arrays via ids like $('#StateList[]')
+            // because ids always relating to one element
+            if ($('input[name=\'' + FieldID + '[]\']').length > 1) {
 
-                var CheckedValues = [];
-                $('input[name=\'' + FieldID + '\']').each(function(){
+                // check checked status
+                var ReturnValues = [];
+                $('input[name=\'' + FieldID + '[]\']').each(function(){
                     if (!$(this).prop('checked') && !PossibleValues) return true;
 
-                    CheckedValues.push($(this).val());
-
-                    return false;
+                    ReturnValues.push($(this).val());
                 });
 
-                return CheckedValues;
+                return ReturnValues;
             }
 
             return $('#'+ FieldID).prop('checked');
@@ -849,29 +850,47 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
         else if (Type == 'checkbox') {
 
-            Checked = false;
-            if (Content) {
-                Checked = true;
-            }
+            if ($.isArray(Content)) {
 
-            var $Element;
-            if (Options.Value) {
+                // loop values of checkbox array
+                // it is not possible to set arrays via ids like $('#StateList[]')
+                // because ids always relating to one element
+                $('input[name=\'' + FieldID + '[]\']').each(function() {
 
-                $('input[name=\'' + FieldID + '\']').each(function(){
-                    if ($(this).val() != Options.Value) return true;
+                    // get value of checkbox element
+                    var CheckboxValue = $(this).val();
 
-                    $Element = $(this);
+                    // check checked status
+                    Checked = false
+                    $.each(Content, function(Index, Value) {
+                        if (CheckboxValue != Value) return true;
 
-                    return false;
+                        Checked = true;
+
+                        return false;
+                    });
+
+                    var $Element = $(this);
+                    $Element.prop('checked', Checked);
+                    if (TriggerChange) {
+                        $Element.trigger('change');
+                    }
+
+                    Core.App.Publish('Znuny4OTRSInput.Change.' + Attribute + '.' + CheckboxValue);
                 });
             }
             else {
-                $Element = $('#' + FieldID);
-            }
 
-            $Element.prop('checked', Checked);
-            if (TriggerChange) {
-                $Element.trigger('change');
+                Checked = false;
+                if (Content) {
+                    Checked = true;
+                }
+
+                var $Element = $('#' + FieldID);
+                $Element.prop('checked', Checked);
+                if (TriggerChange) {
+                    $Element.trigger('change');
+                }
             }
 
             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
