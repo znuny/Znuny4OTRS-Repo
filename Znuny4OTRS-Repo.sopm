@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.6</Version>
+    <Version>4.0.7</Version>
+    <ChangeLog Version="4.0.7" Date="2016-09-28 17:00:10 +0200">Added Core.Znuny4OTRSApp.js to Repo.&#13;
+Added Core.Agent.Znuny4OTRS.AgentTicketZoom.js&#13;
+Added var/httpd/htdocs/js/Core.Agent.Znuny4OTRS.AgentTicketZoom.js to sopm.&#13;
+Added Core.Znuny4OTRSApp.URL.&#13;
+Added AddArticleMenu to Core.Agent.Znuny4OTRS.AgentTicketZoom.js.&#13;
+Added handling of checkbox arrays for set and get functions.</ChangeLog>
     <ChangeLog Version="4.0.6" Date="2016-08-30 17:14:15 +0200">Added CreateGenericInterfaceMappingObject UnitTest helper function.</ChangeLog>
     <ChangeLog Version="4.0.5" Date="2016-08-23 16:16:57 +0200">Fixed bug: Empty ZZZAuto.pm causes wrong SysConfig handling in Selenium tests.</ChangeLog>
     <ChangeLog Version="4.0.4" Date="2016-08-23 10:57:36 +0200">Added SysConfig Selenium helper function.&#13;
