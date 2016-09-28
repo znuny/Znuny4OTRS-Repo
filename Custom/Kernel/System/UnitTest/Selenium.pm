@@ -508,7 +508,6 @@ sub InputGet {
         next KEY if !defined $Value;
         next KEY if ref $Value ne 'JSON::PP::Boolean';
 
-
         $Result->{ $Key } = $Value ? 1 : 0;
     }
 

@@ -70,7 +70,6 @@ This function creates a ConfigItem and adds an initial version.
             WarrantyExpirationDate => '2016-01-01',
             InstallDate            => '2016-01-01',
         },
-
     );
 
     $VersionRef = {
