@@ -149,6 +149,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/Scheduler.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
@@ -162,6 +163,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="scripts/test/Selenium/Selenium/Request.t"/>
         <File Permission="644" Location="scripts/test/UnitTest/Email/Znuny4OTRSRepo/SimpleMailValidate.t"/>
         <File Permission="644" Location="scripts/test/UnitTest/Helper/ConsoleCommand.t"/>
+        <File Permission="644" Location="scripts/test/UnitTest/Scheduler/Scheduler.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/FrontendModule.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/FunctionCalls.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/Postmaster.t"/>
@@ -170,8 +172,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Agent.Znuny4OTRS.AgentTicketZoom.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.UI.InputFields.js"/>
-        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.App.js"/>
+        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
