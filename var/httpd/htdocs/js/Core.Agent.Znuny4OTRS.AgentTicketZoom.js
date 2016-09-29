@@ -38,7 +38,7 @@ Core.Agent.Znuny4OTRS.AgentTicketZoom = (function (TargetNS) {
 
     TargetNS.AddArticleMenu = function (Param) {
 
-        var ParamCheckSuccess = Core.Znuny4OTRSApp.ParamCheck(Param, ['ID', 'Action', 'TicketID', 'Text', 'Title']);
+        var ParamCheckSuccess = Core.Znuny4OTRS.App.ParamCheck(Param, ['ID', 'Action', 'TicketID', 'Text', 'Title']);
         if (!ParamCheckSuccess) return;
 
         // check if at least one article exists
@@ -56,7 +56,7 @@ Core.Agent.Znuny4OTRS.AgentTicketZoom = (function (TargetNS) {
 
         var ArticleID = $('#ArticleItems div a').attr('name').replace('Article', '');
 
-        var URL = Core.Znuny4OTRSApp.URL({
+        var URL = Core.Znuny4OTRS.App.URL({
             Action:    Param['Action'],
             TicketID:  Param['TicketID'],
             ArticleID: ArticleID

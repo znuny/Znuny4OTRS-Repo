@@ -12,18 +12,18 @@ var Core = Core || {};
 
 /**
  * @namespace
- * @exports TargetNS as Core.Znuny4OTRSApp
+ * @exports TargetNS as Core.Znuny4OTRS.App
  * @description
- *      This namespace contains the special module functions Znuny4OTRSApp.
+ *      This namespace contains the special module functions Znuny4OTRS.App.
  */
 
-Core.Znuny4OTRSApp = (function (TargetNS) {
+Core.Znuny4OTRS.App = (function (TargetNS) {
 
     /*
 
     This function checks if all needed params are defined.
 
-    var ParamCheckSuccess = Core.Znuny4OTRSApp.ParamCheck(Param, ['ID', 'Action', 'TicketID', 'Text', 'Title']);
+    var ParamCheckSuccess = Core.Znuny4OTRS.App.ParamCheck(Param, ['ID', 'Action', 'TicketID', 'Text', 'Title']);
 
     */
 
@@ -48,7 +48,7 @@ Core.Znuny4OTRSApp = (function (TargetNS) {
 
     This function creates URL.
 
-    var URL = Core.Znuny4OTRSApp.URL({
+    var URL = Core.Znuny4OTRS.App.URL({
         Action:    Param['Action'],
         TicketID:  Param['TicketID'],
         ArticleID: ArticleID
@@ -72,7 +72,7 @@ Core.Znuny4OTRSApp = (function (TargetNS) {
 
     The encodeURIComponent() function encodes a URI component.
 
-    var EncodedURI = Core.Znuny4OTRSApp.SerializeData(Data);
+    var EncodedURI = Core.Znuny4OTRS.App.SerializeData(Data);
 
     */
 
@@ -89,4 +89,4 @@ Core.Znuny4OTRSApp = (function (TargetNS) {
 
     return TargetNS;
 
-}(Core.Znuny4OTRSApp || {}));
+}(Core.Znuny4OTRS.App || {}));
