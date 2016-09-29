@@ -2,8 +2,8 @@
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
     <Version>5.0.10</Version>
-    <ChangeLog Version="5.0.10" Date="2016-09-28 16:55:45 +0200">Added Core.Znuny4OTRSApp.URL&#13;
-Added Core.Znuny4OTRSApp.ParamCheck&#13;
+    <ChangeLog Version="5.0.10" Date="2016-09-28 16:55:45 +0200">Added Core.Znuny4OTRS.App.URL&#13;
+Added Core.Znuny4OTRS.App.ParamCheck&#13;
 Added Core.Agent.Znuny4OTRS.AgentTicketZoom.AddArticleMenu</ChangeLog>
     <ChangeLog Version="5.0.9" Date="2016-09-23 10:55:26 +0200">Added ITSMConfigItem UnitTest helper.</ChangeLog>
     <ChangeLog Version="5.0.8" Date="2016-09-20 09:18:43 +0200">- Added selenium helper function for easy element handling.&#13;
@@ -169,7 +169,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.UI.InputFields.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
-        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRSApp.js"/>
+        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.App.js"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
