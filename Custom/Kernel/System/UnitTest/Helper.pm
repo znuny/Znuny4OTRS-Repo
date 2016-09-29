@@ -2106,6 +2106,169 @@ sub ConsoleCommand {
     return \%Result;
 }
 
+=item ACLValuesGet()
+
+This is a helper function get shown values of fields or actions after ACL restrictions
+
+Examples:
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check    => 'Action',
+        UserID   => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check    => 'DynamicField_Test',
+        UserID   => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check  => 'Queue',
+        UserID => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check  => 'Type',
+        UserID => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check  => 'State',
+        UserID => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check  => 'Service',
+        UserID => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check  => 'Priority',
+        UserID => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+    my %Result = $HelperObject->ACLValuesGet(
+        Check  => 'SLA',
+        UserID => $UserID,
+        %TicketACLParams,   # see TicketACL.pm
+    );
+
+=cut
+
+sub ACLValuesGet {
+    my ( $Self, %Param ) = @_;
+
+    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+    my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $TicketObject       = $Kernel::OM->Get('Kernel::System::Ticket');
+
+    my $Check = $Param{Check};
+
+    my %Result;
+    if ( $Check =~ m{\ADynamicField_}xmsi ) {
+
+        # get dynamic field config
+        my $Field = $Check;
+        $Field =~ s{\ADynamicField_}{}xmsi;
+
+        my $DynamicFieldConfig = $DynamicFieldObject->DynamicFieldGet(
+            Name => $Field,
+        );
+
+        # get PossibleValues
+        my $PossibleValuesFilter;
+        my $PossibleValues = $BackendObject->PossibleValuesGet(
+            DynamicFieldConfig => $DynamicFieldConfig,
+        );
+
+        # check if field has PossibleValues property in its configuration
+        if ( IsHashRefWithData($PossibleValues) ) {
+
+            # convert possible values key => value to key => key for ACLs using a Hash slice
+            my %AclData = %{$PossibleValues};
+            @AclData{ keys %AclData } = keys %AclData;
+
+            # set possible values filter from ACLs
+            my $ACL = $TicketObject->TicketAcl(
+                %Param,
+                Data          => \%AclData,
+                ReturnType    => 'Ticket',
+                ReturnSubType => 'DynamicField_' . $DynamicFieldConfig->{Name},
+            );
+
+            if ($ACL) {
+                my %Filter = $TicketObject->TicketAclData();
+
+                # convert Filer key => key back to key => value using map
+                %{$PossibleValuesFilter} = map { $_ => $PossibleValues->{$_} }
+                    keys %Filter;
+            }
+        }
+
+        if ( !IsHashRefWithData($PossibleValuesFilter) ) {
+            %Result = %{ $PossibleValues || {} } ;
+        }
+        else {
+            %Result = %{ $PossibleValuesFilter || {} };
+        }
+    }
+    elsif ( $Check eq 'Action' ) {
+
+        # get all registered Actions
+        my %PossibleActions;
+        my $Counter = 0;
+        if ( ref $ConfigObject->Get('Frontend::Module') eq 'HASH' ) {
+
+            my %Actions = %{ $ConfigObject->Get('Frontend::Module') };
+
+            # only use those Actions that stats with Agent
+            %PossibleActions = map { ++$Counter => $_ }
+                grep { substr( $_, 0, length 'Agent' ) eq 'Agent' }
+                sort keys %Actions;
+        }
+
+        my $ACL = $TicketObject->TicketAcl(
+            %Param,
+            Data          => \%PossibleActions,
+            ReturnType    => 'Action',
+            ReturnSubType => '-',
+        );
+
+        %Result = reverse %PossibleActions;
+        if ($ACL) {
+            %Result = reverse $TicketObject->TicketAclActionData();
+        }
+    }
+    elsif ( $Check eq 'Queue' ) {
+        %Result = reverse $TicketObject->TicketMoveList(%Param);
+    }
+    elsif ($Check eq 'Type') {
+        %Result = reverse $TicketObject->TicketTypeList(%Param);
+    }
+    elsif ($Check eq 'State') {
+        %Result = reverse $TicketObject->TicketStateList(%Param);
+    }
+    elsif ($Check eq 'Service') {
+        %Result = reverse $TicketObject->TicketServiceList(%Param);
+    }
+    elsif ($Check eq 'Priority') {
+        %Result = reverse $TicketObject->TicketPriorityList(%Param);
+    }
+    elsif ($Check eq 'SLA') {
+        %Result = reverse $TicketObject->TicketSLAList(%Param);
+    }
+
+    return %Result;
+}
+
 # ---
 
 1;
