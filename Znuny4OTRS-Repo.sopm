@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.10</Version>
+    <Version>5.0.11</Version>
+    <ChangeLog Version="5.0.11" Date="2016-09-29 12:03:30 +0200">Added new function to check values of dynamic fields, action or ticket attributes after acl restrictions.</ChangeLog>
     <ChangeLog Version="5.0.10" Date="2016-09-28 16:55:45 +0200">Added Core.Znuny4OTRS.App.URL&#13;
 Added Core.Znuny4OTRS.App.ParamCheck&#13;
 Added Core.Agent.Znuny4OTRS.AgentTicketZoom.AddArticleMenu</ChangeLog>
