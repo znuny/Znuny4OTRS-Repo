@@ -2,10 +2,10 @@
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
     <Version>4.0.7</Version>
-    <ChangeLog Version="4.0.7" Date="2016-09-28 17:00:10 +0200">Added Core.Znuny4OTRSApp.js to Repo.&#13;
+    <ChangeLog Version="4.0.7" Date="2016-09-28 17:00:10 +0200">Added Core.Znuny4OTRS.App.js to Repo.&#13;
 Added Core.Agent.Znuny4OTRS.AgentTicketZoom.js&#13;
 Added var/httpd/htdocs/js/Core.Agent.Znuny4OTRS.AgentTicketZoom.js to sopm.&#13;
-Added Core.Znuny4OTRSApp.URL.&#13;
+Added Core.Znuny4OTRS.App.URL.&#13;
 Added AddArticleMenu to Core.Agent.Znuny4OTRS.AgentTicketZoom.js.&#13;
 Added handling of checkbox arrays for set and get functions.</ChangeLog>
     <ChangeLog Version="4.0.6" Date="2016-08-30 17:14:15 +0200">Added CreateGenericInterfaceMappingObject UnitTest helper function.</ChangeLog>
@@ -120,7 +120,7 @@ Added UserRoles function.</ChangeLog>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Agent.Znuny4OTRS.AgentTicketZoom.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
-        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRSApp.js"/>
+        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.App.js"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
