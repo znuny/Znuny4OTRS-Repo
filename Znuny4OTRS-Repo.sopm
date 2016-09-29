@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.12</Version>
+    <Version>5.0.13</Version>
+    <ChangeLog Version="5.0.13" Date="2016-09-29 17:25:50 +0200">Added Scheduler UnitTest helper.</ChangeLog>
     <ChangeLog Version="5.0.12" Date="2016-09-29 12:54:49 +0200">Fixed namespace bug in Core.Znuny4OTRS.App.js.</ChangeLog>
     <ChangeLog Version="5.0.11" Date="2016-09-29 12:03:30 +0200">Added new function to check values of dynamic fields, action or ticket attributes after acl restrictions.</ChangeLog>
     <ChangeLog Version="5.0.10" Date="2016-09-28 16:55:45 +0200">Added Core.Znuny4OTRS.App.URL&#13;
