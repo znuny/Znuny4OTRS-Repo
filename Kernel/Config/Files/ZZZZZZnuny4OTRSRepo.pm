@@ -62,48 +62,6 @@ sub Load {
 {
 no warnings 'redefine';
 
-# backup original PackageVerify()
-my $PackageVerifyOld = \&Kernel::System::Package::PackageVerify;
-
-# redefine PackageVerify() of Kernel::System::Package
-*Kernel::System::Package::PackageVerify = sub {
-    my ( $Self, %Param ) = @_;
-
-    my $PackageVerification = $Kernel::OM->Get('Kernel::Config')->Get('PackageVerification');
-    return 'verified' if !$PackageVerification;
-
-    # execute original function
-    return &{$PackageVerifyOld}( $Self, %Param );
-};
-
-# backup original PackageVerifyAll()
-my $PackageVerifyAllOld = \&Kernel::System::Package::PackageVerifyAll;
-
-# redefine PackageVerifyAll() of Kernel::System::Package
-*Kernel::System::Package::PackageVerifyAll = sub {
-    my ( $Self, %Param ) = @_;
-
-    my $PackageVerification = $Kernel::OM->Get('Kernel::Config')->Get('PackageVerification');
-    if ( !$PackageVerification ) {
-        # get installed package list
-        my @PackageList = $Self->RepositoryList(
-            Result => 'Short',
-        );
-
-        # and take the short way ;)
-        my %Result;
-        for my $Package (@PackageList) {
-            $Result{ $Package->{Name} } = 'verified';
-        }
-
-        return %Result;
-    }
-
-    # execute original function
-    return &{$PackageVerifyAllOld}( $Self, %Param );
-};
-
-
 sub Kernel::System::CloudService::new {
     my ( $Type, %Param ) = @_;
 
@@ -129,53 +87,6 @@ sub Kernel::System::CloudService::new {
 # ---
 
     return $Self;
-}
-
-
-sub Kernel::System::Package::_Download { ## no critic
-    my ( $Self, %Param ) = @_;
-
-    # check needed stuff
-    if ( !defined $Param{URL} ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
-            Priority => 'error',
-            Message  => 'URL not defined!',
-        );
-        return;
-    }
-
-    my $WebUserAgentObject = Kernel::System::WebUserAgent->new(
-        Timeout => $Self->{ConfigObject}->Get('Package::Timeout'),
-        Proxy   => $Self->{ConfigObject}->Get('Package::Proxy'),
-    );
-
-# ---
-# Znuny4OTRS-Repo
-# ---
-#     my %Response = $WebUserAgentObject->Request(
-#         URL => $Param{URL},
-#     );
-#
-    # strip out the API token from portal.znuny.com repository calls
-    # and add it to the 'Authorization' header
-    my %Header;
-    my $ZnunyPortalRegex = '(portal\.znuny\.com\/api\/addon_repos\/)([^\/]+)\/';
-    if (
-        $Param{URL} =~ m{$ZnunyPortalRegex}xms
-        && $2 ne 'public'
-    ) {
-        my $APIToken           = $2;
-        $Param{URL}            =~ s{$ZnunyPortalRegex}{$1}xms;
-        $Header{Authorization} = "Token token=$APIToken";
-    }
-
-    my %Response = $WebUserAgentObject->Request(
-        URL    => $Param{URL},
-        Header => \%Header,
-    );
-# ---
-    return if !$Response{Content};
-    return ${ $Response{Content} };
 }
 
 }
