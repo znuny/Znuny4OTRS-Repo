@@ -123,7 +123,6 @@ my %SeenRandomIDs;
 sub GetRandomID {
     my ( $Self, %Param ) = @_;
 
-    LOOP:
     for ( 1 .. 1_000 ) {
         my $RandomID = 'test' . time() . int( rand(1_000_000_000) );
         if ( !$SeenRandomIDs{$RandomID}++ ) {

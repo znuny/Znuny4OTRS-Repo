@@ -878,7 +878,7 @@ sub _DefaultColumnsEnable {
 
             # delete all undef params
             CONFIG:
-            for my $CurrentConfig (sort keys %{ $ExistingSetting{DefaultColumns} }){
+            for my $CurrentConfig ( sort keys %{ $ExistingSetting{DefaultColumns} } ) {
                 next CONFIG if defined $ExistingSetting{DefaultColumns}->{$CurrentConfig};
                 delete $ExistingSetting{DefaultColumns}->{$CurrentConfig};
             }
@@ -892,9 +892,9 @@ sub _DefaultColumnsEnable {
                 %{ $ScreenConfig{$View} }
             );
 
-             # delete all undef params
+            # delete all undef params
             CONFIG:
-            for my $CurrentConfig (sort keys %NewDynamicFieldConfig){
+            for my $CurrentConfig ( sort keys %NewDynamicFieldConfig ) {
                 next CONFIG if defined $NewDynamicFieldConfig{$CurrentConfig};
                 delete $NewDynamicFieldConfig{$CurrentConfig};
             }
@@ -1136,9 +1136,10 @@ sub _DynamicFieldsScreenEnable {
 
         # add the new settings
         my %NewDynamicFieldConfig = ( %ExistingSetting, %{ $ScreenDynamicFieldConfig{$View} } );
+
         # delete all undef params
         CONFIG:
-        for my $CurrentConfig (sort keys %NewDynamicFieldConfig){
+        for my $CurrentConfig ( sort keys %NewDynamicFieldConfig ) {
             next CONFIG if defined $NewDynamicFieldConfig{$CurrentConfig};
             delete $NewDynamicFieldConfig{$CurrentConfig};
         }
@@ -3577,7 +3578,7 @@ sub _ProcessCreateIfNotExists {
 
     my $ImportedProcessCounter = 0;
 
-    PROCESSLOOP:
+    PROCESS:
     for my $ProcessName ( sort keys %{$Processes} ) {
 
         my $ProcessYAMLPath = $Processes->{$ProcessName};
@@ -3593,7 +3594,7 @@ sub _ProcessCreateIfNotExists {
                 Priority => 'error',
                 Message  => "Can't read $ProcessYAMLPath!"
             );
-            next PROCESSLOOP;
+            next PROCESS;
         }
         my $ProcessData = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
 
@@ -3602,7 +3603,7 @@ sub _ProcessCreateIfNotExists {
                 Priority => 'error',
                 Message  => "YAML decode failed for file $ProcessYAMLPath!"
             );
-            next PROCESSLOOP
+            next PROCESS;
         }
 
         if ( !IsHashRefWithData( $ProcessData->{Process} ) ) {
@@ -3610,7 +3611,7 @@ sub _ProcessCreateIfNotExists {
                 Priority => 'error',
                 Message  => "No Process found in file $ProcessYAMLPath!"
             );
-            next PROCESSLOOP
+            next PROCESS;
         }
 
         if ( !IsStringWithData( $ProcessData->{Process}->{Name} ) ) {
@@ -3618,16 +3619,16 @@ sub _ProcessCreateIfNotExists {
                 Priority => 'error',
                 Message  => "Process had no Name in file $ProcessYAMLPath!"
             );
-            next PROCESSLOOP
+            next PROCESS;
         }
 
-        EXISTINGPROCESSLOOP:
+        EXISTINGPROCESS:
         for my $ExistingProcess ( @{$ProcessList} ) {
 
-            next EXISTINGPROCESSLOOP if !$ExistingProcess->{Name};
-            next EXISTINGPROCESSLOOP if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
-            next EXISTINGPROCESSLOOP if !$ExistingProcess->{State};
-            next EXISTINGPROCESSLOOP if $ExistingProcess->{State} ne 'Active';
+            next EXISTINGPROCESS if !$ExistingProcess->{Name};
+            next EXISTINGPROCESS if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
+            next EXISTINGPROCESS if !$ExistingProcess->{State};
+            next EXISTINGPROCESS if $ExistingProcess->{State} ne 'Active';
 
             $LogObject->Log(
                 Priority => 'error',
@@ -3635,7 +3636,7 @@ sub _ProcessCreateIfNotExists {
                     "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n\tAn active process with the same name is already existing!"
             );
 
-            next PROCESSLOOP;
+            next PROCESS;
         }
 
         my %ProcessImport = $DBProcessObject->ProcessImport(
@@ -3656,7 +3657,7 @@ sub _ProcessCreateIfNotExists {
                 Message =>
                     "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n\tBackend Error Message:\n\t$ProcessImport{Message}!"
             );
-            next PROCESSLOOP;
+            next PROCESS;
         }
 
         $ImportedProcessCounter++;
