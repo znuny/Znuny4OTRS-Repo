@@ -876,13 +876,28 @@ sub _DefaultColumnsEnable {
                 %{ $ScreenConfig{$View} }
             );
 
+            # delete all undef params
+            CONFIG:
+            for my $CurrentConfig (sort keys %{ $ExistingSetting{DefaultColumns} }){
+                next CONFIG if defined $ExistingSetting{DefaultColumns}->{$CurrentConfig};
+                delete $ExistingSetting{DefaultColumns}->{$CurrentConfig};
+            }
+
             %NewDynamicFieldConfig = %ExistingSetting;
         }
         else {
+
             %NewDynamicFieldConfig = (
                 %ExistingSetting,
                 %{ $ScreenConfig{$View} }
             );
+
+             # delete all undef params
+            CONFIG:
+            for my $CurrentConfig (sort keys %NewDynamicFieldConfig){
+                next CONFIG if defined $NewDynamicFieldConfig{$CurrentConfig};
+                delete $NewDynamicFieldConfig{$CurrentConfig};
+            }
         }
 
         # update the SysConfig
@@ -1121,6 +1136,12 @@ sub _DynamicFieldsScreenEnable {
 
         # add the new settings
         my %NewDynamicFieldConfig = ( %ExistingSetting, %{ $ScreenDynamicFieldConfig{$View} } );
+        # delete all undef params
+        CONFIG:
+        for my $CurrentConfig (sort keys %NewDynamicFieldConfig){
+            next CONFIG if defined $NewDynamicFieldConfig{$CurrentConfig};
+            delete $NewDynamicFieldConfig{$CurrentConfig};
+        }
 
         # update the sysconfig
         my $SysConfigKey = join '###', @Keys;
