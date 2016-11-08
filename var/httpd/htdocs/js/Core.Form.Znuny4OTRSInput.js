@@ -1086,6 +1086,29 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     }
 
     /*
+
+    Manipulates the error state of a given attribute.
+
+    var Result = Core.Form.Znuny4OTRSInput.Error('DynamicField_Example', 'Error');
+    var Result = Core.Form.Znuny4OTRSInput.Error('DynamicField_Example', 'ServerError');
+
+    Returns:
+
+        Result = true
+
+    */
+    TargetNS.Error = function (Attribute, ErrorType) {
+
+        var FieldID = TargetNS.FieldID(Attribute);
+
+        if (!FieldID) {
+            return false;
+        }
+
+        Core.Form.Validate.HighlightError($('#'+ FieldID)[0], ErrorType);
+    }
+
+    /*
     Manipulates the configuration of RichText input fields. It takes a config structure where the key is the Editor FieldID and the value is another structure with the config items it should set. It's possible to use the meta key 'Global' to set the config of all RichText instances on the current site. Notice that old configurations will be kept and extended instead of removed. For a complete list of possible config attributes visit the CKEdior documentation: http://docs.ckeditor.com/#!/api/CKEDITOR.config
 
     var Result = Core.Form.Znuny4OTRSInput.RichTextConfig({
