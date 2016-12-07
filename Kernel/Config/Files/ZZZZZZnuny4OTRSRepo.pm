@@ -4,9 +4,7 @@
 # Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34e/Kernel/System/Package.pm
 # $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34e/Kernel/System/CloudService/Backend/Run.pm
-# $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34eKernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -18,7 +16,6 @@ package Kernel::Config::Files::ZZZZZZnuny4OTRSRepo;
 use strict;
 use warnings;
 
-use Kernel::System::Package;
 use Kernel::System::CloudService::Backend::Run;
 
 use Kernel::System::VariableCheck qw(:all);
