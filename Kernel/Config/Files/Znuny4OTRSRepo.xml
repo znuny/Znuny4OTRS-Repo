@@ -333,6 +333,7 @@
                             <Item Key="AdminCloudServices">1</Item>
                             <Item Key="AdminNotificationEvent">1</Item>
                             <Item Key="AdminProcessManagement">1</Item>
+                            <Item Key="AdminAppointmentNotificationEvent">1</Item>
                             <Item Key="Footer">1</Item>
                         </Hash>
                     </Item>

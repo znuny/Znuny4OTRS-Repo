@@ -36,6 +36,7 @@ sub Run {
     $Self->AdminCloudServices(%Param);
     $Self->AdminNotificationEvent(%Param);
     $Self->AdminProcessManagement(%Param);
+    $Self->AdminAppointmentNotificationEvent(%Param);
     $Self->Footer(%Param);
 
     return 1;
@@ -215,6 +216,54 @@ Remove the following block:
                 \s*
                 <h2>\Q$DescriptionText\E<\/h2>)
     }{$1}xmsi;
+
+    return 1;
+}
+
+sub AdminAppointmentNotificationEvent {
+    my ( $Self, %Param ) = @_;
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AdminAppointmentNotificationEvent';
+
+=for comment
+
+Remove the following block:
+
+[% RenderBlockStart("TransportRowDisabled") %]
+                        <div class="Field">
+                            <p class="FieldExplanation">
+                                [% Translate("This feature is currently not available.") | html %]
+                            </p>
+                        </div>
+[% RenderBlockEnd("TransportRowDisabled") %]
+[% RenderBlockStart("TransportRowRecommendation") %]
+                        <div class="Field Info">
+                            <a href="[% Env("Baselink") %]Action=AdminOTRSBusiness" class="Button"><i class="fa fa-angle-double-up"></i> [% Translate("Upgrade to %s", OTRSBusinessLabel) %]</a>
+                        </div>
+[% RenderBlockEnd("TransportRowRecommendation") %]
+
+=cut
+
+    my $FeatureNotAvailableText
+        = $LayoutObject->{LanguageObject}->Translate('This feature is currently not available.');
+
+    ${ $Param{Data} } =~ s{
+        <fieldset \s class="TableLike \s FixedLabel \s SpacingTop"> \s*
+            <legend><span> [^<]* <\/span><\/legend> \s*
+            <div \s class="Field"> \s*
+                <p \s class="FieldExplanation"> \s*
+                    .*?
+                <\/p> \s*
+            <\/div> \s*
+            <div \s class="Field \s Info"> \s*
+                <a \s href=" [^?]* \? Action=AdminOTRSBusiness" \s class="Button">.*?<\/a> \s*
+            <\/div> \s*
+            <div \s class="Clear"><\/div> \s*
+        <\/fieldset>
+    }{}xmsig;
 
     return 1;
 }
