@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.9</Version>
+    <Version>4.0.10</Version>
+    <ChangeLog Version="4.0.10" Date="2016-12-07 13:32:00 +0100">- Fixed issue #10 - Remove advertisement in OTRSAppointmentCalendar. &#13;
+- Improved performance by custom package.pm</ChangeLog>
     <ChangeLog Version="4.0.9" Date="2016-11-10 16:30:33 +0100">Added wrapper around 'Core.Form.Validate.HighlightError'.</ChangeLog>
     <ChangeLog Version="4.0.8" Date="2016-11-08 13:25:27 +0100">Fixed disabled dynamicField bug - delete all undef params in _DefaultColumnsEnable and _DynamicFieldsScreenEnable.</ChangeLog>
     <ChangeLog Version="4.0.7" Date="2016-09-28 17:00:10 +0200">Added Core.Znuny4OTRS.App.js to Repo.&#13;
