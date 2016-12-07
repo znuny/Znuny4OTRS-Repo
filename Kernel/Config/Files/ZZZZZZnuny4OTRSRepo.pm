@@ -17,7 +17,6 @@ package Kernel::Config::Files::ZZZZZZnuny4OTRSRepo;
 use strict;
 use warnings;
 
-use Kernel::System::Package;
 use Kernel::System::CloudService;
 
 use Kernel::System::VariableCheck qw(:all);

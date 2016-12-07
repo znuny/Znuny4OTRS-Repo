@@ -1880,7 +1880,6 @@ returns:
 
 sub PackageVerifyAll {
     my ( $Self, %Param ) = @_;
-
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -2786,6 +2785,7 @@ sub _Download {
         Header => \%Header,
     );
 # ---
+
     return if !$Response{Content};
     return ${ $Response{Content} };
 }
