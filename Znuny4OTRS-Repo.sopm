@@ -107,11 +107,12 @@ Added UserRoles function.</ChangeLog>
     <Description Lang="en">Enables Znuny4OTRS repos to install and upgrade packages directly via package manager.</Description>
     <Description Lang="de">Aktiviert Znuny4OTRS Repositories um Pakete direkt in der Paket-Verwaltung zu installieren oder zu aktuallisieren.</Description>
     <Filelist>
+        <File Permission="644" Location="Custom/Kernel/System/Package.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
-        <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
+        <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnunyVerify.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
@@ -121,8 +122,8 @@ Added UserRoles function.</ChangeLog>
         <File Permission="644" Location="scripts/webservices/Znuny4OTRSRepo/Znuny4OTRSRepo.yml"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Agent.Znuny4OTRS.AgentTicketZoom.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Form.Znuny4OTRSInput.js"/>
-        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
         <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.App.js"/>
+        <File Permission="644" Location="var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify-small.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.png"/>
         <File Permission="644" Location="var/httpd/htdocs/skins/Agent/default/img/znuny-verify.psd"/>
