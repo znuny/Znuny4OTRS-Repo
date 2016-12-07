@@ -63,9 +63,6 @@ sub Load {
 {
 no warnings 'redefine';
 
-# backup original PackageVerifyAll()
-my $PackageVerifyAllOld = \&Kernel::System::Package::PackageVerifyAll;
-
 sub Kernel::System::CloudService::Backend::Run::new {
     my ( $Type, %Param ) = @_;
 
