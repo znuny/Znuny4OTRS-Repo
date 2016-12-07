@@ -1906,7 +1906,6 @@ returns:
 
 sub PackageVerifyAll {
     my ( $Self, %Param ) = @_;
-
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -2788,7 +2787,6 @@ sub _Download {
         Timeout => $Self->{ConfigObject}->Get('Package::Timeout'),
         Proxy   => $Self->{ConfigObject}->Get('Package::Proxy'),
     );
-
 # ---
 # Znuny4OTRS-Repo
 # ---
