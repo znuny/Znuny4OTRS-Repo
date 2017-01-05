@@ -6,7 +6,7 @@ With this package you integrate Znuny repositories. Without any setting the publ
 
 **Prerequisites**
 
-- OTRS 5.0
+- OTRS 4.0
 
 **Installation**
 
