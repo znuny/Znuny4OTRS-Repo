@@ -118,6 +118,80 @@ sub Mock {
     return 1;
 }
 
+=item LastResponseGet()
+
+This function returns the last response of the overwritten user agent.
+
+    my %Response = $Object->LastResponseGet();
+
+Returns:
+
+    my %Response = (
+          'Status' => 'OK',
+          'Body' => '{ "access_token": "123", "token_type": "ABC" }',
+          'Header' => 'Content-Type: application/json
+Client-Date: Wed, 25 Jan 2017 11:10:00 GMT
+',
+          'URL' => 'http://blub/rest',
+          'StatusCode' => 200
+    );
+
+=cut
+
+sub LastResponseGet {
+    my ( $Self, %Param ) = @_;
+
+    return if !$Self->{RiggedUserAgent};
+
+    my $Result = $Self->{RiggedUserAgent}->last_http_response_received();
+    return if !$Result;
+
+    return (
+        URL        => $Result->{_request}->{_uri}->as_string(),
+        Status     => $Result->{_msg},
+        StatusCode => $Result->{_rc},
+        Header     => $Result->{_headers}->as_string(),
+        Body       => $Result->{_content},
+    );
+}
+
+=item LastRequestGet()
+
+This function returns the last request of the overwritten user agent.
+
+    my %Request = $Object->LastRequestGet();
+
+Returns:
+
+    my %Request = (
+          'Body' => '=',
+          'URL' => 'http://blub/rest',
+          'Method' => 'POST',
+          'Header' => 'Authorization: Basic AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+User-Agent: OTRS 4.0.x git
+Content-Length: 1
+Content-Type: application/x-www-form-urlencoded
+'
+    );
+
+=cut
+
+sub LastRequestGet {
+    my ( $Self, %Param ) = @_;
+
+    return if !$Self->{RiggedUserAgent};
+
+    my $Result = $Self->{RiggedUserAgent}->last_http_response_received();
+    return if !$Result;
+
+    return (
+        URL    => $Result->{_request}->{_uri}->as_string(),
+        Method => $Result->{_request}->{_method},
+        Header => $Result->{_request}->{_headers}->as_string(),
+        Body   => $Result->{_request}->{_content},
+    );
+}
+
 =item Reset()
 
 This function will remove all mocks and mocking status.
@@ -134,7 +208,7 @@ sub Reset {
     my ( $Self, %Param ) = @_;
 
     $Self->_OverwrittenUserAgentRestore();
-    $Self->{RiggedUserAgent}->unmap_all();
+    $Self->{RiggedUserAgent} = Test::LWP::UserAgent->new();
 
     return 1;
 }
