@@ -118,6 +118,7 @@ Added UserRoles function.</ChangeLog>
         <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnunyVerify.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/test/UnitTest/Email/Znuny4OTRSRepo/SimpleMailValidate.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo.t"/>
