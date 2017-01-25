@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.10</Version>
+    <Version>4.0.11</Version>
+    <ChangeLog Version="4.0.11" Date="2017-01-25 15:29:32 +0100">Added new unit test object for WebUserAgent.</ChangeLog>
     <ChangeLog Version="4.0.10" Date="2016-12-07 13:32:00 +0100">- Fixed issue #10 - Remove advertisement in OTRSAppointmentCalendar. &#13;
 - Improved performance by custom package.pm</ChangeLog>
     <ChangeLog Version="4.0.9" Date="2016-11-10 16:30:33 +0100">Added wrapper around 'Core.Form.Validate.HighlightError'.</ChangeLog>
