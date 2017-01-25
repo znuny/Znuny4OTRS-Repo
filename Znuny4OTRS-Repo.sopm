@@ -157,6 +157,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Scheduler.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ValidProcess/UnitTestRepo.yml"/>
