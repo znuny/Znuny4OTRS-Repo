@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -28,6 +28,8 @@ our @ObjectDependencies = (
     'Kernel::System::Main',
     'Kernel::System::NotificationEvent',
     'Kernel::System::Priority',
+    'Kernel::System::ProcessManagement::DB::Entity',
+    'Kernel::System::ProcessManagement::DB::Process',
     'Kernel::System::Queue',
     'Kernel::System::SLA',
     'Kernel::System::Service',
@@ -37,7 +39,6 @@ our @ObjectDependencies = (
     'Kernel::System::User',
     'Kernel::System::Valid',
     'Kernel::System::YAML',
-    'Kernel::System::ProcessManagement::DB::Process',
 );
 
 =head1 NAME
@@ -3499,8 +3500,10 @@ sub _ProcessCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
     my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
     my $DBProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
+    my $EntityObject    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
 
     my $Processes = $Param{Processes};
 
@@ -3612,6 +3615,35 @@ sub _ProcessCreateIfNotExists {
         }
 
         $ImportedProcessCounter++;
+    }
+
+    # Synchronize newly created processes
+    my $ConfigFileLocation = $ConfigObject->Get('Home') . '/Kernel/Config/Files/ZZZProcessManagement.pm';
+
+    my $ProcessDump = $DBProcessObject->ProcessDump(
+        ResultType => 'FILE',
+        Location   => $ConfigFileLocation,
+        UserID     => 1,
+    );
+    if ( !$ProcessDump ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => 'Error while dumping processes via ProcessDump().',
+        );
+
+        return $ImportedProcessCounter;
+    }
+
+    my $Synchronized = $EntityObject->EntitySyncStatePurge(
+        UserID => 1,
+    );
+    if ( !$Synchronized ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => 'Error synchronizing processes.',
+        );
+
+        return $ImportedProcessCounter;
     }
 
     return $ImportedProcessCounter;
