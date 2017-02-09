@@ -27,6 +27,7 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::NotificationEvent',
+    'Kernel::System::ProcessManagement::DB::Entity',
     'Kernel::System::ProcessManagement::DB::Process',
     'Kernel::System::Queue',
     'Kernel::System::SLA',
@@ -3548,8 +3549,10 @@ sub _ProcessCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
     my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
     my $DBProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
+    my $EntityObject    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
 
     my $Processes = $Param{Processes};
 
@@ -3661,6 +3664,35 @@ sub _ProcessCreateIfNotExists {
         }
 
         $ImportedProcessCounter++;
+    }
+
+    # Synchronize newly created processes
+    my $ConfigFileLocation = $ConfigObject->Get('Home') . '/Kernel/Config/Files/ZZZProcessManagement.pm';
+
+    my $ProcessDump = $DBProcessObject->ProcessDump(
+        ResultType => 'FILE',
+        Location   => $ConfigFileLocation,
+        UserID     => 1,
+    );
+    if ( !$ProcessDump ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => 'Error while dumping processes via ProcessDump().',
+        );
+
+        return $ImportedProcessCounter;
+    }
+
+    my $Synchronized = $EntityObject->EntitySyncStatePurge(
+        UserID => 1,
+    );
+    if ( !$Synchronized ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => 'Error synchronizing processes.',
+        );
+
+        return $ImportedProcessCounter;
     }
 
     return $ImportedProcessCounter;
