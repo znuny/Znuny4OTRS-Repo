@@ -10,8 +10,6 @@ job_unit_otrs_Znuny4OTRSRepo:
     - env
     - pwd
     - /run.sh
-    - su -c "git clone git@git.znuny.com:znuny/module-tools.git" -s /bin/bash otrs
-    - su -c "perl module-tools/bin/otrs.ModuleTools.pl Module::File::Link . /opt/otrs/" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-Repo.sopm" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Layout/Znuny4OTRSRepo" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Selenium/JavaScript/Znuny4OTRSInput/AgentTicketPhone" -s /bin/bash otrs
