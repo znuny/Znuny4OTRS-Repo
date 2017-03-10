@@ -109,7 +109,7 @@ Added UserRoles function.</ChangeLog>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
     <Description Lang="en">Enables Znuny4OTRS repos to install and upgrade packages directly via package manager.</Description>
-    <Description Lang="de">Aktiviert Znuny4OTRS Repositories um Pakete direkt in der Paket-Verwaltung zu installieren oder zu aktuallisieren.</Description>
+    <Description Lang="de">Aktiviert Znuny4OTRS Repositories um Pakete direkt in der Paket-Verwaltung zu installieren oder zu aktualisieren.</Description>
     <Filelist>
         <File Permission="644" Location="Custom/Kernel/System/Package.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
