@@ -1570,6 +1570,66 @@ sub _DynamicFieldsCreate {
     return 1;
 }
 
+=item _DynamicFieldsConfigExport()
+
+exports configuration of all dynamic fields
+
+    my $Configs = $ZnunyHelperObject->_DynamicFieldsConfigExport(
+        Format              => 'yml|perl', # defaults to perl
+        SkipInternalFields  => 1, # defaults to 1, don't include dynamic fields with flag 'InternalField',
+        ExportAllConfigKeys => 0, # defaults to 0. If set, also exports config keys ChangeTime, CreateTime, ID, InternalField, ValidID
+    );
+
+=cut
+
+sub _DynamicFieldsConfigExport {
+    my ( $Self, %Param ) = @_;
+
+    my $MainObject         = $Kernel::OM->Get('Kernel::System::Main');
+    my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $YAMLObject         = $Kernel::OM->Get('Kernel::System::YAML');
+
+    my $Format = lc( $Param{Format} // 'perl' );
+    if ( $Format ne 'yml' && $Format ne 'perl' ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Invalid value $Format for parameter Format.",
+        );
+        return;
+    }
+
+    my $SkipInternalFields  = $Param{SkipInternalFields}  // 1;
+    my $ExportAllConfigKeys = $Param{ExportAllConfigKeys} // 0;
+
+    my $DynamicFields = $DynamicFieldObject->DynamicFieldListGet() // [];
+    my @DynamicFields = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
+
+    # Remove internal dynamic field configs
+    if ($SkipInternalFields) {
+        @DynamicFields = grep { !$_->{InternalField} } @DynamicFields;
+    }
+
+    # Remove hash keys
+    if ( !$ExportAllConfigKeys ) {
+        for my $DynamicField (@DynamicFields) {
+            for my $Key (qw(ChangeTime CreateTime ID InternalField ValidID)) {
+                delete $DynamicField->{$Key};
+            }
+        }
+    }
+
+    my $ConfigString = '';
+    if ( $Format eq 'perl' ) {
+        $ConfigString = $MainObject->Dump( \@DynamicFields );
+    }
+    elsif ( $Format eq 'yml' ) {
+        $ConfigString = $YAMLObject->Dump( Data => \@DynamicFields );
+    }
+
+    return $ConfigString;
+}
+
 =item _GroupCreateIfNotExists()
 
 creates group if not exists

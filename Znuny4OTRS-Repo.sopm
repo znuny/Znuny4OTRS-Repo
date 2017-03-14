@@ -150,16 +150,17 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
-        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/DynamicFieldConfigExport.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Scheduler.pm"/>
-        <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ValidProcess/UnitTestRepo.yml"/>
