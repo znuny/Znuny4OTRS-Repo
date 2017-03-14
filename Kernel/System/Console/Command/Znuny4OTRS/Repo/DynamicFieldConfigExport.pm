@@ -59,8 +59,8 @@ sub Run {
 
     my $ConfigString = $ZnunyHelperObject->_DynamicFieldsConfigExport(
         Format              => $Self->GetArgument('format'),
-        SkipInternalFields  => $Self->GetOption('skip-internal-fields') ? 1 : 0,
-        ExportAllConfigKeys => $Self->GetOption('export-all-config-keys') ? [] : undef,
+        SkipInternalFields  => $Self->GetOption('skip-internal-fields'),
+        ExportAllConfigKeys => $Self->GetOption('export-all-config-keys'),
     );
 
     $Self->Print("$ConfigString\n");
