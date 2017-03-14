@@ -35,16 +35,16 @@ sub Configure {
     );
 
     $Self->AddOption(
-        Name        => 'skip-internal-fields',
-        Description => 'Skips dynamic fields with flag "InternalField" (e. g. process management).',
+        Name        => 'include-internal-fields',
+        Description => 'Includes dynamic fields with flag "InternalField" (e. g. process management).',
         Required    => 0,
         HasValue    => 0,
     );
 
     $Self->AddOption(
-        Name => 'export-all-config-keys',
+        Name => 'include-all-config-keys',
         Description =>
-            'Additionally exports the following config keys: ChangeTime, CreateTime, ID, InternalField, ValidID.',
+            'Additionally includes the following config keys: ChangeTime, CreateTime, ID, InternalField, ValidID.',
         Required => 0,
         HasValue => 0,
     );
@@ -58,9 +58,9 @@ sub Run {
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 
     my $ConfigString = $ZnunyHelperObject->_DynamicFieldsConfigExport(
-        Format              => $Self->GetArgument('format'),
-        SkipInternalFields  => $Self->GetOption('skip-internal-fields'),
-        ExportAllConfigKeys => $Self->GetOption('export-all-config-keys'),
+        Format                => $Self->GetArgument('format'),
+        IncludeInternalFields => $Self->GetOption('include-internal-fields') // 0,
+        IncludeAllConfigKeys  => $Self->GetOption('include-all-config-keys') // 0,
     );
 
     $Self->Print("$ConfigString\n");

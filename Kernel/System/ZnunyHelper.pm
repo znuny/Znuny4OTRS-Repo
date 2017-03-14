@@ -1575,9 +1575,9 @@ sub _DynamicFieldsCreate {
 exports configuration of all dynamic fields
 
     my $Configs = $ZnunyHelperObject->_DynamicFieldsConfigExport(
-        Format              => 'yml|perl', # defaults to perl
-        SkipInternalFields  => 1, # defaults to 1, don't include dynamic fields with flag 'InternalField',
-        ExportAllConfigKeys => 0, # defaults to 0. If set, also exports config keys ChangeTime, CreateTime, ID, InternalField, ValidID
+        Format                => 'yml|perl', # defaults to perl
+        IncludeInternalFields => 1, # defaults to 1, also includes dynamic fields with flag 'InternalField',
+        IncludeAllConfigKeys  => 1, # defaults to 1, also exports config keys ChangeTime, CreateTime, ID, InternalField, ValidID
     );
 
 =cut
@@ -1599,19 +1599,19 @@ sub _DynamicFieldsConfigExport {
         return;
     }
 
-    my $SkipInternalFields  = $Param{SkipInternalFields}  // 1;
-    my $ExportAllConfigKeys = $Param{ExportAllConfigKeys} // 0;
+    my $IncludeInternalFields = $Param{IncludeInternalFields} // 1;
+    my $IncludeAllConfigKeys  = $Param{IncludeAllConfigKeys}  // 1;
 
     my $DynamicFields = $DynamicFieldObject->DynamicFieldListGet() // [];
     my @DynamicFields = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
 
     # Remove internal dynamic field configs
-    if ($SkipInternalFields) {
+    if ( !$IncludeInternalFields ) {
         @DynamicFields = grep { !$_->{InternalField} } @DynamicFields;
     }
 
     # Remove hash keys
-    if ( !$ExportAllConfigKeys ) {
+    if ( !$IncludeAllConfigKeys ) {
         for my $DynamicField (@DynamicFields) {
             for my $Key (qw(ChangeTime CreateTime ID InternalField ValidID)) {
                 delete $DynamicField->{$Key};
