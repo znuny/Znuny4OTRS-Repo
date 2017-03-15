@@ -159,6 +159,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/DynamicFieldsConfigExport.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/Param.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Scheduler.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>

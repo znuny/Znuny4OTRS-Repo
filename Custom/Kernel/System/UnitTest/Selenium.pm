@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
 # $origin: https://github.com/OTRS/otrs/blob/c5b77b7918dd1ccaf1ae1c20f997ed5c019d3f86/Kernel/System/UnitTest/Selenium.pm
 # --
@@ -39,7 +39,6 @@ our @ObjectDependencies = (
 # Znuny4OTRS-Repo
 # ---
     'Kernel::System::JSON',
-    'Kernel::System::SysConfig',
     'Kernel::System::UnitTest::Helper',
 # ---
 );
