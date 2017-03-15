@@ -1,8 +1,8 @@
 # VERSION:1.1
 # --
 # Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm - overloads the file system check function to use the Znuny service for package verification
-# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
 # $origin: https://github.com/OTRS/otrs/blob/6114661c44c9ca9dec45364b54bfab036ce6e34e/Kernel/System/CloudService/Backend/Run.pm
 # --

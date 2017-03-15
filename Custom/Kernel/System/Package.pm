@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2016 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2016 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
 # $origin: https://github.com/OTRS/otrs/blob/7278eb7f80ce94845dceb95cac4e4b7672aaec56/Kernel/System/Package.pm
 # --
@@ -32,7 +32,11 @@ our @ObjectDependencies = (
     'Kernel::System::CloudService::Backend::Run',
     'Kernel::System::DB',
     'Kernel::System::Encode',
-    'Kernel::System::JSON',
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     'Kernel::System::JSON',
+# ---
     'Kernel::System::Loader',
     'Kernel::System::Log',
     'Kernel::System::Main',
