@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.18</Version>
+    <Version>5.0.19</Version>
+    <ChangeLog Version="5.0.19" Date="2017-03-15 08:26:47 +0100">Added console command to export confguration of dynamic fields as YAML or Perl structure.</ChangeLog>
     <ChangeLog Version="5.0.18" Date="2017-02-09 15:47:05 +0100">Added synchronization of processes to _ProcessCreateIfNotExists().</ChangeLog>
     <ChangeLog Version="5.0.17" Date="2017-01-25 15:29:14 +0100">Added new unit test object for WebUserAgent.</ChangeLog>
     <ChangeLog Version="5.0.16" Date="2016-12-07 13:31:50 +0100">- Fixed issue #10 - Remove advertisement in OTRSAppointmentCalendar. &#13;
