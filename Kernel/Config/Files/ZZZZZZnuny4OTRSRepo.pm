@@ -33,19 +33,28 @@ sub Load {
             $RepositoryList = {};
         }
 
-        my $RepositoryURL = $Self->{'Znuny4OTRSRepoType'};
-        $RepositoryURL ||= 'https';
-        $RepositoryURL .= '://portal.znuny.com/api/addon_repos/';
+        my $RepositoryBasePath = 'portal.znuny.com/api/addon_repos/';
+
+        # remove all repositories that match base path
+        # because otherwise repositories might get added twice (once for each protocol)
+        REPOSITORYURL:
+        for my $RepositoryURL ( sort keys %{$RepositoryList} ) {
+            next REPOSITORYURL if $RepositoryURL !~ m{\Ahttps?://$RepositoryBasePath};
+            delete $RepositoryList->{$RepositoryURL};
+        }
+
+        my $RepositoryProtocol = $Self->{'Znuny4OTRSRepoType'} // 'https';
+        my $RepositoryBaseURL  = $RepositoryProtocol . '://' . $RepositoryBasePath;
 
         # add public repository
-        $RepositoryList->{ $RepositoryURL . 'public' } = 'Addons - Znuny4OTRS / Public';
+        $RepositoryList->{ $RepositoryBaseURL . 'public' } = 'Addons - Znuny4OTRS / Public';
 
         # check for and add configured private repositories
         my $PrivateRepost = $Self->{'Znuny4OTRSPrivatRepos'};
 
         if ( IsHashRefWithData($PrivateRepost) ) {
             for my $Key ( sort keys %{$PrivateRepost} ) {
-                $RepositoryList->{ $RepositoryURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
+                $RepositoryList->{ $RepositoryBaseURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
             }
         }
 
