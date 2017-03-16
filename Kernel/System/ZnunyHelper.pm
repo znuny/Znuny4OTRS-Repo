@@ -2433,17 +2433,23 @@ create or update notification event
 
     my @NotificationList = (
         {
-            Name => 'Agent::CustomerVIPPriorityUpdate',
-            Data => {
+            Name    => 'Agent::CustomerVIPPriorityUpdate',
+            Subject => 'Die Prioritaet Ihres Tickets wurde geaendert',
+            Type    => 'text/plain',
+            Charset => 'utf-8',
+            Body    => '...',
+            Data    => {
                 Events => [
                     'TicketPriorityUpdate',
                 ],
-                ArticleAttachmentInclude => [
-                    '0'
+                ArticleSenderTypeID => [
+                    '1',
                 ],
-                LanguageID => [
-                    'en',
-                    'de'
+                StateID => [
+                    '1',
+                ],
+                ArticleAttachmentInclude => [
+                    '0',
                 ],
                 NotificationArticleTypeID => [
                     1,
@@ -2451,27 +2457,9 @@ create or update notification event
                 Recipients => [
                     'Customer',
                 ],
-                TransportEmailTemplate => [
-                    'Default',
+                RecipientEmail => [
+                    'first@mail.com,second@mail.com'
                 ],
-                Transports => [
-                    'Email',
-                ],
-                VisibleForAgent => [
-                    '0',
-                ],
-            },
-            Message => {
-                en => {
-                    Subject     => 'Priority for your ticket changed',
-                    ContentType => 'text/html',
-                    Body        => '...',
-                },
-                de => {
-                    Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
-                    ContentType => 'text/html',
-                    Body        => '...',
-                },
             },
         },
         # ...
@@ -2550,17 +2538,23 @@ sub _NotificationEventCreate {
 creates notification event if not exists
 
     my $Success = $ZnunyHelperObject->_NotificationEventCreateIfNotExists(
-        Name => 'Agent::CustomerVIPPriorityUpdate',
-        Data => {
+        Name    => 'Agent::CustomerVIPPriorityUpdate',
+        Subject => 'Die Prioritaet Ihres Tickets wurde geaendert',
+        Type    => 'text/plain',
+        Charset => 'utf-8',
+        Body    => '...',
+        Data    => {
             Events => [
                 'TicketPriorityUpdate',
             ],
-            ArticleAttachmentInclude => [
-                '0'
+            ArticleSenderTypeID => [
+                '1',
             ],
-            LanguageID => [
-                'en',
-                'de'
+            StateID => [
+                '1',
+            ],
+            ArticleAttachmentInclude => [
+                '0',
             ],
             NotificationArticleTypeID => [
                 1,
@@ -2568,27 +2562,9 @@ creates notification event if not exists
             Recipients => [
                 'Customer',
             ],
-            TransportEmailTemplate => [
-                'Default',
+            RecipientEmail => [
+                'first@mail.com,second@mail.com'
             ],
-            Transports => [
-                'Email',
-            ],
-            VisibleForAgent => [
-                '0',
-            ],
-        },
-        Message => {
-            en => {
-                Subject     => 'Priority for your ticket changed',
-                ContentType => 'text/html',
-                Body        => '...',
-            },
-            de => {
-                Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
-                ContentType => 'text/html',
-                Body        => '...',
-            },
         },
     );
 
