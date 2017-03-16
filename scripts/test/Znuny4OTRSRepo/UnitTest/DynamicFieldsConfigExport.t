@@ -92,7 +92,7 @@ my @Tests = (
         },
     },
     {
-        Name         => 'Export as Perl structure with internal fields and all config keys',
+        Name         => 'Export as YAML structure with internal fields and all config keys',
         ExportParams => {
             Format                => 'yml',
             IncludeInternalFields => 1,
@@ -100,7 +100,7 @@ my @Tests = (
         },
     },
     {
-        Name         => 'Export as Perl structure with internal fields and limited config keys',
+        Name         => 'Export as YAML structure with internal fields and limited config keys',
         ExportParams => {
             Format                => 'yml',
             IncludeInternalFields => 1,
@@ -108,7 +108,7 @@ my @Tests = (
         },
     },
     {
-        Name         => 'Export as Perl structure without internal fields and all config keys',
+        Name         => 'Export as YAML structure without internal fields and all config keys',
         ExportParams => {
             Format                => 'yml',
             IncludeInternalFields => 0,
@@ -116,7 +116,7 @@ my @Tests = (
         },
     },
     {
-        Name         => 'Export as Perl structure without internal fields and limited config keys',
+        Name         => 'Export as YAML structure without internal fields and limited config keys',
         ExportParams => {
             Format                => 'yml',
             IncludeInternalFields => 0,
