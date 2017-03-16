@@ -34,6 +34,7 @@ our @ObjectDependencies = (
     'Kernel::System::SLA',
     'Kernel::System::Service',
     'Kernel::System::State',
+    'Kernel::System::Storable',
     'Kernel::System::SysConfig',
     'Kernel::System::Type',
     'Kernel::System::User',
@@ -1589,6 +1590,7 @@ sub _DynamicFieldsConfigExport {
     my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
     my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
     my $YAMLObject         = $Kernel::OM->Get('Kernel::System::YAML');
+    my $StorableObject     = $Kernel::OM->Get('Kernel::System::Storable');
 
     my $Format = lc( $Param{Format} // 'perl' );
     if ( $Format ne 'yml' && $Format ne 'perl' ) {
@@ -1599,18 +1601,21 @@ sub _DynamicFieldsConfigExport {
         return;
     }
 
-    my $IncludeInternalFields = $Param{IncludeInternalFields} // 1;
-    my $IncludeAllConfigKeys  = $Param{IncludeAllConfigKeys}  // 1;
-
+    # Use clone to make a copy to prevent weird issues with multiple calls to DynamicFieldListGet().
+    # Somehow calls to DynamicFieldListGet() will report the already changed dynamic field configs
+    # according to given parameters.
     my $DynamicFields = $DynamicFieldObject->DynamicFieldListGet() // [];
+    $DynamicFields = $StorableObject->Clone( Data => $DynamicFields );
     my @DynamicFields = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
 
     # Remove internal dynamic field configs
+    my $IncludeInternalFields = $Param{IncludeInternalFields} // 1;
     if ( !$IncludeInternalFields ) {
         @DynamicFields = grep { !$_->{InternalField} } @DynamicFields;
     }
 
     # Remove hash keys
+    my $IncludeAllConfigKeys = $Param{IncludeAllConfigKeys} // 1;
     if ( !$IncludeAllConfigKeys ) {
         for my $DynamicField (@DynamicFields) {
             for my $Key (qw(ChangeTime CreateTime ID InternalField ValidID)) {
