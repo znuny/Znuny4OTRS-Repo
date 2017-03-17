@@ -158,6 +158,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/DynamicFieldsConfigExport.pm"/>
+        <File Permission="644" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/PostMasterFilterConfigExport.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Param.pm"/>
@@ -179,6 +180,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FunctionCalls.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Layout.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Postmaster.t"/>
+        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/PostMasterFilterExport.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Process.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Scheduler.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/SimpleEmailValidate.t"/>

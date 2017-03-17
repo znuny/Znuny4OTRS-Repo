@@ -27,6 +27,7 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::NotificationEvent',
+    'Kernel::System::PostMaster::Filter',
     'Kernel::System::Priority',
     'Kernel::System::ProcessManagement::DB::Entity',
     'Kernel::System::ProcessManagement::DB::Process',
@@ -1630,6 +1631,154 @@ sub _DynamicFieldsConfigExport {
     }
     elsif ( $Format eq 'yml' ) {
         $ConfigString = $YAMLObject->Dump( Data => \@DynamicFields );
+    }
+
+    return $ConfigString;
+}
+
+=item _PostMasterFilterCreateIfNotExists()
+
+creates all postmaster filter that are necessary
+
+    my @Filters = (
+        {
+            'Match' => {
+                'Auto-Submitted' => '123'
+            },
+            'Name' => 'asdf',
+            'Not' => {
+                'Auto-Submitted' => undef
+            },
+            'Set' => {
+                'X-OTRS-DynamicField-blub' => '123'
+            },
+            'StopAfterMatch' => '0'
+        },
+    );
+
+    my $Result = $ZnunyHelperObject->_PostMasterFilterCreateIfNotExists( @Filters );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PostMasterFilterCreateIfNotExists {
+    my ( $Self, @Definition ) = @_;
+
+    my $PMFilterObject = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
+
+    my @PostMasterFilterExistsNot;
+    my %FilterList = $PMFilterObject->FilterList();
+
+    FILTER:
+    for my $NewPostMasterFilter (@Definition) {
+        next FILTER if !IsHashRefWithData($NewPostMasterFilter);
+
+        # only create if not exists
+        my $FilterFound = grep { $NewPostMasterFilter->{Name} eq $_ } sort keys %FilterList;
+        next FILTER if $FilterFound;
+
+        push @PostMasterFilterExistsNot, $NewPostMasterFilter;
+    }
+
+    return $Self->_PostMasterFilterCreate(@PostMasterFilterExistsNot);
+}
+
+=item _PostMasterFilterCreate()
+
+creates all postmaster filter that are necessary
+
+    my @Filters = (
+        {
+            'Match' => {
+                'Auto-Submitted' => '123'
+            },
+            'Name' => 'asdf',
+            'Not' => {
+                'Auto-Submitted' => undef
+            },
+            'Set' => {
+                'X-OTRS-DynamicField-blub' => '123'
+            },
+            'StopAfterMatch' => '0'
+        },
+    );
+
+    my $Result = $ZnunyHelperObject->_PostMasterFilterCreate( @Filters );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PostMasterFilterCreate {
+    my ( $Self, @Definition ) = @_;
+
+    my $PMFilterObject = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
+
+    FILTER:
+    for my $NewPostMasterFilter (@Definition) {
+        next FILTER if !IsHashRefWithData($NewPostMasterFilter);
+
+        # get filter
+        my %Filter = %{$NewPostMasterFilter};
+
+        # delete first (because no update function exists)
+        $PMFilterObject->FilterDelete(%Filter);
+
+        # add filter
+        $PMFilterObject->FilterAdd(%Filter);
+    }
+
+    return 1;
+}
+
+=item _PostMasterFilterConfigExport()
+
+exports configuration of all postmaster filter
+
+    my $Configs = $ZnunyHelperObject->_PostMasterFilterConfigExport(
+        Format => 'yml|perl', # defaults to perl
+    );
+
+=cut
+
+sub _PostMasterFilterConfigExport {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject      = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject     = $Kernel::OM->Get('Kernel::System::Main');
+    my $PMFilterObject = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
+    my $YAMLObject     = $Kernel::OM->Get('Kernel::System::YAML');
+
+    my $Format = lc( $Param{Format} // 'perl' );
+    if ( $Format ne 'yml' && $Format ne 'perl' ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Invalid value $Format for parameter Format.",
+        );
+        return;
+    }
+
+    my @Filters;
+    my %FilterList = $PMFilterObject->FilterList();
+    for my $FilterName ( sort keys %FilterList ) {
+        my %Data = $PMFilterObject->FilterGet(
+            Name => $FilterName,
+        );
+
+        push @Filters, \%Data;
+    }
+
+    my $ConfigString = '';
+    if ( $Format eq 'perl' ) {
+        $ConfigString = $MainObject->Dump( \@Filters );
+    }
+    elsif ( $Format eq 'yml' ) {
+        $ConfigString = $YAMLObject->Dump( Data => \@Filters );
     }
 
     return $ConfigString;
