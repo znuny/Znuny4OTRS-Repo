@@ -3719,32 +3719,31 @@ sub _ProcessCreateIfNotExists {
     my $DBProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
     my $EntityObject    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
 
-    my $Processes = $Param{Processes};
+    my $Processes;
+    if ( exists $Param{Processes} ) {
+        $Processes = $Param{Processes};
+    }
+    else {
+        $Processes = $Self->_ProcessesGet(
+            SubDir => $Param{SubDir}, # SubDir can be undef
+        );
+    }
 
     if ( !IsHashRefWithData($Processes) ) {
-        $Processes = $Self->_ProcessesGet(
-            SubDir => $Param{SubDir},
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => 'No processes found for given parameters.',
         );
 
-        if ( !IsHashRefWithData($Processes) ) {
-            $LogObject->Log(
-                Priority => 'error',
-                Message  => "No Processes found in $Param{SubDir}!"
-            );
-
-            return;
-        }
+        return;
     }
 
     my $ProcessList = $DBProcessObject->ProcessListGet(
         UserID => 1,
     );
-
-    if ( !$ProcessList || !IsArrayRefWithData($ProcessList) ) {
+    if ( !IsArrayRefWithData($ProcessList) ) {
         $ProcessList = [];
     }
-
-    my $ImportedProcessCounter = 0;
 
     PROCESS:
     for my $ProcessName ( sort keys %{$Processes} ) {
@@ -3757,52 +3756,46 @@ sub _ProcessCreateIfNotExists {
             Mode     => 'utf8',
         );
 
-        if ( !$Content ) {
+        if ( !defined $Content ) {
             $LogObject->Log(
                 Priority => 'error',
-                Message  => "Can't read $ProcessYAMLPath!"
+                Message  => "Can't read $ProcessYAMLPath!",
             );
-            next PROCESS;
+            return;
         }
-        my $ProcessData = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
 
+        my $ProcessData = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
         if ( !IsHashRefWithData($ProcessData) ) {
             $LogObject->Log(
                 Priority => 'error',
-                Message  => "YAML decode failed for file $ProcessYAMLPath!"
+                Message  => "YAML parsing failed for file $ProcessYAMLPath!",
             );
-            next PROCESS
+            return;
         }
 
         if ( !IsHashRefWithData( $ProcessData->{Process} ) ) {
             $LogObject->Log(
                 Priority => 'error',
-                Message  => "No Process found in file $ProcessYAMLPath!"
+                Message  => "No process found in file $ProcessYAMLPath!",
             );
-            next PROCESS
+            return;
         }
 
         if ( !IsStringWithData( $ProcessData->{Process}->{Name} ) ) {
             $LogObject->Log(
                 Priority => 'error',
-                Message  => "Process had no Name in file $ProcessYAMLPath!"
+                Message  => "Process has no name in file $ProcessYAMLPath!",
             );
-            next PROCESS
+            return;
         }
 
         EXISTINGPROCESS:
         for my $ExistingProcess ( @{$ProcessList} ) {
 
-            next EXISTINGPROCESS if !$ExistingProcess->{Name};
+            next EXISTINGPROCESS if !defined $ExistingProcess->{Name};
             next EXISTINGPROCESS if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
-            next EXISTINGPROCESS if !$ExistingProcess->{State};
+            next EXISTINGPROCESS if !defined $ExistingProcess->{State};
             next EXISTINGPROCESS if $ExistingProcess->{State} ne 'Active';
-
-            $LogObject->Log(
-                Priority => 'error',
-                Message =>
-                    "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n\tAn active process with the same name is already existing!"
-            );
 
             next PROCESS;
         }
@@ -3823,12 +3816,11 @@ sub _ProcessCreateIfNotExists {
             $LogObject->Log(
                 Priority => 'error',
                 Message =>
-                    "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n\tBackend Error Message:\n\t$ProcessImport{Message}!"
+                    "Importing process '$ProcessData->{Process}->{Name}' from file '$ProcessYAMLPath' failed.\n"
+                    . "\tBackend Error Message:\n\t$ProcessImport{Message}!",
             );
-            next PROCESS;
+            return;
         }
-
-        $ImportedProcessCounter++;
     }
 
     # Synchronize newly created processes
@@ -3845,7 +3837,7 @@ sub _ProcessCreateIfNotExists {
             Message  => 'Error while dumping processes via ProcessDump().',
         );
 
-        return $ImportedProcessCounter;
+        return;
     }
 
     my $Synchronized = $EntityObject->EntitySyncStatePurge(
@@ -3857,10 +3849,10 @@ sub _ProcessCreateIfNotExists {
             Message  => 'Error synchronizing processes.',
         );
 
-        return $ImportedProcessCounter;
+        return;
     }
 
-    return $ImportedProcessCounter;
+    return 1;
 }
 
 =item _ProcessesGet()
