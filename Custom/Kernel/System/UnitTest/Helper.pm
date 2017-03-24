@@ -1557,8 +1557,6 @@ sub FillTestEnvironment {
 
             push @{ $Result{$UserType} }, \%UserTypeData;
         }
-
-        # no GuardClause :)
     }
 
     # now the ticket attributes
