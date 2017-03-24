@@ -48,7 +48,9 @@ my @DynamicFieldConfigs = (
         },
     },
 );
+
 my $DynamicFieldsCreated = $ZnunyHelperObject->_DynamicFieldsCreate(@DynamicFieldConfigs);
+
 $Self->True(
     scalar $DynamicFieldsCreated,
     'Dynamic fields must have been created successfully.',
