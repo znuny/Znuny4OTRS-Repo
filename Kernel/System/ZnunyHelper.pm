@@ -1034,7 +1034,7 @@ sub _DefaultColumnsDisable {
 
 =item _DynamicFieldsDefaultColumnsGet()
 
-This function returns the DefaultColumn Attributes of the requested SysConfigs only with dynamic fields.
+Returns the DefaultColumn attributes of the requested SysConfigs, reduced to dynamic fields.
 
     my @Configs = (
         'Ticket::Frontend::AgentTicketStatusView###DefaultColumns',
@@ -1095,9 +1095,7 @@ sub _DynamicFieldsDefaultColumnsGet {
     }
 
     my %ScreenConfig = $Self->_DefaultColumnsGet( @{ $Param{ConfigItems} } );
-
     if ( !%ScreenConfig ) {
-
         $LogObject->Log(
             Priority => 'error',
             Message  => "Can't get Data (DefaultColumns) of SysConfig '$Param{ConfigItems}' !",
@@ -1113,10 +1111,10 @@ sub _DynamicFieldsDefaultColumnsGet {
         ITEM:
         for my $Item ( sort keys %CurrentScreenConfig ) {
 
-            next ITEM if $Item !~ m{DynamicField_}xms;
+            next ITEM if $Item !~ m{\ADynamicField_};
 
             my $Value = $CurrentScreenConfig{$Item};
-            $Item =~ s/DynamicField_//;
+            $Item =~ s{\ADynamicField_}{};
             $Config{$ConfigItem}->{$Item} = $Value;
         }
     }
@@ -1798,43 +1796,42 @@ sub _DynamicFieldsCreate {
 exports configuration of all dynamic fields
 
     my $Configs = $ZnunyHelperObject->_DynamicFieldsConfigExport(
-        Format                => 'yml|perl', # defaults to perl
+        Format                => 'perl|yml|var', # defaults to perl. var returns the
         IncludeInternalFields => 1, # defaults to 1, also includes dynamic fields with flag 'InternalField',
-        IncludeAllConfigKeys  => 1, # defaults to 1, also exports config keys ChangeTime, CreateTime, ID, InternalField, ValidID
-        Result                => 'ARRAY', # defaults to ARRAY, HASH
-        DynamicFields         => [  # optional, returns only those field configs
+        IncludeAllConfigKeys  => 1, # defaults to 1, also includes config keys ChangeTime, CreateTime, ID, InternalField, ValidID
+        Result                => 'ARRAY', # HASH or ARRAY, defaults to ARRAY
+        DynamicFields         => [  # optional, returns only the configs for the given fields
             'NameOfDynamicField',
             'SecondDynamicField',
-        ]
+        ],
     );
 
 Returns:
 
-    my $ARRAYResult = {
+    my $ARRAYResult = [
         {
           'Config' => {
-            'DefaultValue' => ''
+              'DefaultValue' => ''
           },
           'FieldOrder' => '1',
           'FieldType'  => 'Text',
           'Label'      => "DynField1 Label",
-          'Name'       => '1',
+          'Name'       => 'DynField1',
           'ObjectType' => 'Ticket'
         },
         {
           'Config' => {
-            'DefaultValue' => ''
+              'DefaultValue' => ''
           },
           'FieldOrder' => '2',
           'FieldType'  => 'Text',
           'Label'      => 'DynField2 Label',
-          'Name'       => '2',
+          'Name'       => 'DynField2',
           'ObjectType' => 'Ticket'
         },
-    };
+    ];
 
     my $HASHResult = {
-
         'DynField1' => {
           'Config' => {
             'DefaultValue' => ''
@@ -1842,7 +1839,7 @@ Returns:
           'FieldOrder' => '1',
           'FieldType'  => 'Text',
           'Label'      => "DynField1 Label",
-          'Name'       => '1',
+          'Name'       => 'DynField1',
           'ObjectType' => 'Ticket'
         },
         'DynField2' => {
@@ -1852,7 +1849,7 @@ Returns:
           'FieldOrder' => '2',
           'FieldType'  => 'Text',
           'Label'      => 'DynField2 Label',
-          'Name'       => '2',
+          'Name'       => 'DynField2',
           'ObjectType' => 'Ticket'
         },
     };
@@ -1869,7 +1866,6 @@ sub _DynamicFieldsConfigExport {
     my $StorableObject     = $Kernel::OM->Get('Kernel::System::Storable');
 
     my $Format = lc( $Param{Format} // 'perl' );
-
     if ( $Format ne 'yml' && $Format ne 'perl' && $Format ne 'var' ) {
         $LogObject->Log(
             Priority => 'error',
@@ -1878,7 +1874,14 @@ sub _DynamicFieldsConfigExport {
         return;
     }
 
-    my $Result = lc( $Param{Result} // 'ARRAY' );
+    my $ResultType = lc( $Param{Result} // 'array' );
+    if ( $ResultType ne 'hash' && $ResultType ne 'array' ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Invalid value $ResultType for parameter Result.",
+        );
+        return;
+    }
 
     # Use clone to make a copy to prevent weird issues with multiple calls to DynamicFieldListGet().
     # Somehow calls to DynamicFieldListGet() will report the already changed dynamic field configs
@@ -1887,19 +1890,9 @@ sub _DynamicFieldsConfigExport {
     $DynamicFields = $StorableObject->Clone( Data => $DynamicFields );
     my @DynamicFieldConfigs = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
 
-    if ( $Param{DynamicFields} ) {
-
-        my @SelecetedDynamicFields;
-        DYNAMICFIELDCONFIG:
-        for my $DynamicFieldConfig (@DynamicFieldConfigs) {
-
-            my $IsSelected = grep { $DynamicFieldConfig->{Name} eq $_ } @{ $Param{DynamicFields} };
-            next DYNAMICFIELDCONFIG if !$IsSelected;
-
-            push @SelecetedDynamicFields, $DynamicFieldConfig;
-        }
-
-        @DynamicFieldConfigs = @SelecetedDynamicFields;
+    if ( IsArrayRefWithData( $Param{DynamicFields} ) ) {
+        my %RestrictToDynamicFields = map { $_ => 1 } @{ $Param{DynamicFields} };
+        @DynamicFieldConfigs = grep { $RestrictToDynamicFields{ $_->{Name} } } @DynamicFieldConfigs;
     }
 
     # Remove internal dynamic field configs
@@ -1919,26 +1912,21 @@ sub _DynamicFieldsConfigExport {
     }
 
     my $Data;
-    if ( $Result eq 'hash' ) {
-        for my $DynamicField (@DynamicFieldConfigs) {
-            $Data->{ $DynamicField->{Name} } = $DynamicField;
-        }
+    if ( $ResultType eq 'hash' ) {
+        %{$Data} = map { $_->{Name} => $_ } @DynamicFieldConfigs;
     }
-    else {
+    elsif ( $ResultType eq 'array' ) {
         $Data = \@DynamicFieldConfigs;
     }
+
+    return $Data if $Format eq 'var';
 
     my $ConfigString = '';
     if ( $Format eq 'perl' ) {
         $ConfigString = $MainObject->Dump($Data);
     }
     elsif ( $Format eq 'yml' ) {
-
         $ConfigString = $YAMLObject->Dump( Data => $Data );
-    }
-    elsif ( $Format eq 'var' ) {
-
-        $ConfigString = $Data;
     }
 
     return $ConfigString;
