@@ -1752,7 +1752,61 @@ exports configuration of all dynamic fields
         Format                => 'yml|perl', # defaults to perl
         IncludeInternalFields => 1, # defaults to 1, also includes dynamic fields with flag 'InternalField',
         IncludeAllConfigKeys  => 1, # defaults to 1, also exports config keys ChangeTime, CreateTime, ID, InternalField, ValidID
+        Result                => 'ARRAY', # defaults to ARRAY, HASH
+        DynamicFields         => [  # optional, returns only those field configs
+            'NameOfDynamicField',
+            'SecondDynamicField',
+        ]
     );
+
+Returns:
+
+    my $ARRAYResult = {
+        {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '1',
+          'FieldType'  => 'Text',
+          'Label'      => "DynField1 Label",
+          'Name'       => '1',
+          'ObjectType' => 'Ticket'
+        },
+        {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '2',
+          'FieldType'  => 'Text',
+          'Label'      => 'DynField2 Label',
+          'Name'       => '2',
+          'ObjectType' => 'Ticket'
+        },
+    };
+
+    my $HASHResult = {
+
+        'DynField1' => {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '1',
+          'FieldType'  => 'Text',
+          'Label'      => "DynField1 Label",
+          'Name'       => '1',
+          'ObjectType' => 'Ticket'
+        },
+        'DynField2' => {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '2',
+          'FieldType'  => 'Text',
+          'Label'      => 'DynField2 Label',
+          'Name'       => '2',
+          'ObjectType' => 'Ticket'
+        },
+    };
 
 =cut
 
@@ -1766,7 +1820,8 @@ sub _DynamicFieldsConfigExport {
     my $StorableObject     = $Kernel::OM->Get('Kernel::System::Storable');
 
     my $Format = lc( $Param{Format} // 'perl' );
-    if ( $Format ne 'yml' && $Format ne 'perl' ) {
+
+    if ( $Format ne 'yml' && $Format ne 'perl' && $Format ne 'var' ) {
         $LogObject->Log(
             Priority => 'error',
             Message  => "Invalid value $Format for parameter Format.",
