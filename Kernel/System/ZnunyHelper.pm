@@ -1878,38 +1878,262 @@ sub _DynamicFieldsConfigExport {
         return;
     }
 
+    my $Result = lc( $Param{Result} // 'ARRAY' );
+
     # Use clone to make a copy to prevent weird issues with multiple calls to DynamicFieldListGet().
     # Somehow calls to DynamicFieldListGet() will report the already changed dynamic field configs
     # according to given parameters.
     my $DynamicFields = $DynamicFieldObject->DynamicFieldListGet() // [];
     $DynamicFields = $StorableObject->Clone( Data => $DynamicFields );
-    my @DynamicFields = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
+    my @DynamicFieldConfigs = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
+
+    if ( $Param{DynamicFields} ) {
+
+        my @SelecetedDynamicFields;
+        DYNAMICFIELDCONFIG:
+        for my $DynamicFieldConfig (@DynamicFieldConfigs) {
+
+            my $IsSelected = grep { $DynamicFieldConfig->{Name} eq $_ } @{ $Param{DynamicFields} };
+            next DYNAMICFIELDCONFIG if !$IsSelected;
+
+            push @SelecetedDynamicFields, $DynamicFieldConfig;
+        }
+
+        @DynamicFieldConfigs = @SelecetedDynamicFields;
+    }
 
     # Remove internal dynamic field configs
     my $IncludeInternalFields = $Param{IncludeInternalFields} // 1;
     if ( !$IncludeInternalFields ) {
-        @DynamicFields = grep { !$_->{InternalField} } @DynamicFields;
+        @DynamicFieldConfigs = grep { !$_->{InternalField} } @DynamicFieldConfigs;
     }
 
     # Remove hash keys
     my $IncludeAllConfigKeys = $Param{IncludeAllConfigKeys} // 1;
     if ( !$IncludeAllConfigKeys ) {
-        for my $DynamicField (@DynamicFields) {
+        for my $DynamicField (@DynamicFieldConfigs) {
             for my $Key (qw(ChangeTime CreateTime ID InternalField ValidID)) {
                 delete $DynamicField->{$Key};
             }
         }
     }
 
+    my $Data;
+    if ( $Result eq 'hash' ) {
+        for my $DynamicField (@DynamicFieldConfigs) {
+            $Data->{ $DynamicField->{Name} } = $DynamicField;
+        }
+    }
+    else {
+        $Data = \@DynamicFieldConfigs;
+    }
+
     my $ConfigString = '';
     if ( $Format eq 'perl' ) {
-        $ConfigString = $MainObject->Dump( \@DynamicFields );
+        $ConfigString = $MainObject->Dump($Data);
     }
     elsif ( $Format eq 'yml' ) {
-        $ConfigString = $YAMLObject->Dump( Data => \@DynamicFields );
+
+        $ConfigString = $YAMLObject->Dump( Data => $Data );
+    }
+    elsif ( $Format eq 'var' ) {
+
+        $ConfigString = $Data;
     }
 
     return $ConfigString;
+}
+
+=item _DynamicFieldsScreenConfigExport()
+
+exports all configured screens of one ore more dynamic fields
+
+    my $Configs = $ZnunyHelperObject->_DynamicFieldsScreenConfigExport(
+        Format                => 'yml|perl',    # defaults to perl
+        DynamicFields         => [              # optional, returns only for those fields
+            'NameOfDynamicField',
+            'SecondDynamicField',
+        ],
+        DynamicFieldScreens   => \@DynamicFieldScreens,
+        DefaultColumnsScreens => \@DefaultColumnsScreens,
+    );
+
+Returns:
+
+    my $Result = {
+        'DynField1' => {
+            'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder' => '2',
+            'DashboardBackend###0100-TicketPendingReminder'                            => '1',
+            'DashboardBackend###0130-TicketOpen'                                       => '1',
+            'DashboardBackend###0140-RunningTicketProcess'                             => '1',
+            'Ticket::Frontend::AgentTicketQueue###DefaultColumns'                      => '2',
+            'Ticket::Frontend::AgentTicketResponsible###DynamicField'                  => '2',
+            'Ticket::Frontend::AgentTicketSearch###DefaultColumns'                     => '2',
+            'Ticket::Frontend::AgentTicketStatusView###DefaultColumns'                 => '2',
+            'Ticket::Frontend::AgentTicketZoom###DynamicField'                         => '0',
+            'Ticket::Frontend::CustomerTicketOverview###DynamicField'                  => '2',
+            'Ticket::Frontend::OverviewPreview###DynamicField'                         => '2',
+        },
+        'DynField2' => {
+            'Ticket::Frontend::AgentTicketResponsible###DynamicField'                  => '2',
+            'Ticket::Frontend::AgentTicketSearch###DefaultColumns'                     => '2',
+        },
+    };
+
+=cut
+
+sub _DynamicFieldsScreenConfigExport {
+    my ( $Self, %Param ) = @_;
+
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(DynamicFieldScreens DefaultColumnsScreens)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Format = lc( $Param{Format} // 'perl' );
+    if ( $Format ne 'yml' && $Format ne 'perl' ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Invalid value $Format for parameter Format.",
+        );
+        return;
+    }
+
+    my @DynamicFields;
+    if ( !$Param{DynamicFields} ) {
+
+        my $List = $DynamicFieldObject->DynamicFieldList(
+            ResultType => 'HASH',
+        );
+        @DynamicFields = sort values %{$List};
+
+    }
+    else {
+        @DynamicFields = @{ $Param{DynamicFields} };
+    }
+
+    my %Config;
+
+    for my $DynamicField (@DynamicFields) {
+
+        DYNAMICFIELDSCREEN:
+        for my $DynamicFieldScreen ( sort keys %{ $Param{DynamicFieldScreens} } ) {
+
+            my %DynamicFieldScreenConfig = $Self->_DynamicFieldsScreenGet(
+                ConfigItems => [$DynamicFieldScreen],
+            );
+
+            next DYNAMICFIELDSCREEN
+                if !IsStringWithData( $DynamicFieldScreenConfig{$DynamicFieldScreen}->{$DynamicField} );
+            $Config{$DynamicField}->{$DynamicFieldScreen}
+                = $DynamicFieldScreenConfig{$DynamicFieldScreen}->{$DynamicField};
+        }
+
+        DEFAULTCOLUMNSCREEN:
+        for my $DefaultColumnsScreen ( sort keys %{ $Param{DefaultColumnsScreens} } ) {
+
+            my %DefaultColumnsScreenConfig = $Self->_DynamicFieldsDefaultColumnsGet(
+                ConfigItems => [$DefaultColumnsScreen],
+            );
+
+            next DEFAULTCOLUMNSCREEN
+                if !IsStringWithData( $DefaultColumnsScreenConfig{$DefaultColumnsScreen}->{$DynamicField} );
+            $Config{$DynamicField}->{$DefaultColumnsScreen}
+                = $DefaultColumnsScreenConfig{$DefaultColumnsScreen}->{$DynamicField};
+        }
+    }
+
+    return %Config;
+
+}
+
+=item _DynamicFieldsScreenConfigImport()
+
+imports all configured screens of one ore more dynamic fields
+
+    %Config = {
+        'DynField1' => {
+            'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder' => '2',
+            'DashboardBackend###0100-TicketPendingReminder'                            => '1',
+            'DashboardBackend###0130-TicketOpen'                                       => '1',
+            'DashboardBackend###0140-RunningTicketProcess'                             => '1',
+            'Ticket::Frontend::AgentTicketQueue###DefaultColumns'                      => '2',
+            'Ticket::Frontend::AgentTicketResponsible###DynamicField'                  => '2',
+            'Ticket::Frontend::AgentTicketSearch###DefaultColumns'                     => '2',
+            'Ticket::Frontend::AgentTicketStatusView###DefaultColumns'                 => '2',
+            'Ticket::Frontend::AgentTicketZoom###DynamicField'                         => '0',
+            'Ticket::Frontend::CustomerTicketOverview###DynamicField'                  => '2',
+            'Ticket::Frontend::OverviewPreview###DynamicField'                         => '2',
+        },
+        'DynField2' => {
+            'Ticket::Frontend::AgentTicketResponsible###DynamicField'                  => '2',
+            'Ticket::Frontend::AgentTicketSearch###DefaultColumns'                     => '2',
+        },
+    };
+
+    my $Success = $ZnunyHelperObject->_DynamicFieldsScreenConfigImport( %Config );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _DynamicFieldsScreenConfigImport {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Config)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    for my $DynamicField ( sort keys %{ $Param{Config} } ) {
+
+        my %ScreenConfig;
+
+        DYNAMICFIELDSCREEN:
+        for my $DynamicFieldScreen ( sort keys %{ $Param{DynamicFieldScreens} } ) {
+            $ScreenConfig{$DynamicFieldScreen} = {
+                $DynamicField => $Param{Config}->{$DynamicField}->{$DynamicFieldScreen},
+            };
+        }
+
+        $Self->_DynamicFieldsScreenEnable(%ScreenConfig);
+
+        undef %ScreenConfig;
+
+        DEFAULTCOLUMNSCREEN:
+        for my $DefaultColumnsScreen ( sort keys %{ $Param{DefaultColumnsScreens} } ) {
+            $ScreenConfig{$DefaultColumnsScreen} = {
+                "DynamicField_$DynamicField" => $Param{Config}->{$DynamicField}->{$DefaultColumnsScreen},
+            };
+        }
+
+        $Self->_DefaultColumnsEnable(%ScreenConfig);
+    }
+
+    return 1;
 }
 
 =item _PostMasterFilterCreateIfNotExists()
