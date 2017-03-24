@@ -125,6 +125,37 @@ my @Tests = (
             IncludeAllConfigKeys  => 0,
         },
     },
+    {
+        Name         => 'Export as value (array) with internal fields and all config keys',
+        ExportParams => {
+            Format                => 'var',
+            Result                => 'array',
+            IncludeInternalFields => 1,
+            IncludeAllConfigKeys  => 1,
+        },
+    },
+    {
+        Name         => 'Export as value (hash) with internal fields and all config keys',
+        ExportParams => {
+            Format                => 'var',
+            Result                => 'hash',
+            IncludeInternalFields => 1,
+            IncludeAllConfigKeys  => 1,
+        },
+    },
+    {
+        Name =>
+            'Export as value (hash) with internal fields and all config keys, but restricted to the one created dynamic field',
+        ExportParams => {
+            Format                => 'var',
+            Result                => 'hash',
+            IncludeInternalFields => 1,
+            IncludeAllConfigKeys  => 1,
+            DynamicFields         => [
+                $DynamicFieldConfigs[0]->{Name},
+            ],
+        },
+    },
 );
 
 TEST:
@@ -141,12 +172,37 @@ for my $Test (@Tests) {
             Data => $Export,
         );
     }
+    elsif ( $Test->{ExportParams}->{Format} eq 'var' ) {
+
+        # do nothing, export is already a perl value
+    }
     else {
         return;
     }
 
+    # turn hash into array
+    if ( defined $Test->{ExportParams}->{Result} && $Test->{ExportParams}->{Result} eq 'hash' ) {
+        $Export = [ values %{$Export} ];
+    }
+
+    # check if export has been restricted to the given dynamic fields
+    my %RestrictToDynamicFields;
+    if ( IsArrayRefWithData( $Test->{ExportParams}->{DynamicFields} ) ) {
+        %RestrictToDynamicFields = map { $_ => 1 } @{ $Test->{ExportParams}->{DynamicFields} };
+        for my $ExportedDynamicFieldConfig ( @{$Export} ) {
+            $Self->True(
+                $RestrictToDynamicFields{ $ExportedDynamicFieldConfig->{Name} },
+                "$Test->{Name} - Dynamic field $ExportedDynamicFieldConfig->{Name} must not be contained in export.",
+            );
+        }
+    }
+
     # Check for created dynamic fields
+    EXPECTEDDYNAMICFIELDCONFIG:
     for my $ExpectedDynamicFieldConfig (@DynamicFieldConfigs) {
+        next EXPECTEDDYNAMICFIELDCONFIG
+            if %RestrictToDynamicFields && !$RestrictToDynamicFields{ $ExpectedDynamicFieldConfig->{Name} };
+
         my @ExportedDynamicFieldConfigs = grep { $_->{Name} eq $ExpectedDynamicFieldConfig->{Name} } @{$Export};
 
         $Self->Is(
@@ -169,7 +225,14 @@ for my $Test (@Tests) {
         # Internal fields must be included if parameter IncludeInternalFields has been given.
         # This will be tested with one of the standard OTRS dynamic fields of process management.
         my @ExportedInternalDynamicFieldConfigs = grep { $_->{Name} eq $InternalDynamicFieldName } @{$Export};
-        if ( $Test->{ExportParams}->{IncludeInternalFields} ) {
+        if (
+            $Test->{ExportParams}->{IncludeInternalFields}
+            && (
+                !%RestrictToDynamicFields
+                || $RestrictToDynamicFields{$InternalDynamicFieldName}
+            )
+            )
+        {
             $Self->Is(
                 scalar @ExportedInternalDynamicFieldConfigs,
                 1,
