@@ -1032,6 +1032,178 @@ sub _DefaultColumnsDisable {
     return 1;
 }
 
+=item _DynamicFieldsDefaultColumnsGet()
+
+This function returns the DefaultColumn Attributes of the requested SysConfigs only with dynamic fields.
+
+    my @Configs = (
+        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketQueue###DefaultColumns',
+        'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketWatchView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketLockedView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns',
+        'Ticket::Frontend::AgentTicketSearch###DefaultColumns',
+        'Ticket::Frontend::AgentTicketService###DefaultColumns',
+
+        # substructure of DefaultColumns
+        'DashboardBackend###0100-TicketPendingReminder',
+        'DashboardBackend###0110-TicketEscalation',
+        'DashboardBackend###0120-TicketNew',
+        'DashboardBackend###0130-TicketOpen',
+
+        # substructure of DefaultColumns
+        'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder',
+        'AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation',
+        'AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew',
+        'AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen',
+    );
+
+    my %Configs = $ZnunyHelperObject->_DynamicFieldsDefaultColumnsGet(@Configs);
+
+Returns:
+
+    my %Configs = (
+        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns' => {
+            DropdownTest => 1,
+            Anotherone   => 2,
+        },
+        'DashboardBackend###0100-TicketPendingReminder' => {
+            DropdownTest => 1,
+            Anotherone   => 2,
+        },
+    );
+
+=cut
+
+sub _DynamicFieldsDefaultColumnsGet {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw( ConfigItems )) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %ScreenConfig = $Self->_DefaultColumnsGet( @{ $Param{ConfigItems} } );
+
+    if ( !%ScreenConfig ) {
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Can't get Data (DefaultColumns) of SysConfig '$Param{ConfigItems}' !",
+        );
+        return;
+    }
+
+    my %Config;
+    for my $ConfigItem ( @{ $Param{ConfigItems} } ) {
+
+        my %CurrentScreenConfig = %{ $ScreenConfig{$ConfigItem} };
+
+        ITEM:
+        for my $Item ( sort keys %CurrentScreenConfig ) {
+
+            next ITEM if $Item !~ m{DynamicField_}xms;
+
+            my $Value = $CurrentScreenConfig{$Item};
+            $Item =~ s/DynamicField_//;
+            $Config{$ConfigItem}->{$Item} = $Value;
+        }
+    }
+
+    return %Config;
+}
+
+=item _DynamicFieldsScreenGet()
+
+This function returns the defined dynamic fields in the screens.
+
+    my @Configs = (
+        'Ticket::Frontend::AgentTicketSearch###Defaults###DynamicField',
+        'Ticket::Frontend::CustomerTicketZoom###FollowUpDynamicField',
+        'Ticket::Frontend::AgentTicketSearch###SearchCSVDynamicField',
+    );
+
+    my %Configs = $ZnunyHelperObject->_DynamicFieldsDefaultColumnsGet(@Configs);
+
+
+Returns:
+
+    my %Configs = (
+        Ticket::Frontend::AgentTicketSearch###Defaults###DynamicField => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 2,
+            TestDynamicField3 => 0,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 2,
+        },
+        'Ticket::Frontend::CustomerTicketZoom###FollowUpDynamicField' => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 2,
+            TestDynamicField3 => 0,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 2,
+        },
+        'Ticket::Frontend::AgentTicketSearch###SearchCSVDynamicField' => {
+            TestDynamicField1 => 1,
+            TestDynamicField2 => 2,
+            TestDynamicField3 => 0,
+            TestDynamicField4 => 1,
+            TestDynamicField5 => 2,
+        },
+    );
+
+=cut
+
+sub _DynamicFieldsScreenGet {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(ConfigItems)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %Config;
+    CONFIGITEM:
+    for my $ConfigItem ( @{ $Param{ConfigItems} } ) {
+        my @Keys = split '###', $ConfigItem;
+
+        my $ConfigItemConfig = $ConfigObject->Get( $Keys[0] );
+        INDEX:
+        for my $Index ( 1 ... $#Keys ) {
+            last INDEX if !IsHashRefWithData($ConfigItemConfig);
+            $ConfigItemConfig = $ConfigItemConfig->{ $Keys[$Index] };
+        }
+        next CONFIGITEM if !$ConfigItemConfig;
+        next CONFIGITEM if ref $ConfigItemConfig ne 'HASH';
+
+        $Config{$ConfigItem} = $ConfigItemConfig;
+    }
+
+    return %Config;
+}
+
 =item _DynamicFieldsScreenEnable()
 
 This function enables the defined dynamic fields in the needed screens.
