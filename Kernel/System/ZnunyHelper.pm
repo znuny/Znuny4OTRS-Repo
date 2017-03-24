@@ -4200,7 +4200,7 @@ sub _ProcessCreateIfNotExists {
     }
     else {
         $Processes = $Self->_ProcessesGet(
-            SubDir => $Param{SubDir}, # SubDir can be undef
+            SubDir => $Param{SubDir},    # SubDir can be undef
         );
     }
 
