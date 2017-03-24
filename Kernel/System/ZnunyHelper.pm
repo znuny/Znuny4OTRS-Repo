@@ -1792,6 +1792,274 @@ sub _DynamicFieldsCreate {
     return 1;
 }
 
+
+=item _DynamicFieldsConfigExport()
+
+exports configuration of all dynamic fields
+
+    my $Configs = $ZnunyHelperObject->_DynamicFieldsConfigExport(
+        Format                => 'yml|perl', # defaults to perl
+        IncludeInternalFields => 1, # defaults to 1, also includes dynamic fields with flag 'InternalField',
+        IncludeAllConfigKeys  => 1, # defaults to 1, also exports config keys ChangeTime, CreateTime, ID, InternalField, ValidID
+        Result                => 'ARRAY', # defaults to ARRAY, HASH
+        DynamicFields         => [  # optional, returns only those field configs
+            'NameOfDynamicField',
+            'SecondDynamicField',
+        ]
+    );
+
+Returns:
+
+    my $ARRAYResult = {
+        {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '1',
+          'FieldType'  => 'Text',
+          'Label'      => "DynField1 Label",
+          'Name'       => '1',
+          'ObjectType' => 'Ticket'
+        },
+        {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '2',
+          'FieldType'  => 'Text',
+          'Label'      => 'DynField2 Label',
+          'Name'       => '2',
+          'ObjectType' => 'Ticket'
+        },
+    };
+
+    my $HASHResult = {
+
+        'DynField1' => {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '1',
+          'FieldType'  => 'Text',
+          'Label'      => "DynField1 Label",
+          'Name'       => '1',
+          'ObjectType' => 'Ticket'
+        },
+        'DynField2' => {
+          'Config' => {
+            'DefaultValue' => ''
+          },
+          'FieldOrder' => '2',
+          'FieldType'  => 'Text',
+          'Label'      => 'DynField2 Label',
+          'Name'       => '2',
+          'ObjectType' => 'Ticket'
+        },
+    };
+
+=cut
+
+sub _DynamicFieldsConfigExport {
+    my ( $Self, %Param ) = @_;
+
+    my $MainObject         = $Kernel::OM->Get('Kernel::System::Main');
+    my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $YAMLObject         = $Kernel::OM->Get('Kernel::System::YAML');
+    my $StorableObject     = $Kernel::OM->Get('Kernel::System::Storable');
+
+    my $Format = lc( $Param{Format} // 'perl' );
+
+    if ( $Format ne 'yml' && $Format ne 'perl' && $Format ne 'var' ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Invalid value $Format for parameter Format.",
+        );
+        return;
+    }
+
+    # Use clone to make a copy to prevent weird issues with multiple calls to DynamicFieldListGet().
+    # Somehow calls to DynamicFieldListGet() will report the already changed dynamic field configs
+    # according to given parameters.
+    my $DynamicFields = $DynamicFieldObject->DynamicFieldListGet() // [];
+    $DynamicFields = $StorableObject->Clone( Data => $DynamicFields );
+    my @DynamicFields = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
+
+    # Remove internal dynamic field configs
+    my $IncludeInternalFields = $Param{IncludeInternalFields} // 1;
+    if ( !$IncludeInternalFields ) {
+        @DynamicFields = grep { !$_->{InternalField} } @DynamicFields;
+    }
+
+    # Remove hash keys
+    my $IncludeAllConfigKeys = $Param{IncludeAllConfigKeys} // 1;
+    if ( !$IncludeAllConfigKeys ) {
+        for my $DynamicField (@DynamicFields) {
+            for my $Key (qw(ChangeTime CreateTime ID InternalField ValidID)) {
+                delete $DynamicField->{$Key};
+            }
+        }
+    }
+
+    my $ConfigString = '';
+    if ( $Format eq 'perl' ) {
+        $ConfigString = $MainObject->Dump( \@DynamicFields );
+    }
+    elsif ( $Format eq 'yml' ) {
+        $ConfigString = $YAMLObject->Dump( Data => \@DynamicFields );
+    }
+
+    return $ConfigString;
+}
+
+=item _PostMasterFilterCreateIfNotExists()
+
+creates all postmaster filter that are necessary
+
+    my @Filters = (
+        {
+            'Match' => {
+                'Auto-Submitted' => '123'
+            },
+            'Name' => 'asdf',
+            'Not' => {
+                'Auto-Submitted' => undef
+            },
+            'Set' => {
+                'X-OTRS-DynamicField-blub' => '123'
+            },
+            'StopAfterMatch' => '0'
+        },
+    );
+
+    my $Result = $ZnunyHelperObject->_PostMasterFilterCreateIfNotExists( @Filters );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PostMasterFilterCreateIfNotExists {
+    my ( $Self, @Definition ) = @_;
+
+    my $PMFilterObject = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
+
+    my @PostMasterFilterExistsNot;
+    my %FilterList = $PMFilterObject->FilterList();
+
+    FILTER:
+    for my $NewPostMasterFilter (@Definition) {
+        next FILTER if !IsHashRefWithData($NewPostMasterFilter);
+
+        # only create if not exists
+        my $FilterFound = grep { $NewPostMasterFilter->{Name} eq $_ } sort keys %FilterList;
+        next FILTER if $FilterFound;
+
+        push @PostMasterFilterExistsNot, $NewPostMasterFilter;
+    }
+
+    return $Self->_PostMasterFilterCreate(@PostMasterFilterExistsNot);
+}
+
+=item _PostMasterFilterCreate()
+
+creates all postmaster filter that are necessary
+
+    my @Filters = (
+        {
+            'Match' => {
+                'Auto-Submitted' => '123'
+            },
+            'Name' => 'asdf',
+            'Not' => {
+                'Auto-Submitted' => undef
+            },
+            'Set' => {
+                'X-OTRS-DynamicField-blub' => '123'
+            },
+            'StopAfterMatch' => '0'
+        },
+    );
+
+    my $Result = $ZnunyHelperObject->_PostMasterFilterCreate( @Filters );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PostMasterFilterCreate {
+    my ( $Self, @Definition ) = @_;
+
+    my $PMFilterObject = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
+
+    FILTER:
+    for my $NewPostMasterFilter (@Definition) {
+        next FILTER if !IsHashRefWithData($NewPostMasterFilter);
+
+        # get filter
+        my %Filter = %{$NewPostMasterFilter};
+
+        # delete first (because no update function exists)
+        $PMFilterObject->FilterDelete(%Filter);
+
+        # add filter
+        $PMFilterObject->FilterAdd(%Filter);
+    }
+
+    return 1;
+}
+
+=item _PostMasterFilterConfigExport()
+
+exports configuration of all postmaster filter
+
+    my $Configs = $ZnunyHelperObject->_PostMasterFilterConfigExport(
+        Format => 'yml|perl', # defaults to perl
+    );
+
+=cut
+
+sub _PostMasterFilterConfigExport {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject      = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject     = $Kernel::OM->Get('Kernel::System::Main');
+    my $PMFilterObject = $Kernel::OM->Get('Kernel::System::PostMaster::Filter');
+    my $YAMLObject     = $Kernel::OM->Get('Kernel::System::YAML');
+
+    my $Format = lc( $Param{Format} // 'perl' );
+    if ( $Format ne 'yml' && $Format ne 'perl' ) {
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Invalid value $Format for parameter Format.",
+        );
+        return;
+    }
+
+    my @Filters;
+    my %FilterList = $PMFilterObject->FilterList();
+    for my $FilterName ( sort keys %FilterList ) {
+        my %Data = $PMFilterObject->FilterGet(
+            Name => $FilterName,
+        );
+
+        push @Filters, \%Data;
+    }
+
+    my $ConfigString = '';
+    if ( $Format eq 'perl' ) {
+        $ConfigString = $MainObject->Dump( \@Filters );
+    }
+    elsif ( $Format eq 'yml' ) {
+        $ConfigString = $YAMLObject->Dump( Data => \@Filters );
+    }
+
+    return $ConfigString;
+}
+
 =item _GroupCreateIfNotExists()
 
 creates group if not exists
