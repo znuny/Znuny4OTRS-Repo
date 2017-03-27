@@ -2000,50 +2000,45 @@ sub _DynamicFieldsScreenConfigExport {
 
     my @DynamicFields;
     if ( !$Param{DynamicFields} ) {
-
         my $List = $DynamicFieldObject->DynamicFieldList(
             ResultType => 'HASH',
         );
         @DynamicFields = sort values %{$List};
-
     }
     else {
         @DynamicFields = @{ $Param{DynamicFields} };
     }
 
     my %Config;
-
     for my $DynamicField (@DynamicFields) {
-
         DYNAMICFIELDSCREEN:
         for my $DynamicFieldScreen ( sort keys %{ $Param{DynamicFieldScreens} } ) {
-
             my %DynamicFieldScreenConfig = $Self->_DynamicFieldsScreenGet(
                 ConfigItems => [$DynamicFieldScreen],
             );
 
             next DYNAMICFIELDSCREEN
                 if !IsStringWithData( $DynamicFieldScreenConfig{$DynamicFieldScreen}->{$DynamicField} );
+
             $Config{$DynamicField}->{$DynamicFieldScreen}
                 = $DynamicFieldScreenConfig{$DynamicFieldScreen}->{$DynamicField};
         }
 
         DEFAULTCOLUMNSCREEN:
         for my $DefaultColumnsScreen ( sort keys %{ $Param{DefaultColumnsScreens} } ) {
-
             my %DefaultColumnsScreenConfig = $Self->_DynamicFieldsDefaultColumnsGet(
                 ConfigItems => [$DefaultColumnsScreen],
             );
 
             next DEFAULTCOLUMNSCREEN
                 if !IsStringWithData( $DefaultColumnsScreenConfig{$DefaultColumnsScreen}->{$DynamicField} );
+
             $Config{$DynamicField}->{$DefaultColumnsScreen}
                 = $DefaultColumnsScreenConfig{$DefaultColumnsScreen}->{$DynamicField};
         }
     }
 
     return %Config;
-
 }
 
 =item _DynamicFieldsScreenConfigImport()
@@ -2097,9 +2092,7 @@ sub _DynamicFieldsScreenConfigImport {
     }
 
     for my $DynamicField ( sort keys %{ $Param{Config} } ) {
-
         my %ScreenConfig;
-
         DYNAMICFIELDSCREEN:
         for my $DynamicFieldScreen ( sort keys %{ $Param{DynamicFieldScreens} } ) {
             $ScreenConfig{$DynamicFieldScreen} = {
@@ -2109,16 +2102,15 @@ sub _DynamicFieldsScreenConfigImport {
 
         $Self->_DynamicFieldsScreenEnable(%ScreenConfig);
 
-        undef %ScreenConfig;
-
+        my %ColumnScreenConfig;
         DEFAULTCOLUMNSCREEN:
         for my $DefaultColumnsScreen ( sort keys %{ $Param{DefaultColumnsScreens} } ) {
-            $ScreenConfig{$DefaultColumnsScreen} = {
+            $ColumnScreenConfig{$DefaultColumnsScreen} = {
                 "DynamicField_$DynamicField" => $Param{Config}->{$DynamicField}->{$DefaultColumnsScreen},
             };
         }
 
-        $Self->_DefaultColumnsEnable(%ScreenConfig);
+        $Self->_DefaultColumnsEnable(%ColumnScreenConfig);
     }
 
     return 1;
