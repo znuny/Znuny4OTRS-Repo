@@ -13,6 +13,9 @@ job_unit_otrs_Znuny4OTRSRepo:
     - su -c "perl /opt/otrs/bin/znuny.AdvancedPackageManagerInstallSOPM.pl /opt/otrs/Znuny4OTRS-Repo.sopm" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n UnitTest/Email/Znuny4OTRSRepo/SimpleMailValidate" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n Znuny4OTRSRepo" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n Znuny4OTRSRepo/UnitTest/DynamicFieldsConfigExport" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.UnitTest.pl -n Znuny4OTRSRepo/UnitTest/ValidDynamicFieldScreenListGet" -s /bin/bash otrs
 
 job_deploy_otrs_Znuny4OTRSRepo:
   stage: deploy
