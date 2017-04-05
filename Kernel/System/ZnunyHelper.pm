@@ -636,6 +636,84 @@ sub _LoaderRemove {
     return 1;
 }
 
+=item _ValidDynamicFieldScreenListGet()
+
+Returns a list of valid screens for dynamic fields.
+
+    my $ValidDynamicFieldScreenList = $ZnunyHelperObject->_ValidDynamicFieldScreenListGet(
+        Result => 'ARRAY', # HASH or ARRAY, defaults to ARRAY
+    );
+
+Returns as HASH:
+
+    my $ValidDynamicFieldScreenList = {
+        'DynamicFieldScreens' => {
+           'Ticket::Frontend::AgentTicketZoom###DynamicField' => 'AgentTicketZoom',
+           'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicField' => 'ProcessWidgetDynamicField'
+           [...]
+        },
+        'DefaultColumnsScreens' => {
+            'DashboardBackend###0110-TicketEscalation' => 'DashboardWidget TicketEscalation',
+            'DashboardBackend###0130-TicketOpen' => 'DashboardWidget TicketOpen',
+            [...]
+        }
+    };
+
+Returns as ARRAY:
+
+    my $ValidDynamicFieldScreenList = {
+        'DynamicFieldScreens' => [
+           'Ticket::Frontend::AgentTicketZoom###DynamicField',
+           'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicField',
+           [...]
+        ],
+        'DefaultColumnsScreens' => [
+            'DashboardBackend###0110-TicketEscalation',
+            'DashboardBackend###0130-TicketOpen',
+            [...]
+        ]
+    };
+
+=cut
+
+sub _ValidDynamicFieldScreenListGet {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    $Param{Result} = lc( $Param{Result} // 'array' );
+
+    my $ValidScreens;
+    for my $Screen (qw( DynamicFieldScreens DefaultColumnsScreens)) {
+
+        $ValidScreens->{$Screen} = {};
+        my $ScreenRegistrations = $ConfigObject->Get($Screen);
+
+        for my $Registration ( sort keys %{$ScreenRegistrations} ) {
+
+            %{ $ValidScreens->{$Screen} } = (
+                %{ $ValidScreens->{$Screen} },
+                %{ $ScreenRegistrations->{$Registration} },
+            );
+        }
+
+        # check if config is already valid / defined
+        for my $CurrentConfig ( sort keys %{ $ValidScreens->{$Screen} } ) {
+            my ( $ConfigPath, $Key ) = split '###', $CurrentConfig;
+            my $ConfigData = $ConfigObject->Get($ConfigPath);
+
+            delete $ValidScreens->{$Screen}->{$CurrentConfig} if !defined $ConfigData->{$Key};
+        }
+
+        if ( $Param{Result} eq 'array' ) {
+            my @Array = sort keys %{ $ValidScreens->{$Screen} };
+            $ValidScreens->{$Screen} = \@Array;
+        }
+    }
+
+    return $ValidScreens;
+}
+
 =item _DefaultColumnsGet()
 
 This function returns the DefaultColumn Attributes of the requested SysConfigs.
