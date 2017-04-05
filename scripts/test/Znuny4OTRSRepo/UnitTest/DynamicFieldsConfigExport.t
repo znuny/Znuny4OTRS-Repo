@@ -23,7 +23,6 @@ $Kernel::OM->ObjectParamAdd(
 
 my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 my $ConfigObject         = $Kernel::OM->Get('Kernel::Config');
-my $SysConfigObject      = $Kernel::OM->Get('Kernel::System::SysConfig');
 my $UnitTestHelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $YAMLObject           = $Kernel::OM->Get('Kernel::System::YAML');
 
