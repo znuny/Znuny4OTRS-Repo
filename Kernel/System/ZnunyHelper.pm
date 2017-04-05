@@ -2001,28 +2001,9 @@ sub _DynamicFieldsScreenConfigExport {
 
     my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
     my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+    my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
 
-    # check needed stuff
-    NEEDED:
-    for my $Needed (qw(DynamicFieldScreens DefaultColumnsScreens)) {
-
-        next NEEDED if defined $Param{$Needed};
-
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
-        );
-        return;
-    }
-
-    my $Format = lc( $Param{Format} // 'perl' );
-    if ( $Format ne 'yml' && $Format ne 'perl' ) {
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Invalid value $Format for parameter Format.",
-        );
-        return;
-    }
+    my $ValidDynamicFieldScreenList = $Self->_ValidDynamicFieldScreenListGet();
 
     my @DynamicFields;
     if ( !$Param{DynamicFields} ) {
@@ -2038,7 +2019,7 @@ sub _DynamicFieldsScreenConfigExport {
     my %Config;
     for my $DynamicField (@DynamicFields) {
         DYNAMICFIELDSCREEN:
-        for my $DynamicFieldScreen ( sort keys %{ $Param{DynamicFieldScreens} } ) {
+        for my $DynamicFieldScreen ( @{ $ValidDynamicFieldScreenList->{DynamicFieldScreens} } ) {
             my %DynamicFieldScreenConfig = $Self->_DynamicFieldsScreenGet(
                 ConfigItems => [$DynamicFieldScreen],
             );
@@ -2051,7 +2032,7 @@ sub _DynamicFieldsScreenConfigExport {
         }
 
         DEFAULTCOLUMNSCREEN:
-        for my $DefaultColumnsScreen ( sort keys %{ $Param{DefaultColumnsScreens} } ) {
+        for my $DefaultColumnsScreen ( @{ $ValidDynamicFieldScreenList->{DefaultColumnsScreens} } ) {
             my %DefaultColumnsScreenConfig = $Self->_DynamicFieldsDefaultColumnsGet(
                 ConfigItems => [$DefaultColumnsScreen],
             );
@@ -2102,7 +2083,8 @@ Returns:
 sub _DynamicFieldsScreenConfigImport {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     # check needed stuff
     NEEDED:
@@ -2117,10 +2099,13 @@ sub _DynamicFieldsScreenConfigImport {
         return;
     }
 
+    my $ValidDynamicFieldScreenList = $Self->_ValidDynamicFieldScreenListGet();
+
     for my $DynamicField ( sort keys %{ $Param{Config} } ) {
+
         my %ScreenConfig;
         DYNAMICFIELDSCREEN:
-        for my $DynamicFieldScreen ( sort keys %{ $Param{DynamicFieldScreens} } ) {
+        for my $DynamicFieldScreen ( @{ $ValidDynamicFieldScreenList->{DynamicFieldScreens} } ) {
             $ScreenConfig{$DynamicFieldScreen} = {
                 $DynamicField => $Param{Config}->{$DynamicField}->{$DynamicFieldScreen},
             };
@@ -2130,13 +2115,18 @@ sub _DynamicFieldsScreenConfigImport {
 
         my %ColumnScreenConfig;
         DEFAULTCOLUMNSCREEN:
-        for my $DefaultColumnsScreen ( sort keys %{ $Param{DefaultColumnsScreens} } ) {
+        for my $DefaultColumnsScreen ( @{ $ValidDynamicFieldScreenList->{DefaultColumnsScreens} } ) {
             $ColumnScreenConfig{$DefaultColumnsScreen} = {
                 "DynamicField_$DynamicField" => $Param{Config}->{$DynamicField}->{$DefaultColumnsScreen},
             };
         }
 
         $Self->_DefaultColumnsEnable(%ColumnScreenConfig);
+
+        # reload the ZZZ files
+        # get a new config object to make sure config is updated
+        $Self->_PackageSetupInit();
+
     }
 
     return 1;
