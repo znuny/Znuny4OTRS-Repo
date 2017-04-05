@@ -1966,13 +1966,10 @@ sub _DynamicFieldsConfigExport {
 exports all configured screens of one ore more dynamic fields
 
     my $Configs = $ZnunyHelperObject->_DynamicFieldsScreenConfigExport(
-        Format                => 'yml|perl',    # defaults to perl
         DynamicFields         => [              # optional, returns only for those fields
             'NameOfDynamicField',
             'SecondDynamicField',
         ],
-        DynamicFieldScreens   => \@DynamicFieldScreens,
-        DefaultColumnsScreens => \@DefaultColumnsScreens,
     );
 
 Returns:
