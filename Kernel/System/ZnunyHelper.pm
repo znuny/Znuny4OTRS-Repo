@@ -27,12 +27,14 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::NotificationEvent',
+    'Kernel::System::PostMaster::Filter',
     'Kernel::System::ProcessManagement::DB::Entity',
     'Kernel::System::ProcessManagement::DB::Process',
     'Kernel::System::Queue',
     'Kernel::System::SLA',
     'Kernel::System::Service',
     'Kernel::System::State',
+    'Kernel::System::Storable',
     'Kernel::System::SysConfig',
     'Kernel::System::Type',
     'Kernel::System::User',
@@ -1867,7 +1869,6 @@ sub _DynamicFieldsCreate {
 
     return 1;
 }
-
 
 =item _DynamicFieldsConfigExport()
 
