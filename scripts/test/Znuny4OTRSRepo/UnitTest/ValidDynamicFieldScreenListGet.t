@@ -46,6 +46,7 @@ my $ExpectedValidDynamicFieldScreenListHash = {
         'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'       => 'AgentTicketWatchView'
     },
     'DynamicFieldScreens' => {
+        'Ticket::Frontend::AgentTicketClose###DynamicField'             => 'AgentTicketClose',
         'Ticket::Frontend::AgentTicketCompose###DynamicField'           => 'AgentTicketCompose',
         'Ticket::Frontend::AgentTicketEmail###DynamicField'             => 'AgentTicketEmail',
         'Ticket::Frontend::AgentTicketEmailOutbound###DynamicField'     => 'AgentTicketEmailOutbound',
@@ -70,7 +71,8 @@ my $ExpectedValidDynamicFieldScreenListHash = {
         'Ticket::Frontend::CustomerTicketSearch###DynamicField'         => 'CustomerTicketSearch',
         'Ticket::Frontend::CustomerTicketZoom###DynamicField'           => 'CustomerTicketZoom',
         'Ticket::Frontend::OverviewMedium###DynamicField'               => 'OverviewMedium',
-        'Ticket::Frontend::OverviewPreview###DynamicField'              => 'OverviewPreview'
+        'Ticket::Frontend::OverviewPreview###DynamicField'              => 'OverviewPreview',
+        'Ticket::Frontend::OverviewSmall###DynamicField'                => 'OverviewSmall'
         }
 };
 
@@ -95,6 +97,7 @@ my $ExpectedValidDynamicFieldScreenListArray = {
         'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'
     ],
     'DynamicFieldScreens' => [
+        'Ticket::Frontend::AgentTicketClose###DynamicField',
         'Ticket::Frontend::AgentTicketCompose###DynamicField',
         'Ticket::Frontend::AgentTicketEmail###DynamicField',
         'Ticket::Frontend::AgentTicketEmailOutbound###DynamicField',
@@ -119,7 +122,8 @@ my $ExpectedValidDynamicFieldScreenListArray = {
         'Ticket::Frontend::CustomerTicketSearch###DynamicField',
         'Ticket::Frontend::CustomerTicketZoom###DynamicField',
         'Ticket::Frontend::OverviewMedium###DynamicField',
-        'Ticket::Frontend::OverviewPreview###DynamicField'
+        'Ticket::Frontend::OverviewPreview###DynamicField',
+        'Ticket::Frontend::OverviewSmall###DynamicField'
         ]
 };
 
