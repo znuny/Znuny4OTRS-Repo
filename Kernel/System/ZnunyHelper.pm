@@ -13,6 +13,7 @@ use strict;
 use warnings;
 
 use Kernel::System::VariableCheck qw(:all);
+use Storable qw();
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -34,7 +35,6 @@ our @ObjectDependencies = (
     'Kernel::System::SLA',
     'Kernel::System::Service',
     'Kernel::System::State',
-    'Kernel::System::Storable',
     'Kernel::System::SysConfig',
     'Kernel::System::Type',
     'Kernel::System::User',
@@ -1942,7 +1942,6 @@ sub _DynamicFieldsConfigExport {
     my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
     my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
     my $YAMLObject         = $Kernel::OM->Get('Kernel::System::YAML');
-    my $StorableObject     = $Kernel::OM->Get('Kernel::System::Storable');
 
     my $Format = lc( $Param{Format} // 'perl' );
     if ( $Format ne 'yml' && $Format ne 'perl' && $Format ne 'var' ) {
@@ -1966,7 +1965,7 @@ sub _DynamicFieldsConfigExport {
     # Somehow calls to DynamicFieldListGet() will report the already changed dynamic field configs
     # according to given parameters.
     my $DynamicFields = $DynamicFieldObject->DynamicFieldListGet() // [];
-    $DynamicFields = $StorableObject->Clone( Data => $DynamicFields );
+    $DynamicFields = Storable::dclone($DynamicFields);
     my @DynamicFieldConfigs = sort { $a->{Name} cmp $b->{Name} } @{$DynamicFields};
 
     if ( IsArrayRefWithData( $Param{DynamicFields} ) ) {
