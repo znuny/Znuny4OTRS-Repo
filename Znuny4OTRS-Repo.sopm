@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.12</Version>
+    <Version>4.0.13</Version>
+    <ChangeLog Version="4.0.13" Date="2017-04-07 12:21:14 +0200">Added _ValidDynamicFieldScreenListGet function.&#13;
+Added _DynamicFieldsDefaultColumnsGet.&#13;
+Improved _DynamicFieldsConfigExport function.&#13;
+Added _DynamicFieldsScreenConfigImport function.</ChangeLog>
     <ChangeLog Version="4.0.12" Date="2017-02-09 16:30:22 +0100">Added synchronization of processes to _ProcessCreateIfNotExists().</ChangeLog>
     <ChangeLog Version="4.0.11" Date="2017-01-25 15:29:32 +0100">Added new unit test object for WebUserAgent.</ChangeLog>
     <ChangeLog Version="4.0.10" Date="2016-12-07 13:32:00 +0100">- Fixed issue #10 - Remove advertisement in OTRSAppointmentCalendar. &#13;
