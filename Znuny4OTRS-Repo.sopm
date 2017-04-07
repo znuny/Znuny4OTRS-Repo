@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.21</Version>
+    <Version>5.0.22</Version>
+    <ChangeLog Version="5.0.22" Date="2017-04-07 12:21:02 +0200">Added _ValidDynamicFieldScreenListGet function.&#13;
+Added _DynamicFieldsDefaultColumnsGet.&#13;
+Improved _DynamicFieldsConfigExport function.&#13;
+Added _DynamicFieldsScreenConfigImport function.</ChangeLog>
     <ChangeLog Version="5.0.21" Date="2017-03-21 11:02:47 +0100">- Added new functionalities to add, update and export postmaste filters. &#13;
 - Fixed issue #13. &#13;
 - Improved process import.</ChangeLog>
