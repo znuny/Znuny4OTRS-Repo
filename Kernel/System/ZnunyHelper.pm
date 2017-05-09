@@ -4285,20 +4285,23 @@ sub _ProcessCreateIfNotExists {
             return;
         }
 
-        EXISTINGPROCESS:
-        for my $ExistingProcess ( @{$ProcessList} ) {
+        if ( !$Param{UpdateExisting} ) {
+            EXISTINGPROCESS:
+            for my $ExistingProcess ( @{$ProcessList} ) {
 
-            next EXISTINGPROCESS if !defined $ExistingProcess->{Name};
-            next EXISTINGPROCESS if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
-            next EXISTINGPROCESS if !defined $ExistingProcess->{State};
-            next EXISTINGPROCESS if $ExistingProcess->{State} ne 'Active';
+                next EXISTINGPROCESS if !defined $ExistingProcess->{Name};
+                next EXISTINGPROCESS if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
+                next EXISTINGPROCESS if !defined $ExistingProcess->{State};
+                next EXISTINGPROCESS if $ExistingProcess->{State} ne 'Active';
 
-            next PROCESS;
+                next PROCESS;
+            }
         }
 
         my %ProcessImport = $DBProcessObject->ProcessImport(
-            Content => ${$Content},
-            UserID  => 1,
+            Content                   => ${$Content},
+            OverwriteExistingEntities => 1,
+            UserID                    => 1,
         );
 
         if (
@@ -4349,6 +4352,36 @@ sub _ProcessCreateIfNotExists {
     }
 
     return 1;
+}
+
+=item _ProcessCreate()
+
+creates or updates processes
+
+    # installs all .yml files in $OTRS/scripts/processes/
+    # name of the file will be the name of the process
+    my $Success = $ZnunyHelperObject->_ProcessCreate(
+        SubDir => 'Znuny4OTRSAssetDesk', # optional
+    );
+
+OR:
+
+    my $Success = $ZnunyHelperObject->_ProcessCreate(
+        Processes => {
+            'New Process 1234' => '/path/to/Process.yml',
+            ...
+        }
+    );
+
+=cut
+
+sub _ProcessCreate {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->_ProcessCreateIfNotExists(
+        %Param,
+        UpdateExisting => 1,
+    );
 }
 
 =item _ProcessesGet()
