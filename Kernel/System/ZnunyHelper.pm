@@ -4513,7 +4513,7 @@ sub _ModuleGroupAdd {
 
 This function removes one or more groups from the list of groups of a frontend module registration for any interface.
 
-    my $Success = $HelperObject->_ModuleGroupRemove(
+    my $Success = $ZnunyHelperObject->_ModuleGroupRemove(
         Module => 'Admin',
         Group  => [
             'users',
