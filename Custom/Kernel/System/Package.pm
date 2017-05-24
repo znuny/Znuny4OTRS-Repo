@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/7278eb7f80ce94845dceb95cac4e4b7672aaec56/Kernel/System/Package.pm
+# $origin: https://github.com/OTRS/otrs/blob/cb6fee67e20a5f76b65dd34020f2073ba635db1f/Kernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -142,13 +142,12 @@ sub new {
 =item RepositoryList()
 
 returns a list of repository packages
-using Result => 'short' will only return name, version, install_status md5sum and vendor
-instead of the structure
 
     my @List = $PackageObject->RepositoryList();
 
     my @List = $PackageObject->RepositoryList(
-        Result => 'short',
+        Result => 'short',  # will only return name, version, install_status md5sum and vendor
+        instead of the structure
     );
 
 =cut
@@ -1411,8 +1410,11 @@ sub PackageOnlineList {
         my $CurrentFramework = $Kernel::OM->Get('Kernel::Config')->Get('Version');
         FRAMEWORKVERSION:
         for my $FrameworkVersion ( sort keys %{$ListResult} ) {
+            my $FrameworkVersionMatch = $FrameworkVersion;
+            $FrameworkVersionMatch =~ s/\./\\\./g;
+            $FrameworkVersionMatch =~ s/x/.+?/gi;
 
-            if ( $CurrentFramework =~ m{ \A $FrameworkVersion }xms ) {
+            if ( $CurrentFramework =~ m{ \A $FrameworkVersionMatch }xms ) {
 
                 @Packages = @{ $ListResult->{$FrameworkVersion} };
                 last FRAMEWORKVERSION;
@@ -1432,10 +1434,22 @@ sub PackageOnlineList {
 
         if ( $Package->{Framework} ) {
 
+            my $Response = $Self->_CheckFramework(
+                Framework            => $Package->{Framework},
+                NoLog                => 1,
+                IgnoreMinimumMaximum => 1,
+                ResultType           => 'HASH'
+            );
+
+            # Check result type of _CheckFramework() for compatibility reasons.
             if (
-                $Self->_CheckFramework(
-                    Framework => $Package->{Framework},
-                    NoLog     => 1
+                (
+                    ref $Response eq 'SCALAR'
+                    && $Response
+                )
+                || (
+                    ref $Response eq 'HASH'
+                    && $Response->{Success}
                 )
                 )
             {
@@ -1662,7 +1676,7 @@ sub DeployCheck {
                 );
             }
 
-            $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = 'No file installed!';
+            $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = Translatable('File is not installed!');
             $Hit = 1;
         }
         elsif ( -e $LocalFile ) {
@@ -1684,7 +1698,7 @@ sub DeployCheck {
                     }
 
                     $Hit = 1;
-                    $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = 'File is different!';
+                    $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = Translatable('File is different!');
                 }
             }
             else {
@@ -1696,7 +1710,7 @@ sub DeployCheck {
                     );
                 }
 
-                $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = 'Can\' read File!';
+                $Self->{DeployCheckInfo}->{File}->{ $File->{Location} } = Translatable('Can\'t read file!');
             }
         }
     }
@@ -2055,7 +2069,7 @@ build an opm package
             Content => 'L<http://otrs.org/>',
         },
         License => {
-            Content => 'GNU GENERAL PUBLIC LICENSE Version 2, June 1991',
+            Content => 'GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007',
         }
         Description => [
             {
@@ -2292,24 +2306,24 @@ sub PackageBuild {
                             $XML .= " Type=\"$Type\"";
                         }
 
+                        KEY:
                         for my $Key ( sort keys %{$Tag} ) {
 
-                            if (
-                                $Key ne 'Tag'
-                                && $Key ne 'Content'
-                                && $Key ne 'TagType'
-                                && $Key ne 'TagLevel'
-                                && $Key ne 'TagCount'
-                                && $Key ne 'TagKey'
-                                && $Key ne 'TagLastLevel'
-                                )
-                            {
-                                if ( defined( $Tag->{$Key} ) ) {
-                                    $XML .= ' '
-                                        . $Self->_Encode($Key) . '="'
-                                        . $Self->_Encode( $Tag->{$Key} ) . '"';
-                                }
-                            }
+                            next KEY if $Key eq 'Tag';
+                            next KEY if $Key eq 'Content';
+                            next KEY if $Key eq 'TagType';
+                            next KEY if $Key eq 'TagLevel';
+                            next KEY if $Key eq 'TagCount';
+                            next KEY if $Key eq 'TagKey';
+                            next KEY if $Key eq 'TagLastLevel';
+
+                            next KEY if !defined $Tag->{$Key};
+
+                            next KEY if $Tag->{TagLevel} == 3 && lc $Key eq 'type';
+
+                            $XML .= ' '
+                                . $Self->_Encode($Key) . '="'
+                                . $Self->_Encode( $Tag->{$Key} ) . '"';
                         }
 
                         $XML .= ">";
@@ -2703,6 +2717,7 @@ generates a MD5 Sum for all files in a given package
     );
 
 returns:
+
     $MD5SumLookup = {
         'Direcoty/File1' => 'f3f30bd59afadf542770d43edb280489'
         'Direcoty/File2' => 'ccb8a0b86adf125a36392e388eb96778'
@@ -2981,8 +2996,22 @@ Compare a framework array with the current framework.
 
     my $CheckOk = $PackageObject->_CheckFramework(
         Framework       => $Structure{Framework}, # [ { 'Content' => '4.0.x', 'Minimum' => '4.0.4'} ]
-        NoLog           => 1, # optional
-    )
+        NoLog           => 1,                     # optional
+        ResultType      => 'HASH',                # optional
+    );
+
+ResultType 'HASH' returns:
+
+    $CheckOK = {
+        Success                     => 1,           # 1 || 0
+
+        RequiredFramework           => '5.0.x',
+        RequiredFrameworkMinimum    => '5.0.10',
+        RequiredFrameworkMaximum    => '5.0.16',
+    };
+
+DEPRECATED: For compatibility reasons, if this method is called without ResultType 'HASH' parameter, it will return 1
+if current framework is supported. This parameter will be required in next major version.
 
 =cut
 
@@ -3007,6 +3036,11 @@ sub _CheckFramework {
         return;
     }
 
+    my %Response = (
+        Success => 0,
+    );
+
+    my $ResultType        = $Param{ResultType} || '';
     my $FWCheck           = 0;
     my $CurrentFramework  = $Self->{ConfigObject}->Get('Version');
     my $PossibleFramework = '';
@@ -3020,9 +3054,12 @@ sub _CheckFramework {
 
             # add framework versions for the log entry
             $PossibleFramework .= $FW->{Content} . ';';
+            my $Framework = $FW->{Content};
+
+            # add required framework to response hash
+            $Response{RequiredFramework} = $Framework;
 
             # regexp modify
-            my $Framework = $FW->{Content};
             $Framework =~ s/\./\\\./g;
             $Framework =~ s/x/.+?/gi;
 
@@ -3032,112 +3069,132 @@ sub _CheckFramework {
             # framework is correct
             $FWCheck = 1;
 
-            # get minimum and/or maximum values
-            # e.g. the opm contains <Framework Minimum="5.0.7" Maximum="5.0.12">5.0.x</Framework>
-            my $FrameworkMinimum = $FW->{Minimum} || '';
-            my $FrameworkMaximum = $FW->{Maximum} || '';
+            if ( !$Param{IgnoreMinimumMaximum} ) {
 
-            # check for minimum or maximum required framework, if it was defined
-            if ( $FrameworkMinimum || $FrameworkMaximum ) {
+                # get minimum and/or maximum values
+                # e.g. the opm contains <Framework Minimum="5.0.7" Maximum="5.0.12">5.0.x</Framework>
+                my $FrameworkMinimum = $FW->{Minimum} || '';
+                my $FrameworkMaximum = $FW->{Maximum} || '';
 
-                # prepare hash for framework comparsion
-                my %FrameworkComparsion;
-                $FrameworkComparsion{MinimumFrameworkRequired} = $FrameworkMinimum;
-                $FrameworkComparsion{MaximumFrameworkRequired} = $FrameworkMaximum;
-                $FrameworkComparsion{CurrentFramework}         = $CurrentFramework;
+                # check for minimum or maximum required framework, if it was defined
+                if ( $FrameworkMinimum || $FrameworkMaximum ) {
 
-                # prepare version parts hash
-                my %VersionParts;
+                    # prepare hash for framework comparsion
+                    my %FrameworkComparsion;
+                    $FrameworkComparsion{MinimumFrameworkRequired} = $FrameworkMinimum;
+                    $FrameworkComparsion{MaximumFrameworkRequired} = $FrameworkMaximum;
+                    $FrameworkComparsion{CurrentFramework}         = $CurrentFramework;
 
-                TYPE:
-                for my $Type (qw(MinimumFrameworkRequired MaximumFrameworkRequired CurrentFramework)) {
+                    # prepare version parts hash
+                    my %VersionParts;
 
-                    # split version string
-                    my @ThisVersionParts = split /\./, $FrameworkComparsion{$Type};
-                    $VersionParts{$Type} = \@ThisVersionParts;
-                }
+                    TYPE:
+                    for my $Type (qw(MinimumFrameworkRequired MaximumFrameworkRequired CurrentFramework)) {
 
-                # check minimum required framework
-                if ($FrameworkMinimum) {
-
-                    COUNT:
-                    for my $Count ( 0 .. 2 ) {
-
-                        $VersionParts{MinimumFrameworkRequired}->[$Count] ||= 0;
-                        $VersionParts{CurrentFramework}->[$Count]         ||= 0;
-
-                        # skip equal version parts
-                        next COUNT
-                            if $VersionParts{MinimumFrameworkRequired}->[$Count] eq
-                            $VersionParts{CurrentFramework}->[$Count];
-
-                        # skip current framework verion parts containing "x"
-                        next COUNT if $VersionParts{CurrentFramework}->[$Count] =~ /x/;
-
-                        if (
-                            $VersionParts{CurrentFramework}->[$Count]
-                            > $VersionParts{MinimumFrameworkRequired}->[$Count]
-                            )
-                        {
-                            $FWCheck = 1;
-                            last COUNT;
-                        }
-                        else {
-
-                            # add required minimum version for the log entry
-                            $PossibleFramework .= 'Minimum Version ' . $FrameworkMinimum . ';';
-                            $FWCheck = 0;
-                        }
-
+                        # split version string
+                        my @ThisVersionParts = split /\./, $FrameworkComparsion{$Type};
+                        $VersionParts{$Type} = \@ThisVersionParts;
                     }
-                }
 
-                # check maximum required framework, if the framework check is still positive so far
-                if ( $FrameworkMaximum && $FWCheck ) {
+                    # check minimum required framework
+                    if ($FrameworkMinimum) {
 
-                    COUNT:
-                    for my $Count ( 0 .. 2 ) {
+                        COUNT:
+                        for my $Count ( 0 .. 2 ) {
 
-                        $VersionParts{MaximumFrameworkRequired}->[$Count] ||= 0;
-                        $VersionParts{CurrentFramework}->[$Count]         ||= 0;
+                            $VersionParts{MinimumFrameworkRequired}->[$Count] ||= 0;
+                            $VersionParts{CurrentFramework}->[$Count]         ||= 0;
 
-                        next COUNT
-                            if $VersionParts{MaximumFrameworkRequired}->[$Count] eq
-                            $VersionParts{CurrentFramework}->[$Count];
+                            # skip equal version parts
+                            next COUNT
+                                if $VersionParts{MinimumFrameworkRequired}->[$Count] eq
+                                $VersionParts{CurrentFramework}->[$Count];
 
-                        # skip current framework verion parts containing "x"
-                        next COUNT if $VersionParts{CurrentFramework}->[$Count] =~ /x/;
+                            # skip current framework verion parts containing "x"
+                            next COUNT if $VersionParts{CurrentFramework}->[$Count] =~ /x/;
 
-                        if (
-                            $VersionParts{CurrentFramework}->[$Count]
-                            < $VersionParts{MaximumFrameworkRequired}->[$Count]
-                            )
-                        {
+                            if (
+                                $VersionParts{CurrentFramework}->[$Count]
+                                > $VersionParts{MinimumFrameworkRequired}->[$Count]
+                                )
+                            {
+                                $FWCheck = 1;
+                                last COUNT;
+                            }
+                            else {
 
-                            $FWCheck = 1;
-                            last COUNT;
+                                # add required minimum version for the log entry
+                                $PossibleFramework .= 'Minimum Version ' . $FrameworkMinimum . ';';
+
+                                # add required minimum version to response hash
+                                $Response{RequiredFrameworkMinimum} = $FrameworkMinimum;
+
+                                $FWCheck = 0;
+                            }
                         }
-                        else {
+                    }
 
-                            # add required maximum version for the log entry
-                            $PossibleFramework .= 'Maximum Version ' . $FrameworkMaximum . ';';
-                            $FWCheck = 0;
+                    # check maximum required framework, if the framework check is still positive so far
+                    if ( $FrameworkMaximum && $FWCheck ) {
+
+                        COUNT:
+                        for my $Count ( 0 .. 2 ) {
+
+                            $VersionParts{MaximumFrameworkRequired}->[$Count] ||= 0;
+                            $VersionParts{CurrentFramework}->[$Count]         ||= 0;
+
+                            next COUNT
+                                if $VersionParts{MaximumFrameworkRequired}->[$Count] eq
+                                $VersionParts{CurrentFramework}->[$Count];
+
+                            # skip current framework verion parts containing "x"
+                            next COUNT if $VersionParts{CurrentFramework}->[$Count] =~ /x/;
+
+                            if (
+                                $VersionParts{CurrentFramework}->[$Count]
+                                < $VersionParts{MaximumFrameworkRequired}->[$Count]
+                                )
+                            {
+
+                                $FWCheck = 1;
+                                last COUNT;
+                            }
+                            else {
+
+                                # add required maximum version for the log entry
+                                $PossibleFramework .= 'Maximum Version ' . $FrameworkMaximum . ';';
+
+                                # add required maximum version to response hash
+                                $Response{RequiredFrameworkMaximum} = $FrameworkMaximum;
+
+                                $FWCheck = 0;
+                            }
+
                         }
-
                     }
                 }
             }
+
         }
     }
 
-    return 1 if $FWCheck;
-    return   if $Param{NoLog};
+    if ($FWCheck) {
+        $Response{Success} = 1;
+    }
+    elsif ( !$Param{NoLog} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Sorry, can't install/upgrade package, because the framework version required"
+                . " by the package ($PossibleFramework) does not match your Framework ($CurrentFramework)!",
+        );
+    }
 
-    $Kernel::OM->Get('Kernel::System::Log')->Log(
-        Priority => 'error',
-        Message  => "Sorry, can't install/upgrade package, because the framework version required"
-            . " by the package ($PossibleFramework) does not match your Framework ($CurrentFramework)!",
-    );
+    if ( $ResultType eq 'HASH' ) {
+        return \%Response;
+    }
+    else {
+        return 1 if $FWCheck;
+    }
 
     return;
 }
