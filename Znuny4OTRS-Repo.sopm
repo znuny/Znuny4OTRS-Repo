@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.13</Version>
+    <Version>4.0.14</Version>
+    <ChangeLog Version="4.0.14" Date="2017-05-30 19:21:29 +0200">Added security fix.</ChangeLog>
     <ChangeLog Version="4.0.13" Date="2017-04-07 12:21:14 +0200">Added _ValidDynamicFieldScreenListGet function.&#13;
 Added _DynamicFieldsDefaultColumnsGet.&#13;
 Improved _DynamicFieldsConfigExport function.&#13;
