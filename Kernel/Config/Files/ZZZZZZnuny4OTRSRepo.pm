@@ -62,6 +62,11 @@ sub Load {
         $Self->{'Package::RepositoryList'} = $RepositoryList;
     }
 
+    # Fixed security issue
+    # big thanks to @jtvogt
+    # http://forums.otterhub.org/viewtopic.php?f=62&t=35249
+    delete $Self->{'Frontend::Module'}->{Installer};
+
     return 1;
 }
 
