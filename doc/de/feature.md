@@ -15,6 +15,23 @@ Im OTRS Standard ist es nicht möglich Pakete ohne Anbindung an das Internet als
 ## Hinweise
 Bei der Nutzung von HTTPS als Protokoll, was nach der Installation des Paketes aktiviert ist, besteht die Möglichkeit das ein Fehler 500 beim Zugriff auf das Repository gemeldet wird. Das Problem wird mit der Installation des Perl-Modules LWP::Protocol::https beseitigt, alternativ kann auch in der SysConfig die Einstellung "Znuny4OTRSRepoType" auf HTTP umgeschaltet werden.
 
+
+Folgende SysConfig - Einstellungen werden mit der Installation dieses Paketes deaktiviert.
+
+- Frontend::Module###AdminRegistration
+- Package::ShowFeatureAddons
+- Daemon::SchedulerCronTaskManager::Task###OTRSBusinessEntitlementCheck
+- Daemon::SchedulerCronTaskManager::Task###OTRSBusinessAvailabilityCheck
+- Notification::Transport###NotificationView
+- Notification::Transport###SMS
+- Frontend::Module###AdminCloudServices
+- Frontend::Module###AdminOTRSBusiness
+- Frontend::NotifyModule###100-OTRSBusiness
+- CustomerFrontend::NotifyModule###1-OTRSBusiness
+- Daemon::SchedulerCronTaskManager::Task###RegistrationUpdateSend
+- Daemon::SchedulerCronTaskManager::Task###SupportDataCollectAsynchronous
+
+
 #### CentOS / Enterprise Linux
 ```
 yum install perl-LWP-Protocol-https
