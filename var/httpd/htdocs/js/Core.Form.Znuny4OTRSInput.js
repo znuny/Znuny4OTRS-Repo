@@ -324,7 +324,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketPriority:      'AgentTicketActionCommon',
         AgentTicketResponsible:   'AgentTicketActionCommon',
         AgentTicketPhoneInbound:  'AgentTicketPhoneCommon',
-        AgentTicketPhoneOutbound: 'AgentTicketPhoneCommon'
+        AgentTicketPhoneOutbound: 'AgentTicketPhoneCommon',
+
+        // Znuny4OTRS-SecondTicketCreateScreen
+        AgentTicketEmailSecond:   'AgentTicketEmail',
+        AgentTicketPhoneSecond:   'AgentTicketPhone'
     }
 
     TargetNS.FieldID = function (Attribute) {
