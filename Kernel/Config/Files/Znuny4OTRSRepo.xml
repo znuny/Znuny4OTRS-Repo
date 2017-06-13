@@ -103,7 +103,7 @@
     <ConfigItem Name="DynamicFieldScreens###Framework" Required="1" Valid="1">
         <Description Translatable="1">This configuration defines all possible screens to enable or disable dynamic fields.</Description>
         <Group>Znuny4OTRS-Repo</Group>
-        <SubGroup>Core</SubGroup>
+        <SubGroup>DynamicFieldScreens</SubGroup>
         <Setting>
             <Hash>
                 <!-- Views -->
@@ -142,7 +142,7 @@
     <ConfigItem Name="DefaultColumnsScreens###Framework" Required="1" Valid="1">
         <Description Translatable="1">This configuration defines all possible screens to enable or disable default columns.</Description>
         <Group>Znuny4OTRS-Repo</Group>
-        <SubGroup>Core</SubGroup>
+        <SubGroup>DynamicFieldScreens</SubGroup>
         <Setting>
             <Hash>
                 <!-- DefaultColumns -->
