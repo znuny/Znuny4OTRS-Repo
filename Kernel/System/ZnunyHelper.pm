@@ -1687,20 +1687,22 @@ Usable Snippets (SublimeTextAdjustments):
 
     my @DynamicFields = (
         {
-            Name       => 'TestDynamicField1',
-            Label      => "TestDynamicField1",
-            ObjectType => 'Ticket',
-            FieldType  => 'Text',
-            Config     => {
+            Name          => 'TestDynamicField1',
+            Label         => "TestDynamicField1",
+            InternalField => 0,                     # optional, 0 or 1, internal fields are protected
+            ObjectType    => 'Ticket',
+            FieldType     => 'Text',
+            Config        => {
                 DefaultValue => "",
             },
         },
         {
-            Name       => 'TestDynamicField2',
-            Label      => "TestDynamicField2",
-            ObjectType => 'Ticket',
-            FieldType  => 'Text',
-            Config     => {
+            Name          => 'TestDynamicField2',
+            Label         => "TestDynamicField2",
+            InternalField => 0,                     # optional, 0 or 1, internal fields are protected
+            ObjectType    => 'Ticket',
+            FieldType     => 'Text',
+            Config        => {
                 DefaultValue => "",
             },
         },
@@ -1802,14 +1804,15 @@ sub _DynamicFieldsCreate {
 
         # create a new field
         my $FieldID = $DynamicFieldObject->DynamicFieldAdd(
-            Name       => $NewDynamicField->{Name},
-            Label      => $NewDynamicField->{Label},
-            FieldOrder => $NextOrderNumber,
-            FieldType  => $NewDynamicField->{FieldType},
-            ObjectType => $NewDynamicField->{ObjectType},
-            Config     => $NewDynamicField->{Config},
-            ValidID    => $NewDynamicField->{ValidID} || $ValidID,
-            UserID     => 1,
+            Name          => $NewDynamicField->{Name},
+            Label         => $NewDynamicField->{Label},
+            FieldOrder    => $NextOrderNumber,
+            FieldType     => $NewDynamicField->{FieldType},
+            ObjectType    => $NewDynamicField->{ObjectType},
+            Config        => $NewDynamicField->{Config},
+            InternalField => $NewDynamicField->{InternalField} || 0,
+            ValidID       => $NewDynamicField->{ValidID} || $ValidID,
+            UserID        => 1,
         );
         next DYNAMICFIELD if !$FieldID;
 
