@@ -61,6 +61,9 @@ sub Load {
         # set temporary config entry
         $Self->{'Package::RepositoryList'} = $RepositoryList;
     }
+    else {
+        delete $Self->{'Package::RepositoryList'};
+    }
 
     # Fixed security issue
     # big thanks to @jtvogt
