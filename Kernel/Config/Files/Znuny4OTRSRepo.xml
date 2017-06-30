@@ -34,9 +34,9 @@
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
-            <Option SelectedID="">
+            <Option SelectedID="0">
                 <Item Key="1">Disable Online Repos</Item>
-                <Item Key="">Enable Online Repos</Item>
+                <Item Key="0">Enable Online Repos</Item>
             </Option>
         </Setting>
     </ConfigItem>
