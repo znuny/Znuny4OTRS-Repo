@@ -122,6 +122,7 @@ Added UserRoles function.</ChangeLog>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
         <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnuny4OTRSRepoAdminPackageManager.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/OutputFilterZnunyVerify.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
