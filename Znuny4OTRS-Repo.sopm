@@ -166,6 +166,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepoAdminPackageManager.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/DynamicFieldsConfigExport.pm"/>
         <File Permission="644" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/PostMasterFilterConfigExport.pm"/>
