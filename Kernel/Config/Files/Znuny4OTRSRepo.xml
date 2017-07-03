@@ -408,4 +408,36 @@
             </Hash>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Frontend::Output::FilterElementPost###Znuny4OTRSRepoAdminPackageManager" Required="1" Valid="1">
+        <Description Translatable="1">This configuration registers an output filter to hide online repository selection in package manager.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>OutputFilter</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRepoAdminPackageManager</Item>
+                <Item Key="Templates">
+                    <Hash>
+                        <Item Key="AdminPackageManager">1</Item>
+                    </Hash>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Template::GenerateBlockHooks###100-Znuny4OTRSRepoAdminPackageManager" Required="1" Valid="1">
+        <Description Translatable="1">Block hooks to be created for package manager output filter.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Core</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="AdminPackageManager">
+                    <Array>
+                        <Item>Overview</Item>
+                        <Item>OverviewFileUpload</Item>
+                        <Item>NoDataFoundMsg</Item>
+                        <Item>ShowRemotePackage</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
 </otrs_config>
