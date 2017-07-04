@@ -25,13 +25,14 @@ our $ObjectManagerDisabled = 1;
 sub Load {
     my ($File, $Self) = @_;
 
+    my $RepositoryList = $Self->{'Package::RepositoryList'};
+    if ( !IsHashRefWithData($RepositoryList) ) {
+        $RepositoryList = {};
+    }
+
     # add the Znuny repository to the repository list
     if ( !$Self->{'Znuny4OTRSRepoDisable'} ) {
 
-        my $RepositoryList = $Self->{'Package::RepositoryList'};
-        if ( !IsHashRefWithData($RepositoryList) ) {
-            $RepositoryList = {};
-        }
 
         my $RepositoryBasePath = 'portal.znuny.com/api/addon_repos/';
 
@@ -62,7 +63,16 @@ sub Load {
         $Self->{'Package::RepositoryList'} = $RepositoryList;
     }
     else {
-        delete $Self->{'Package::RepositoryList'};
+        if ( $Self->{'Znuny4OTRSRepoDisable'} == 1 ) {
+            delete $Self->{'Package::RepositoryList'};
+        }
+        elsif ( $Self->{'Znuny4OTRSRepoDisable'} == 2 ) {
+            URL:
+            for my $URL ( sort keys %{$RepositoryList} ) {
+                next URL if $URL !~ m{znuny};
+                delete $Self->{'Package::RepositoryList'}->{$URL};
+            }
+        }
     }
 
     # Fixed security issue
