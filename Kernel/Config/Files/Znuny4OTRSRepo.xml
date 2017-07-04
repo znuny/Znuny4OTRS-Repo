@@ -30,13 +30,14 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
-        <Description Translatable="1">Disable online repos, e. g. for production system where new direct access to repos is needed.</Description>
+        <Description Translatable="1">Disable online repositories.</Description>
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>Core</SubGroup>
         <Setting>
             <Option SelectedID="0">
-                <Item Key="1">Disable Online Repos</Item>
-                <Item Key="0">Enable Online Repos</Item>
+                <Item Key="0">Enable online repositories</Item>
+                <Item Key="1">Disable all online repositories</Item>
+                <Item Key="2">Disable only Znuny4OTRS online repositories</Item>
             </Option>
         </Setting>
     </ConfigItem>
