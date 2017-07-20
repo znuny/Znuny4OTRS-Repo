@@ -3112,13 +3112,14 @@ sub _GeneralCatalogItemCreateIfNotExists {
 adds or updates a definition for a config item class. You need to provide the configuration
 of the cmdb class in the following directory:
 
-/opt/otrs/scripts/cmdb_classes/Mitarbeiter.config
+/opt/otrs/scripts/cmdb_classes/Private_Endgeraete.config
 
 The required general catalog item will be created automatically.
 
     my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreate(
-        Class           => 'Mitarbeiter',
-        PermissionGroup => 'itsm-configitem', # optional
+        Class           => 'Private Endgeräte',
+        ClassFile       => 'Private_Endgeraete',  # optional
+        PermissionGroup => 'itsm-configitem',     # optional
     );
 
 Returns:
@@ -3175,7 +3176,7 @@ sub _ITSMConfigItemDefinitionCreate {
 
     # get configuration from the file system
     my $ContentSCALARRef = $MainObject->FileRead(
-        Location => $Home . '/scripts/cmdb_classes/' . $Param{Class} . '.config',
+        Location => $Home . '/scripts/cmdb_classes/' . ( $Param{ClassFile} || $Param{Class} ) . '.config',
         Mode     => 'utf8',
         Result   => 'SCALAR',
     );
@@ -3207,12 +3208,14 @@ sub _ITSMConfigItemDefinitionCreate {
 add if not exists a definition for a config item class. You need to provide the configuration
 of the cmdb class in the following directory:
 
-/opt/otrs/scripts/cmdb_classes/Mitarbeiter.config
+/opt/otrs/scripts/cmdb_classes/Private_Endgeraete.config
 
 The required general catalog item will be created automatically.
 
-    my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreateIfNotExists(
-        Class => 'Mitarbeiter',
+    my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreate(
+        Class           => 'Private Endgeräte',
+        ClassFile       => 'Private_Endgeraete',  # optional
+        PermissionGroup => 'itsm-configitem',     # optional
     );
 
 Returns:
