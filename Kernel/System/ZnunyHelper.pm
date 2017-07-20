@@ -3022,9 +3022,10 @@ sub _QueueCreateIfNotExists {
 adds a general catalog item if it does not exist
 
     my $ItemID = $ZnunyHelperObject->_GeneralCatalogItemCreateIfNotExists(
-        Name    => 'Test Item',
-        Class   => 'ITSM::ConfigItem::Test',
-        Comment => 'Class for test item.',
+        Name            => 'Test Item',
+        Class           => 'ITSM::ConfigItem::Test',
+        Comment         => 'Class for test item.',
+        PermissionGroup => 'itsm-configitem',              # optional
     );
 
 Returns:
@@ -3049,9 +3050,10 @@ sub _GeneralCatalogItemCreateIfNotExists {
         return;
     }
 
+    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
     my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
     my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
-    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
     my $Name        = $Param{Name};
 
     # check if general catalog module is installed
@@ -3088,7 +3090,144 @@ sub _GeneralCatalogItemCreateIfNotExists {
         UserID  => 1,
     );
 
+    if ( $ItemID && $Param{PermissionGroup} ) {
+        my $GroupID = $GroupObject->GroupLookup(
+            Group => $Param{PermissionGroup},
+        );
+
+        if ($GroupID) {
+            $GeneralCatalogObject->GeneralCatalogPreferencesSet(
+                ItemID => $ItemID,
+                Key    => 'Permission',
+                Value  => $GroupID,
+            );
+        }
+    }
+
     return $ItemID;
+}
+
+=item _ITSMConfigItemDefinitionCreate()
+
+adds or updates a definition for a config item class. You need to provide the configuration
+of the cmdb class in the following directory:
+
+/opt/otrs/scripts/cmdb_classes/Mitarbeiter.config
+
+The required general catalog item will be created automatically.
+
+    my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreate(
+        Class           => 'Mitarbeiter',
+        PermissionGroup => 'itsm-configitem', # optional
+    );
+
+Returns:
+
+    my $DefinitionID = 1234;
+
+=cut
+
+sub _ITSMConfigItemDefinitionCreate {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Class)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    my $Home = $ConfigObject->Get('Home');
+
+    # check if ITSMConfigItem module is installed
+    my $ITSMConfigItemLoaded = $MainObject->Require(
+        'Kernel::System::ITSMConfigItem',
+        Silent => 1,
+    );
+    return if !$ITSMConfigItemLoaded;
+
+    my $ConfigItemObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+
+    # create general catalog item for class
+    my $ClassID = $Self->_GeneralCatalogItemCreateIfNotExists(
+        Name            => $Param{Class},
+        Class           => 'ITSM::ConfigItem::Class',
+        PermissionGroup => $Param{PermissionGroup},
+    );
+    return if !$ClassID;
+
+    # do check create if not exists
+    if ( $Param{CreateIfNotExists} ) {
+        my $DefinitionListRef = $ConfigItemObject->DefinitionList(
+            ClassID => $ClassID,
+        );
+        return $DefinitionListRef->[-1]->{DefinitionID} if IsArrayRefWithData($DefinitionListRef);
+    }
+
+    # get configuration from the file system
+    my $ContentSCALARRef = $MainObject->FileRead(
+        Location => $Home . '/scripts/cmdb_classes/' . $Param{Class} . '.config',
+        Mode     => 'utf8',
+        Result   => 'SCALAR',
+    );
+    return if !$ContentSCALARRef;
+
+    my $Content = ${$ContentSCALARRef};
+    return if !$Content;
+
+    # get last definition
+    my $LastDefinition = $ConfigItemObject->DefinitionGet(
+        ClassID => $ClassID,
+    );
+
+    # stop add, if definition was not changed
+    return $LastDefinition->{DefinitionID}
+        if IsHashRefWithData($LastDefinition) && $LastDefinition->{Definition} eq $Content;
+
+    my $DefinitionID = $ConfigItemObject->DefinitionAdd(
+        ClassID    => $ClassID,
+        Definition => $Content,
+        UserID     => 1,
+    );
+
+    return $DefinitionID;
+}
+
+=item _ITSMConfigItemDefinitionCreateIfNotExists()
+
+add if not exists a definition for a config item class. You need to provide the configuration
+of the cmdb class in the following directory:
+
+/opt/otrs/scripts/cmdb_classes/Mitarbeiter.config
+
+The required general catalog item will be created automatically.
+
+    my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreateIfNotExists(
+        Class => 'Mitarbeiter',
+    );
+
+Returns:
+
+    my $DefinitionID = 1234;
+
+=cut
+
+sub _ITSMConfigItemDefinitionCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->_ITSMConfigItemDefinitionCreate(
+        %Param,
+        CreateIfNotExists => 1,
+    );
 }
 
 =item _NotificationEventCreate()
