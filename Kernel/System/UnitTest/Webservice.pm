@@ -29,11 +29,11 @@ use Kernel::System::VariableCheck qw(:all);
 
 =head1 NAME
 
-Kernel::System::UnitTest::Webservice - webservice lib
+Kernel::System::UnitTest::Webservice - web service lib
 
 =head1 SYNOPSIS
 
-All webservice functions
+All web service functions
 
 =head1 PUBLIC INTERFACE
 
@@ -68,7 +68,7 @@ sub new {
 
 =item Process()
 
-This function simulate an incomming webservice call to test operations and the mapping.
+This function simulate an incoming web service call to test operations and the mapping.
 
     my $Response = $UnitTestWebserviceObject->Process(
         UnitTestObject => $Self,
@@ -121,7 +121,7 @@ sub Process {
 
         next NAMEORID if !$Param{$NameOrID};
 
-        $ENV{REQUEST_URI} = "nph-genericinterface.pl/$NameOrID/$Param{$NameOrID}/";
+        $ENV{REQUEST_URI} = "nph-genericinterface.pl/$NameOrID/$Param{$NameOrID}/";    ## no critic
 
         last NAMEORID;
     }
@@ -186,7 +186,7 @@ Mocks all outgoing requests to a given mapping.
     my $Result = $RequesterObject->Run(
         WebserviceID => 1,                      # ID of the configured remote web service to use
         Invoker      => 'InvokerName123',       # Name of the Invoker to be used for sending the request
-        Data         => {                       # Data payload for the Invoker request (remote webservice)
+        Data         => {                       # Data payload for the Invoker request (remote web service)
             OutgoingData => 'Value'
         },
     );
@@ -277,7 +277,7 @@ sub Result {
 
 =item ValidateResult()
 
-Processes the results of expected mocked webservice calls. If no webservice call was mocked an error is printed.
+Processes the results of expected mocked web service calls. If no web service call was mocked an error is printed.
 
     my $Result = $UnitTestWebserviceObject->ValidateResult(
         UnitTestObject => $Self,
@@ -371,7 +371,7 @@ sub ValidateResult {
     $Param{UnitTestObject}->Is(
         $Counter,
         $Param{RequestCount},
-        "Number of processed webservice requests",
+        "Number of processed web service requests",
     );
 
     return $MockResults;
@@ -458,7 +458,7 @@ sub _RedefineTransport {
     my ( $Self, %Param ) = @_;
 
     {
-        no warnings 'redefine';
+        no warnings 'redefine';    ## no critic
 
         sub Kernel::GenericInterface::Transport::ProviderProcessRequest {    ## no critic
             my ( $Self, %Param ) = @_;

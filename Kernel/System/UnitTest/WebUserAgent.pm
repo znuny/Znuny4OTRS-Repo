@@ -215,7 +215,7 @@ sub Reset {
 
 =item _OverwrittenUserAgentRestore()
 
-Restores overwritten useragent.
+Restores overwritten user agent.
 
     my $Success = $UnitTestWebUserAgentObject->_OverwrittenUserAgentRestore();
 

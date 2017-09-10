@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/c5b77b7918dd1ccaf1ae1c20f997ed5c019d3f86/Kernel/System/UnitTest/Selenium.pm
+# $origin: otrs - 5238d2f8b49249644c38122eb66b2c6366acc858 - Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -10,14 +10,15 @@
 # --
 
 package Kernel::System::UnitTest::Selenium;
-## nofilter(TidyAll::Plugin::OTRS::Perl::Goto)
 use Kernel::System::UnitTest::Helper;
 
 use strict;
 use warnings;
 
 use MIME::Base64();
+use File::Path();
 use File::Temp();
+use Time::HiRes();
 
 use Kernel::Config;
 use Kernel::System::User;
@@ -31,21 +32,26 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::System::AuthSession',
     'Kernel::System::Log',
     'Kernel::System::Main',
-    'Kernel::System::Time',
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     'Kernel::System::DateTime',
+# ---
     'Kernel::System::UnitTest',
 # ---
 # Znuny4OTRS-Repo
 # ---
     'Kernel::System::JSON',
-    'Kernel::System::UnitTest::Helper',
 # ---
+    'Kernel::System::UnitTest::Helper',
 );
 
 =head1 NAME
 
-Kernel::System::UnitTest::Selenium - run frontend tests
+Kernel::System::UnitTest::Selenium - run front end tests
 
 This class inherits from Selenium::Remote::Driver. You can use
 its full API (see
@@ -54,30 +60,42 @@ L<http://search.cpan.org/~aivaturi/Selenium-Remote-Driver-0.15/lib/Selenium/Remo
 Every successful Selenium command will be logged as a successful unit test.
 In case of an error, an exception will be thrown that you can catch in your
 unit test file and handle with C<HandleError()> in this class. It will output
-a failing test result and generate a screenshot for analysis.
+a failing test result and generate a screen shot for analysis.
 
-=over 4
+=head2 new()
 
-=cut
+create a selenium object to run front end tests.
 
-=item new()
+To do this, you need a running C<selenium> or C<phantomjs> server.
 
-create a selenium object to run fontend tests.
+Specify the connection details in C<Config.pm>, like this:
 
-To do this, you need a running selenium or phantomjs server.
-
-Specify the connection details in Config.pm, like this:
-
+    # For testing with Firefox until v. 47 (testing with recent FF and marionette is currently not supported):
     $Self->{'SeleniumTestsConfig'} = {
         remote_server_addr  => 'localhost',
         port                => '4444',
-        browser_name        => 'phantomjs',
         platform            => 'ANY',
-        window_height       => 1200,    # optional, default 1000
-        window_width        => 1600,    # optional, default 1200
+        browser_name        => 'firefox',
+        extra_capabilities => {
+            marionette     => \0,   # Required to run FF 47 or older on Selenium 3+.
+        },
     };
 
-Then you can use the full API of Selenium::Remote::Driver on this object.
+    # For testing with Chrome/Chromium (requires installed geckodriver):
+    $Self->{'SeleniumTestsConfig'} = {
+        remote_server_addr  => 'localhost',
+        port                => '4444',
+        platform            => 'ANY',
+        browser_name        => 'chrome',
+        extra_capabilities => {
+            chromeOptions => {
+                # disable-infobars makes sure window size calculations are ok
+                args => [ "disable-infobars" ],
+            },
+        },
+    };
+
+Then you can use the full API of L<Selenium::Remote::Driver> on this object.
 
 =cut
 
@@ -126,10 +144,14 @@ sub new {
     $Self->{BaseURL} = $Kernel::OM->Get('Kernel::Config')->Get('HttpType') . '://';
     $Self->{BaseURL} .= Kernel::System::UnitTest::Helper->GetTestHTTPHostname();
 
+    # Remember the start system time for the selenium test run.
+    my $DateTimeObj = $Kernel::OM->Create('Kernel::System::DateTime');
+    $Self->{TestStartSystemTime} = $DateTimeObj->ToEpoch();
+
     return $Self;
 }
 
-=item RunTest()
+=head2 RunTest()
 
 runs a selenium test if Selenium testing is configured and performs proper
 error handling (calls C<HandleError()> if needed).
@@ -154,12 +176,16 @@ sub RunTest {
     return 1;
 }
 
-=item _execute_command()
+=begin Internal:
+
+=head2 _execute_command()
 
 Override internal command of base class.
 
 We use it to output successful command runs to the UnitTest object.
 Errors will cause an exeption and be caught elsewhere.
+
+=end Internal:
 
 =cut
 
@@ -171,8 +197,8 @@ sub _execute_command {    ## no critic
     my $TestName = 'Selenium command success: ';
     $TestName .= $Kernel::OM->Get('Kernel::System::Main')->Dump(
         {
-            %{ $Res    || {} },
-            %{ $Params || {} },
+            %{ $Res    || {} },    ## no critic
+            %{ $Params || {} },    ## no critic
         }
     );
 
@@ -186,7 +212,7 @@ sub _execute_command {    ## no critic
     return $Result;
 }
 
-=item get()
+=head2 get()
 
 Override get method of base class to prepend the correct base URL.
 
@@ -208,7 +234,7 @@ sub get {    ## no critic
     return;
 }
 
-=item VerifiedGet()
+=head2 VerifiedGet()
 
 perform a get() call, but wait for the page to be fully loaded (works only within OTRS).
 Will die() if the verification fails.
@@ -226,13 +252,13 @@ sub VerifiedGet {
 
     $Self->WaitFor(
         JavaScript =>
-            'return typeof(Core) == "object" && typeof(Core.Config) == "object" && Core.Config.Get("Baselink")'
+            'return typeof(Core) == "object" && typeof(Core.App) == "object" && Core.App.PageLoadComplete'
     ) || die "OTRS API verification failed after page load.";
 
     return;
 }
 
-=item VerifiedRefresh()
+=head2 VerifiedRefresh()
 
 perform a refresh() call, but wait for the page to be fully loaded (works only within OTRS).
 Will die() if the verification fails.
@@ -248,13 +274,13 @@ sub VerifiedRefresh {
 
     $Self->WaitFor(
         JavaScript =>
-            'return typeof(Core) == "object" && typeof(Core.Config) == "object" && Core.Config.Get("Baselink")'
+            'return typeof(Core) == "object" && typeof(Core.App) == "object" && Core.App.PageLoadComplete'
     ) || die "OTRS API verification failed after page load.";
 
     return;
 }
 
-=item Login()
+=head2 Login()
 
 login to agent or customer interface
 
@@ -282,34 +308,56 @@ sub Login {
 
     $Self->{UnitTestObject}->True( 1, 'Initiating login...' );
 
-    eval {
-        my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+    # we will try several times to log in
+    my $MaxTries = 5;
 
-        if ( $Param{Type} eq 'Agent' ) {
-            $ScriptAlias .= 'index.pl';
+    TRY:
+    for my $Try ( 1 .. $MaxTries ) {
+
+        eval {
+            my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
+
+            if ( $Param{Type} eq 'Agent' ) {
+                $ScriptAlias .= 'index.pl';
+            }
+            else {
+                $ScriptAlias .= 'customer.pl';
+            }
+
+            $Self->get("${ScriptAlias}");
+
+            $Self->delete_all_cookies();
+            $Self->VerifiedGet("${ScriptAlias}?Action=Login;User=$Param{User};Password=$Param{Password}");
+
+            # login successful?
+            $Self->find_element( 'a#LogoutButton', 'css' );    # dies if not found
+
+            $Self->{UnitTestObject}->True( 1, 'Login sequence ended...' );
+        };
+
+        # an error happend
+        if ($@) {
+
+            $Self->{UnitTestObject}->True( 1, "Login attempt $Try of $MaxTries not successful." );
+
+            # try again
+            next TRY if $Try < $MaxTries;
+
+            # log error
+            $Self->HandleError($@);
+            die "Login failed!";
         }
+
+        # login was sucessful
         else {
-            $ScriptAlias .= 'customer.pl';
+            last TRY;
         }
-
-        $Self->get("${ScriptAlias}");
-        $Self->delete_all_cookies();
-        $Self->VerifiedGet("${ScriptAlias}?Action=Login;User=$Param{User};Password=$Param{Password}");
-
-        # login successful?
-        $Self->find_element( 'a#LogoutButton', 'css' );    # dies if not found
-
-        $Self->{UnitTestObject}->True( 1, 'Login sequence ended...' );
-    };
-    if ($@) {
-        $Self->HandleError($@);
-        die "Login failed!";
     }
 
     return 1;
 }
 
-=item WaitFor()
+=head2 WaitFor()
 
 wait with increasing sleep intervals until the given condition is true or the wait time is over.
 Exactly one condition (JavaScript or WindowCount) must be specified.
@@ -318,6 +366,7 @@ Exactly one condition (JavaScript or WindowCount) must be specified.
         JavaScript   => 'return $(".someclass").length',   # Javascript code that checks condition
         AlertPresent => 1,                                 # Wait until an alert, confirm or prompt dialog is present
         WindowCount  => 2,                                 # Wait until this many windows are open
+        Callback     => sub { ... }                        # Wait until function returns true
         Time         => 20,                                # optional, wait time in seconds (default 20)
     );
 
@@ -326,7 +375,7 @@ Exactly one condition (JavaScript or WindowCount) must be specified.
 sub WaitFor {
     my ( $Self, %Param ) = @_;
 
-    if ( !$Param{JavaScript} && !$Param{WindowCount} && !$Param{AlertPresent} ) {
+    if ( !$Param{JavaScript} && !$Param{WindowCount} && !$Param{AlertPresent} && !$Param{Callback} ) {
         die "Need JavaScript, WindowCount or AlertPresent.";
     }
 
@@ -344,91 +393,38 @@ sub WaitFor {
             return 1 if scalar( @{ $Self->get_window_handles() } ) == $Param{WindowCount};
         }
         elsif ( $Param{AlertPresent} ) {
+
             # Eval is needed because the method would throw if no alert is present (yet).
             return 1 if eval { $Self->get_alert_text() };
         }
-        sleep $Interval;
+        elsif ( $Param{Callback} ) {
+            return 1 if $Param{Callback}->();
+        }
+        Time::HiRes::sleep($Interval);
         $WaitedSeconds += $Interval;
         $Interval += 0.1;
     }
-    return;
-}
 
-=item HandleError()
-
-use this method to handle any Selenium exceptions.
-
-    $SeleniumObject->HandleError($@);
-
-It will create a failing test result and store a screenshot of the page
-for analysis (in folder /var/otrs-unittest if it exists, in /tmp otherwise).
-
-=cut
-
-sub HandleError {
-    my ( $Self, $Error ) = @_;
-
-    $Self->{UnitTestObject}->False( 1, "Exception in Selenium': $Error" );
-
-    #eval {
-    my $Data = $Self->screenshot();
-    return if !$Data;
-    $Data = MIME::Base64::decode_base64($Data);
-
-    my $TmpDir = -d '/var/otrs-unittest/' ? '/var/otrs-unittest/' : '/tmp/';
-    $TmpDir .= 'SeleniumScreenshots/';
-    mkdir $TmpDir || return $Self->False( 1, "Could not create $TmpDir." );
-
-    my $Product = $Self->{UnitTestObject}->{Product};
-    $Product =~ s{[^a-z0-9_.\-]+}{_}smxig;
-    $TmpDir .= $Product;
-    mkdir $TmpDir || return $Self->False( 1, "Could not create $TmpDir." );
-
-    my $Filename = $Kernel::OM->Get('Kernel::System::Time')->CurrentTimestamp();
-    $Filename .= '-' . ( int rand 100_000_000 ) . '.png';
-    $Filename =~ s{[ :]}{-}smxg;
-
-    $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
-        Directory => $TmpDir,
-        Filename  => $Filename,
-        Content   => \$Data,
-    ) || return $Self->False( 1, "Could not write file $TmpDir/$Filename" );
-
-    $Self->{UnitTestObject}->False(
-        1,
-        "Saved screenshot in file://$TmpDir/$Filename",
-    );
-}
-
-=item DESTROY()
-
-cleanup. Adds a unit test result to indicate the shutdown.
-
-=cut
-
-sub DESTROY {
-    my $Self = shift;
-
-    # Could be missing on early die.
-    if ( $Self->{UnitTestObject} ) {
-        $Self->{UnitTestObject}->True( 1, "Shutting down Selenium scenario." );
+    my $Argument = '';
+    for my $Key (qw(JavaScript WindowCount AlertPresent)) {
+        $Argument = "$Key => $Param{$Key}" if $Param{$Key};
     }
+    $Argument = "Callback" if $Param{Callback};
 
-    if ( $Self->{SeleniumTestsActive} ) {
-        $Self->SUPER::DESTROY();
-    }
+    die "WaitFor($Argument) failed.";
 }
-# ---
-# Znuny4OTRS-Repo
-# ---
 
-=item DragAndDrop()
+=head2 DragAndDrop()
 
-Drag and drop an element
+Drag and drop an element.
 
     $SeleniumObject->DragAndDrop(
-        Element => '.Element', # css selector of element which should be dragged
-        Target  => '.Target',  # css selector of element on which the dragged element should be dropped
+        Element         => '.Element', # (required) css selector of element which should be dragged
+        Target          => '.Target',  # (required) css selector of element on which the dragged element should be dropped
+        TargetOffset    => {           # (optional) Offset for target. If not specified, the mouse will move to the middle of the element.
+            X   => 150,
+            Y   => 100,
+        }
     );
 
 =cut
@@ -444,8 +440,19 @@ sub DragAndDrop {
         }
     }
 
+    my %TargetOffset;
+    if ( $Param{TargetOffset} ) {
+        %TargetOffset = (
+            xoffset => $Param{TargetOffset}->{X} || 0,
+            yoffset => $Param{TargetOffset}->{Y} || 0,
+        );
+    }
+
+    # Make sure Element is visible
+    $Self->WaitFor(
+        JavaScript => 'return typeof($) === "function" && $(\'' . $Param{Element} . ':visible\').length;',
+    );
     my $Element = $Self->find_element( $Param{Element}, 'css' );
-    my $Target  = $Self->find_element( $Param{Target},  'css' );
 
     # Move mouse to from element, drag and drop
     $Self->mouse_move_to_location( element => $Element );
@@ -453,11 +460,16 @@ sub DragAndDrop {
     # Holds the mouse button on the element
     $Self->button_down();
 
+    # Make sure Target is visible
+    $Self->WaitFor(
+        JavaScript => 'return typeof($) === "function" && $(\'' . $Param{Target} . ':visible\').length;',
+    );
+    my $Target = $Self->find_element( $Param{Target}, 'css' );
+
     # Move mouse to the destination
     $Self->mouse_move_to_location(
         element => $Target,
-        xoffset => 1,
-        yoffset => 1,
+        %TargetOffset,
     );
 
     # Release
@@ -466,9 +478,130 @@ sub DragAndDrop {
     return;
 }
 
-=item InputGet()
+=head2 HandleError()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Get' function.
+use this method to handle any Selenium exceptions.
+
+    $SeleniumObject->HandleError($@);
+
+It will create a failing test result and store a screen shot of the page
+for analysis (in folder /var/otrs-unittest if it exists, in $Home/var/httpd/htdocs otherwise).
+
+=cut
+
+sub HandleError {
+    my ( $Self, $Error ) = @_;
+
+    $Self->{UnitTestObject}->False( 1, "Exception in Selenium': $Error" );
+
+    #eval {
+    my $Data = $Self->screenshot();
+    return if !$Data;
+    $Data = MIME::Base64::decode_base64($Data);
+
+    #
+    # Store screenshots in a local folder from where they can be opened directly in the browser.
+    #
+    my $LocalScreenshotDir = $Kernel::OM->Get('Kernel::Config')->Get('Home') . '/var/httpd/htdocs/SeleniumScreenshots';
+    mkdir $LocalScreenshotDir || return $Self->False( 1, "Could not create $LocalScreenshotDir." );
+
+    my $DateTimeObj = $Kernel::OM->Create('Kernel::System::DateTime');
+    my $Filename    = $DateTimeObj->ToString();
+    $Filename .= '-' . ( int rand 100_000_000 ) . '.png';
+    $Filename =~ s{[ :]}{-}smxg;
+
+    my $HttpType = $Kernel::OM->Get('Kernel::Config')->Get('HttpType');
+    my $Hostname = $Kernel::OM->Get('Kernel::System::UnitTest::Helper')->GetTestHTTPHostname();
+    my $URL      = "$HttpType://$Hostname/"
+        . $Kernel::OM->Get('Kernel::Config')->Get('Frontend::WebPath')
+        . "SeleniumScreenshots/$Filename";
+
+    $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
+        Directory => $LocalScreenshotDir,
+        Filename  => $Filename,
+        Content   => \$Data,
+    ) || return $Self->False( 1, "Could not write file $LocalScreenshotDir/$Filename" );
+
+    #
+    # If a shared screenshot folder is present, then we also store the screenshot there for external use.
+    #
+    if ( -d '/var/otrs-unittest/' ) {
+
+        my $SharedScreenshotDir = '/var/otrs-unittest/SeleniumScreenshots';
+        mkdir $SharedScreenshotDir || return $Self->False( 1, "Could not create $SharedScreenshotDir." );
+
+        $Kernel::OM->Get('Kernel::System::Main')->FileWrite(
+            Directory => $SharedScreenshotDir,
+            Filename  => $Filename,
+            Content   => \$Data,
+        ) || return $Self->False( 1, "Could not write file $SharedScreenshotDir/$Filename" );
+    }
+
+    $Self->{UnitTestObject}->False( 1, "Saved screenshot in $URL" );
+    $Self->{UnitTestObject}->AttachSeleniumScreenshot(
+        Filename => $Filename,
+        Content  => $Data
+    );
+
+    return;
+}
+
+=head2 DEMOLISH()
+
+override DEMOLISH from L<Selenium::Remote::Driver> (required because this class is managed by L<Moo>).
+Adds a unit test result to indicate the shutdown, and performs some clean-ups.
+
+=cut
+
+sub DEMOLISH {
+    my $Self = shift;
+
+    # Could be missing on early die.
+    if ( $Self->{UnitTestObject} ) {
+        $Self->{UnitTestObject}->True( 1, "Shutting down Selenium scenario." );
+    }
+
+    if ( $Self->{SeleniumTestsActive} ) {
+        $Self->SUPER::DEMOLISH(@_);
+    }
+
+    # Cleanup possibly leftover zombie firefox profiles.
+    my @LeftoverFirefoxProfiles = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+        Directory => '/tmp/',
+        Filter    => 'anonymous*webdriver-profile',
+    );
+
+    for my $LeftoverFirefoxProfile (@LeftoverFirefoxProfiles) {
+        if ( -d $LeftoverFirefoxProfile ) {
+            File::Path::remove_tree($LeftoverFirefoxProfile);
+        }
+    }
+
+    # Cleanup all sessions, which was created after the selenium test start time.
+    my $AuthSessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+
+    my @Sessions = $AuthSessionObject->GetAllSessionIDs();
+
+    SESSION:
+    for my $SessionID (@Sessions) {
+
+        my %SessionData = $AuthSessionObject->GetSessionIDData( SessionID => $SessionID );
+
+        next SESSION if !%SessionData;
+        next SESSION if $SessionData{UserSessionStart} && $SessionData{UserSessionStart} < $Self->{TestStartSystemTime};
+
+        $AuthSessionObject->RemoveSessionID( SessionID => $SessionID );
+    }
+
+    return;
+}
+# ---
+# Znuny4OTRS-Repo
+# ---
+
+=head2 InputGet()
+
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Get' function.
 
     my $Result = $SeleniumObject->InputGet(
         Attribute => 'QueueID',
@@ -478,6 +611,7 @@ Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Get' function.
     );
 
     $Result = 'Postmaster';
+
 =cut
 
 sub InputGet {
@@ -513,9 +647,9 @@ sub InputGet {
     return $Result;
 }
 
-=item InputSet()
+=head2 InputSet()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Set' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Set' function.
 
     my $Result = $SeleniumObject->InputSet(
         Attribute   => 'QueueID',
@@ -561,6 +695,7 @@ everything else like '0', 0,... will fail. Example:
     );
 
     $Result = 1;
+
 =cut
 
 sub InputSet {
@@ -617,9 +752,9 @@ sub InputSet {
     return $Result;
 }
 
-=item InputMandatory()
+=head2 InputMandatory()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Mandatory' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Mandatory' function.
 Sets OR returns the Mandatory state of an input field.
 
     # Set mandatory state:
@@ -638,6 +773,7 @@ Sets OR returns the Mandatory state of an input field.
     );
 
     $Result = 0;
+
 =cut
 
 sub InputMandatory {
@@ -653,15 +789,16 @@ sub InputMandatory {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Mandatory('$Param{Attribute}' $Mandatory);");
 }
 
-=item InputFieldID()
+=head2 InputFieldID()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'FieldID' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'FieldID' function.
 
     my $Result = $SeleniumObject->InputFieldID(
         Attribute => 'QueueID',
     );
 
     $Result = 'Dest';
+
 =cut
 
 sub InputFieldID {
@@ -670,9 +807,9 @@ sub InputFieldID {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.FieldID('$Param{Attribute}');");
 }
 
-=item InputType()
+=head2 InputType()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Type' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Type' function.
 Attention: Requires the FieldID - not the Attribute! (See InputFieldID)
 
     my $Result = $SeleniumObject->InputType(
@@ -680,6 +817,7 @@ Attention: Requires the FieldID - not the Attribute! (See InputFieldID)
     );
 
     $Result = 'select';
+
 =cut
 
 sub InputType {
@@ -688,15 +826,16 @@ sub InputType {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Type('$Param{FieldID}');");
 }
 
-=item InputHide()
+=head2 InputHide()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Hide' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Hide' function.
 
     my $Result = $SeleniumObject->InputHide(
         Attribute => 'QueueID',
     );
 
     $Result = 1;
+
 =cut
 
 sub InputHide {
@@ -705,15 +844,16 @@ sub InputHide {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Hide('$Param{Attribute}');");
 }
 
-=item InputExists()
+=head2 InputExists()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Exists' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Exists' function.
 
     my $Result = $SeleniumObject->InputExists(
         Attribute => 'QueueID',
     );
 
     $Result = 1;
+
 =cut
 
 sub InputExists {
@@ -722,15 +862,16 @@ sub InputExists {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Exists('$Param{Attribute}');");
 }
 
-=item InputShow()
+=head2 InputShow()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Show' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Show' function.
 
     my $Result = $SeleniumObject->InputShow(
         Attribute => 'QueueID',
     );
 
     $Result = 1;
+
 =cut
 
 sub InputShow {
@@ -739,15 +880,16 @@ sub InputShow {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Show('$Param{Attribute}');");
 }
 
-=item InputModule()
+=head2 InputModule()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'Module' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Module' function.
 
     my $Result = $SeleniumObject->InputModule(
         Action => 'QueueID',
     );
 
     $Result = 1;
+
 =cut
 
 sub InputModule {
@@ -756,9 +898,9 @@ sub InputModule {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Module('$Param{Action}');");
 }
 
-=item InputFieldIDMapping()
+=head2 InputFieldIDMapping()
 
-Wrapper for the Core.Form.Znuny4OTRSInput JS namespace 'FieldIDMapping' function.
+Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'FieldIDMapping' function.
 Sets OR returns the mapping structure of the given Action.
 
     my $Result = $SeleniumObject->InputFieldIDMapping(
@@ -782,6 +924,7 @@ Sets OR returns the mapping structure of the given Action.
         DestQueueID => 'DestQueueID',
         QueueID     => 'DestQueueID'
     };
+
 =cut
 
 sub InputFieldIDMapping {
@@ -801,7 +944,7 @@ sub InputFieldIDMapping {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.FieldIDMapping('$Param{Action}' $MappingParameter);");
 }
 
-=item AgentLogin()
+=head2 AgentLogin()
 
 Creates and logs in an Agent. Calls TestUserDataGet and Login on the Znuny4OTRSHelper object.
 
@@ -817,7 +960,8 @@ Creates and logs in an Agent. Calls TestUserDataGet and Login on the Znuny4OTRSH
         UserLogin     => $TestUserLogin,
         UserPw        => $TestUserLogin,
         UserEmail     => $TestUserLogin . '@localunittest.com',
-    }
+    };
+
 =cut
 
 sub AgentLogin {
@@ -839,7 +983,7 @@ sub AgentLogin {
     return %TestUser;
 }
 
-=item CustomerUserLogin()
+=head2 CustomerUserLogin()
 
 Creates and logs in an CustomerUser. Calls TestCustomerUserDataGet and Login on the Znuny4OTRSHelper object.
 
@@ -857,7 +1001,8 @@ Creates and logs in an CustomerUser. Calls TestCustomerUserDataGet and Login on 
         UserPassword   => $TestUserLogin,
         UserEmail      => $TestUserLogin . '@localunittest.com',
         ValidID        => 1,
-    }
+    };
+
 =cut
 
 sub CustomerUserLogin {
@@ -880,13 +1025,14 @@ sub CustomerUserLogin {
 }
 
 
-=item SwitchToPopUp()
+=head2 SwitchToPopUp()
 
 Switches the Selenium context to the PopUp
 
     $SeleniumObject->SwitchToPopUp(
         WaitForAJAX => 0, # optional, default 1
     );
+
 =cut
 
 sub SwitchToPopUp {
@@ -908,11 +1054,12 @@ sub SwitchToPopUp {
     }
 
     $Self->AJAXCompleted();
+    return;
 }
 
-=item SwitchToMainWindow()
+=head2 SwitchToMainWindow()
 
-Switches the Selenium conetext to the main window
+Switches the Selenium context to the main window
 
     $SeleniumObject->SwitchToMainWindow(
         WaitForAJAX => 0, # optional, default 1
@@ -934,9 +1081,10 @@ sub SwitchToMainWindow {
     }
 
     $Self->AJAXCompleted();
+    return;
 }
 
-=item PageContains()
+=head2 PageContains()
 
 Checks if the currently opened page contains the given String
 
@@ -944,6 +1092,7 @@ Checks if the currently opened page contains the given String
         String  => 'Ticked locked.',
         Message => "Page contains 'Ticket locked.'" # optional - default
     );
+
 =cut
 
 sub PageContains {
@@ -956,35 +1105,39 @@ sub PageContains {
         index( $Self->get_page_source(), $Param{String} ) > -1,
         $UnitTestMessage,
     );
+    return;
 }
 
-=item PageContainsNot()
+=head2 PageContainsNot()
 
-Checks if the currently opened page doesn't contain the given String
+Checks if the currently opened page does not contain the given String
 
     $SeleniumObject->PageContainsNot(
         String  => 'Ticked locked.',
-        Message => "Page doesn't contain 'Ticket locked.'" # optional - default
+        Message => "Page does not contain 'Ticket locked.'" # optional - default
     );
+
 =cut
 
 sub PageContainsNot {
     my ( $Self, %Param ) = @_;
 
     my $UnitTestMessage = $Param{Message};
-    $UnitTestMessage  ||= "Page doesn't contain '$Param{String}'";
+    $UnitTestMessage  ||= "Page does not contain '$Param{String}'";
 
     $Self->{UnitTestObject}->False(
         index( $Self->get_page_source(), $Param{String} ) > -1,
         $UnitTestMessage,
     );
+    return;
 }
 
-=item AJAXCompleted()
+=head2 AJAXCompleted()
 
 Waits for AJAX requests to be completed by checking the jQuery 'active' attribute.
 
     $SeleniumObject->AJAXCompleted();
+
 =cut
 
 sub AJAXCompleted {
@@ -1001,9 +1154,10 @@ sub AJAXCompleted {
         $AJAXCompletedLoading,
         'AJAX requests have finished loading.'
     );
+    return;
 }
 
-=item AgentInterface()
+=head2 AgentInterface()
 
 Performs a GET request to the AgentInterface with the given parameters. Interally _GETInterface is called.
 
@@ -1011,21 +1165,22 @@ Performs a GET request to the AgentInterface with the given parameters. Interall
         Action      => 'AgentTicketZoom',
         WaitForAJAX => 0,                     # optional, default 1
     );
+
 =cut
 
 sub AgentInterface {
     my ( $Self, %Param ) = @_;
 
-    $Self->_GETInterface(
+    return $Self->_GETInterface(
         Interface   => 'Agent',
         WaitForAJAX => delete $Param{WaitForAJAX},
         Param       => \%Param,
     );
 }
 
-=item AgentRequest()
+=head2 AgentRequest()
 
-Performs a GET request to a non-JS controller in the AgentInterface with the given parameters. Interally _GETRequest is called.
+Performs a GET request to a non-JavaScript controller in the AgentInterface with the given parameters. Interally _GETRequest is called.
 
     $SeleniumObject->AgentRequest(
         Action      => 'CustomerUserSearch',
@@ -1033,18 +1188,19 @@ Performs a GET request to a non-JS controller in the AgentInterface with the giv
             Term => 'test-customer-user'
         }
     );
+
 =cut
 
 sub AgentRequest {
     my ( $Self, %Param ) = @_;
 
-    $Self->_GETRequest(
+    return $Self->_GETRequest(
         Interface => 'Agent',
         Param     => \%Param,
     );
 }
 
-=item CustomerInterface()
+=head2 CustomerInterface()
 
 Performs a GET request to the CustomerInterface with the given parameters. Interally _GETInterface is called.
 
@@ -1052,21 +1208,22 @@ Performs a GET request to the CustomerInterface with the given parameters. Inter
         Action      => 'CustomerTicketMessage',
         WaitForAJAX => 0,                      # optional, default 1
     );
+
 =cut
 
 sub CustomerInterface {
     my ( $Self, %Param ) = @_;
 
-    $Self->_GETInterface(
+    return $Self->_GETInterface(
         Interface   => 'Customer',
         WaitForAJAX => delete $Param{WaitForAJAX},
         Param       => \%Param,
     );
 }
 
-=item CustomerRequest()
+=head2 CustomerRequest()
 
-Performs a GET request to a non-JS controller in the CustomerInterface with the given parameters. Interally _GETRequest is called.
+Performs a GET request to a non-JavaScript controller in the CustomerInterface with the given parameters. Interally _GETRequest is called.
 
     $SeleniumObject->CustomerRequest(
         Action      => 'CustomerUserSearch',
@@ -1074,18 +1231,19 @@ Performs a GET request to a non-JS controller in the CustomerInterface with the 
             Term => 'test-customer-user'
         }
     );
+
 =cut
 
 sub CustomerRequest {
     my ( $Self, %Param ) = @_;
 
-    $Self->_GETRequest(
+    return $Self->_GETRequest(
         Interface => 'Customer',
         Param     => \%Param,
     );
 }
 
-=item PublicInterface()
+=head2 PublicInterface()
 
 Performs a GET request to the PublicInterface with the given parameters. Interally _GETInterface is called.
 
@@ -1093,21 +1251,22 @@ Performs a GET request to the PublicInterface with the given parameters. Interal
         Action      => 'PublicFAQ',
         WaitForAJAX => 0,             # optional, default 1
     );
+
 =cut
 
 sub PublicInterface {
     my ( $Self, %Param ) = @_;
 
-    $Self->_GETInterface(
+    return $Self->_GETInterface(
         Interface   => 'Public',
         WaitForAJAX => delete $Param{WaitForAJAX},
         Param       => \%Param,
     );
 }
 
-=item PublicRequest()
+=head2 PublicRequest()
 
-Performs a GET request to a non-JS controller in the PublicInterface with the given parameters. Interally _GETRequest is called.
+Performs a GET request to a non-JavaScript controller in the PublicInterface with the given parameters. Interally _GETRequest is called.
 
     $SeleniumObject->PublicRequest(
         Action      => 'PublicUserSearch',
@@ -1115,22 +1274,23 @@ Performs a GET request to a non-JS controller in the PublicInterface with the gi
             Term => 'test-customer-user'
         }
     );
+
 =cut
 
 sub PublicRequest {
     my ( $Self, %Param ) = @_;
 
-    $Self->_GETRequest(
+    return $Self->_GETRequest(
         Interface => 'Public',
         Param     => \%Param,
     );
 }
 
-=item _GETInterface()
+=head2 _GETInterface()
 
 Performs a GET request to the given Interface with the given parameters. Interally VerifiedGet is called.
 Request waits till page has finished loading via checking if the jQuery Object has been initialized and
-all AJAX requests are compleded via function AJAXCompleted.
+all AJAX requests are completed via function AJAXCompleted.
 
     $SeleniumObject->_GETInterface(
         Interface   => 'Agent',           # or Customer or Public
@@ -1139,7 +1299,9 @@ all AJAX requests are compleded via function AJAXCompleted.
             Action => AgentTicketZoom,
         }
     );
+
 =cut
+
 sub _GETInterface {
     my ( $Self, %Param ) = @_;
 
@@ -1161,9 +1323,10 @@ sub _GETInterface {
     }
 
     $Self->AJAXCompleted();
+    return;
 }
 
-=item _GETRequest()
+=head2 _GETRequest()
 
 Performs a GET request to a Request endpoint in the given Interface with the given parameters. Interally Seleniums get is called.
 
@@ -1173,16 +1336,18 @@ Performs a GET request to a Request endpoint in the given Interface with the giv
             Action => AgentTicketZoom,
         }
     );
+
 =cut
+
 sub _GETRequest {
     my ( $Self, %Param ) = @_;
 
     my $RequestURL = $Self->RequestURLBuild( %Param );
 
-    $Self->get($RequestURL);
+    return $Self->get($RequestURL);
 }
 
-=item RequestURLBuild()
+=head2 RequestURLBuild()
 
 This function builds a requestable HTTP GET URL to the given OTRS interface with the given parameters
 
@@ -1221,7 +1386,7 @@ sub RequestURLBuild {
     return $RequestURL;
 }
 
-=item _Hash2GETParamString()
+=head2 _Hash2GETParamString()
 
 Converts a Hash into a GET Parameter String, without the leading ?. Inspired by http://stackoverflow.com/a/449204
 
@@ -1235,7 +1400,8 @@ Converts a Hash into a GET Parameter String, without the leading ?. Inspired by 
         TicketID => \@TicketIDs,
     );
 
-    $Result = 'Action=AgentTicketZoom;TicketID=1'
+    $Result = 'Action=AgentTicketZoom;TicketID=1';
+
 =cut
 
 sub _Hash2GETParamString {
@@ -1255,7 +1421,7 @@ sub _Hash2GETParamString {
     return join ';', @Pairs;
 }
 
-=item FindElementSave()
+=head2 FindElementSave()
 
 This function is a wrapper around the 'find_element' function which can be used to check if elements are even present.
 
@@ -1297,9 +1463,9 @@ sub FindElementSave {
     return $Element;
 }
 
-=item ElementExists()
+=head2 ElementExists()
 
-This function checks if a given element exisits.
+This function checks if a given element exists.
 
     $SeleniumObject->ElementExists(
         Selector     => '#GroupID',
@@ -1335,9 +1501,9 @@ sub ElementExists {
     );
 }
 
-=item ElementExistsNot()
+=head2 ElementExistsNot()
 
-This function checks if a given element doesn't exisit.
+This function checks if a given element does not exist.
 
     $SeleniumObject->ElementExistsNot(
         Selector     => '#GroupID',
@@ -1363,7 +1529,7 @@ sub ElementExistsNot {
         );
         return;
     }
-    $Param{Message} ||= "Element '$Param{Selector}' doesn't exist.";
+    $Param{Message} ||= "Element '$Param{Selector}' does not exist.";
 
     my $Element = $Self->FindElementSave( %Param );
 
@@ -1373,24 +1539,9 @@ sub ElementExistsNot {
     );
 }
 
-=item SysConfig()
-
-DEPRECATED!!!! So yound and already dead :(
-
-Please use Kernel::System::UnitTest::Helper->ConfigSettingChange instead!
-
-=cut
-
-sub SysConfig {
-    my ( $Self, %Param ) = @_;
-    die "DEPRECATED! Please use Kernel::System::UnitTest::Helper->ConfigSettingChange instead!\n";
-}
-
 # ---
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 

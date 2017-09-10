@@ -14,12 +14,6 @@ use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
 
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
-    },
-);
-
 my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
@@ -38,7 +32,7 @@ my @Email = $UnitTestEmailObject->EmailGet();
 
 $Self->False(
     scalar @Email,
-    "No Emails received after cleanup",
+    'No Emails received after cleanup',
 );
 
 my $Sent = $EmailObject->Send(
@@ -78,6 +72,6 @@ $Success = $UnitTestEmailObject->MailCleanup();
 
 $Self->False(
     scalar @Email,
-    "No Emails after cleanup",
+    'No Emails after cleanup',
 );
 1;

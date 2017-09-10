@@ -74,33 +74,7 @@ sub new {
     my $Self = \%Param;
     bless( $Self, $Type );
 
-    # rebuild ZZZ* files
-    $Kernel::OM->Get('Kernel::System::SysConfig')->WriteDefault();
-
-    # define the ZZZ files
-    my @ZZZFiles = (
-        'ZZZAAuto.pm',
-        'ZZZAuto.pm',
-    );
-
-    # disable redefine warnings in this scope
-    {
-        no warnings 'redefine';
-
-        # reload the ZZZ files (mod_perl workaround)
-        for my $ZZZFile (@ZZZFiles) {
-
-            PREFIX:
-            for my $Prefix (@INC) {
-                my $File = $Prefix . '/Kernel/Config/Files/' . $ZZZFile;
-                next PREFIX if !-f $File;
-                do $File;
-                last PREFIX;
-            }
-        }
-
-        # reset all warnings
-    }
+    $Self->_PackageSetupInit();
 
     return $Self;
 }
@@ -205,10 +179,15 @@ sub _PostmasterXHeaderAdd {
         $ConfiguredHeaders{$HeaderToAdd} = 1;
     }
 
-    return $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => 'PostmasterX-Header',
-        Value => [ sort keys %ConfiguredHeaders ],
+    return $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => 'PostmasterX-Header',
+                IsValid        => 1,
+                EffectiveValue => [ sort keys %ConfiguredHeaders ],
+            },
+        ],
+        UserID => 1,
     );
 }
 
@@ -276,10 +255,15 @@ sub _PostmasterXHeaderRemove {
         delete $ConfiguredHeaders{$HeaderToRemove};
     }
 
-    return $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => 'PostmasterX-Header',
-        Value => [ sort keys %ConfiguredHeaders ],
+    return $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => 'PostmasterX-Header',
+                IsValid        => 1,
+                EffectiveValue => [ sort keys %ConfiguredHeaders ],
+            },
+        ],
+        UserID => 1,
     );
 }
 
@@ -353,10 +337,15 @@ sub _EventAdd {
         push @ConfigEvents, $AddEvent;
     }
 
-    return $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => "Events###" . $Param{Object},
-        Value => \@ConfigEvents,
+    return $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => 'Events###' . $Param{Object},
+                IsValid        => 1,
+                EffectiveValue => \@ConfigEvents,
+            },
+        ],
+        UserID => 1,
     );
 }
 
@@ -429,10 +418,15 @@ sub _EventRemove {
         push @ConfigEvents, $CurrentEvent;
     }
 
-    return $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => "Events###" . $Param{Object},
-        Value => \@ConfigEvents,
+    return $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => 'Events###' . $Param{Object},
+                IsValid        => 1,
+                EffectiveValue => \@ConfigEvents,
+            },
+        ],
+        UserID => 1,
     );
 }
 
@@ -458,6 +452,10 @@ Returns:
 sub _LoaderAdd {
     my ( $Self, %Param ) = @_;
 
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+
     # define the enabled dynamic fields for each screen
     my %LoaderConfig = %Param;
 
@@ -474,10 +472,10 @@ sub _LoaderAdd {
         }
 
         # get existing config for each View
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
+        my $Config = $ConfigObject->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
             );
@@ -518,11 +516,15 @@ sub _LoaderAdd {
         $Config->{Loader}->{JavaScript} = \@JSLoaderFiles;
         $Config->{Loader}->{CSS}        = \@CSSLoaderFiles;
 
-        # update the sysconfig
-        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $CustomerInterfacePrefix . "Frontend::Module###" . $View,
-            Value => $Config,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
+                    IsValid        => 1,
+                    EffectiveValue => $Config,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -551,6 +553,10 @@ Returns:
 sub _LoaderRemove {
     my ( $Self, %Param ) = @_;
 
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %LoaderConfig = %Param;
@@ -567,10 +573,10 @@ sub _LoaderRemove {
         }
 
         # get existing config for each View
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
+        my $Config = $ConfigObject->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
             );
@@ -625,11 +631,15 @@ sub _LoaderRemove {
             $Config->{Loader}->{CSS} = \@NewCSSLoaderFiles;
         }
 
-        # update the sysconfig
-        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
-            Value => $Config,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
+                    IsValid        => 1,
+                    EffectiveValue => $Config,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -684,7 +694,8 @@ sub _ValidDynamicFieldScreenListGet {
     $Param{Result} = lc( $Param{Result} // 'array' );
 
     my $ValidScreens;
-    for my $Screen (qw( DynamicFieldScreens DefaultColumnsScreens)) {
+    SCREEN:
+    for my $Screen (qw(DynamicFieldScreens DefaultColumnsScreens)) {
 
         $ValidScreens->{$Screen} = {};
         my $ScreenRegistrations = $ConfigObject->Get($Screen);
@@ -705,10 +716,10 @@ sub _ValidDynamicFieldScreenListGet {
             delete $ValidScreens->{$Screen}->{$CurrentConfig} if !defined $ConfigData->{$Key};
         }
 
-        if ( $Param{Result} eq 'array' ) {
-            my @Array = sort keys %{ $ValidScreens->{$Screen} };
-            $ValidScreens->{$Screen} = \@Array;
-        }
+        next SCREEN if lc $Param{Result} ne 'array';
+
+        my @Array = sort keys %{ $ValidScreens->{$Screen} };
+        $ValidScreens->{$Screen} = \@Array;
     }
 
     return $ValidScreens;
@@ -804,10 +815,10 @@ sub _DefaultColumnsGet {
 
         # checks if substructure of DefaultColumns exists in settings
         if ( $ExistingSetting{DefaultColumns} ) {
-            $Configs{$View} = $ExistingSetting{DefaultColumns},
+            $Configs{$View} = $ExistingSetting{DefaultColumns};
         }
         else {
-            $Configs{$View} = \%ExistingSetting,
+            $Configs{$View} = \%ExistingSetting;
         }
     }
 
@@ -933,10 +944,15 @@ sub _DefaultColumnsEnable {
 
         # update the SysConfig
         my $SysConfigKey = join '###', @Keys;
-        my $Success = $SysConfigObject->ConfigItemUpdate(
-            Key   => $SysConfigKey,
-            Value => \%NewDynamicFieldConfig,
-            Valid => 1,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $SysConfigKey,
+                    IsValid        => 1,
+                    EffectiveValue => \%NewDynamicFieldConfig,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -1052,10 +1068,15 @@ sub _DefaultColumnsDisable {
         }
 
         my $SysConfigKey = join '###', @Keys;
-        my $Success = $SysConfigObject->ConfigItemUpdate(
-            Key   => $SysConfigKey,
-            Value => \%NewDynamicFieldConfig,
-            Valid => 1,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $SysConfigKey,
+                    IsValid        => 1,
+                    EffectiveValue => \%NewDynamicFieldConfig,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -1285,6 +1306,9 @@ Returns:
 sub _DynamicFieldsScreenEnable {
     my ( $Self, %Param ) = @_;
 
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
@@ -1326,7 +1350,7 @@ sub _DynamicFieldsScreenEnable {
             push @Keys, 'DynamicField';
         }
 
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $Keys[0] );
+        my $Config = $ConfigObject->Get( $Keys[0] );
         INDEX:
         for my $Index ( 1 ... $#Keys ) {
             last INDEX if !IsHashRefWithData($Config);
@@ -1347,10 +1371,15 @@ sub _DynamicFieldsScreenEnable {
 
         # update the sysconfig
         my $SysConfigKey = join '###', @Keys;
-        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Key   => $SysConfigKey,
-            Value => \%NewDynamicFieldConfig,
-            Valid => 1,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $SysConfigKey,
+                    IsValid        => 1,
+                    EffectiveValue => \%NewDynamicFieldConfig,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -1410,6 +1439,9 @@ Returns:
 sub _DynamicFieldsScreenDisable {
     my ( $Self, %Param ) = @_;
 
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
@@ -1451,7 +1483,7 @@ sub _DynamicFieldsScreenDisable {
             push @Keys, 'DynamicField';
         }
 
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $Keys[0] );
+        my $Config = $ConfigObject->Get( $Keys[0] );
         INDEX:
         for my $Index ( 1 ... $#Keys ) {
             last INDEX if !IsHashRefWithData($Config);
@@ -1470,10 +1502,15 @@ sub _DynamicFieldsScreenDisable {
         }
 
         my $SysConfigKey = join '###', @Keys;
-        my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
-            Key   => $SysConfigKey,
-            Value => \%NewDynamicFieldConfig,
-            Valid => 1,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $SysConfigKey,
+                    IsValid        => 1,
+                    EffectiveValue => \%NewDynamicFieldConfig,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -1501,10 +1538,13 @@ Returns:
 sub _DynamicFieldsDelete {
     my ( $Self, @DynamicFields ) = @_;
 
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
     return 1 if !@DynamicFields;
 
     # get all current dynamic fields
-    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+    my $DynamicFieldList = $DynamicFieldObject->DynamicFieldListGet(
         Valid => 0,
     );
 
@@ -1527,12 +1567,12 @@ sub _DynamicFieldsDelete {
 
         next DYNAMICFIELD if !IsHashRefWithData( $DynamicFieldLookup{$DynamicFieldName} );
 
-        my $ValuesDeleteSuccess = $Kernel::OM->Get('Kernel::System::DynamicField::Backend')->AllValuesDelete(
+        $BackendObject->AllValuesDelete(
             DynamicFieldConfig => $DynamicFieldLookup{$DynamicFieldName},
             UserID             => 1,
         );
 
-        my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldDelete(
+        $DynamicFieldObject->DynamicFieldDelete(
             %{ $DynamicFieldLookup{$DynamicFieldName} },
             Reorder => 0,
             UserID  => 1,
@@ -1563,10 +1603,13 @@ Returns:
 sub _DynamicFieldsDisable {
     my ( $Self, @DynamicFields ) = @_;
 
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $ValidObject        = $Kernel::OM->Get('Kernel::System::Valid');
+
     return 1 if !@DynamicFields;
 
     # get all current dynamic fields
-    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+    my $DynamicFieldList = $DynamicFieldObject->DynamicFieldListGet(
         Valid => 0,
     );
 
@@ -1583,7 +1626,7 @@ sub _DynamicFieldsDisable {
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
 
-    my $InvalidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $InvalidID = $ValidObject->ValidLookup(
         Valid => 'invalid',
     );
 
@@ -1593,7 +1636,7 @@ sub _DynamicFieldsDisable {
 
         next DYNAMICFIELD if !$DynamicFieldLookup{$DynamicFieldName};
 
-        my $Success = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldUpdate(
+        $DynamicFieldObject->DynamicFieldUpdate(
             %{ $DynamicFieldLookup{$DynamicFieldName} },
             ValidID => $InvalidID,
             Reorder => 0,
@@ -1648,8 +1691,10 @@ Returns:
 sub _DynamicFieldsCreateIfNotExists {
     my ( $Self, @Definition ) = @_;
 
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
     # get all current dynamic fields
-    my $DynamicFieldList = $Kernel::OM->Get('Kernel::System::DynamicField')->DynamicFieldListGet(
+    my $DynamicFieldList = $DynamicFieldObject->DynamicFieldListGet(
         Valid => 0,
     );
 
@@ -1719,11 +1764,12 @@ Returns:
 sub _DynamicFieldsCreate {
     my ( $Self, @DynamicFields ) = @_;
 
-    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $ValidObject        = $Kernel::OM->Get('Kernel::System::Valid');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    my $ValidID = $ValidObject->ValidLookup(
         Valid => 'valid',
     );
-
-    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
 
     # get all current dynamic fields
     my $DynamicFieldList = $DynamicFieldObject->DynamicFieldListGet(
@@ -2225,6 +2271,30 @@ sub _PostMasterFilterCreate {
         # get filter
         my %Filter = %{$NewPostMasterFilter};
 
+        my @ConvertStructureKeys = qw(Match Not Set);
+
+        KEY:
+        for my $ConvertStructureKey (@ConvertStructureKeys) {
+
+            my $HashRef = $Filter{$ConvertStructureKey};
+            next KEY if !IsHashRefWithData($HashRef);
+
+            my @NewStructure;
+            for my $ConfigKey ( sort keys %{$HashRef} ) {
+                my $ConfigValue = $HashRef->{$ConfigKey};
+
+                push(
+                    @NewStructure,
+                    {
+                        Key   => $ConfigKey,
+                        Value => $ConfigValue,
+                    }
+                );
+            }
+
+            $Filter{$ConvertStructureKey} = \@NewStructure;
+        }
+
         # delete first (because no update function exists)
         $PMFilterObject->FilterDelete(%Filter);
 
@@ -2300,20 +2370,23 @@ Returns:
 sub _GroupCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %GroupsReversed = $Kernel::OM->Get('Kernel::System::Group')->GroupList(
+    my %GroupsReversed = $GroupObject->GroupList(
         Valid => 0,
     );
     %GroupsReversed = reverse %GroupsReversed;
@@ -2321,7 +2394,7 @@ sub _GroupCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %GroupsReversed );
     return $ItemID if $ItemID;
 
-    return $Kernel::OM->Get('Kernel::System::Group')->GroupAdd(
+    return $GroupObject->GroupAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
@@ -2345,20 +2418,23 @@ Returns:
 sub _RoleCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %RolesReversed = $Kernel::OM->Get('Kernel::System::Group')->RoleList(
+    my %RolesReversed = $GroupObject->RoleList(
         Valid => 0,
     );
     %RolesReversed = reverse %RolesReversed;
@@ -2366,7 +2442,7 @@ sub _RoleCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %RolesReversed );
     return $ItemID if $ItemID;
 
-    return $Kernel::OM->Get('Kernel::System::Group')->RoleAdd(
+    return $GroupObject->RoleAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
@@ -2390,20 +2466,23 @@ Returns:
 sub _TypeCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $TypeObject = $Kernel::OM->Get('Kernel::System::Type');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %TypesReversed = $Kernel::OM->Get('Kernel::System::Type')->TypeList(
+    my %TypesReversed = $TypeObject->TypeList(
         Valid => 0,
     );
     %TypesReversed = reverse %TypesReversed;
@@ -2411,7 +2490,7 @@ sub _TypeCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %TypesReversed );
     return $ItemID if $ItemID;
 
-    return $Kernel::OM->Get('Kernel::System::Type')->TypeAdd(
+    return $TypeObject->TypeAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
@@ -2435,20 +2514,23 @@ Returns:
 sub _PriorityCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject      = $Kernel::OM->Get('Kernel::System::Log');
+    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %PrioritysReversed = $Kernel::OM->Get('Kernel::System::Priority')->PriorityList(
+    my %PrioritysReversed = $PriorityObject->PriorityList(
         Valid => 0,
     );
     %PrioritysReversed = reverse %PrioritysReversed;
@@ -2456,7 +2538,7 @@ sub _PriorityCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %PrioritysReversed );
     return $ItemID if $ItemID;
 
-    return $Kernel::OM->Get('Kernel::System::Priority')->PriorityAdd(
+    return $PriorityObject->PriorityAdd(
         ValidID => 1,
         UserID  => 1,
         %Param,
@@ -2482,20 +2564,23 @@ Returns:
 sub _StateCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $StateObject = $Kernel::OM->Get('Kernel::System::State');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %StatesReversed = $Kernel::OM->Get('Kernel::System::State')->StateList(
+    my %StatesReversed = $StateObject->StateList(
         Valid  => 0,
         UserID => 1
     );
@@ -2504,7 +2589,7 @@ sub _StateCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %StatesReversed );
     return $ItemID if $ItemID;
 
-    return $Kernel::OM->Get('Kernel::System::State')->StateAdd(
+    return $StateObject->StateAdd(
         %Param,
         ValidID => 1,
         UserID  => 1,
@@ -2531,10 +2616,13 @@ Returns:
 sub _StateDisable {
     my ( $Self, @States ) = @_;
 
+    my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+    my $StateObject = $Kernel::OM->Get('Kernel::System::State');
+
     return 1 if !@States;
 
     #get current invalid id
-    my $InvalidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $InvalidID = $ValidObject->ValidLookup(
         Valid => 'invalid',
     );
 
@@ -2544,12 +2632,12 @@ sub _StateDisable {
     STATE:
     for my $StateName (@States) {
 
-        my %State = $Kernel::OM->Get('Kernel::System::State')->StateGet(
+        my %State = $StateObject->StateGet(
             Name => $StateName,
         );
         next STATE if !%State;
 
-        my $UpdateSuccess = $Kernel::OM->Get('Kernel::System::State')->StateUpdate(
+        my $UpdateSuccess = $StateObject->StateUpdate(
             %State,
             ValidID => $InvalidID,
             UserID  => 1,
@@ -2565,7 +2653,7 @@ sub _StateDisable {
 
 =item _StateTypeCreateIfNotExists()
 
-creates statetypes if not exists
+creates state types if not exists
 
     my $StateTypeID = $ZnunyHelperObject->_StateTypeCreateIfNotExists(
         Name    => 'New StateType',
@@ -2578,31 +2666,36 @@ creates statetypes if not exists
 sub _StateTypeCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+    my $DBObject  = $Kernel::OM->Get('Kernel::System::DB');
+
     # check needed stuff
+    NEEDED:
     for my $Needed (qw(Name UserID)) {
-        if ( !$Param{$Needed} ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Need $Needed!"
-            );
-            return;
-        }
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
     }
 
     # check if exists
-    $Kernel::OM->Get('Kernel::System::DB')->Prepare(
+    $DBObject->Prepare(
         SQL   => 'SELECT name FROM ticket_state_type WHERE name = ?',
         Bind  => [ \$Param{Name} ],
         Limit => 1,
     );
     my $Exists;
-    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
+    while ( my @Row = $DBObject->FetchrowArray() ) {
         $Exists = 1;
     }
     return 1 if $Exists;
 
     # create new
-    return if !$Kernel::OM->Get('Kernel::System::DB')->Do(
+    return if !$DBObject->Do(
         SQL => 'INSERT INTO ticket_state_type (name, comments,'
             . ' create_time, create_by, change_time, change_by)'
             . ' VALUES (?, ?, current_timestamp, ?, current_timestamp, ?)',
@@ -2613,7 +2706,7 @@ sub _StateTypeCreateIfNotExists {
     );
 
     # get new statetype id
-    return if !$Kernel::OM->Get('Kernel::System::DB')->Prepare(
+    return if !$DBObject->Prepare(
         SQL   => 'SELECT id FROM ticket_state_type WHERE name = ?',
         Bind  => [ \$Param{Name} ],
         Limit => 1,
@@ -2621,14 +2714,12 @@ sub _StateTypeCreateIfNotExists {
 
     # fetch the result
     my $ID;
-    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
+    while ( my @Row = $DBObject->FetchrowArray() ) {
         $ID = $Row[0];
     }
 
     return if !$ID;
-
     return $ID;
-
 }
 
 =item _ServiceCreateIfNotExists()
@@ -2649,13 +2740,16 @@ Returns:
 sub _ServiceCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject     = $Kernel::OM->Get('Kernel::System::Log');
+    my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -2668,7 +2762,7 @@ sub _ServiceCreateIfNotExists {
     $Param{TypeID}      ||= '2';
     $Param{Criticality} ||= '3 normal';
 
-    my %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
+    my %ServiceReversed = $ServiceObject->ServiceList(
         Valid  => 0,
         UserID => 1
     );
@@ -2690,14 +2784,14 @@ sub _ServiceCreateIfNotExists {
         my $ParentID;
         if ($CompleteServiceName) {
 
-            $ParentID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
+            $ParentID = $ServiceObject->ServiceLookup(
                 Name   => $CompleteServiceName,
                 UserID => 1,
             );
 
             if ( !$ParentID ) {
 
-                $Kernel::OM->Get('Kernel::System::Log')->Log(
+                $LogObject->Log(
                     Priority => 'error',
                     Message  => "Error while getting ServiceID for parent service "
                         . "'$CompleteServiceName' for new service '" . $Name . "'.",
@@ -2716,7 +2810,7 @@ sub _ServiceCreateIfNotExists {
             next SERVICE;
         }
 
-        $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+        $ServiceID = $ServiceObject->ServiceAdd(
             %Param,
             Name     => $ServiceName,
             ParentID => $ParentID,
@@ -2726,14 +2820,14 @@ sub _ServiceCreateIfNotExists {
 
         if ( !$ServiceID ) {
 
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while adding new service '$ServiceName' ($ParentID).",
             );
             return;
         }
 
-        %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
+        %ServiceReversed = $ServiceObject->ServiceList(
             Valid  => 0,
             UserID => 1
         );
@@ -2767,13 +2861,17 @@ Returns:
 sub _SLACreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $SLAObject   = $Kernel::OM->Get('Kernel::System::SLA');
+    my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -2784,7 +2882,7 @@ sub _SLACreateIfNotExists {
     $Param{TypeID}      ||= '2';
     $Param{Criticality} ||= '3 normal';
 
-    my %SLAReversed = $Kernel::OM->Get('Kernel::System::SLA')->SLAList(
+    my %SLAReversed = $SLAObject->SLAList(
         UserID => 1
     );
     %SLAReversed = reverse %SLAReversed;
@@ -2792,10 +2890,10 @@ sub _SLACreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %SLAReversed );
     return $ItemID if $ItemID;
 
-    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $ValidID = $ValidObject->ValidLookup(
         Valid => 'valid',
     );
-    my $SLAID = $Kernel::OM->Get('Kernel::System::SLA')->SLAAdd(
+    my $SLAID = $SLAObject->SLAAdd(
         %Param,
         ValidID => $ValidID,
         UserID  => 1,
@@ -2828,20 +2926,24 @@ Returns:
 sub _UserCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $UserObject  = $Kernel::OM->Get('Kernel::System::User');
+    my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(UserLogin)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %UserListReversed = $Kernel::OM->Get('Kernel::System::User')->UserList(
+    my %UserListReversed = $UserObject->UserList(
         Type   => 'Short',
         UserID => 1,
     );
@@ -2850,10 +2952,10 @@ sub _UserCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{UserLogin}, %UserListReversed );
     return $ItemID if $ItemID;
 
-    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $ValidID = $ValidObject->ValidLookup(
         Valid => 'valid',
     );
-    my $UserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+    my $UserID = $UserObject->UserAdd(
         %Param,
         ValidID => $ValidID,
         UserID  => 1,
@@ -2885,24 +2987,28 @@ Returns:
 sub _CustomerUserCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
+    my $ValidObject        = $Kernel::OM->Get('Kernel::System::Valid');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(UserLogin)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %CustomerUserReversedValid = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerSearch(
+    my %CustomerUserReversedValid = $CustomerUserObject->CustomerSearch(
         UserLogin => $Param{UserLogin},
         Valid     => 1,
     );
-    my %CustomerUserReversedInValid = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerSearch(
+    my %CustomerUserReversedInValid = $CustomerUserObject->CustomerSearch(
         UserLogin => $Param{UserLogin},
         Valid     => 0,
     );
@@ -2916,10 +3022,10 @@ sub _CustomerUserCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{UserLogin}, %CustomerUserReversed );
     return $Param{UserLogin} if $ItemID;
 
-    my $ValidID = $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $ValidID = $ValidObject->ValidLookup(
         Valid => 'valid',
     );
-    my $CustomerUserID = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+    my $CustomerUserID = $CustomerUserObject->CustomerUserAdd(
         %Param,
         ValidID => $ValidID,
         UserID  => 1,
@@ -2946,13 +3052,16 @@ Returns:
 sub _QueueCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $QueueObject = $Kernel::OM->Get('Kernel::System::Queue');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name GroupID)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -2961,7 +3070,7 @@ sub _QueueCreateIfNotExists {
 
     my $Name = $Param{Name};
 
-    my %QueueReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList(
+    my %QueueReversed = $QueueObject->QueueList(
         UserID => 1
     );
     %QueueReversed = reverse %QueueReversed;
@@ -2991,7 +3100,7 @@ sub _QueueCreateIfNotExists {
             next QUEUE;
         }
 
-        $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+        $QueueID = $QueueObject->QueueAdd(
             %Param,
             Name          => $CompleteQueueName,
             ParentQueueID => $QueueID,
@@ -3000,15 +3109,14 @@ sub _QueueCreateIfNotExists {
         );
 
         if ( !$QueueID ) {
-
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while adding new Queue '$QueueName' ($QueueID).",
             );
             return;
         }
 
-        %QueueReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList(
+        %QueueReversed = $QueueObject->QueueList(
             UserID => 1,
         );
         %QueueReversed = reverse %QueueReversed;
@@ -3037,24 +3145,27 @@ Returns:
 sub _GeneralCatalogItemCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject            = $Kernel::OM->Get('Kernel::System::Log');
+    my $DBObject             = $Kernel::OM->Get('Kernel::System::DB');
+    my $GroupObject          = $Kernel::OM->Get('Kernel::System::Group');
+    my $MainObject           = $Kernel::OM->Get('Kernel::System::Main');
+    my $ValidObject          = $Kernel::OM->Get('Kernel::System::Valid');
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name Class)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
-    my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
-    my $MainObject  = $Kernel::OM->Get('Kernel::System::Main');
-    my $ValidObject = $Kernel::OM->Get('Kernel::System::Valid');
-    my $Name        = $Param{Name};
+    my $Name = $Param{Name};
 
     # check if general catalog module is installed
     my $GeneralCatalogLoaded = $MainObject->Require(
@@ -3067,8 +3178,6 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my $ValidID = $ValidObject->ValidLookup(
         Valid => 'valid',
     );
-
-    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
 
     # check if item already exists
     my $ItemListRef = $GeneralCatalogObject->ItemList(
@@ -3090,27 +3199,27 @@ sub _GeneralCatalogItemCreateIfNotExists {
         UserID  => 1,
     );
 
-    if ( $ItemID && $Param{PermissionGroup} ) {
-        my $GroupID = $GroupObject->GroupLookup(
-            Group => $Param{PermissionGroup},
-        );
+    return if !$ItemID;
+    return $ItemID if !$Param{PermissionGroup};
 
-        if ($GroupID) {
-            $GeneralCatalogObject->GeneralCatalogPreferencesSet(
-                ItemID => $ItemID,
-                Key    => 'Permission',
-                Value  => $GroupID,
-            );
-        }
-    }
+    my $GroupID = $GroupObject->GroupLookup(
+        Group => $Param{PermissionGroup},
+    );
+    return $ItemID if $GroupID;
+
+    $GeneralCatalogObject->GeneralCatalogPreferencesSet(
+        ItemID => $ItemID,
+        Key    => 'Permission',
+        Value  => $GroupID,
+    );
 
     return $ItemID;
 }
 
 =item _ITSMConfigItemDefinitionCreate()
 
-adds or updates a definition for a config item class. You need to provide the configuration
-of the cmdb class in the following directory:
+adds or updates a definition for a ConfigItemClass. You need to provide the configuration
+of the CMDB class in the following directory:
 
 /opt/otrs/scripts/cmdb_classes/Private_Endgeraete.config
 
@@ -3131,21 +3240,23 @@ Returns:
 sub _ITSMConfigItemDefinitionCreate {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject       = $Kernel::OM->Get('Kernel::System::Main');
+    my $ConfigObject     = $Kernel::OM->Get('Kernel::Config');
+    my $ConfigItemObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Class)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
-
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     my $Home = $ConfigObject->Get('Home');
 
@@ -3155,8 +3266,6 @@ sub _ITSMConfigItemDefinitionCreate {
         Silent => 1,
     );
     return if !$ITSMConfigItemLoaded;
-
-    my $ConfigItemObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
 
     # create general catalog item for class
     my $ClassID = $Self->_GeneralCatalogItemCreateIfNotExists(
@@ -3205,8 +3314,8 @@ sub _ITSMConfigItemDefinitionCreate {
 
 =item _ITSMConfigItemDefinitionCreateIfNotExists()
 
-add if not exists a definition for a config item class. You need to provide the configuration
-of the cmdb class in the following directory:
+add if not exists a definition for a ConfigItemClass. You need to provide the configuration
+of the CMDB class in the following directory:
 
 /opt/otrs/scripts/cmdb_classes/Private_Endgeraete.config
 
@@ -3294,8 +3403,11 @@ Returns:
 sub _NotificationEventCreate {
     my ( $Self, @NotificationEvents ) = @_;
 
-    my $Success = 1;
+    my $LogObject               = $Kernel::OM->Get('Kernel::System::Log');
+    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+    my $ValidObject             = $Kernel::OM->Get('Kernel::System::Valid');
 
+    my $Success = 1;
     NOTIFICATIONEVENT:
     for my $NotificationEvent (@NotificationEvents) {
         next NOTIFICATIONEVENT if !IsHashRefWithData($NotificationEvent);
@@ -3306,25 +3418,25 @@ sub _NotificationEventCreate {
 
             next NEEDED if defined $NotificationEvent->{$Needed};
 
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Parameter '$Needed' is needed!",
             );
             return;
         }
 
-        my %NotificationEventReversed = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationList(
+        my %NotificationEventReversed = $NotificationEventObject->NotificationList(
             UserID => 1
         );
         %NotificationEventReversed = reverse %NotificationEventReversed;
 
         my $ItemID = $Self->_ItemReverseListGet( $NotificationEvent->{Name}, %NotificationEventReversed );
-        my $ValidID = $NotificationEvent->{ValidID} // $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+        my $ValidID = $NotificationEvent->{ValidID} // $ValidObject->ValidLookup(
             Valid => 'valid',
         );
 
         if ($ItemID) {
-            my $UpdateSuccess = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationUpdate(
+            my $UpdateSuccess = $NotificationEventObject->NotificationUpdate(
                 %{$NotificationEvent},
                 ID      => $ItemID,
                 ValidID => $ValidID,
@@ -3336,7 +3448,7 @@ sub _NotificationEventCreate {
             }
         }
         else {
-            my $CreateID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationAdd(
+            my $CreateID = $NotificationEventObject->NotificationAdd(
                 %{$NotificationEvent},
                 ValidID => $ValidID,
                 UserID  => 1,
@@ -3407,20 +3519,24 @@ Returns:
 sub _NotificationEventCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject               = $Kernel::OM->Get('Kernel::System::Log');
+    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+    my $ValidObject             = $Kernel::OM->Get('Kernel::System::Valid');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
         return;
     }
 
-    my %NotificationEventReversed = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationList(
+    my %NotificationEventReversed = $NotificationEventObject->NotificationList(
         UserID => 1
     );
     %NotificationEventReversed = reverse %NotificationEventReversed;
@@ -3428,10 +3544,10 @@ sub _NotificationEventCreateIfNotExists {
     my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %NotificationEventReversed );
     return $ItemID if $ItemID;
 
-    my $ValidID = $Param{ValidID} // $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
+    my $ValidID = $Param{ValidID} // $ValidObject->ValidLookup(
         Valid => 'valid',
     );
-    my $NotificationEventID = $Kernel::OM->Get('Kernel::System::NotificationEvent')->NotificationAdd(
+    my $NotificationEventID = $NotificationEventObject->NotificationAdd(
         %Param,
         ValidID => $ValidID,
         UserID  => 1,
@@ -3442,7 +3558,7 @@ sub _NotificationEventCreateIfNotExists {
 
 =item _ITSMVersionAdd()
 
-adds or updates a config item version.
+adds or updates a ConfigItem version.
 
     my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
         ConfigItemID  => 12345,
@@ -3494,7 +3610,7 @@ adds or updates a config item version.
         UserID  => 1,
     );
 
-    # create new version of config item
+    # create new version of ConfigItem
     my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
         ConfigItemID  => $ConfigItemID,
         Name          => 'blub',
@@ -3533,13 +3649,16 @@ Returns:
 sub _ITSMVersionAdd {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(ConfigItemID Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -3547,21 +3666,21 @@ sub _ITSMVersionAdd {
     }
 
     if ( !$Param{DeplStateID} && !$Param{DeplStateName} ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter 'DeplStateID' or 'DeplStateName' needed!",
         );
         return;
     }
     if ( !$Param{InciStateID} && !$Param{InciStateName} ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter 'DeplStateID' or 'DeplStateName' needed!",
         );
         return;
     }
     if ( $Param{XMLData} && !IsHashRefWithData( $Param{XMLData} ) ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter 'XMLData' as hash ref needed!",
         );
@@ -3569,7 +3688,7 @@ sub _ITSMVersionAdd {
     }
 
     # check if general catalog module is installed
-    my $GeneralCatalogLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+    my $GeneralCatalogLoaded = $MainObject->Require(
         'Kernel::System::GeneralCatalog',
         Silent => 1,
     );
@@ -3577,7 +3696,7 @@ sub _ITSMVersionAdd {
     return if !$GeneralCatalogLoaded;
 
     # check if general catalog module is installed
-    my $ITSMConfigItemLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+    my $ITSMConfigItemLoaded = $MainObject->Require(
         'Kernel::System::ITSMConfigItem',
         Silent => 1,
     );
@@ -3716,9 +3835,13 @@ Returns:
 sub _ITSMVersionExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+    my $DBObject   = $Kernel::OM->Get('Kernel::System::DB');
+
     # check needed stuff
     if ( !$Param{VersionID} && !$Param{ConfigItemID} ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => 'Need VersionID or ConfigItemID!',
         );
@@ -3726,7 +3849,7 @@ sub _ITSMVersionExists {
     }
 
     # check if general catalog module is installed
-    my $GeneralCatalogLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+    my $GeneralCatalogLoaded = $MainObject->Require(
         'Kernel::System::GeneralCatalog',
         Silent => 1,
     );
@@ -3734,7 +3857,7 @@ sub _ITSMVersionExists {
     return if !$GeneralCatalogLoaded;
 
     # check if general catalog module is installed
-    my $ITSMConfigItemLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+    my $ITSMConfigItemLoaded = $MainObject->Require(
         'Kernel::System::ITSMConfigItem',
         Silent => 1,
     );
@@ -3744,7 +3867,7 @@ sub _ITSMVersionExists {
     if ( $Param{VersionID} ) {
 
         # get version
-        $Kernel::OM->Get('Kernel::System::DB')->Prepare(
+        $DBObject->Prepare(
             SQL   => 'SELECT 1 FROM configitem_version WHERE id = ?',
             Bind  => [ \$Param{VersionID} ],
             Limit => 1,
@@ -3753,7 +3876,7 @@ sub _ITSMVersionExists {
     else {
 
         # get version
-        $Kernel::OM->Get('Kernel::System::DB')->Prepare(
+        $DBObject->Prepare(
             SQL   => 'SELECT 1 FROM configitem_version WHERE configitem_id = ? ORDER BY id DESC',
             Bind  => [ \$Param{ConfigItemID} ],
             Limit => 1,
@@ -3762,7 +3885,7 @@ sub _ITSMVersionExists {
 
     # fetch the result
     my $Found;
-    while ( my @Row = $Kernel::OM->Get('Kernel::System::DB')->FetchrowArray() ) {
+    while ( my @Row = $DBObject->FetchrowArray() ) {
         $Found = 1;
     }
 
@@ -3771,7 +3894,7 @@ sub _ITSMVersionExists {
 
 =item _ITSMVersionGet()
 
-get a config item version.
+get a ConfigItem version.
 
     my %Version = $ZnunyHelperObject->_ITSMVersionGet(
         ConfigItemID    => 12345,
@@ -3801,8 +3924,12 @@ Returns:
 sub _ITSMVersionGet {
     my ( $Self, %Param ) = @_;
 
+    my $MainObject           = $Kernel::OM->Get('Kernel::System::Main');
+    my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+
     # check if general catalog module is installed
-    my $GeneralCatalogLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+    my $GeneralCatalogLoaded = $MainObject->Require(
         'Kernel::System::GeneralCatalog',
         Silent => 1,
     );
@@ -3810,16 +3937,12 @@ sub _ITSMVersionGet {
     return if !$GeneralCatalogLoaded;
 
     # check if general catalog module is installed
-    my $ITSMConfigItemLoaded = $Kernel::OM->Get('Kernel::System::Main')->Require(
+    my $ITSMConfigItemLoaded = $MainObject->Require(
         'Kernel::System::ITSMConfigItem',
         Silent => 1,
     );
 
     return if !$ITSMConfigItemLoaded;
-
-    my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
-    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
-
     return if !$Self->_ITSMVersionExists(%Param);
 
     my $VersionRef = $ConfigItemObject->VersionGet(
@@ -3977,7 +4100,7 @@ sub _ParseData2XML {
 
 =item _WebserviceCreateIfNotExists()
 
-creates webservices that not exist yet
+creates web services that not exist yet
 
     # installs all .yml files in $OTRS/scripts/webservices/
     # name of the file will be the name of the webservice
@@ -3999,6 +4122,11 @@ OR:
 sub _WebserviceCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject       = $Kernel::OM->Get('Kernel::System::Main');
+    my $YAMLObject       = $Kernel::OM->Get('Kernel::System::YAML');
+
     my $Webservices = $Param{Webservices};
     if ( !IsHashRefWithData($Webservices) ) {
         $Webservices = $Self->_WebservicesGet(
@@ -4008,9 +4136,9 @@ sub _WebserviceCreateIfNotExists {
 
     return 1 if !IsHashRefWithData($Webservices);
 
-    my $WebserviceList = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceList();
+    my $WebserviceList = $WebserviceObject->WebserviceList();
     if ( ref $WebserviceList ne 'HASH' ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Error while getting list of Webservices!"
         );
@@ -4026,24 +4154,21 @@ sub _WebserviceCreateIfNotExists {
         my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
 
         # read config
-        my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
+        my $Content = $MainObject->FileRead(
             Location => $WebserviceYAMLPath,
         );
 
         if ( !$Content ) {
-
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Can't read $WebserviceYAMLPath!"
             );
             next WEBSERVICE;
         }
 
-        my $Config = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
-
+        my $Config = $YAMLObject->Load( Data => ${$Content} );
         if ( !$Config ) {
-
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while loading $WebserviceYAMLPath!"
             );
@@ -4051,21 +4176,19 @@ sub _WebserviceCreateIfNotExists {
         }
 
         # add webservice to the system
-        my $WebserviceID = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceAdd(
+        my $WebserviceID = $WebserviceObject->WebserviceAdd(
             Name    => $WebserviceName,
             Config  => $Config,
             ValidID => 1,
             UserID  => 1,
         );
 
-        if ( !$WebserviceID ) {
+        next WEBSERVICE if $WebserviceID;
 
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Error while adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
-            );
-            next WEBSERVICE;
-        }
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Error while adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
+        );
     }
 
     return 1;
@@ -4073,7 +4196,7 @@ sub _WebserviceCreateIfNotExists {
 
 =item _WebserviceCreate()
 
-creates or updates webservices
+creates or updates web services
 
     # installs all .yml files in $OTRS/scripts/webservices/
     # name of the file will be the name of the webservice
@@ -4095,6 +4218,11 @@ OR:
 sub _WebserviceCreate {
     my ( $Self, %Param ) = @_;
 
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject       = $Kernel::OM->Get('Kernel::System::Main');
+    my $YAMLObject       = $Kernel::OM->Get('Kernel::System::YAML');
+
     my $Webservices = $Param{Webservices};
     if ( !IsHashRefWithData($Webservices) ) {
         $Webservices = $Self->_WebservicesGet(
@@ -4104,9 +4232,9 @@ sub _WebserviceCreate {
 
     return 1 if !IsHashRefWithData($Webservices);
 
-    my $WebserviceList = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceList();
+    my $WebserviceList = $WebserviceObject->WebserviceList();
     if ( ref $WebserviceList ne 'HASH' ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Error while getting list of Webservices!"
         );
@@ -4127,24 +4255,21 @@ sub _WebserviceCreate {
         my $WebserviceYAMLPath = $Webservices->{$WebserviceName};
 
         # read config
-        my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
+        my $Content = $MainObject->FileRead(
             Location => $WebserviceYAMLPath,
         );
 
         if ( !$Content ) {
-
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Can't read $WebserviceYAMLPath!"
             );
             next WEBSERVICE;
         }
 
-        my $Config = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
-
+        my $Config = $YAMLObject->Load( Data => ${$Content} );
         if ( !$Config ) {
-
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while loading $WebserviceYAMLPath!"
             );
@@ -4152,7 +4277,7 @@ sub _WebserviceCreate {
         }
 
         # add or update webservice
-        my $Success = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->$UpdateOrCreateFunction(
+        my $Success = $WebserviceObject->$UpdateOrCreateFunction(
             ID      => $WebserviceID,
             Name    => $WebserviceName,
             Config  => $Config,
@@ -4160,13 +4285,12 @@ sub _WebserviceCreate {
             UserID  => 1,
         );
 
-        if ( !$Success ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
-                Priority => 'error',
-                Message  => "Error while updating/adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
-            );
-            next WEBSERVICE;
-        }
+        next WEBSERVICE if $Success;
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Error while updating/adding Webservice '$WebserviceName' from $WebserviceYAMLPath!"
+        );
     }
 
     return 1;
@@ -4174,7 +4298,7 @@ sub _WebserviceCreate {
 
 =item _WebserviceDelete()
 
-deletes webservices
+deletes web services
 
     # deletes all .yml files webservices in $OTRS/scripts/webservices/
     # name of the file will be the name of the webservice
@@ -4196,6 +4320,9 @@ OR:
 sub _WebserviceDelete {
     my ( $Self, %Param ) = @_;
 
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+
     my $Webservices = $Param{Webservices};
     if ( !IsHashRefWithData($Webservices) ) {
         $Webservices = $Self->_WebservicesGet(
@@ -4205,9 +4332,9 @@ sub _WebserviceDelete {
 
     return 1 if !IsHashRefWithData($Webservices);
 
-    my $WebserviceList = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceList();
+    my $WebserviceList = $WebserviceObject->WebserviceList();
     if ( ref $WebserviceList ne 'HASH' ) {
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Error while getting list of Webservices!"
         );
@@ -4222,13 +4349,13 @@ sub _WebserviceDelete {
         next WEBSERVICE if !$WebserviceListReversed{$WebserviceName};
 
         # delete webservice
-        my $Success = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice')->WebserviceDelete(
+        my $Success = $WebserviceObject->WebserviceDelete(
             ID     => $WebserviceListReversed{$WebserviceName},
             UserID => 1,
         );
 
         if ( !$Success ) {
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while deleting Webservice '$WebserviceName'!"
             );
@@ -4257,14 +4384,17 @@ gets a list of .yml files from $OTRS/scripts/webservices
 sub _WebservicesGet {
     my ( $Self, %Param ) = @_;
 
-    my $WebserviceDirectory = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $WebserviceDirectory = $ConfigObject->Get('Home')
         . '/scripts/webservices';
 
     if ( IsStringWithData( $Param{SubDir} ) ) {
         $WebserviceDirectory .= '/' . $Param{SubDir};
     }
 
-    my @FilesInDirectory = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+    my @FilesInDirectory = $MainObject->DirectoryRead(
         Directory => $WebserviceDirectory,
         Filter    => '*.yml',
     );
@@ -4296,31 +4426,17 @@ Returns:
 sub _PackageSetupInit {
     my ( $Self, %Param ) = @_;
 
-    # rebuild ZZZ* files
-    $Kernel::OM->Get('Kernel::System::SysConfig')->WriteDefault();
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
-    # define the ZZZ files
-    my @ZZZFiles = (
-        'ZZZAAuto.pm',
-        'ZZZAuto.pm',
+    # 'Rebuild' the configuration
+    $SysConfigObject->ConfigurationDeploy(
+        AllSettings => 1,
+        Force       => 1,
+        UserID      => 1,
     );
 
-    # disable redefine warnings in this scope
-    {
-        no warnings 'redefine';
-
-        # reload the ZZZ files (mod_perl workaround)
-        for my $ZZZFile (@ZZZFiles) {
-
-            PREFIX:
-            for my $Prefix (@INC) {
-                my $File = $Prefix . '/Kernel/Config/Files/' . $ZZZFile;
-                next PREFIX if !-f $File;
-                do $File;
-                last PREFIX;
-            }
-        }
-    }
+    # Remove the ZZZAAuto.pm from %INC to force reloading it
+    delete $INC{'Kernel/Config/Files/ZZZAAuto.pm'};
 
     # make sure to use a new config object
     $Kernel::OM->ObjectsDiscard(
@@ -4357,6 +4473,7 @@ sub _ProcessCreateIfNotExists {
     my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
     my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $MainObject      = $Kernel::OM->Get('Kernel::System::Main');
+    my $YAMLObject      = $Kernel::OM->Get('Kernel::System::YAML');
     my $DBProcessObject = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Process');
     my $EntityObject    = $Kernel::OM->Get('Kernel::System::ProcessManagement::DB::Entity');
 
@@ -4405,7 +4522,7 @@ sub _ProcessCreateIfNotExists {
             return;
         }
 
-        my $ProcessData = $Kernel::OM->Get('Kernel::System::YAML')->Load( Data => ${$Content} );
+        my $ProcessData = $YAMLObject->Load( Data => ${$Content} );
         if ( !IsHashRefWithData($ProcessData) ) {
             $LogObject->Log(
                 Priority => 'error',
@@ -4547,14 +4664,17 @@ gets a list of .yml files from $OTRS/scripts/processes
 sub _ProcessesGet {
     my ( $Self, %Param ) = @_;
 
-    my $ProcessDirectory = $Kernel::OM->Get('Kernel::Config')->Get('Home')
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $ProcessDirectory = $ConfigObject->Get('Home')
         . '/scripts/processes';
 
     if ( IsStringWithData( $Param{SubDir} ) ) {
         $ProcessDirectory .= '/' . $Param{SubDir};
     }
 
-    my @FilesInDirectory = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+    my @FilesInDirectory = $MainObject->DirectoryRead(
         Directory => $ProcessDirectory,
         Filter    => '*.yml',
     );
@@ -4644,10 +4764,15 @@ sub _ModuleGroupAdd {
 
         $ModuleRegistration->{$GroupType} = \@NewGroups;
 
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $Param{Frontend} . '###' . $Param{Module},
-            Value => $ModuleRegistration,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $Param{Frontend} . '###' . $Param{Module},
+                    IsValid        => 1,
+                    EffectiveValue => $ModuleRegistration,
+                },
+            ],
+            UserID => 1,
         );
     }
 
@@ -4726,10 +4851,15 @@ sub _ModuleGroupRemove {
 
         $ModuleRegistration->{$GroupType} = \@NewGroups;
 
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $Param{Frontend} . '###' . $Param{Module},
-            Value => $ModuleRegistration,
+        $SysConfigObject->SettingsSet(
+            Settings => [
+                {
+                    Name           => $Param{Frontend} . '###' . $Param{Module},
+                    IsValid        => 1,
+                    EffectiveValue => $ModuleRegistration,
+                },
+            ],
+            UserID => 1,
         );
     }
 

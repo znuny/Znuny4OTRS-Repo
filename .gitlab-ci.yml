@@ -1,8 +1,14 @@
-image: otrs5ci
+image: registry.znuny.com/znuny/docker-otrs6ci:latest
+
+services:
+  - mysql:latest
+
+variables:
+  MYSQL_DATABASE: otrs
+  MYSQL_ROOT_PASSWORD: znuny4otrs
 
 stages:
   - test
-  - deploy
 
 job_unit_otrs_Znuny4OTRSRepo:
   stage: test
@@ -26,8 +32,3 @@ job_unit_otrs_Znuny4OTRSRepo:
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/SimpleEmailValidate" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ValidDynamicFieldScreenListGet" -s /bin/bash otrs
-
-job_deploy_otrs_Znuny4OTRSRepo:
-  stage: deploy
-  script:
-    - sh /sync_repo.sh git@github.com:znuny/Znuny4OTRS-Repo.git

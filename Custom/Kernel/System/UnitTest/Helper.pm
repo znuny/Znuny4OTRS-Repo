@@ -2,7 +2,8 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/2a125d51a74cb7fd6f4cf7343ffb950b432f61d4/Kernel/System/UnitTest/Helper.pm
+# $origin: otrs - 70467910822df33e3e7251f1e359ad00edb6fd2d - Kernel/System/UnitTest/Helper.pm
+## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::DateTime)
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -11,6 +12,8 @@
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
+## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
+## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
 
 package Kernel::System::UnitTest::Helper;
 
@@ -18,6 +21,9 @@ use strict;
 use warnings;
 
 use File::Path qw(rmtree);
+
+# Load DateTime so that we can override functions for the FixedTimeSet().
+use DateTime;
 
 use Kernel::System::SysConfig;
 # ---
@@ -70,8 +76,6 @@ construct a helper object.
     use Kernel::System::ObjectManager;
     local $Kernel::OM = Kernel::System::ObjectManager->new(
         'Kernel::System::UnitTest::Helper' => {
-            RestoreSystemConfiguration => 1,        # optional, save ZZZAuto.pm
-                                                    # and restore it in the destructor
             RestoreDatabase            => 1,        # runs the test in a transaction,
                                                     # and roll it back in the destructor
                                                     #
@@ -97,15 +101,6 @@ sub new {
 
     $Self->{UnitTestObject} = $Kernel::OM->Get('Kernel::System::UnitTest');
 
-    # make backup of system configuration if needed
-    if ( $Param{RestoreSystemConfiguration} ) {
-        $Self->{SysConfigObject} = Kernel::System::SysConfig->new();
-
-        $Self->{SysConfigBackup} = $Self->{SysConfigObject}->Download();
-
-        $Self->{UnitTestObject}->True( 1, 'Creating backup of the system configuration.' );
-    }
-
     # remove any leftover configuration changes from aborted previous runs
     $Self->ConfigSettingCleanup();
 
@@ -113,10 +108,20 @@ sub new {
     if ( $Param{SkipSSLVerify} ) {
 
         # remember original value
-        $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
+# ---
+# Znuny4OTRS-Repo
+# ---
+#         $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
+        $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}; ## no critic
+# ---
 
         # set environment value to 0
-        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+# ---
+# Znuny4OTRS-Repo
+# ---
+#         $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0; ## no critic
+# ---
 
         $Self->{RestoreSSLVerify} = 1;
         $Self->{UnitTestObject}->True( 1, 'Skipping SSL certificates verification' );
@@ -201,11 +206,11 @@ sub TestUserCreate {
 # Znuny4OTRS-Repo
 # ---
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
-# ---
 
     # create test user
     my $TestUserLogin = $Self->GetRandomID();
 
+# ---
     # disable email checks to create new user
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
@@ -213,15 +218,29 @@ sub TestUserCreate {
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
-#         UserFirstname => $TestUserLogin,
-#         UserLastname  => $TestUserLogin,
-#         UserLogin     => $TestUserLogin,
-#         UserPw        => $TestUserLogin,
-#         UserEmail     => $TestUserLogin . '@localunittest.com',
-#         ValidID       => 1,
-#         ChangeUserID  => 1,
-#     ) || die "Could not create test user";
+#     # create test user
+#     my $TestUserID;
+#     my $TestUserLogin;
+#     COUNT:
+#     for my $Count ( 1 .. 10 ) {
+#
+#         $TestUserLogin = $Self->GetRandomID();
+#
+#         $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+#             UserFirstname => $TestUserLogin,
+#             UserLastname  => $TestUserLogin,
+#             UserLogin     => $TestUserLogin,
+#             UserPw        => $TestUserLogin,
+#             UserEmail     => $TestUserLogin . '@localunittest.com',
+#             ValidID       => 1,
+#             ChangeUserID  => 1,
+#         );
+#
+#         last COUNT if $TestUserID;
+#     }
+#
+#     die 'Could not create test user login' if !$TestUserLogin;
+#     die 'Could not create test user' if !$TestUserID;
 
     my $TestUserID = $ZnunyHelperObject->_UserCreateIfNotExists(
         UserFirstname => $TestUserLogin,
@@ -322,17 +341,28 @@ sub TestCustomerUserCreate {
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     my $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
-#         Source         => 'CustomerUser',
-#         UserFirstname  => $TestUserLogin,
-#         UserLastname   => $TestUserLogin,
-#         UserCustomerID => $TestUserLogin,
-#         UserLogin      => $TestUserLogin,
-#         UserPassword   => $TestUserLogin,
-#         UserEmail      => $TestUserLogin . '@localunittest.com',
-#         ValidID        => 1,
-#         UserID         => 1,
-#     ) || die "Could not create test user";
+#    my $TestUser;
+#    COUNT:
+#    for my $Count ( 1 .. 10 ) {
+#
+#        my $TestUserLogin = $Self->GetRandomID();
+#
+#        $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+#            Source         => 'CustomerUser',
+#            UserFirstname  => $TestUserLogin,
+#            UserLastname   => $TestUserLogin,
+#            UserCustomerID => $TestUserLogin,
+#            UserLogin      => $TestUserLogin,
+#            UserPassword   => $TestUserLogin,
+#            UserEmail      => $TestUserLogin . '@localunittest.com',
+#            ValidID        => 1,
+#            UserID         => 1,
+#        );
+#
+#        last COUNT if $TestUser;
+#    }
+#
+#    die 'Could not create test user' if !$TestUser;
     my $TestUser = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
         Source         => 'CustomerUser',
         UserFirstname  => $TestUserLogin,
@@ -423,12 +453,7 @@ sub GetTestHTTPHostname {
     my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
 
     # try to resolve fqdn host
-# ---
-# Znuny4OTRS-Repo
-# ---
-#     if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
-    if ( $FQDN ne 'yourhost.example.com' ) {
-# ---
+    if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
         $Host = $FQDN;
     }
 
@@ -453,18 +478,29 @@ makes it possible to override the system time as long as this object lives.
 You can pass an optional time parameter that should be used, if not,
 the current system time will be used.
 
-All regular perl calls to time(), localtime() and gmtime() will use this
-fixed time afterwards. If this object goes out of scope, the 'normal' system
-time will be used again.
+All calls to methods of Kernel::System::Time and Kernel::System::DateTime will
+use the given time afterwards.
+
+    $HelperObject->FixedTimeSet(366475757);         # with Timestamp
+    $HelperObject->FixedTimeSet($DateTimeObject);   # with previously created DateTime object
+    $HelperObject->FixedTimeSet();                  # set to current date and time
+
+Returns:
+    Timestamp
 
 =cut
 
 sub FixedTimeSet {
     my ( $Self, $TimeToSave ) = @_;
 
-    $FixedTime = $TimeToSave // CORE::time();
+    if ( $TimeToSave && ref $TimeToSave eq 'Kernel::System::DateTime' ) {
+        $FixedTime = $TimeToSave->ToEpoch();
+    }
+    else {
+        $FixedTime = $TimeToSave // CORE::time()
+    }
 
-    # This is needed to reload objects that directly use the time functions
+    # This is needed to reload objects that directly use the native time functions
     #   to get a hold of the overrides.
     my @Objects = (
         'Kernel::System::Time',
@@ -477,7 +513,12 @@ sub FixedTimeSet {
         $FilePath =~ s{::}{/}xmsg;
         $FilePath .= '.pm';
         if ( $INC{$FilePath} ) {
-            no warnings 'redefine';
+# ---
+# Znuny4OTRS-Repo
+# ---
+#             no warnings 'redefine';
+            no warnings 'redefine'; ## no critic
+# ---
             delete $INC{$FilePath};
             $Kernel::OM->Get('Kernel::System::Main')->Require($Object);
         }
@@ -496,7 +537,6 @@ sub FixedTimeUnset {
     my ($Self) = @_;
 
     undef $FixedTime;
-
     return;
 }
 
@@ -510,13 +550,19 @@ set by FixedTimeSet(). You can pass a negative value to go back in time.
 sub FixedTimeAddSeconds {
     my ( $Self, $SecondsToAdd ) = @_;
 
-    return if ( !defined $FixedTime );
+    return if !defined $FixedTime;
     $FixedTime += $SecondsToAdd;
     return;
 }
 
 # See http://perldoc.perl.org/5.10.0/perlsub.html#Overriding-Built-in-Functions
 BEGIN {
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     no warnings 'redefine';
+    no warnings 'redefine'; ## no critic
+# ---
     *CORE::GLOBAL::time = sub {
         return defined $FixedTime ? $FixedTime : CORE::time();
     };
@@ -533,6 +579,20 @@ BEGIN {
             $Time = defined $FixedTime ? $FixedTime : CORE::time();
         }
         return CORE::gmtime($Time);
+    };
+
+    # Newer versions of DateTime provide a function _core_time() to override for time simulations.
+    *DateTime::_core_time = sub {    ## no critic
+        return defined $FixedTime ? $FixedTime : CORE::time();
+    };
+
+    # Make sure versions of DateTime also use _core_time() it by overriding now() as well.
+    *DateTime::now = sub {
+        my $Self = shift;
+        return $Self->from_epoch(
+            epoch => $Self->_core_time(),
+            @_
+        );
     };
 }
 
@@ -566,19 +626,20 @@ sub DESTROY {
     # reset time freeze
     FixedTimeUnset();
 
-    # restore system configuration if needed
-    if ( $Self->{SysConfigBackup} ) {
-        $Self->{SysConfigObject}->Upload( Content => $Self->{SysConfigBackup} );
-        $Self->{UnitTestObject}->True( 1, 'Restored the system configuration' );
-    }
+    # FixedDateTimeObjectUnset();
 
-    # remove any configuration changes
+    # remove any configuration changes.
     $Self->ConfigSettingCleanup();
 
     # restore environment variable to skip SSL certificate verification if needed
     if ( $Self->{RestoreSSLVerify} ) {
 
-        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME};
+# ---
+# Znuny4OTRS-Repo
+# ---
+#         $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME};
+        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME}; ## no critic
+# ---
 
         $Self->{RestoreSSLVerify} = 0;
 
@@ -697,6 +758,8 @@ sub DESTROY {
     return if !IsArrayRefWithData( $Self->{TestDynamicFields} );
 
     $ZnunyHelperObject->_DynamicFieldsDelete( @{ $Self->{TestDynamicFields} } );
+
+    return;
 # ---
 }
 
@@ -836,7 +899,7 @@ sub UseTmpArticleDir {
 =item FixedTimeSetByDate()
 
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
-possible to set a fixed time by unsing parameters for the TimeObject Date2SystemTime function.
+possible to set a fixed time by using Year, Month, Day and optional Hour, Minute, Second parameters.
 
     $HelperObject->FixedTimeSetByDate(
         Year   => 2016,
@@ -852,8 +915,7 @@ possible to set a fixed time by unsing parameters for the TimeObject Date2System
 sub FixedTimeSetByDate {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
-    my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
     # check needed stuff
     NEEDED:
@@ -872,9 +934,12 @@ sub FixedTimeSetByDate {
         $Param{$Default} ||= 0;
     }
 
-    my $SystemTime = $TimeObject->Date2SystemTime( %Param );
+    my $DateTimeObject = $Kernel::OM->Create(
+        'Kernel::System::DateTime',
+        ObjectParams => \%Param,
+    );
 
-    $Self->FixedTimeSet($SystemTime);
+    $Self->FixedTimeSet($DateTimeObject->ToEpoch());
 
     return 1;
 }
@@ -882,7 +947,7 @@ sub FixedTimeSetByDate {
 =item FixedTimeSetByTimeStamp()
 
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
-possible to set a fixed time by unsing parameters for the TimeObject TimeStamp2SystemTime function.
+possible to set a fixed time by using parameters for the TimeObject TimeStamp2SystemTime function.
 
     $HelperObject->FixedTimeSetByTimeStamp('2004-08-14 22:45:00');
 
@@ -891,8 +956,7 @@ possible to set a fixed time by unsing parameters for the TimeObject TimeStamp2S
 sub FixedTimeSetByTimeStamp {
     my ( $Self, $TimeStamp ) = @_;
 
-    my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
-    my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
     # check needed stuff
     if ( !$TimeStamp ) {
@@ -903,11 +967,14 @@ sub FixedTimeSetByTimeStamp {
         return;
     }
 
-    my $SystemTime = $TimeObject->TimeStamp2SystemTime(
-        String => $TimeStamp,
+    my $DateTimeObject = $Kernel::OM->Create(
+        'Kernel::System::DateTime',
+        ObjectParams => {
+            String => $TimeStamp,
+        }
     );
 
-    $Self->FixedTimeSet($SystemTime);
+    $Self->FixedTimeSet($DateTimeObject->ToEpoch());
 
     return 1;
 }
@@ -1008,14 +1075,14 @@ sub SetupTestEnvironment {
             Owner            => 1,
             OwnerMandatory   => 1,
             Priority         => 1,
-            PriorityDefault  => 1,
+            PriorityDefault  => '3 normal',
             Queue            => 1,
             Responsible      => 1,
             Service          => 1,
             ServiceMandatory => 1,
             SLAMandatory     => 1,
             State            => 1,
-            StateType        => 1,
+            StateType        => ['open', 'closed', 'pending reminder', 'pending auto'],
             TicketType       => 1,
             Title            => 1,
         },
@@ -1044,14 +1111,14 @@ Toggles settings for a given view like AgentTicketNote or CustomerTicketMessage.
             Owner            => 1,
             OwnerMandatory   => 1,
             Priority         => 1,
-            PriorityDefault  => 1,
+            PriorityDefault  => '3 normal',
             Queue            => 1,
             Responsible      => 1,
             Service          => 1,
             ServiceMandatory => 1,
             SLAMandatory     => 1,
             State            => 1,
-            StateType        => 1,
+            StateType        => ['open', 'closed', 'pending reminder', 'pending auto'],
             TicketType       => 1,
             Title            => 1,
         },
@@ -1073,14 +1140,14 @@ Toggles settings for a given view like AgentTicketNote or CustomerTicketMessage.
             Owner            => 1,
             OwnerMandatory   => 1,
             Priority         => 1,
-            PriorityDefault  => 1,
+            PriorityDefault  => '3 normal',
             Queue            => 1,
             Responsible      => 1,
             Service          => 1,
             ServiceMandatory => 1,
             SLAMandatory     => 1,
             State            => 1,
-            StateType        => 1,
+            StateType        => ['open', 'closed', 'pending reminder', 'pending auto'],
             TicketType       => 1,
             Title            => 1,
             HistoryType      => 'Phone',
@@ -1110,6 +1177,7 @@ sub ConfigureViews {
     return if !%Param;
 
     my %Result;
+    my @Changes;
     VIEW:
     for my $View ( sort %Param ) {
 
@@ -1127,14 +1195,22 @@ sub ConfigureViews {
             %{$NewConfig},
         );
 
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => $ConfigKey,
-            Value => \%UpdatedConfig,
-        );
+        for my $KeySuffix (sort keys %{ $NewConfig }) {
+            push(@Changes, {
+                Name           => $ConfigKey . '###'. $KeySuffix,
+                EffectiveValue => $NewConfig->{$KeySuffix},
+                IsValid        => 1,
+            });
+        }
+
 
         $Result{$View} = \%UpdatedConfig;
     }
+
+    $SysConfigObject->SettingsSet(
+        Settings => \@Changes,
+        UserID   => 1,
+    );
 
     return \%Result;
 }
@@ -1436,23 +1512,26 @@ sub FullFeature {
 
     my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
-    $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => 'Ticket::Type',
-        Value => 1,
+    return $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => 'Ticket::Type',
+                IsValid        => 1,
+                EffectiveValue => 1,
+            },
+            {
+                Name           => 'Ticket::Service',
+                IsValid        => 1,
+                EffectiveValue => 1,
+            },
+            {
+                Name           => 'Ticket::Responsible',
+                IsValid        => 1,
+                EffectiveValue => 1
+            },
+        ],
+        UserID => 1,
     );
-    $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => 'Ticket::Service',
-        Value => 1,
-    );
-    $SysConfigObject->ConfigItemUpdate(
-        Valid => 1,
-        Key   => 'Ticket::Responsible',
-        Value => 1
-    );
-
-    return 1;
 }
 
 =item FillTestEnvironment()
