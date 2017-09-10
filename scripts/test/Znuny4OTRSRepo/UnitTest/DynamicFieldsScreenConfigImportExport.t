@@ -16,8 +16,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
-        RestoreDatabase            => 1,
+        RestoreDatabase => 1,
     },
 );
 
@@ -29,39 +28,39 @@ my $UnitTestHelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 # Create dynamic fields to test export
 my @DynamicFieldConfigs = (
     {
-        Name       => "DynField" . $UnitTestHelperObject->GetRandomID(),
+        Name       => 'DynField' . $UnitTestHelperObject->GetRandomID(),
         Label      => 'Dynamic field test 1',
         ObjectType => 'Ticket',
         FieldType  => 'Text',
         Config     => {
-            DefaultValue => "",
+            DefaultValue => '',
         },
     },
     {
-        Name       => "DynField" . $UnitTestHelperObject->GetRandomID(),
+        Name       => 'DynField' . $UnitTestHelperObject->GetRandomID(),
         Label      => 'Dynamic field test 2',
         ObjectType => 'Ticket',
         FieldType  => 'Text',
         Config     => {
-            DefaultValue => "",
+            DefaultValue => '',
         },
     },
     {
-        Name       => "DynField" . $UnitTestHelperObject->GetRandomID(),
+        Name       => 'DynField' . $UnitTestHelperObject->GetRandomID(),
         Label      => 'Dynamic field test 3',
         ObjectType => 'Ticket',
         FieldType  => 'Text',
         Config     => {
-            DefaultValue => "",
+            DefaultValue => '',
         },
     },
     {
-        Name       => "DynField" . $UnitTestHelperObject->GetRandomID(),
+        Name       => 'DynField' . $UnitTestHelperObject->GetRandomID(),
         Label      => 'Dynamic field test 4',
         ObjectType => 'Ticket',
         FieldType  => 'Text',
         Config     => {
-            DefaultValue => "",
+            DefaultValue => '',
         },
     },
 );
@@ -109,7 +108,7 @@ my @Tests = (
                 'Ticket::Frontend::AgentTicketPhone###DynamicField'                        => 0,
                 'Ticket::Frontend::AgentTicketZoom###DynamicField'                         => 1,
                 'Ticket::Frontend::CustomerTicketOverview###DynamicField'                  => 2,
-                'Ticket::Frontend::OverviewPreview###DynamicField'                         => 2,
+                'Ticket::Frontend::OverviewPreview###DynamicField'                         => 0,
             },
             $DynamicFieldConfigs[3]->{Name} => {
                 'AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder' => 2,

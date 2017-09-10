@@ -14,12 +14,6 @@ use Kernel::System::VariableCheck qw(:all);
 
 use vars (qw($Self));
 
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
-    },
-);
-
 # get the Znuny4OTRS Selenium object
 my $SeleniumObject = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 

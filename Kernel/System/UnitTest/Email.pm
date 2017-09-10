@@ -20,6 +20,7 @@ our @ObjectDependencies = (
     'Kernel::System::Email::Test',
     'Kernel::System::Log',
     'Kernel::System::Ticket',
+    'Kernel::System::MailQueue',
 );
 
 =head1 NAME
@@ -87,7 +88,7 @@ Discards the following objects:
     Kernel::System::Email
 and triggers transaction notifications.
 
-Also reinitializes the above objects.
+Also re-initializes the above objects.
 
     my $Success = $UnitTestEmailObject->MailObjectDiscard();
 
@@ -176,6 +177,8 @@ Returns:
 
 sub EmailGet {
     my ( $Self, %Param ) = @_;
+
+    $Self->_SendEmails();
 
     my $TestEmailObject = $Kernel::OM->Get('Kernel::System::Email::Test');
     my $Emails          = $TestEmailObject->EmailsGet();
@@ -481,4 +484,35 @@ sub _SearchStringOrRegex {
     return;
 }
 
+sub _SendEmails {
+    my ( $Self, %Param ) = @_;
+
+    my $MailQueueObj = $Kernel::OM->Get('Kernel::System::MailQueue');
+
+    # Get last item in the queue.
+    my $Items = $MailQueueObj->List();
+    my @ToReturn;
+    for my $Item (@$Items) {
+        $MailQueueObj->Send( %{$Item} );
+        push @ToReturn, $Item->{Message};
+    }
+
+    # Clean the mail queue.
+    $MailQueueObj->Delete();
+
+    return @ToReturn;
+}
+
 1;
+
+=back
+
+=head1 TERMS AND CONDITIONS
+
+This software is part of the OTRS project (L<http://otrs.org/>).
+
+This software comes with ABSOLUTELY NO WARRANTY. For details, see
+the enclosed file COPYING for license information (AGPL). If you
+did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+
+=cut

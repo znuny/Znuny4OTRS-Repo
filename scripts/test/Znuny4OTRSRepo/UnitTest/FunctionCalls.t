@@ -14,12 +14,6 @@ use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
 
-$Kernel::OM->ObjectParamAdd(
-    'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
-    },
-);
-
 # get needed objects
 my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 my $ConfigObject         = $Kernel::OM->Get('Kernel::Config');

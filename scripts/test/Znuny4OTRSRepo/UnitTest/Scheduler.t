@@ -16,8 +16,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
-        RestoreDatabase            => 1,
-        RestoreSystemConfiguration => 1,
+        RestoreDatabase => 1,
     },
 );
 

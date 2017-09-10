@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/3888cdb46ce619e92c6f5330cea951c96a697b33/Kernel/Output/Template/Document.pm
+# $origin: otrs - 04139bf7d2feaf7631ce64edada6d19fea6a3328 - Kernel/Output/Template/Document.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -15,7 +15,7 @@ package Kernel::Output::Template::Document;
 use strict;
 use warnings;
 
-use base qw (Template::Document);
+use parent qw (Template::Document);
 
 our $ObjectManagerDisabled = 1;
 
@@ -25,11 +25,7 @@ Kernel::Output::Template::Document - Template Toolkit document extension package
 
 =head1 PUBLIC INTERFACE
 
-=over 4
-
-=cut
-
-=item process()
+=head2 process()
 
 process this template document. This method is inherited from
 Template::Document and used to perform some up-front initialization
@@ -47,7 +43,9 @@ sub process {
     return $Self->SUPER::process($Context);
 }
 
-=item _InstallOTRSExtensions()
+=begin Internal:
+
+=head2 _InstallOTRSExtensions()
 
 adds some OTRS specific extensions to Template::Toolkit.
 
@@ -138,10 +136,9 @@ sub _InstallOTRSExtensions {
     #     footer of the page, all in one place.
     #
     # Usage:
-    #     [% WRAPPER JSOnDocumentComplete -% ]
+    #     [% WRAPPER JSOnDocumentComplete -%]
     #         console.log();
-    #     [%- END % ]
-    # %]
+    #     [%- END %]
     #
 
     $Self->{_DEFBLOCKS}->{JSOnDocumentComplete} //= sub {
@@ -202,10 +199,78 @@ sub _InstallOTRSExtensions {
         return $output;
     };
 
+    #
+    # This block is used to cut out JavaScript data that needs to be inserted to Core.Config
+    #   from the templates and insert it in the footer of the page, all in one place.
+    #
+    # Usage:
+    #     [% Process JSData
+    #         Key   = 'Test.Key'
+    #         Value = { ... }
+    #     %]
+    #
+    #
+
+    $Self->{_DEFBLOCKS}->{JSData} //= sub {
+        my $context = shift || die "template sub called without context\n";
+        my $stash   = $context->stash();
+        my $output  = '';
+
+        my $_tt_error;
+
+        eval {
+
+            my $Key   = $stash->get('Key');
+            my $Value = $stash->get('Value');
+
+            return $output if !$Key;
+
+            $context->{LayoutObject}->{_JSData} //= {};
+            $context->{LayoutObject}->{_JSData}->{$Key} = $Value;
+
+        };
+        if ($@) {
+            $_tt_error = $context->catch( $@, \$output );
+            die $_tt_error if $_tt_error->type() ne 'return';
+        }
+
+        return $output;
+    };
+
+    #
+    # This block is used to insert the collected JavaScript data in the page footer.
+    #
+
+    $Self->{_DEFBLOCKS}->{JSDataInsert} //= sub {
+        my $context = shift || die "template sub called without context\n";
+        my $stash   = $context->stash();
+        my $output  = '';
+        my $_tt_error;
+
+        eval {
+            my %Data = %{ $context->{LayoutObject}->{_JSData} // {} };
+            if (%Data) {
+                my $JSONString = $Kernel::OM->Get('Kernel::System::JSON')->Encode(
+                    Data     => \%Data,
+                    SortKeys => 1,
+                );
+                $output .= "Core.Config.AddConfig($JSONString);\n";
+            }
+            delete $context->{LayoutObject}->{_JSData};
+        };
+
+        if ($@) {
+            $_tt_error = $context->catch( $@, \$output );
+            die $_tt_error if $_tt_error->type() ne 'return';
+        }
+
+        return $output;
+    };
+
     return;
 }
 
-=item _PrecalculateBlockStructure()
+=head2 _PrecalculateBlockStructure()
 
 pre-calculates the tree structure of the blocks so that it
 can be used by PerformRenderBlock in an efficient way.
@@ -280,7 +345,7 @@ sub _PrecalculateBlockStructure {
     return;
 }
 
-=item _PrecalculateBlockHookSubscriptions()
+=head2 _PrecalculateBlockHookSubscriptions()
 
 =cut
 
@@ -309,7 +374,7 @@ sub _PrecalculateBlockHookSubscriptions {
 
 1;
 
-=back
+=end Internal:
 
 =head1 TERMS AND CONDITIONS
 

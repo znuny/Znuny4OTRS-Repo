@@ -39,7 +39,7 @@ create an object. Do not use it directly, instead use:
 
 =item _OutputFilterHookShift()
 
-modifies content and uses outputfilter hooks to get hook content
+modifies content and uses output filter hooks to get hook content
 
     my $Data = $LayoutObject->_OutputFilterHookShift(
         Name => 'DynamicField',
@@ -100,7 +100,7 @@ Example html for a hook:
 
 =item _OutputFilterHookReplace()
 
-modifies content and uses outputfilter hooks to get hook content
+modifies content and uses output filter hooks to get hook content
 
     my $Success = $LayoutObject->_OutputFilterHookReplace(
         Name    => 'DynamicField',
@@ -178,7 +178,7 @@ Example html for a hook:
 
 =item _OutputFilterHookExists()
 
-modifies content and uses outputfilter hooks to check if a hook exists
+modifies content and uses output filter hooks to check if a hook exists
 
     my $Exists = $LayoutObject->_OutputFilterHookExists(
         Name => 'DynamicField',
@@ -224,7 +224,7 @@ Example html for a hook:
 
 =item _OutputFilterHookInsertAfter()
 
-modifies content and uses outputfilter hooks to add content after hook.
+modifies content and uses output filter hooks to add content after hook.
 
     my $Success = $LayoutObject->_OutputFilterHookInsertAfter(
         Name    => 'DynamicField',
@@ -279,7 +279,7 @@ Example html for a hook:
 
 =item _OutputFilterHookInsertBefore()
 
-modifies content and uses outputfilter hooks to add content before hook.
+modifies content and uses output filter hooks to add content before hook.
 
     my $Success = $LayoutObject->_OutputFilterHookInsertBefore(
         Name    => 'DynamicField',
@@ -334,7 +334,7 @@ Example html for a hook:
 
 =item AddJSOnDocumentCompleteIfNotExists()
 
-this functions adds js by the function AddJSOnDocumentComplete only if it not exists.
+this functions adds JavaScript by the function AddJSOnDocumentComplete only if it not exists.
 
     my $Success = $LayoutObject->AddJSOnDocumentCompleteIfNotExists(
         Key  => 'identifier_key_of_your_js',

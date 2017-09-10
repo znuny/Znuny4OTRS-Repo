@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/d29ce846afdfb52eebed219c0671bfcc0d75e5c9/Kernel/System/UnitTest/Selenium/WebElement.pm
+# $origin: otrs - 04139bf7d2feaf7631ce64edada6d19fea6a3328 - Kernel/System/UnitTest/Selenium/WebElement.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -14,9 +14,14 @@ package Kernel::System::UnitTest::Selenium::WebElement;
 use strict;
 use warnings;
 
-use base qw(Selenium::Remote::WebElement);
+use parent qw(Selenium::Remote::WebElement);
 
-=item VerifiedSubmit()
+=head1 NAME
+
+Kernel::System::UnitTest::Selenium::WebElement - Utility functions for Selenium WebElements
+
+
+=head2 VerifiedSubmit()
 
 Submit a form element, and wait for the page to be fully loaded (works only in OTRS)
 
@@ -31,13 +36,13 @@ sub VerifiedSubmit {
 
     $Self->driver()->WaitFor(
         JavaScript =>
-            'return typeof(Core) == "object" && typeof(Core.Config) == "object" && Core.Config.Get("Baselink")'
+            'return typeof(Core) == "object" && typeof(Core.App) == "object" && Core.App.PageLoadComplete'
     ) || die "OTRS API verification failed after element submit.";
 
     return;
 }
 
-=item VerifiedClick()
+=head2 VerifiedClick()
 
 click an element that causes a page get/reload/submit and wait for the page to be fully loaded
 (works only in OTRS).
@@ -55,15 +60,13 @@ sub VerifiedClick {    ## no critic
 
     $Self->driver()->WaitFor(
         JavaScript =>
-            'return typeof(Core) == "object" && typeof(Core.Config) == "object" && Core.Config.Get("Baselink")'
+            'return typeof(Core) == "object" && typeof(Core.App) == "object" && Core.App.PageLoadComplete'
     ) || die "OTRS API verification failed after element click.";
 
     return;
 }
 
 1;
-
-=back
 
 =head1 TERMS AND CONDITIONS
 
