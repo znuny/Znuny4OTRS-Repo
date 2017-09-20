@@ -1539,6 +1539,123 @@ sub ElementExistsNot {
     );
 }
 
+sub _CaptureScreenshot {
+    my ($Self, $Hook, $Function) = @_;
+
+    # extract caller information:
+    # - Package for checking direct calls and early exit
+    # - Line of function call to be used in filename
+    my ($CallingPackage, $CallerFilename, $TestLine) = caller(1);
+    return if $CallingPackage ne 'Kernel::System::UnitTest';
+
+    # taking a screenshot after the SeleniumObject
+    # is destroyed is not possible
+    if (
+        $Function eq 'DESTROY'
+        && $Hook eq 'AFTER'
+    ) {
+        return;
+    }
+
+    # lat object initialization for performance reasons
+    my $DateTimeObject = $Kernel::OM->Create('Kernel::System::DateTime');
+    my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
+
+    # someone might want to enable local screenshots only if needed?
+    return if $ConfigObject->Get('SeleniumTestsConfig')->{DisableScreenshots};
+
+    # trying to extract the name of the test file right from the UnitTestObject
+    # kind of hacky but there is no other place where to get this information
+    my $TestFile = 'UnknownTestFile';
+    if ($Self->{UnitTestObject}->{XMLUnit} =~ m{scripts\/test\/(.+?)\.t$}) {
+        $TestFile = $1;
+        # make folder path a filename
+        $TestFile =~ s{\/}{_}g;
+    }
+
+    # build filename to be most reasonable and easy to follow like e.g.:
+    # Znuny4OTRSRepo_Selenium_Input-Line 359-InputFieldID-1497085163-BEFORE.png
+    my $SystemTime = $DateTimeObject->ToEpoch();
+    my $Filename   = "$TestFile-Line $TestLine-$Function-$SystemTime-$Hook.png";
+    # use CI project directory so the CI env can collect the artifacts afterwards
+    # fallback to the tmp directory in local environments
+    my $TargetFolder = $ENV{CI_PROJECT_DIR} || $ConfigObject->Get('Home') . '/var/tmp';
+    my $FilePath     = $TargetFolder . '/' . $Filename;
+
+    # finally take the screenshot via the Selenium API
+    # and store it in to the build file path
+    $Self->capture_screenshot($FilePath);
+
+    return 1;
+}
+
+# strongly inspired by: https://stackoverflow.com/a/2663723/7900866
+#
+if ($ENV{SELENIUM_SCREENSHOTS}) {
+    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
+    my @FunctionBlacklist = ('_CaptureScreenshot', 'RunTest', 'AJAXCompleted', 'Dumper');
+
+    my @FunctionWhitelist = map { ## no critic
+        s/^\s+//;  # strip leading spaces
+        s/\s+$//;  # strip trailing spaces
+        $_         # return the modified string
+    } split(',', $ENV{SELENIUM_SCREENSHOTS_FUNCTIONS} || '');
+
+    # wonder if we can get away without 'no strict'? Hate doing that!
+    no strict; ## no critic
+    no warnings; ## no critic
+
+    # iterate over symbol table of the package
+    FUNCTION:
+    for my $FunctionName (sort keys %Kernel::System::UnitTest::Selenium::) {
+
+        # only subroutines needed
+        next FUNCTION if !defined *{$Kernel::System::UnitTest::Selenium::{$FunctionName}}{CODE};
+
+        # skip blacklisted functions
+        next FUNCTION if grep { $FunctionName eq $_ } @FunctionBlacklist;
+
+        # capture all if the full monty is requested
+        if (!$ENV{SELENIUM_SCREENSHOTS_FULL_MONTY}) {
+            # skip if whitelist is defined but function not whitelisted
+            next FUNCTION if !grep {$FunctionName eq $_} @FunctionWhitelist;
+        }
+
+        # skip internal and imported functions
+        next FUNCTION if $FunctionName =~ /^_/;
+        next FUNCTION if $FunctionName !~ /^[[:upper:]]/;
+        next FUNCTION if $FunctionName =~ /^Is[[:upper:]]/;
+
+        # build full and backup function name
+        my $FullName   = "Kernel::System::UnitTest::Selenium::$FunctionName";
+        my $BackupName = "Kernel::System::UnitTest::Selenium::___OLD_$FunctionName";
+
+        # save original sub reference
+        *{$BackupName} = \&{$FullName};
+        # overwrite original with screenshot hook version
+        *{$FullName} = sub {
+            # take screenshot before the original function gets executed
+            _CaptureScreenshot($_[0], 'BEFORE', $FunctionName);
+
+            # call the original function and store
+            # the response in the matching variable type
+            my $Result;
+            if (wantarray) {
+                $Result = [ &{$BackupName}(@_) ];
+            } else {
+                $Result = &{$BackupName}(@_);
+            }
+            # take screenshot before the original function gets executed
+            _CaptureScreenshot($_[0], 'AFTER', $FunctionName);
+
+            # return whatever was expected to get returned
+            return (wantarray && ref $Result eq 'ARRAY')
+                ? @$Result : $Result;
+        };
+    }
+    use strict;
+    use warnings;
+}
 # ---
 
 1;
