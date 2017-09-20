@@ -15,7 +15,6 @@ job_unit_otrs_Znuny4OTRSRepo:
   variables:
     SELENIUM_SCREENSHOTS: 'true'
     SELENIUM_SCREENSHOTS_FUNCTIONS: 'AgentRequest, CustomerRequest'
-    SELENIUM_SCREENSHOTS_FULL_MONTY: 'true'
   artifacts:
     expire_in: 1 week
 #    when: on_failure
