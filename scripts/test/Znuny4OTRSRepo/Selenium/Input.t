@@ -29,19 +29,6 @@ my $SeleniumTest = sub {
     # setup a full featured test environment
     my $TestEnvironmentData = $HelperObject->SetupTestEnvironment();
 
-    my %LoaderConfig = (
-        AgentTicketPhone => [
-            'Core.Form.Znuny4OTRSInput.js',
-        ],
-    );
-
-    my $LoaderAddSuccess = $ZnunyHelperObject->_LoaderAdd(%LoaderConfig);
-
-    $Self->True(
-        $LoaderAddSuccess,
-        "Add Core.Form.Znuny4OTRSInput to AgentTicketPhone JS Loader",
-    );
-
     # create test user and login
     my %TestUser = $SeleniumObject->AgentLogin(
         Groups => [ 'admin', 'users' ],
