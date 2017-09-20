@@ -1567,7 +1567,7 @@ sub _CaptureScreenshot {
     # trying to extract the name of the test file right from the UnitTestObject
     # kind of hacky but there is no other place where to get this information
     my $TestFile = 'UnknownTestFile';
-    if ($Self->{UnitTestObject}->{XMLUnit} =~ m{scripts\/test\/(.+?)\.t$}) {
+    if ($Self->{UnitTestObject}->{TestFile} =~ m{scripts\/test\/(.+?)\.t$}) {
         $TestFile = $1;
         # make folder path a filename
         $TestFile =~ s{\/}{_}g;
