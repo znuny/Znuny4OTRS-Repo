@@ -1570,7 +1570,7 @@ if ($ENV{SELENIUM_SCREENSHOTS}) {
         next FUNCTION if grep { $FunctionName eq $_ } @FunctionBlacklist;
 
         # capture all if the full monty is requested
-        if (!$ENV{SELENIUM_SCREENSHOTS_FULL_MONTY}) {
+        if (@FunctionWhitelist) {
             # skip if whitelist is defined but function not whitelisted
             next FUNCTION if !grep {$FunctionName eq $_} @FunctionWhitelist;
         }
