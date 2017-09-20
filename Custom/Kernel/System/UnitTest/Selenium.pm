@@ -898,52 +898,6 @@ sub InputModule {
     return $Self->execute_script("return Core.Form.Znuny4OTRSInput.Module('$Param{Action}');");
 }
 
-=head2 InputFieldIDMapping()
-
-Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'FieldIDMapping' function.
-Sets OR returns the mapping structure of the given Action.
-
-    my $Result = $SeleniumObject->InputFieldIDMapping(
-        Action  => 'AgentTicketZoom',
-        Mapping => {
-            ...
-            QueueID => 'DestQueueID',
-            ...
-        },
-    );
-
-    $Result = 1;
-
-    # OR
-
-    my $Result = $SeleniumObject->InputFieldIDMapping(
-        Action  => 'AgentTicketZoom',
-    );
-
-    $Result = {
-        DestQueueID => 'DestQueueID',
-        QueueID     => 'DestQueueID'
-    };
-
-=cut
-
-sub InputFieldIDMapping {
-    my ( $Self, %Param ) = @_;
-
-    my $JSONObject = $Kernel::OM->Get('Kernel::System::JSON');
-
-    my $MappingParameter = '';
-    if ( IsHashRefWithData( $Param{Mapping} ) ) {
-
-        my $MappingJSON = $JSONObject->Encode(
-            Data => $Param{Mapping},
-        );
-        $MappingParameter = ", $MappingJSON";
-    }
-
-    return $Self->execute_script("return Core.Form.Znuny4OTRSInput.FieldIDMapping('$Param{Action}' $MappingParameter);");
-}
-
 =head2 AgentLogin()
 
 Creates and logs in an Agent. Calls TestUserDataGet and Login on the Znuny4OTRSHelper object.

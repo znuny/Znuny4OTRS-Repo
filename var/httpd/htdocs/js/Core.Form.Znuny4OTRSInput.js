@@ -20,298 +20,119 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     var AttributFieldIDMapping = {
         AgentTicketActionCommon: {
-            ArticleTypeID:    'ArticleTypeID',
-            NewOwnerID:       'NewOwnerID',
-            OldOwnerID:       'OldOwnerID',
-            OwnerID:          'NewOwnerID',
-            NewPriorityID:    'NewPriorityID',
-            PriorityID:       'NewPriorityID',
-            NewQueueID:       'NewQueueID',
-            QueueID:          'NewQueueID',
-            NewResponsibleID: 'NewResponsibleID',
-            ResponsibleID:    'NewResponsibleID',
-            RichText:         'RichText',
-            Body:             'RichText',
-            ServiceID:        'ServiceID',
-            SLAID:            'SLAID',
-            NewStateID:       'NewStateID',
-            StateID:          'NewStateID',
-            Subject:          'Subject',
-            Title:            'Title',
-            TypeID:           'TypeID'
+            OwnerID:       'NewOwnerID',
+            PriorityID:    'NewPriorityID',
+            QueueID:       'NewQueueID',
+            ResponsibleID: 'NewResponsibleID',
+            Body:          'RichText',
+            StateID:       'NewStateID',
         },
 
         AgentTicketBounce: {
-            BounceStateID: 'BounceStateID',
-            BounceTo:      'BounceTo',
-            CustomerID:    'CustomerID',
-            RichText:      'RichText',
-            Body:          'RichText',
-            Subject:       'Subject',
-            To:            'To'
+            Body: 'RichText',
         },
 
         AgentTicketBulk: {
-            ArticleTypeID: 'ArticleTypeID',
-            RichText:      'Body',
-            Body:          'Body',
-            EmailBody:     'EmailBody',
-            OwnerID:       'OwnerID',
-            PriorityID:    'PriorityID',
-            QueueID:       'QueueID',
-            ResponsibleID: 'ResponsibleID',
-            EmailStateID:  'EmailStateID',
-            StateID:       'EmailStateID',
-            EmailSubject:  'EmailSubject', // TODO: Which one?
-            Subject:       'Subject',
-            TypeID:        'TypeID'
+            RichText: 'Body',
+            StateID:  'EmailStateID',
         },
 
         AgentTicketCompose: {
-            ArticleTypeID:  'ArticleTypeID',
-            BccCustomer:    'BccCustomer',
-            CcCustomer:     'CcCustomer',
-            RichText:       'RichText',
             Body:           'RichText',
-            StateID:        'StateID',
-            Subject:        'Subject',
-            ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
             CustomerUserID: 'ToCustomer'
         },
 
         AgentTicketCustomer: {
-            CustomerAutoComplete: 'CustomerAutoComplete',
-            Customer:             'CustomerAutoComplete',
-            CustomerUserID:       'CustomerAutoComplete',
-            CustomerID:           'CustomerID'
+            Customer:       'CustomerAutoComplete',
+            CustomerUserID: 'CustomerAutoComplete',
         },
 
         AgentTicketEmail: {
-            BccCustomer:      'BccCustomer',
-            CcCustomer:       'CcCustomer',
-            CustomerID:       'CustomerID',
-            NewUserID:        'NewUserID',
-            OwnerID:          'NewUserID',
-            PriorityID:       'PriorityID',
-            Dest:             'Dest',
-            QueueID:          'Dest',
-            NewResponsibleID: 'NewResponsibleID',
-            ResponsibleID:    'NewResponsibleID',
-            RichText:         'RichText',
-            Body:             'RichText',
-            ServiceID:        'ServiceID',
-            SLAID:            'SLAID',
-            NextStateID:      'NextStateID',
-            StateID:          'NextStateID',
-            Subject:          'Subject',
-            ToCustomer:       'ToCustomer',
-            Customer:         'ToCustomer',
-            CustomerUserID:   'ToCustomer',
-            TypeID:           'TypeID'
+            OwnerID:        'NewUserID',
+            QueueID:        'Dest',
+            ResponsibleID:  'NewResponsibleID',
+            Body:           'RichText',
+            StateID:        'NextStateID',
+            Customer:       'ToCustomer',
+            CustomerUserID: 'ToCustomer',
         },
 
         AgentTicketEmailOutbound: {
-            ArticleTypeID:  'ArticleTypeID',
-            BccCustomer:    'BccCustomer',
-            CcCustomer:     'CcCustomer',
-            RichText:       'RichText',
             Body:           'RichText',
-            ComposeStateID: 'ComposeStateID',
             StateID:        'ComposeStateID',
-            Subject:        'Subject',
-            ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
             CustomerUserID: 'ToCustomer'
         },
 
         AgentTicketForward: {
-            ArticleTypeID:  'ArticleTypeID',
-            BccCustomer:    'BccCustomer',
-            CcCustomer:     'CcCustomer',
-            RichText:       'RichText',
             Body:           'RichText',
-            ComposeStateID: 'ComposeStateID',
             StateID:        'ComposeStateID',
-            Subject:        'Subject',
-            ToCustomer:     'ToCustomer',
             Customer:       'ToCustomer',
             CustomerUserID: 'ToCustomer'
         },
 
         AgentTicketMerge: {
-            From:     'From',
-            RichText: 'RichText',
-            Body:     'RichText',
-            Subject:  'Subject',
-            To:       'To'
+            Body: 'RichText',
         },
 
         AgentTicketMove: {
-            DestQueueID:   'DestQueueID',
-            QueueID:       'DestQueueID',
-            NewPriorityID: 'NewPriorityID',
-            PriorityID:    'NewPriorityID',
-            NewStateID:    'NewStateID',
-            StateID:       'NewStateID',
-            NewUserID:     'NewUserID',
-            OldUserID:     'OldUserID',
-            RichText:      'RichText',
-            Body:          'RichText',
-            Subject:       'Subject'
+            QueueID:    'DestQueueID',
+            PriorityID: 'NewPriorityID',
+            StateID:    'NewStateID',
+            Body:       'RichText',
         },
 
         AgentTicketOverviewMedium: {
-            DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID'
+            QueueID: 'DestQueueID'
         },
 
         AgentTicketOverviewPreview: {
-            DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID'
+            QueueID: 'DestQueueID'
         },
 
         AgentTicketOverviewSmall: {
-            DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID'
+            QueueID: 'DestQueueID'
         },
 
         AgentTicketPhone: {
-            CustomerID:       'CustomerID',
-            FromCustomer:     'FromCustomer',
-            CustomerUserID:   'FromCustomer',
-            Customer:         'FromCustomer',
-            NewUserID:        'NewUserID',
-            OwnerID:          'NewUserID',
-            PriorityID:       'PriorityID',
-            Dest:             'Dest',
-            QueueID:          'Dest',
-            NewResponsibleID: 'NewResponsibleID',
-            ResponsibleID:    'NewResponsibleID',
-            RichText:         'RichText',
-            Body:             'RichText',
-            ServiceID:        'ServiceID',
-            SLAID:            'SLAID',
-            NextStateID:      'NextStateID',
-            StateID:          'NextStateID',
-            Subject:          'Subject',
-            TypeID:           'TypeID'
+            CustomerUserID: 'FromCustomer',
+            Customer:       'FromCustomer',
+            OwnerID:        'NewUserID',
+            QueueID:        'Dest',
+            ResponsibleID:  'NewResponsibleID',
+            Body:           'RichText',
+            StateID:        'NextStateID',
         },
 
         AgentTicketPhoneCommon: {
-            RichText:    'RichText',
-            Body:        'RichText',
-            NextStateID: 'NextStateID',
-            StateID:     'NextStateID',
-            Subject:     'Subject'
+            Body:    'RichText',
+            StateID: 'NextStateID',
         },
 
         AgentTicketZoom: {
-            DestQueueID: 'DestQueueID',
-            QueueID:     'DestQueueID'
+            QueueID: 'DestQueueID'
         },
 
         CustomerTicketMessage: {
-            Dest:       'Dest',
-            QueueID:    'Dest',
-            PriorityID: 'PriorityID',
-            RichText:   'RichText',
-            Body:       'RichText',
-            ServiceID:  'ServiceID',
-            SLAID:      'SLAID',
-            Subject:    'Subject',
-            TypeID:     'TypeID'
+            QueueID: 'Dest',
+            Body:    'RichText',
         },
 
         CustomerTicketZoom: {
-            PriorityID: 'PriorityID',
-            RichText:   'RichText',
-            Body:       'RichText',
-            StateID:    'StateID',
-            Subject:    'Subject'
+            Body: 'RichText',
         },
 
         AgentTicketProcess: {
-            Subject:         'Subject',
-            RichText:        'RichText',
-            Body:            'RichText',
-            Customer:        'CustomerAutoComplete',
-            CustomerUserID:  'CustomerAutoComplete',
-            CustomerID:      'CustomerID',
-            Title:           'Title',
-            ResponsibleID:   'ResponsibleID',
-            OwnerID:         'OwnerID',
-            SLAID:           'SLAID',
-            ServiceID:       'ServiceID',
-            LockID:          'LockID',
-            PriorityID:      'PriorityID',
-            QueueID:         'QueueID',
-            StateID:         'StateID',
-            TypeID:          'TypeID',
-            ProcessEntityID: 'ProcessEntityID',
-            TimeUnits:       'TimeUnits'
+            Body:           'RichText',
+            Customer:       'CustomerAutoComplete',
+            CustomerUserID: 'CustomerAutoComplete',
         },
 
         CustomerTicketProcess: {
-            Subject:         'Subject',
-            RichText:        'RichText',
-            Body:            'RichText',
-            Customer:        'CustomerAutoComplete',
-            CustomerUserID:  'CustomerAutoComplete',
-            CustomerID:      'CustomerID',
-            Title:           'Title',
-            ResponsibleID:   'ResponsibleID',
-            OwnerID:         'OwnerID',
-            SLAID:           'SLAID',
-            ServiceID:       'ServiceID',
-            LockID:          'LockID',
-            PriorityID:      'PriorityID',
-            QueueID:         'QueueID',
-            StateID:         'StateID',
-            TypeID:          'TypeID',
-            ProcessEntityID: 'ProcessEntityID'
-        },
-
-        AgentITSMChangeEdit: {
-            ChangeTitle:   'ChangeTitle',
-            RichText1:     'RichText1',
-            RichText2:     'RichText2',
-            CategoryID:    'CategoryID',
-            ImpactID:      'ImpactID',
-            PriorityID:    'PriorityID',
-            ChangeStateID: 'ChangeStateID'
-        },
-
-        AgentITSMChangeAdd: {
-            ChangeTitle: 'ChangeTitle',
-            RichText1:   'RichText1',
-            RichText2:   'RichText2',
-            CategoryID:  'CategoryID',
-            ImpactID:    'ImpactID',
-            PriorityID:  'PriorityID'
-        },
-
-        AgentITSMWorkOrderReport: {
-            RichText:         'RichText',
-            WorkOrderStateID: 'WorkOrderStateID',
-            AccountedTime:    'AccountedTime'
-        },
-
-        AgentITSMWorkOrderBulk: {
-            RichText:         'RichText',
-            WorkOrderStateID: 'WorkOrderStateID',
-            ActualStartTime:  'ActualStartTime',
-            ActualEndTime:    'ActualEndTime',
-            AccountedTime:    'AccountedTime'
-        },
-
-        AgentITSMWorkOrderAdd: {
-            WorkOrderTitle:   'WorkOrderTitle',
-            RichText:         'RichText',
-            WorkOrderTypeID:  'WorkOrderTypeID',
-            PlannedStartTime: 'PlannedStartTime',
-            PlannedEndTime:   'PlannedEndTime',
-            PlannedEffort:    'PlannedEffort'
+            Body:           'RichText',
+            Customer:       'CustomerAutoComplete',
+            CustomerUserID: 'CustomerAutoComplete',
         }
     };
 
@@ -327,8 +148,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         AgentTicketPhoneOutbound: 'AgentTicketPhoneCommon',
 
         // Znuny4OTRS-SecondTicketCreateScreen
-        AgentTicketEmailSecond:   'AgentTicketEmail',
-        AgentTicketPhoneSecond:   'AgentTicketPhone'
+        AgentTicketEmailSecond: 'AgentTicketEmail',
+        AgentTicketPhoneSecond: 'AgentTicketPhone'
     }
 
     TargetNS.FieldID = function (Attribute) {
@@ -357,39 +178,15 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             !AttributFieldIDMapping[ Module ]
             || !AttributFieldIDMapping[ Module ][ Attribute ]
         ) {
-            return false;
+            if ($('#'+ Attribute).length > 0) {
+                return Attribute;
+            }
+            else {
+                return false;
+            }
         }
 
         return AttributFieldIDMapping[Module][Attribute];
-    }
-
-    /*
-
-    Adds a field mapping to an Action.
-
-        var Result = Core.Form.Znuny4OTRSInput.FieldIDMapping('AdminQueue',
-            {
-                EscalationStep1Color: 'EscalationStep1Color' # FirstParam = AccessKey
-                                                             # SecondParam = ID of the HTML element on page
-            }
-        );
-
-    Returns:
-
-        Result = {
-            EscalationStep1Color: 'EscalationStep1Color'
-        };
-
-    */
-    TargetNS.FieldIDMapping = function (Action, AttributeFieldIDs) {
-
-        var Module = TargetNS.Module(Action);
-
-        if (typeof AttributeFieldIDs === 'object') {
-            AttributFieldIDMapping[Module] = AttributeFieldIDs;
-        }
-
-        return AttributFieldIDMapping[Module];
     }
 
     TargetNS.Module = function (Action) {
