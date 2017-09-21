@@ -58,32 +58,6 @@ $Self->True(
     'Test basic function call of _EventRemove()',
 );
 
-# Tests for _LoaderAdd function
-my $ResultLoaderAdd = $ZnunyHelperObject->_LoaderAdd(
-    'AgentTicketPhone' => [
-        'Core.Agent.Test.css',
-        'Core.Agent.Test.js'
-    ],
-);
-
-$Self->True(
-    $ResultLoaderAdd,
-    'Test basic function call of _LoaderAdd()',
-);
-
-# Tests for _LoaderRemove function
-my $ResultLoaderRemove = $ZnunyHelperObject->_LoaderRemove(
-    'AgentTicketPhone' => [
-        'Core.Agent.Test.css',
-        'Core.Agent.Test.js'
-    ],
-);
-
-$Self->True(
-    $ResultLoaderRemove,
-    'Test basic function call of _LoaderRemove()',
-);
-
 my $Success;
 my %DefaultColumns = (
     Title                     => 1,
