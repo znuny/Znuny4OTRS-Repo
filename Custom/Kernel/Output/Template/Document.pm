@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/3888cdb46ce619e92c6f5330cea951c96a697b33/Kernel/Output/Template/Document.pm
+# $origin: otrs - 3888cdb46ce619e92c6f5330cea951c96a697b33 - Kernel/Output/Template/Document.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you

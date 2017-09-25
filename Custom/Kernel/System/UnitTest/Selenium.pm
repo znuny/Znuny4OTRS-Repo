@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/c5b77b7918dd1ccaf1ae1c20f997ed5c019d3f86/Kernel/System/UnitTest/Selenium.pm
+# $origin: otrs - c5b77b7918dd1ccaf1ae1c20f997ed5c019d3f86 - Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
