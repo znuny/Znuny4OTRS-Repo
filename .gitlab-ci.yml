@@ -1,4 +1,4 @@
-image: otrs5ci
+image: registry.znuny.com/znuny/docker-otrs5ci:latest
 
 stages:
   - test
