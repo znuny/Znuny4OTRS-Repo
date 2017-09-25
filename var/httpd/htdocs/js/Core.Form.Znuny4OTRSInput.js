@@ -149,7 +149,17 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         // Znuny4OTRS-SecondTicketCreateScreen
         AgentTicketEmailSecond: 'AgentTicketEmail',
-        AgentTicketPhoneSecond: 'AgentTicketPhone'
+        AgentTicketPhoneSecond: 'AgentTicketPhone',
+
+        // Znuny4OTRS-AdditionalCommon
+        AgentTicketAdditionalCommon1: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon2: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon3: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon4: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon5: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon6: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon7: 'AgentTicketActionCommon',
+        AgentTicketAdditionalCommon8: 'AgentTicketActionCommon',
     }
 
     TargetNS.FieldID = function (Attribute) {
