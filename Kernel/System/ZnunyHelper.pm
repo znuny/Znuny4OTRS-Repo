@@ -4230,24 +4230,6 @@ sub _RebuildConfig {
     return 1;
 }
 
-=item _PackageSetupInit()
-
-Alias for _RebuildConfig() to support old-style code.
-
-    my $Success = $ZnunyHelperObject->_PackageSetupInit();
-
-Returns:
-
-    my $Success = 1;
-
-=cut
-
-sub _PackageSetupInit {
-    my ( $Self, %Param ) = @_;
-
-    return $Self->_RebuildConfig(%Param);
-}
-
 =item _ProcessCreateIfNotExists()
 
 creates processes if there is no active process with the same name
