@@ -74,7 +74,7 @@ sub new {
     my $Self = \%Param;
     bless( $Self, $Type );
 
-    $Self->_PackageSetupInit();
+    $Self->_RebuildConfig();
 
     return $Self;
 }
@@ -1958,7 +1958,7 @@ sub _DynamicFieldsScreenConfigImport {
 
         # reload the ZZZ files
         # get a new config object to make sure config is updated
-        $Self->_PackageSetupInit();
+        $Self->_RebuildConfig();
 
     }
 
