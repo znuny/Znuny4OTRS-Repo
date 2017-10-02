@@ -4195,9 +4195,44 @@ sub _WebservicesGet {
     return \%Webservices;
 }
 
+=item _RebuildConfig()
+
+Rebuilds OTRS config.
+
+    my $Success = $ZnunyHelperObject->_RebuildConfig();
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _RebuildConfig {
+    my ( $Self, %Param ) = @_;
+
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+    # Rebuild the configuration
+    $SysConfigObject->ConfigurationDeploy(
+        AllSettings => 1,
+        Force       => 1,
+        UserID      => 1,
+    );
+
+    # Remove the ZZZAAuto.pm from %INC to force reloading it
+    delete $INC{'Kernel/Config/Files/ZZZAAuto.pm'};
+
+    # Make sure to use a new config object
+    $Kernel::OM->ObjectsDiscard(
+        Objects => ['Kernel::Config'],
+    );
+
+    return 1;
+}
+
 =item _PackageSetupInit()
 
-set up initial steps for package setup
+Alias for _RebuildConfig() to support old-style code.
 
     my $Success = $ZnunyHelperObject->_PackageSetupInit();
 
@@ -4210,24 +4245,7 @@ Returns:
 sub _PackageSetupInit {
     my ( $Self, %Param ) = @_;
 
-    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
-    # 'Rebuild' the configuration
-    $SysConfigObject->ConfigurationDeploy(
-        AllSettings => 1,
-        Force       => 1,
-        UserID      => 1,
-    );
-
-    # Remove the ZZZAAuto.pm from %INC to force reloading it
-    delete $INC{'Kernel/Config/Files/ZZZAAuto.pm'};
-
-    # make sure to use a new config object
-    $Kernel::OM->ObjectsDiscard(
-        Objects => ['Kernel::Config'],
-    );
-
-    return 1;
+    return $Self->_RebuildConfig(%Param);
 }
 
 =item _ProcessCreateIfNotExists()
