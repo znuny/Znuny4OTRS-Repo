@@ -103,7 +103,7 @@ for my $Test (@Tests) {
     next TEST if !$Test->{ExpectedResult};
 
     # Write config changes
-    $ZnunyHelperObject->_PackageSetupInit();
+    $ZnunyHelperObject->_RebuildConfig();
 
     # refetch config object because it was discarded by _PackageSetupInit
     $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -137,7 +137,7 @@ for my $Test (@Tests) {
     next TEST if $RemoveResult != $Test->{ExpectedResult};
 
     # Write config changes
-    $ZnunyHelperObject->_PackageSetupInit();
+    $ZnunyHelperObject->_RebuildConfig();
 
     # refetch config object because it was discarded by _PackageSetupInit
     $ConfigObject = $Kernel::OM->Get('Kernel::Config');

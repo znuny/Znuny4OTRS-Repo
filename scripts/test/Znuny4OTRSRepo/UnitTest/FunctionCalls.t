@@ -120,7 +120,7 @@ $Self->True(
     'Test basic function call of _DynamicFieldsScreenEnable()',
 );
 
-$ZnunyHelperObject->_PackageSetupInit();
+$ZnunyHelperObject->_RebuildConfig();
 $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 
@@ -144,7 +144,7 @@ $Self->True(
     'Test basic function call of _DynamicFieldsScreenDisable()',
 );
 
-$ZnunyHelperObject->_PackageSetupInit();
+$ZnunyHelperObject->_RebuildConfig();
 $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 
