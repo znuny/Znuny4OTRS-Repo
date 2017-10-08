@@ -14,6 +14,7 @@
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
 ## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::ZnunyTime)
 
 package Kernel::System::UnitTest::Helper;
 
@@ -504,6 +505,11 @@ sub FixedTimeSet {
     #   to get a hold of the overrides.
     my @Objects = (
         'Kernel::System::Time',
+# ---
+# Znuny4OTRS-Repo
+# ---
+        'Kernel::System::ZnunyTime',
+# ---
         'Kernel::System::Cache::FileStorable',
         'Kernel::System::PID',
     );
