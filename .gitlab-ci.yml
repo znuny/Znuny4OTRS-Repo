@@ -40,3 +40,4 @@ job_unit_otrs_Znuny4OTRSRepo:
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/SimpleEmailValidate" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ValidDynamicFieldScreenListGet" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ZnunyTime" -s /bin/bash otrs
