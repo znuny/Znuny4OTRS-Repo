@@ -22,6 +22,7 @@
 # Behavior is exactly like in OTRS 6.
 package Kernel::System::ZnunyTime;
 # ---
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::HashObjectMethodCall)
 
 use strict;
 use warnings;
