@@ -2333,10 +2333,12 @@ sub _PriorityCreateIfNotExists {
 
 creates State if not exists
 
+    # e.g. new|open|closed|pending reminder|pending auto|removed|merged
+    my $StateTypeID = $StateObject->StateTypeLookup( StateType => 'pending auto' );
+
     my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
-        Name => 'Some State Name',
-        # e.g. new|open|closed|pending reminder|pending auto|removed|merged
-        TypeID => $StateObject->StateTypeLookup( StateType => 'pending auto' ),
+        Name   => 'Some State Name',
+        TypeID => $StateTypeID,
     );
 
 Returns:
