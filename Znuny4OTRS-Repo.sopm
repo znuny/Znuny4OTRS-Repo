@@ -167,6 +167,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
         <File Permission="660" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
         <File Permission="660" Location="Kernel/Autoload/Znuny4OTRSRepo.pm"/>
+        <File Permission="660" Location="Kernel/Autoload/Znuny4OTRSRepoArticle.pm"/>
         <File Permission="660" Location="Kernel/Config/Files/XML/Znuny4OTRSRepo.xml"/>
         <File Permission="660" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>

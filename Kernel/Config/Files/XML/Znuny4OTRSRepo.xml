@@ -4,10 +4,12 @@
         <Description Translatable="1">Autoloading of Znuny4OTRSRepo extensions.</Description>
         <Navigation>Core::Autoload</Navigation>
         <Value>
-            <Item ValueType="String">Kernel::Autoload::Test</Item>
+            <Array>
+                <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepo</Item>
+                <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoArticle</Item>
+            </Array>
         </Value>
     </Setting>
-
     <Setting Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
         <Description Translatable="1">Define private addon repos.</Description>
         <Navigation>Core</Navigation>
