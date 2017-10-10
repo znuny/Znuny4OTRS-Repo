@@ -74,8 +74,6 @@ sub new {
     my $Self = \%Param;
     bless( $Self, $Type );
 
-    $Self->_RebuildConfig();
-
     return $Self;
 }
 
