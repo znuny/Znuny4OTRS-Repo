@@ -18,7 +18,10 @@ use warnings;
 
 use Kernel::System::VariableCheck qw(:all);
 
-our $ObjectManagerDisabled = 1;
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::SystemData',
+);
 
 # disable redefine warnings in this scope
 {
