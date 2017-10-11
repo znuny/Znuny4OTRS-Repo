@@ -1935,31 +1935,32 @@ sub ArticleCreate {
     my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
     my $TicketObjectLoaded = $MainObject->Require(
-        'Kernel::System::Ticket',
+        'Kernel::System::Ticket::Article',
     );
 
     $Self->{UnitTestObject}->True(
         $TicketObjectLoaded,
-        'Loaded TicketObject via MainObject',
+        'Loaded ArticleObject via MainObject',
     );
 
-    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
 
     my %ArticleAttributes = (
-        ArticleType    => 'note-internal',
-        SenderType     => 'agent',
-        Subject        => 'UnitTest subject test',
-        Body           => 'UnitTest body test',
-        ContentType    => 'text/plain; charset=ISO-8859-15',
-        HistoryType    => 'OwnerUpdate',
-        HistoryComment => 'Some free text!',
-        UserID         => 1,
-        NoAgentNotify  => 1,
+        IsVisibleForCustomer => 0,
+        ChannelName          => 'Internal',
+        SenderType           => 'agent',
+        Subject              => 'UnitTest subject test',
+        Body                 => 'UnitTest body test',
+        ContentType          => 'text/plain; charset=ISO-8859-15',
+        HistoryType          => 'OwnerUpdate',
+        HistoryComment       => 'Some free text!',
+        UserID               => 1,
+        NoAgentNotify        => 1,
         %Param,
     );
 
     # create test ticket
-    my $ArticleID = $TicketObject->ArticleCreate(%ArticleAttributes);
+    my $ArticleID = $ArticleObject->ArticleCreate(%ArticleAttributes);
 
     $Self->{UnitTestObject}->True(
         $ArticleID,
