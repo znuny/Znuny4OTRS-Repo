@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.1</Version>
+    <Version>6.0.2</Version>
+    <ChangeLog Version="6.0.2" Date="2017-10-12 11:28:57 +0200">- Removed rebuild config in constructor, because it will trigger a object discard which will cause trouble in unit tests for example.&#13;
+- Fixed ArticleCreate helper function. &#13;
+- Removed object manager disabled from autoload modules. &#13;
+- Added article methods that have been removed from Kernel::System::Ticket::Article module in OTRS 6.</ChangeLog>
     <ChangeLog Version="6.0.1" Date="2017-10-09 10:56:48 +0200">Initial release 6.0.x.</ChangeLog>
     <ChangeLog Version="5.0.28" Date="2017-07-26 13:33:00 +0200">Added new helper functions _ITSMConfigItemDefinitionCreate and _ITSMConfigItemDefinitionCreateIfNotExists to easy add and update new definitions for cmdb classes.</ChangeLog>
     <ChangeLog Version="5.0.27" Date="2017-07-04 15:26:45 +0200">Added option to only disable Znuny repositories in package manager.</ChangeLog>
