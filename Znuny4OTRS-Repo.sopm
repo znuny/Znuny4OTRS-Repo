@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.2</Version>
+    <Version>6.0.3</Version>
+    <ChangeLog Version="6.0.3" Date="2017-10-13 12:27:14 +0200">Updated custom modules to latest framework version.</ChangeLog>
     <ChangeLog Version="6.0.2" Date="2017-10-12 11:28:57 +0200">- Removed rebuild config in constructor, because it will trigger a object discard which will cause trouble in unit tests for example.&#13;
 - Fixed ArticleCreate helper function. &#13;
 - Removed object manager disabled from autoload modules. &#13;
