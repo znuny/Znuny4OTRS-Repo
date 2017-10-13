@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 5238d2f8b49249644c38122eb66b2c6366acc858 - Kernel/System/UnitTest/Selenium.pm
+# $origin: otrs - c1bfa0f963d9f7fe757abef1a8e6c60cba13905a - Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -10,7 +10,6 @@
 # --
 
 package Kernel::System::UnitTest::Selenium;
-use Kernel::System::UnitTest::Helper;
 
 use strict;
 use warnings;
@@ -22,6 +21,7 @@ use Time::HiRes();
 
 use Kernel::Config;
 use Kernel::System::User;
+use Kernel::System::UnitTest::Helper;
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -39,13 +39,9 @@ our @ObjectDependencies = (
 # Znuny4OTRS-Repo
 # ---
 #     'Kernel::System::DateTime',
-# ---
-    'Kernel::System::UnitTest',
-# ---
-# Znuny4OTRS-Repo
-# ---
     'Kernel::System::JSON',
 # ---
+    'Kernel::System::UnitTest',
     'Kernel::System::UnitTest::Helper',
 );
 
@@ -232,6 +228,28 @@ sub get {    ## no critic
     $Self->SUPER::get($URL);
 
     return;
+}
+
+=head2 get_alert_text()
+
+Override get_alert_text() method of base class to return alert text as string.
+
+    my $AlertText = $SeleniumObject->get_alert_text();
+
+returns
+
+    my $AlertText = 'Some alert text!'
+
+=cut
+
+sub get_alert_text {    ## no critic
+    my ($Self) = @_;
+
+    my $AlertText = $Self->SUPER::get_alert_text();
+
+    die "Alert dialog is not present" if ref $AlertText eq 'HASH';    # Chrome returns HASH when there is no alert text.
+
+    return $AlertText;
 }
 
 =head2 VerifiedGet()
