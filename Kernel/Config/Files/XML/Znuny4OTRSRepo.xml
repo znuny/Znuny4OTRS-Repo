@@ -12,7 +12,7 @@
     </Setting>
     <Setting Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
         <Description Translatable="1">Define private addon repos.</Description>
-        <Navigation>Core</Navigation>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
             <Hash>
                 <Item Key="API-KEY">My Addons</Item>
@@ -21,7 +21,7 @@
     </Setting>
     <Setting Name="Znuny4OTRSRepoType" Required="1" Valid="1">
         <Description Translatable="1">Access repos via http or https.</Description>
-        <Navigation>Core</Navigation>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
             <Item ValueType="Select" SelectedID="https">
                 <Item ValueType="Option" Value="https">https</Item>
@@ -31,14 +31,14 @@
     </Setting>
     <Setting Name="Znuny4OTRSCloudServiceProxyURL" Required="1" Valid="1">
         <Description Translatable="1">This configuration defines the URL to the OTRS CloudService Proxy service. The http or https prefix will be added, depending on selection SysConfig 'Znuny4OTRSRepoType'.</Description>
-        <Navigation>Core</Navigation>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
             <Item ValueType="String" ValueRegex="">portal.znuny.com/api/otrs_cloud_service/</Item>
         </Value>
     </Setting>
     <Setting Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
         <Description Translatable="1">Disable online repositories.</Description>
-        <Navigation>Core</Navigation>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
             <Item ValueType="Select" SelectedID="0">
                 <Item ValueType="Option" Value="0">Enable online repositories</Item>
@@ -49,7 +49,7 @@
     </Setting>
     <Setting Name="PackageVerification" Required="1" Valid="1">
         <Description Translatable="1">This configuration defines if the OTRS package verification should be active or disabled. If disabled all packages are shown as verified. It's still recommended to use only verified packages.</Description>
-        <Navigation>Core</Navigation>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
             <Item ValueType="Select" SelectedID="1">
                 <Item ValueType="Option" Value="1">Active</Item>
@@ -582,7 +582,7 @@
     </Setting>
     <Setting Name="Frontend::Template::GenerateBlockHooks###100-Znuny4OTRSRepoAdminPackageManager" Required="1" Valid="1">
         <Description Translatable="1">Block hooks to be created for package manager output filter.</Description>
-        <Navigation>Core</Navigation>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
             <Hash>
                 <Item Key="AdminPackageManager">
