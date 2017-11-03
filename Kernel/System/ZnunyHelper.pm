@@ -4738,6 +4738,224 @@ sub _ModuleGroupRemove {
     return 1;
 }
 
+=item _GenericAgentCreate()
+
+creates or updates generic agents
+
+    my @GenericAgents = (
+        {
+            Name => 'JobName',
+            Data => {
+                Valid => '1',
+
+                # Automatic execution (multiple tickets)
+                ScheduleMinutes => [
+                    '16'
+                ],
+                ScheduleHours => [
+                    '4'
+                ],
+                ScheduleDays => [
+                    '5'
+                ],
+
+                # Event based execution (single ticket)
+                EventValues => [
+                    'TicketCreate'
+                    # SysConfig - Events###Ticket
+                    # SysConfig - Events###Article
+                ],
+
+                # Select Tickets
+                TicketNumber      => '1234',
+                Title             => 'Title',
+                CustomerID        => 'Kundennummer',
+                CustomerUserLogin => 'Kundenbenutzer',
+                From              => 'VonZnuny',
+                To                => 'AnZnuny',
+                Cc                => 'CCZnuny',
+                Body              => 'Text',
+                Subject           => 'Subject',
+                ServiceIDs        => [
+                    '1'
+                ],
+                SLAIDs => [
+                    '1'
+                ],
+                PriorityIDs => [
+                    '3'
+                ],
+                QueueIDs => [
+                    '2',
+                    '1'
+                ],
+                StateIDs => [
+                    '4'
+                ],
+                OwnerIDs => [
+                    '1'
+                ],
+                LockIDs => [
+                    '1'
+                ],
+                Search_DynamicField_Text => '',
+
+                EscalationResponseTimeSearchType => '',
+                EscalationSolutionTimeSearchType => '',
+                EscalationTimeSearchType         => '',
+                EscalationUpdateTimeSearchType   => '',
+                LastChangeTimeSearchType         => '',
+                TimePendingSearchType => '',
+                TimeSearchType        => '',
+                ChangeTimeSearchType => '',
+                CloseTimeSearchType  => '',
+
+                # Update/Add Ticket Attributes
+                NewPendingTime       => '',
+                NewCustomerID        => 'Znuny',
+                NewCustomerUserLogin => 'Customer',
+                NewLockID            => '1',
+                NewOwnerID           => '1',
+                NewPendingTimeType   => '60',
+                NewPriorityID        => '1',
+                NewQueueID           => '2',
+                NewSLAID             => '3',
+                NewServiceID         => '7',
+                NewStateID           => '1',
+                NewTitle             => 'New Title',
+                DynamicField_Text    => '',
+
+                # Add Note
+                NewNoteFrom      => 'support@znuny.com',
+                NewNoteSubject   => 'Znuny Note Subject',
+                NewNoteBody      => 'Znuny Note Text',
+                NewNoteTimeUnits => '1604',
+
+                # Execute Ticket Commands
+                NewCMD                => '',
+                NewSendNoNotification => '0',
+                NewDelete             => '0',
+
+                # Execute Custom Module
+                NewModule      => '',
+                NewParamKey1   => '',
+                NewParamKey2   => '',
+                NewParamKey3   => '',
+                NewParamKey4   => '',
+                NewParamKey5   => '',
+                NewParamKey6   => '',
+                NewParamValue1 => '',
+                NewParamValue2 => '',
+                NewParamValue3 => '',
+                NewParamValue4 => '',
+                NewParamValue5 => '',
+                NewParamValue6 => '',
+            },
+            UserID => 1,
+        },
+    );
+
+    my $Success = $ZnunyHelperObject->_GenericAgentCreate( @GenericAgents );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _GenericAgentCreate {
+    my ( $Self, @GenericAgents ) = @_;
+
+    my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
+    my $CacheObject        = $Kernel::OM->Get('Kernel::System::Cache');
+
+    $CacheObject->CleanUp(
+        Type => 'GenericAgent',
+    );
+
+    # get all current dynamic fields
+    my %GenericAgentList = $GenericAgentObject->JobList();
+
+    # create or update generic agents
+    GENERICAGENT:
+    for my $NewGenericAgent (@GenericAgents) {
+
+        # check and delete if the generic agent already exists
+        # no generic agent update function exists
+        if ( $GenericAgentList{ $NewGenericAgent->{Name} }) {
+            $GenericAgentObject->JobDelete(
+                Name   => $NewGenericAgent->{Name},
+                UserID => 1,
+            );
+        }
+
+        # create generic agent
+        $GenericAgentObject->JobAdd(
+            UserID  => 1,
+            ValidID => 1,
+            %{ $NewGenericAgent },
+        );
+
+    }
+
+    return 1;
+}
+
+=item _GenericAgentCreateIfNotExists()
+
+creates generic agents if not exists
+
+    my @GenericAgents = (
+        {
+            Name => 'JobName',
+            Data => {
+                Valid => '1',
+                ...
+                Title => 'Test'
+            },
+            UserID => 1,
+        },
+    );
+
+    my $Success = $ZnunyHelperObject->_GenericAgentCreateIfNotExists( @GenericAgents );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _GenericAgentCreateIfNotExists {
+    my ( $Self, @GenericAgents ) = @_;
+
+    my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
+    my $CacheObject        = $Kernel::OM->Get('Kernel::System::Cache');
+
+    $CacheObject->CleanUp(
+        Type => 'GenericAgent',
+    );
+
+    # get all current dynamic fields
+    my %GenericAgentList = $GenericAgentObject->JobList();
+
+    GENERICAGENT:
+    for my $NewGenericAgent (@GenericAgents) {
+
+        # check if the generic agent already exists
+        next GENERICAGENT if $GenericAgentList{ $NewGenericAgent->{Name} };
+
+        # create generic agent
+        $GenericAgentObject->JobAdd(
+            UserID  => 1,
+            ValidID => 1,
+            %{ $NewGenericAgent },
+        );
+    }
+
+    return 1;
+}
+
+
 1;
 
 =back
