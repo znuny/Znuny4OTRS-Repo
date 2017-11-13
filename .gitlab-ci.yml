@@ -41,3 +41,8 @@ job_unit_otrs_Znuny4OTRSRepo:
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ValidDynamicFieldScreenListGet" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ZnunyTime" -s /bin/bash otrs
+
+job_deploy_otrs_Znuny4OTRSRepo:
+  stage: deploy
+  script:
+    - sh /sync_repo.sh git@github.com:znuny/Znuny4OTRS-Repo.git
