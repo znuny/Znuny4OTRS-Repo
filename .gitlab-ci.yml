@@ -9,6 +9,7 @@ variables:
 
 stages:
   - test
+  - deploy
 
 job_unit_otrs_Znuny4OTRSRepo:
   stage: test
