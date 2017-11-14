@@ -6,6 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 # nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
+# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::DeprecatedArticleFunctions)
 package Kernel::System::Ticket::Article;    ## no critic
 
 =head1 NAME
@@ -15,10 +16,6 @@ Kernel::System::Ticket::Article
 =head1 SYNOPSIS
 
 Article helpers.
-
-=head1 PUBLIC INTERFACE
-
-=over 4
 
 =cut
 
@@ -101,7 +98,7 @@ sub SendAutoResponse {
     return $ArticleID;
 }
 
-=item ArticleIndex()
+=head2 ArticleIndex()
 
 returns an array with article IDs
 
@@ -131,6 +128,89 @@ sub ArticleIndex {
     return @ArticleIDs;
 }
 
-1;
+=head2 ArticleAttachmentIndex()
 
-=back
+returns an array with article IDs
+
+    my %AttachmentIndex = $ArticleObject->ArticleAttachmentIndex(
+        TicketID         => 123,
+        ArticleID        => 123,
+        ExcludePlainText => 1,       # (optional) Exclude plain text attachment
+        ExcludeHTMLBody  => 1,       # (optional) Exclude HTML body attachment
+        ExcludeInline    => 1,       # (optional) Exclude inline attachments
+        OnlyHTMLBody     => 1,       # (optional) Return only HTML body attachment, return nothing if not found
+    );
+
+Returns:
+
+    my %AttachmentIndex = (
+        '1' => {
+            'FilesizeRaw'        => '804764',
+            'Disposition'        => 'attachment',
+            'ContentType'        => 'image/jpeg',
+            'ContentAlternative' => '',
+            'Filename'           => 'blub.jpg',
+            'ContentID'          => ''
+        },
+        # ...
+    );
+
+=cut
+
+sub ArticleAttachmentIndex {
+    my ( $Self, %Param ) = @_;
+
+    my $ArticleBackendObject = $Self->BackendForArticle(
+        TicketID  => $Param{TicketID},
+        ArticleID => $Param{ArticleID}
+    );
+    return if !$ArticleBackendObject;
+
+    my %AttachmentIndex = $ArticleBackendObject->ArticleAttachmentIndex(
+        %Param,
+    );
+
+    return %AttachmentIndex;
+}
+
+=head2 ArticleAttachment()
+
+Get article attachment from storage. This is a delegate method from active backend.
+
+    my %Attachment = $ArticleBackendObject->ArticleAttachment(
+        TicketID  => 123,
+        ArticleID => 123,
+        FileID    => 1,   # as returned by ArticleAttachmentIndex
+    );
+
+Returns:
+
+    %Attachment = (
+        Content            => 'xxxx',     # actual attachment contents
+        ContentAlternative => '',
+        ContentID          => '',
+        ContentType        => 'application/pdf',
+        Filename           => 'StdAttachment-Test1.pdf',
+        FilesizeRaw        => 4722,
+        Disposition        => 'attachment',
+    );
+
+=cut
+
+sub ArticleAttachment {    ## no critic;
+    my ( $Self, %Param ) = @_;
+
+    my $ArticleBackendObject = $Self->BackendForArticle(
+        TicketID  => $Param{TicketID},
+        ArticleID => $Param{ArticleID}
+    );
+    return if !$ArticleBackendObject;
+
+    my %Attachment = $ArticleBackendObject->ArticleAttachment(
+        %Param,
+    );
+
+    return %Attachment;
+}
+
+1;
