@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.16</Version>
+    <Version>4.0.17</Version>
+    <ChangeLog Version="4.0.17" Date="2017-11-14 17:57:24 +0100">Fixed bug: XMLData doesn't need a value.</ChangeLog>
     <ChangeLog Version="4.0.16" Date="2017-07-04 15:25:22 +0200">Added option to only disable Znuny repositories in package manager.</ChangeLog>
     <ChangeLog Version="4.0.15" Date="2017-07-03 15:23:32 +0200">Package manager: Repository selection and list will now be hidden/removed if SysConfig option Znuny4OTRSRepoDisable is active.</ChangeLog>
     <ChangeLog Version="4.0.14" Date="2017-05-30 19:21:29 +0200">Added security fix.</ChangeLog>
