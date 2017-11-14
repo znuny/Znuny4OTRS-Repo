@@ -3463,7 +3463,7 @@ sub _ITSMVersionAdd {
         );
         return;
     }
-    if ( $Param{XMLData} && !IsHashRefWithData( $Param{XMLData} ) ) {
+    if ( $Param{XMLData} && ref $Param{XMLData} ne 'HASH' ) {
         $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter 'XMLData' as hash ref needed!",
