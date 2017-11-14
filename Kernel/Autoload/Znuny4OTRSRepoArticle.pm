@@ -8,6 +8,20 @@
 # nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
 package Kernel::System::Ticket::Article;    ## no critic
 
+=head1 NAME
+
+Kernel::System::Ticket::Article
+
+=head1 SYNOPSIS
+
+Article helpers.
+
+=head1 PUBLIC INTERFACE
+
+=over 4
+
+=cut
+
 use strict;
 use warnings;
 
@@ -87,4 +101,36 @@ sub SendAutoResponse {
     return $ArticleID;
 }
 
+=item ArticleIndex()
+
+returns an array with article IDs
+
+    my @ArticleIDs = $ArticleObject->ArticleIndex(
+        TicketID => 123,
+    );
+
+    my @ArticleIDs = $ArticleObject->ArticleIndex(
+        SenderType => 'customer',                   # optional, to limit to a certain sender type
+        TicketID   => 123,
+    );
+
+=cut
+
+sub ArticleIndex {
+    my ( $Self, %Param ) = @_;
+
+    my @Articles = $Self->ArticleList(
+        TicketID   => $Param{TicketID},
+        SenderType => $Param{SenderType},
+    );
+
+    my @ArticleIDs;
+    return @ArticleIDs if !@Articles;
+
+    @ArticleIDs = map { $_->{ArticleID} } @Articles;
+    return @ArticleIDs;
+}
+
 1;
+
+=back
