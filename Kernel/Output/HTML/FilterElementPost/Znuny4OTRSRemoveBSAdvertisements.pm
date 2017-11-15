@@ -109,7 +109,7 @@ Remove the following block:
 
 =cut
 
-    for my $DynamicFieldKeys (qw(Database Webservice ContactWithData)){
+    for my $DynamicFieldKeys (qw(Database Webservice ContactWithData)) {
 
         ${ $Param{Data} } =~ s{
             <option [^>]+ value="$DynamicFieldKeys".*?<\/option>
@@ -171,7 +171,6 @@ Remove the following block in AdminGenericInterfaceWebservice
     </div>
 
 =cut
-
 
     ${ $Param{Data} } =~ s{<div\s*class="WidgetSimple"\sid\="ExampleWebServices"(.*?<\/div>){3}}{
 
@@ -368,20 +367,19 @@ Remove the following block in AdminSystemConfiguration
 sub AdminSystemConfigurationGroup {
     my ( $Self, %Param ) = @_;
 
-
     my $TemplateName = $Param{TemplateFile};
     return if $TemplateName ne 'AdminSystemConfigurationGroup';
 
 =for comment
 
-Remove the following block in AdminSystemConfigurationGroup.tt
+Remove the following block in AdminSystemConfigurationGroup
 
     <a href="[% Env("Baselink") %]Action=AdminSystemConfigurationSettingHistory;Subaction=ShowSettingHistory;SettingName=[% Setting.Name | uri %]" class="OTRSBusinessRequired SettingHistory Button"><i class="fa fa-clock-o"></i> [% Translate("History") | html %][% IF !Data.OTRSBusinessIsInstalled %] (OTRS Business Solution™)[% END %]</a>
 
 =cut
 
-
-    ${ $Param{Data} } =~ s{<a [^>]* AdminSystemConfigurationSettingHistory [^>]* OTRSBusinessRequired [^>]* > \s* <i [^>]*> \s* <\/i [^>]*> [^<]* <\/a>}{
+    ${ $Param{Data} }
+        =~ s{<a [^>]* AdminSystemConfigurationSettingHistory [^>]* OTRSBusinessRequired [^>]* > \s* <i [^>]*> \s* <\/i [^>]*> [^<]* <\/a>}{
 
     }xmsi;
 
