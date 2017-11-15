@@ -31,12 +31,15 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     $Self->Error(%Param);
+    $Self->AdminAppointmentNotificationEvent(%Param);
+    $Self->AdminDynamicField(%Param);
     $Self->AdminCloudServices(%Param);
+    $Self->AdminGenericInterfaceWebservice(%Param);
     $Self->AdminNotificationEvent(%Param);
     $Self->AdminProcessManagement(%Param);
-    $Self->AdminAppointmentNotificationEvent(%Param);
     $Self->AdminSystemConfiguration(%Param);
     $Self->AdminSystemConfigurationDeployment(%Param);
+    $Self->Header(%Param);
     $Self->Footer(%Param);
 
     return 1;
@@ -88,6 +91,34 @@ Remove the following block:
     return 1;
 }
 
+sub AdminDynamicField {
+    my ( $Self, %Param ) = @_;
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AdminDynamicField';
+
+=for comment
+
+Remove the following block:
+
+  <option value="Database" disabled="disabled">Datenbank (OTRS Business Solution™)</option>
+  <option value="Webservice" disabled="disabled">Web-Service (OTRS Business Solution™)</option>
+  <option value="ContactWithData" disabled="disabled">Kontaktdaten (OTRS Business Solution™)</option>
+
+
+=cut
+
+    for my $DynamicFieldKeys (qw(Database Webservice ContactWithData)){
+
+        ${ $Param{Data} } =~ s{
+            <option [^>]+ value="$DynamicFieldKeys".*?<\/option>
+        }{}gxmsi
+
+    }
+
+    return 1;
+}
+
 sub AdminCloudServices {
     my ( $Self, %Param ) = @_;
 
@@ -111,6 +142,39 @@ Remove the following block:
             \s*
         <\/span>
     }{}xmsi;
+
+    return 1;
+}
+
+sub AdminGenericInterfaceWebservice {
+    my ( $Self, %Param ) = @_;
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AdminGenericInterfaceWebservice';
+
+=for comment
+
+Remove the following block in AdminGenericInterfaceWebservice
+
+    <div class="WidgetSimple" id="ExampleWebServices">
+        <div class="Header">
+            <h2>Webservices zur sofortigen Nutzung</h2>
+        </div>
+        <div class="Content">
+
+            <p class="FieldExplanation">
+                Möchten Sie von Webservices profitieren, die von Experten erstellt wurden? Dann wechseln Sie auf die <strong><a href="#" class="OTRSBusinessRequired">OTRS Business Solution™ PROFESSIONAL/ENTERPRISE</a></strong>, um ausgefeilte Webservices zur sofortigen Nutzung importieren zu können.
+            </p>
+
+        </div>
+    </div>
+
+=cut
+
+
+    ${ $Param{Data} } =~ s{<div\s*class="WidgetSimple"\sid\="ExampleWebServices"(.*?<\/div>){3}}{
+
+        }ms;
 
     return 1;
 }
@@ -322,6 +386,29 @@ Remove the following block in AdminSystemConfigurationDeployment
             <a \s href=" [^?]* \? Action=AdminSystemConfigurationDeploymentHistory.*?<\/a>
             \s*
         <\/li>
+    }{}xmsi;
+
+    return 1;
+}
+
+sub Header {
+    my ( $Self, %Param ) = @_;
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'Header';
+
+=for comment
+
+Remove the following block in header (Avatar)
+
+    <a href="#" class="OTRSBusinessRequired" title="[% Translate("Notifications (OTRS Business Solution™)") | html %]">
+        <i class="fa fa-flag-o"></i><strong>[% Translate("Notifications (OTRS Business Solution™)") | html %]</strong>
+    </a>
+
+=cut
+
+    ${ $Param{Data} } =~ s{
+        <a [^>]+ OTRSBusinessRequired [^>]+> .+? <\/a>
     }{}xmsi;
 
     return 1;
