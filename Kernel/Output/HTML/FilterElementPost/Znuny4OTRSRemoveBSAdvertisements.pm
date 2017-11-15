@@ -38,6 +38,7 @@ sub Run {
     $Self->AdminNotificationEvent(%Param);
     $Self->AdminProcessManagement(%Param);
     $Self->AdminSystemConfiguration(%Param);
+    $Self->AdminSystemConfigurationGroup(%Param);
     $Self->AdminSystemConfigurationDeployment(%Param);
     $Self->Header(%Param);
     $Self->Footer(%Param);
@@ -360,6 +361,29 @@ Remove the following block in AdminSystemConfiguration
     ${ $Param{Data} } =~ s{<div\s*class="WidgetSimple">\s*<div\s*class="Header"><h2>$HeaderText(.*?</div>){3}}{
 
         }ms;
+
+    return 1;
+}
+
+sub AdminSystemConfigurationGroup {
+    my ( $Self, %Param ) = @_;
+
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AdminSystemConfigurationGroup';
+
+=for comment
+
+Remove the following block in AdminSystemConfigurationGroup.tt
+
+    <a href="[% Env("Baselink") %]Action=AdminSystemConfigurationSettingHistory;Subaction=ShowSettingHistory;SettingName=[% Setting.Name | uri %]" class="OTRSBusinessRequired SettingHistory Button"><i class="fa fa-clock-o"></i> [% Translate("History") | html %][% IF !Data.OTRSBusinessIsInstalled %] (OTRS Business Solution™)[% END %]</a>
+
+=cut
+
+
+    ${ $Param{Data} } =~ s{<a [^>]* AdminSystemConfigurationSettingHistory [^>]* OTRSBusinessRequired [^>]* > \s* <i [^>]*> \s* <\/i [^>]*> [^<]* <\/a>}{
+
+    }xmsi;
 
     return 1;
 }
