@@ -35,6 +35,8 @@ sub Run {
     $Self->AdminNotificationEvent(%Param);
     $Self->AdminProcessManagement(%Param);
     $Self->AdminAppointmentNotificationEvent(%Param);
+    $Self->AdminSystemConfiguration(%Param);
+    $Self->AdminSystemConfigurationDeployment(%Param);
     $Self->Footer(%Param);
 
     return 1;
@@ -262,6 +264,68 @@ Remove the following block:
             <div \s class="Clear"><\/div> \s*
         <\/fieldset>
     }{}xmsig;
+
+    return 1;
+}
+
+
+sub AdminSystemConfiguration {
+    my ( $Self, %Param ) = @_;
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AdminSystemConfiguration';
+
+=for comment
+
+Remove the following block in AdminSystemConfiguration.tt
+
+<div class="WidgetSimple">
+    <div class="Header"><h2>[% Translate("Did you know?") | html %]</h2></div>
+    <div class="Content">
+        [% SET OTRSBusinessLabel = '<strong><a href="#" class="OTRSBusinessRequired">OTRS Business Solution</a></strong>™'; %]
+        <p class="FieldExplanation">
+            [% Translate("With %s, System Configuration supports versioning, rollback and user-specific configuration settings.") | html | ReplacePlaceholders(OTRSBusinessLabel) %]
+        </p>
+    </div>
+</div>
+
+=cut
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    my $HeaderText = $LayoutObject->{LanguageObject}->Translate('Did you know?');
+
+
+    ${ $Param{Data} } =~ s{<div\s*class="WidgetSimple">\s*<div\s*class="Header"><h2>$HeaderText(.*?</div>){3}}{
+
+        }ms;
+
+    return 1;
+}
+
+
+sub AdminSystemConfigurationDeployment {
+    my ( $Self, %Param ) = @_;
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AdminSystemConfigurationDeployment';
+
+=for comment
+
+Remove the following block in AdminSystemConfigurationDeployment.tt
+
+<li>
+    <a href="[% Env("Baselink") %]Action=AdminSystemConfigurationDeploymentHistory;Subaction=DeploymentHistory" class="CallForAction Fullsize Center OTRSBusinessRequired"><span><i class="fa fa-history"></i>[% Translate("History") | html %][% IF !Data.OTRSBusinessIsInstalled %] (OTRS Business Solution™)[% END %]</span></a>
+</li>
+
+=cut
+
+    ${ $Param{Data} } =~ s{
+        <li>
+            \s*
+            <a \s href=" [^?]* \? Action=AdminSystemConfigurationDeploymentHistory.*?<\/a>
+            \s*
+        <\/li>
+    }{}xmsi;
 
     return 1;
 }
