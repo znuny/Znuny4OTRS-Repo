@@ -738,6 +738,10 @@ sub _DefaultColumnsEnable {
         );
     }
 
+    # reload the ZZZ files
+    # get a new config object to make sure config is updated
+    $Self->_RebuildConfig();
+
     return 1;
 }
 
@@ -1164,6 +1168,10 @@ sub _DynamicFieldsScreenEnable {
             UserID => 1,
         );
     }
+
+    # reload the ZZZ files
+    # get a new config object to make sure config is updated
+    $Self->_RebuildConfig();
 
     return 1;
 }
@@ -1953,10 +1961,6 @@ sub _DynamicFieldsScreenConfigImport {
         }
 
         $Self->_DefaultColumnsEnable(%ColumnScreenConfig);
-
-        # reload the ZZZ files
-        # get a new config object to make sure config is updated
-        $Self->_RebuildConfig();
 
     }
 
