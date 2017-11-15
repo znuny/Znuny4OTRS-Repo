@@ -268,7 +268,6 @@ Remove the following block:
     return 1;
 }
 
-
 sub AdminSystemConfiguration {
     my ( $Self, %Param ) = @_;
 
@@ -277,7 +276,7 @@ sub AdminSystemConfiguration {
 
 =for comment
 
-Remove the following block in AdminSystemConfiguration.tt
+Remove the following block in AdminSystemConfiguration
 
 <div class="WidgetSimple">
     <div class="Header"><h2>[% Translate("Did you know?") | html %]</h2></div>
@@ -292,8 +291,7 @@ Remove the following block in AdminSystemConfiguration.tt
 =cut
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-    my $HeaderText = $LayoutObject->{LanguageObject}->Translate('Did you know?');
-
+    my $HeaderText   = $LayoutObject->{LanguageObject}->Translate('Did you know?');
 
     ${ $Param{Data} } =~ s{<div\s*class="WidgetSimple">\s*<div\s*class="Header"><h2>$HeaderText(.*?</div>){3}}{
 
@@ -301,7 +299,6 @@ Remove the following block in AdminSystemConfiguration.tt
 
     return 1;
 }
-
 
 sub AdminSystemConfigurationDeployment {
     my ( $Self, %Param ) = @_;
@@ -311,7 +308,7 @@ sub AdminSystemConfigurationDeployment {
 
 =for comment
 
-Remove the following block in AdminSystemConfigurationDeployment.tt
+Remove the following block in AdminSystemConfigurationDeployment
 
 <li>
     <a href="[% Env("Baselink") %]Action=AdminSystemConfigurationDeploymentHistory;Subaction=DeploymentHistory" class="CallForAction Fullsize Center OTRSBusinessRequired"><span><i class="fa fa-history"></i>[% Translate("History") | html %][% IF !Data.OTRSBusinessIsInstalled %] (OTRS Business Solution™)[% END %]</span></a>
