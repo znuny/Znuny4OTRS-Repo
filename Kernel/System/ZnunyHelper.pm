@@ -656,6 +656,13 @@ sub _DefaultColumnsEnable {
     my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
 
     my %ScreenConfig = %Param;
+    my @Settings;
+
+    my $NoConfigRebuild = 0;
+    if ($Param{NoConfigRebuild}){
+        $NoConfigRebuild = 1;
+        delete $Param{NoConfigRebuild};
+    }
 
     VIEW:
     for my $View (%ScreenConfig) {
@@ -726,17 +733,20 @@ sub _DefaultColumnsEnable {
 
         # update the SysConfig
         my $SysConfigKey = join '###', @Keys;
-        $SysConfigObject->SettingsSet(
-            Settings => [
-                {
-                    Name           => $SysConfigKey,
-                    IsValid        => 1,
-                    EffectiveValue => \%NewDynamicFieldConfig,
-                },
-            ],
-            UserID => 1,
-        );
+
+        push @Settings, {
+            Name           => $SysConfigKey,
+            IsValid        => 1,
+            EffectiveValue => \%NewDynamicFieldConfig,
+        };
     }
+
+    $SysConfigObject->SettingsSet(
+        Settings => \@Settings,
+        UserID   => 1,
+    );
+
+    return 1 if $NoConfigRebuild;
 
     # reload the ZZZ files
     # get a new config object to make sure config is updated
@@ -1098,6 +1108,13 @@ sub _DynamicFieldsScreenEnable {
     # define the enabled dynamic fields for each screen
     # (taken from sysconfig)
     my %ScreenDynamicFieldConfig = %Param;
+    my @Settings;
+
+    my $NoConfigRebuild = 0;
+    if ($Param{NoConfigRebuild}){
+        $NoConfigRebuild = 1;
+        delete $Param{NoConfigRebuild};
+    }
 
     VIEW:
     for my $View ( sort keys %ScreenDynamicFieldConfig ) {
@@ -1157,18 +1174,21 @@ sub _DynamicFieldsScreenEnable {
 
         # update the sysconfig
         my $SysConfigKey = join '###', @Keys;
-        $SysConfigObject->SettingsSet(
-            Settings => [
-                {
-                    Name           => $SysConfigKey,
-                    IsValid        => 1,
-                    EffectiveValue => \%NewDynamicFieldConfig,
-                },
-            ],
-            UserID => 1,
-        );
+
+        push @Settings, {
+            Name           => $SysConfigKey,
+            IsValid        => 1,
+            EffectiveValue => \%NewDynamicFieldConfig,
+        };
     }
 
+    $SysConfigObject->SettingsSet(
+        Settings => \@Settings,
+        UserID   => 1,
+    );
+
+    return 1 if $NoConfigRebuild
+    ;
     # reload the ZZZ files
     # get a new config object to make sure config is updated
     $Self->_RebuildConfig();
@@ -1950,6 +1970,7 @@ sub _DynamicFieldsScreenConfigImport {
             };
         }
 
+        $ScreenConfig{NoConfigRebuild} = 1;
         $Self->_DynamicFieldsScreenEnable(%ScreenConfig);
 
         my %ColumnScreenConfig;
@@ -1960,9 +1981,14 @@ sub _DynamicFieldsScreenConfigImport {
             };
         }
 
+        $ColumnScreenConfig{NoConfigRebuild} = 1;
         $Self->_DefaultColumnsEnable(%ColumnScreenConfig);
 
     }
+
+    # reload the ZZZ files
+    # get a new config object to make sure config is updated
+    $Self->_RebuildConfig();
 
     return 1;
 }
