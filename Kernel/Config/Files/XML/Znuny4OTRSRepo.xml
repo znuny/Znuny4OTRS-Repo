@@ -534,6 +534,7 @@
                     <Item Key="Templates">
                         <Hash>
                             <Item Key="Error">1</Item>
+                            <Item Key="AgentAppointmentEdit">1</Item>
                             <Item Key="AdminAppointmentNotificationEvent">1</Item>
                             <Item Key="AdminCloudServices">1</Item>
                             <Item Key="AdminDynamicField">1</Item>
