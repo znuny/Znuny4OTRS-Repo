@@ -30,7 +30,7 @@ sub new {
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    $Self->Error(%Param);
+    $Self->AgentAppointmentEdit(%Param);
     $Self->AdminAppointmentNotificationEvent(%Param);
     $Self->AdminDynamicField(%Param);
     $Self->AdminCloudServices(%Param);
@@ -40,51 +40,33 @@ sub Run {
     $Self->AdminSystemConfiguration(%Param);
     $Self->AdminSystemConfigurationGroup(%Param);
     $Self->AdminSystemConfigurationDeployment(%Param);
-    $Self->Header(%Param);
+    $Self->Error(%Param);
     $Self->Footer(%Param);
+    $Self->Header(%Param);
 
     return 1;
 }
 
-sub Error {
+sub AgentAppointmentEdit {
     my ( $Self, %Param ) = @_;
 
-    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
-
     my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'Error';
+    return if $TemplateName ne 'AgentAppointmentEdit';
 
 =for comment
 
 Remove the following block:
 
-    [% IF !Data.OTRSBusinessIsInstalled %]
-    <div class="MessageBox Info">
-        <p class="SpacingTop">
-            [% Translate("Really a bug? 5 out of 10 bug reports result from a wrong or incomplete installation of OTRS.") | html %]
-            [% Translate("With %s, our experts take care of correct installation and cover your back with support and periodic security updates.", '<b>OTRS Business Solution™</b>') %]
-            <br /><br />
-            <a class="Button" href="https://www.otrs.com/contact/" target="_blank">
-                [% Translate("Contact our service team now.") | html %]
-            </a>
-        </p>
+    <div class="Field Info">
+        <a href="[% Env("Baselink") %]Action=AdminOTRSBusiness" class="Button"><i class="fa fa-angle-double-up"></i> Auf <strong>OTRS Business Solution</strong>™ upgraden</a>
     </div>
-    [% END %]
 
 =cut
 
-    my $ServiceTeamText = $LayoutObject->{LanguageObject}->Translate('Contact our service team now.');
-
     ${ $Param{Data} } =~ s{
-        <div [^>]+ MessageBox [^>]+ Info [^>]+ >
+        <div [^>]+ Field [^>]+ Info [^>]+ >
             \s*
-            <p [^>]+ SpacingTop [^>]+ >
-                .+?
-                <a [^>]+ otrs [^>]+ contact [^>]+ >
-                    \s* \Q$ServiceTeamText\E \s*
-                <\/a>
-                \s*
-            <\/p>
+            <a [^>]+ AdminOTRSBusiness [^>]+> .+? <\/a>
             \s*
         <\/div>
     }{}xmsi;
@@ -413,24 +395,47 @@ Remove the following block in AdminSystemConfigurationDeployment
     return 1;
 }
 
-sub Header {
+sub Error {
     my ( $Self, %Param ) = @_;
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'Header';
+    return if $TemplateName ne 'Error';
 
 =for comment
 
-Remove the following block in header (Avatar)
+Remove the following block:
 
-    <a href="#" class="OTRSBusinessRequired" title="[% Translate("Notifications (OTRS Business Solution™)") | html %]">
-        <i class="fa fa-flag-o"></i><strong>[% Translate("Notifications (OTRS Business Solution™)") | html %]</strong>
-    </a>
+    [% IF !Data.OTRSBusinessIsInstalled %]
+    <div class="MessageBox Info">
+        <p class="SpacingTop">
+            [% Translate("Really a bug? 5 out of 10 bug reports result from a wrong or incomplete installation of OTRS.") | html %]
+            [% Translate("With %s, our experts take care of correct installation and cover your back with support and periodic security updates.", '<b>OTRS Business Solution™</b>') %]
+            <br /><br />
+            <a class="Button" href="https://www.otrs.com/contact/" target="_blank">
+                [% Translate("Contact our service team now.") | html %]
+            </a>
+        </p>
+    </div>
+    [% END %]
 
 =cut
 
+    my $ServiceTeamText = $LayoutObject->{LanguageObject}->Translate('Contact our service team now.');
+
     ${ $Param{Data} } =~ s{
-        <a [^>]+ OTRSBusinessRequired [^>]+> .+? <\/a>
+        <div [^>]+ MessageBox [^>]+ Info [^>]+ >
+            \s*
+            <p [^>]+ SpacingTop [^>]+ >
+                .+?
+                <a [^>]+ otrs [^>]+ contact [^>]+ >
+                    \s* \Q$ServiceTeamText\E \s*
+                <\/a>
+                \s*
+            <\/p>
+            \s*
+        <\/div>
     }{}xmsi;
 
     return 1;
@@ -477,6 +482,29 @@ Remove the following block:
 
     ${ $Param{Data} }
         =~ s{ \$\('body'\)\.on\('click', \s 'a\.OTRSBusinessRequired', \s function\(\) \s \{ .*? \); \s* return \s false; \s* \}\); }{}xmsi;
+
+    return 1;
+}
+
+sub Header {
+    my ( $Self, %Param ) = @_;
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'Header';
+
+=for comment
+
+Remove the following block in header (Avatar)
+
+    <a href="#" class="OTRSBusinessRequired" title="[% Translate("Notifications (OTRS Business Solution™)") | html %]">
+        <i class="fa fa-flag-o"></i><strong>[% Translate("Notifications (OTRS Business Solution™)") | html %]</strong>
+    </a>
+
+=cut
+
+    ${ $Param{Data} } =~ s{
+        <a [^>]+ OTRSBusinessRequired [^>]+> .+? <\/a>
+    }{}xmsi;
 
     return 1;
 }
