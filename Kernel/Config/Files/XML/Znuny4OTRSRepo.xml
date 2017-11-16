@@ -543,6 +543,7 @@
                             <Item Key="AdminProcessManagement">1</Item>
                             <Item Key="AdminSystemConfiguration">1</Item>
                             <Item Key="AdminSystemConfigurationGroup">1</Item>
+                            <Item Key="SystemConfiguration/SettingsList">1</Item>
                             <Item Key="AdminSystemConfigurationDeployment">1</Item>
                             <Item Key="Header">1</Item>
                             <Item Key="Footer">1</Item>
