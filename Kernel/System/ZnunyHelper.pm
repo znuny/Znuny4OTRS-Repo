@@ -659,7 +659,7 @@ sub _DefaultColumnsEnable {
     my @Settings;
 
     my $NoConfigRebuild = 0;
-    if ($Param{NoConfigRebuild}){
+    if ( $Param{NoConfigRebuild} ) {
         $NoConfigRebuild = 1;
         delete $Param{NoConfigRebuild};
     }
@@ -1111,7 +1111,7 @@ sub _DynamicFieldsScreenEnable {
     my @Settings;
 
     my $NoConfigRebuild = 0;
-    if ($Param{NoConfigRebuild}){
+    if ( $Param{NoConfigRebuild} ) {
         $NoConfigRebuild = 1;
         delete $Param{NoConfigRebuild};
     }
@@ -1188,7 +1188,8 @@ sub _DynamicFieldsScreenEnable {
     );
 
     return 1 if $NoConfigRebuild
-    ;
+        ;
+
     # reload the ZZZ files
     # get a new config object to make sure config is updated
     $Self->_RebuildConfig();
