@@ -23,6 +23,7 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
     'Kernel::System::GeneralCatalog',
+    'Kernel::System::GenericAgent',
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Group',
     'Kernel::System::ITSMConfigItem',
@@ -2469,10 +2470,12 @@ sub _PriorityCreateIfNotExists {
 
 creates State if not exists
 
+    my $TypeID = StateObject->StateTypeLookup( StateType => 'pending auto' );
+
     my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
         Name => 'Some State Name',
         # e.g. new|open|closed|pending reminder|pending auto|removed|merged
-        TypeID => $StateObject->StateTypeLookup( StateType => 'pending auto' ),
+        TypeID => $TypeID,
     );
 
 Returns:
@@ -4867,11 +4870,6 @@ sub _GenericAgentCreate {
     my ( $Self, @GenericAgents ) = @_;
 
     my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
-    my $CacheObject        = $Kernel::OM->Get('Kernel::System::Cache');
-
-    $CacheObject->CleanUp(
-        Type => 'GenericAgent',
-    );
 
     # get all current dynamic fields
     my %GenericAgentList = $GenericAgentObject->JobList();
@@ -4880,11 +4878,39 @@ sub _GenericAgentCreate {
     GENERICAGENT:
     for my $NewGenericAgent (@GenericAgents) {
 
+        my %NewGenericAgent = %{$NewGenericAgent};
+
         # check and delete if the generic agent already exists
         # no generic agent update function exists
-        if ( $GenericAgentList{ $NewGenericAgent->{Name} }) {
+        if ( $GenericAgentList{ $NewGenericAgent->{Name} } ) {
+
+            my %ExistingJob = $GenericAgentObject->JobGet( Name => $GenericAgentList{ $NewGenericAgent{Name} } );
+
+            # prepare jobs to diff correctly
+            my %NewGenericAgentDiff = %NewGenericAgent;
+
+            delete $NewGenericAgentDiff{UserID};
+            delete $NewGenericAgentDiff{Name};
+
+            my %ExistingJobDiff = (
+                Data => {
+                    %ExistingJob,
+                },
+            );
+
+            delete $ExistingJobDiff{Data}->{Name};
+
+            # diff both jobs
+            my $IsDiff = DataIsDifferent(
+                Data1 => \%ExistingJobDiff,
+                Data2 => \%NewGenericAgentDiff,
+            );
+
+            # if both jobs are identical skip this GA
+            next GENERICAGENT if !$IsDiff;
+
             $GenericAgentObject->JobDelete(
-                Name   => $NewGenericAgent->{Name},
+                Name   => $NewGenericAgent{Name},
                 UserID => 1,
             );
         }
@@ -4893,7 +4919,7 @@ sub _GenericAgentCreate {
         $GenericAgentObject->JobAdd(
             UserID  => 1,
             ValidID => 1,
-            %{ $NewGenericAgent },
+            %NewGenericAgent,
         );
 
     }
@@ -4929,11 +4955,6 @@ sub _GenericAgentCreateIfNotExists {
     my ( $Self, @GenericAgents ) = @_;
 
     my $GenericAgentObject = $Kernel::OM->Get('Kernel::System::GenericAgent');
-    my $CacheObject        = $Kernel::OM->Get('Kernel::System::Cache');
-
-    $CacheObject->CleanUp(
-        Type => 'GenericAgent',
-    );
 
     # get all current dynamic fields
     my %GenericAgentList = $GenericAgentObject->JobList();
@@ -4948,13 +4969,12 @@ sub _GenericAgentCreateIfNotExists {
         $GenericAgentObject->JobAdd(
             UserID  => 1,
             ValidID => 1,
-            %{ $NewGenericAgent },
+            %{$NewGenericAgent},
         );
     }
 
     return 1;
 }
-
 
 1;
 

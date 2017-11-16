@@ -194,6 +194,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FrontendModule.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FunctionCalls.t"/>
+        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/GenericAgentCreate.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Layout.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Postmaster.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/PostMasterFilterExport.t"/>
