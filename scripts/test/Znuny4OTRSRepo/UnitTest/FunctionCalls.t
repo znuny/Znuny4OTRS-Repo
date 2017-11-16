@@ -307,4 +307,41 @@ $Self->True(
     'Test basic function call of _WebserviceDelete()',
 );
 
+# Tests for _GenericAgentCreate and _GenericAgentCreateIfNotExists function
+my @GenericAgents = (
+    {
+        Name => 'UnitTestJob',
+        Data => {
+            Valid => '1'
+            ,
+
+            # Event based execution (single ticket)
+            EventValues => [
+                'TicketCreate'
+            ],
+
+            # Select Tickets
+            LockIDs => [
+                '1'
+            ],
+
+            # Update/Add Ticket Attributes
+            NewLockID => '2',
+        },
+        UserID => 1,
+    },
+);
+
+my $ResultGenericAgentCreate = $ZnunyHelperObject->_GenericAgentCreate(@GenericAgents);
+$Self->True(
+    $ResultGenericAgentCreate,
+    'Test basic function call of _GenericAgentCreate()',
+);
+
+my $ResultGenericAgentCreateIfNotExists = $ZnunyHelperObject->_GenericAgentCreateIfNotExists(@GenericAgents);
+$Self->True(
+    $ResultGenericAgentCreateIfNotExists,
+    'Test basic function call of _GenericAgentCreateIfNotExists()',
+);
+
 1;
