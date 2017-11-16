@@ -124,19 +124,29 @@ my @Tests = (
     },
 );
 
+my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+
 TEST:
 for my $Test (@Tests) {
 
+    my $TimeStamp = $TimeObject->CurrentTimestamp();
+
     $Self->True(
         $Test->{Name},
-        "$Test->{Name}",
+        "$Test->{Name} - $TimeStamp",
     );
 
     my @DynamicFields = sort keys %{ $Test->{ImportData} };
 
+    $Self->True(
+        $Test->{Name},
+        "Start - _DynamicFieldsScreenConfigExport - $TimeStamp",
+    );
+
     my %Export = $ZnunyHelperObject->_DynamicFieldsScreenConfigExport(
         DynamicFields => \@DynamicFields
     );
+
     for my $DynamicField ( sort keys %{ $Test->{ImportData} } ) {
 
         $Self->False(
@@ -145,8 +155,22 @@ for my $Test (@Tests) {
         );
     }
 
+    $TimeStamp = $TimeObject->CurrentTimestamp();
+
+    $Self->True(
+        $Test->{Name},
+        "Start - _DynamicFieldsScreenConfigImport - $TimeStamp",
+    );
+
     my $Import = $ZnunyHelperObject->_DynamicFieldsScreenConfigImport(
         Config => $Test->{ImportData},
+    );
+
+    $TimeStamp = $TimeObject->CurrentTimestamp();
+
+    $Self->True(
+        $Test->{Name},
+        "End - _DynamicFieldsScreenConfigImport - $TimeStamp",
     );
 
     %Export = $ZnunyHelperObject->_DynamicFieldsScreenConfigExport(
