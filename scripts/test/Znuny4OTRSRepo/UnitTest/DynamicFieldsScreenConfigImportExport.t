@@ -124,7 +124,7 @@ my @Tests = (
     },
 );
 
-my $TimeObject = $Kernel::OM->Get('Kernel::System::Time');
+my $TimeObject = $Kernel::OM->Get('Kernel::System::ZnunyTime');
 
 TEST:
 for my $Test (@Tests) {
