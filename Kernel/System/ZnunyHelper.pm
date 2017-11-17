@@ -1188,8 +1188,7 @@ sub _DynamicFieldsScreenEnable {
         UserID   => 1,
     );
 
-    return 1 if $NoConfigRebuild
-        ;
+    return 1 if $NoConfigRebuild;
 
     # reload the ZZZ files
     # get a new config object to make sure config is updated
