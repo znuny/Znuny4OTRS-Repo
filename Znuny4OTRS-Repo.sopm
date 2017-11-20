@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.5</Version>
+    <Version>6.0.6</Version>
+    <ChangeLog Version="6.0.6" Date="2017-11-20 15:40:58 +0100">Added new functions _GenericAgentCreateIfNotExists and _GenericAgentCreate.&#13;
+Added methods to add and remove article action settings.</ChangeLog>
     <ChangeLog Version="6.0.5" Date="2017-11-14 17:54:07 +0100">Fixed bug: XMLData doesn't need a value.</ChangeLog>
     <ChangeLog Version="6.0.4" Date="2017-11-14 11:00:07 +0100">Added method ArticleIndex to article wrapper.</ChangeLog>
     <ChangeLog Version="6.0.3" Date="2017-10-13 12:27:14 +0200">Updated custom modules to latest framework version.</ChangeLog>
