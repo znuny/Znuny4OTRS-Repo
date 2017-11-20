@@ -179,111 +179,6 @@
             </Hash>
         </Value>
     </Setting>
-    <Setting Name="Frontend::Module###AgentStatistics" Required="0" Valid="1">
-        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
-        <Navigation>Frontend::Agent::ModuleRegistration</Navigation>
-        <Value>
-            <Item ValueType="FrontendRegistration">
-                <Hash>
-                    <Item Key="Title" Translatable="1">Statistics</Item>
-                    <Item Key="Group">
-                        <Array>
-                            <Item>stats</Item>
-                        </Array>
-                    </Item>
-                    <Item Key="GroupRo">
-                        <Array>
-                            <Item>stats</Item>
-                        </Array>
-                    </Item>
-                    <Item Key="Description" Translatable="1"></Item>
-                    <Item Key="NavBarName">Reports</Item>
-                </Hash>
-            </Item>
-        </Value>
-    </Setting>
-    <Setting Name="Loader::Module::AgentStatistics###002-Znuny4OTRSRepo" Required="0" Valid="1">
-        <Description Translatable="1">Loader module registration for the agent interface.</Description>
-        <Navigation>Frontend::Agent::ModuleRegistration::Loader</Navigation>
-        <Value>
-            <Hash>
-                <Item Key="CSS">
-                    <Array>
-                        <Item>thirdparty/nvd3-1.7.1/nv.d3.css</Item>
-                        <Item>Core.Agent.Statistics.css</Item>
-                    </Array>
-                </Item>
-                <Item Key="JavaScript">
-                    <Array>
-                        <Item>thirdparty/d3-3.5.6/d3.min.js</Item>
-                        <Item>thirdparty/nvd3-1.7.1/nvd3.min.js</Item>
-                        <Item>thirdparty/nvd3-1.7.1/models/OTRSMultiBarChart.js</Item>
-                        <Item>thirdparty/nvd3-1.7.1/models/OTRSStackedAreaChart.js</Item>
-                        <Item>thirdparty/canvg-1.4/rgbcolor.js</Item>
-                        <Item>thirdparty/canvg-1.4/StackBlur.js</Item>
-                        <Item>thirdparty/canvg-1.4/canvg.js</Item>
-                        <Item>thirdparty/StringView-8/stringview.js</Item>
-                        <Item>Core.Agent.Statistics.js</Item>
-                        <Item>Core.UI.AdvancedChart.js</Item>
-                    </Array>
-                </Item>
-            </Hash>
-        </Value>
-    </Setting>
-    <Setting Name="Frontend::Navigation###AgentStatistics###1" Required="0" Valid="1">
-        <Description Translatable="1">Main menu for the agent interface.</Description>
-        <Navigation>Frontend::Agent::ModuleRegistration::MainMenu</Navigation>
-        <Value>
-            <Hash>
-                <Item Key="Group">
-                    <Array>
-                        <Item>stats</Item>
-                    </Array>
-                </Item>
-                <Item Key="GroupRo">
-                    <Array>
-                        <Item>stats</Item>
-                    </Array>
-                </Item>
-                <Item Key="Description" Translatable="1"></Item>
-                <Item Key="Name" Translatable="1">Reports</Item>
-                <Item Key="Link">Action=AgentStatistics;Subaction=Overview</Item>
-                <Item Key="LinkOption"></Item>
-                <Item Key="NavBar">Reports</Item>
-                <Item Key="Type">Menu</Item>
-                <Item Key="Block">ItemArea</Item>
-                <Item Key="AccessKey"></Item>
-                <Item Key="Prio">8500</Item>
-            </Hash>
-        </Value>
-    </Setting>
-    <Setting Name="Frontend::Navigation###AgentStatistics###2" Required="0" Valid="1">
-        <Description Translatable="1">Main menu for the agent interface.</Description>
-        <Navigation>Frontend::Agent::ModuleRegistration::MainMenu</Navigation>
-        <Value>
-            <Hash>
-                <Item Key="Group">
-                    <Array>
-                        <Item>stats</Item>
-                    </Array>
-                </Item>
-                <Item Key="GroupRo">
-                    <Array>
-                        <Item>stats</Item>
-                    </Array>
-                </Item>
-                <Item Key="Description" Translatable="1"></Item>
-                <Item Key="Name" Translatable="1">Statistics</Item>
-                <Item Key="Link">Action=AgentStatistics;Subaction=Overview</Item>
-                <Item Key="LinkOption"></Item>
-                <Item Key="NavBar">Reports</Item>
-                <Item Key="Type"></Item>
-                <Item Key="Block"></Item>
-                <Item Key="AccessKey"></Item>
-                <Item Key="Prio">200</Item>
-            </Hash>
-        </Value>
-    </Setting>
     <Setting Name="Notification::Transport###NotificationView" Required="0" Valid="0">
         <Description Translatable="1">Defines all the parameters for this notification transport.</Description>
         <Navigation>Frontend::Admin::View::NotificationEvent</Navigation>
@@ -439,6 +334,81 @@
             </Hash>
         </Value>
     </Setting>
+    <Setting Name="Frontend::Navigation###AgentAppointmentCalendarOverview###002-Calendar" Required="0" Valid="1">
+        <Description Translatable="1">Main menu item registration.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::MainMenu</Navigation>
+        <Value>
+            <Array>
+                <DefaultItem ValueType="FrontendNavigation">
+                    <Hash>
+                    </Hash>
+                </DefaultItem>
+                <Item>
+                    <Hash>
+                        <Item Key="Group">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="GroupRo">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="Description"></Item>
+                        <Item Key="Name" Translatable="1">Calendar</Item>
+                        <Item Key="Link">Action=AgentAppointmentCalendarOverview</Item>
+                        <Item Key="LinkOption"></Item>
+                        <Item Key="NavBar">Calendar</Item>
+                        <Item Key="Type">Menu</Item>
+                        <Item Key="Block">ItemArea</Item>
+                        <Item Key="AccessKey"></Item>
+                        <Item Key="Prio">75</Item>
+                    </Hash>
+                </Item>
+                <Item>
+                    <Hash>
+                        <Item Key="Group">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="GroupRo">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="Description" Translatable="1">Appointment Calendar overview page.</Item>
+                        <Item Key="Name" Translatable="1">Calendar Overview</Item>
+                        <Item Key="Link">Action=AgentAppointmentCalendarOverview</Item>
+                        <Item Key="LinkOption"></Item>
+                        <Item Key="NavBar">Calendar</Item>
+                        <Item Key="Type"></Item>
+                        <Item Key="Block">ItemArea</Item>
+                        <Item Key="AccessKey"></Item>
+                        <Item Key="Prio">6000</Item>
+                    </Hash>
+                </Item>
+                <Item>
+                    <Hash>
+                        <Item Key="Group">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="GroupRo">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="Description" Translatable="1">Create new appointment.</Item>
+                        <Item Key="Name" Translatable="1">New Appointment</Item>
+                        <Item Key="Link">Action=AgentAppointmentCalendarOverview;Subaction=AppointmentCreate</Item>
+                        <Item Key="LinkOption"></Item>
+                        <Item Key="NavBar">Calendar</Item>
+                        <Item Key="Type"></Item>
+                        <Item Key="Block">ItemArea</Item>
+                        <Item Key="AccessKey"></Item>
+                        <Item Key="Prio">8000</Item>
+                    </Hash>
+                </Item>
+            </Array>
+        </Value>
+    </Setting>
     <Setting Name="CustomerFrontend::NotifyModule###1-OTRSBusiness" Required="0" Valid="0">
         <Description Translatable="1">Defines the module to display a notification in different interfaces on different occasions for OTRS Business Solution™.</Description>
         <Navigation>Frontend::Customer::FrontendNotification</Navigation>
@@ -463,31 +433,6 @@
                 <Item Key="PopupType"></Item>
                 <Item Key="ClusterName" Translatable="1">Miscellaneous</Item>
                 <Item Key="ClusterPriority">999</Item>
-            </Hash>
-        </Value>
-    </Setting>
-    <Setting Name="Frontend::Navigation###AgentAppointmentCalendarOverview###3" Required="0" Valid="0">
-        <Description Translatable="1">Main menu for the agent interface.</Description>
-        <Navigation>Frontend::Agent::ModuleRegistration::MainMenu</Navigation>
-        <Value>
-            <Hash>
-                <Item Key="Group">
-                    <Array>
-                    </Array>
-                </Item>
-                <Item Key="GroupRo">
-                    <Array>
-                    </Array>
-                </Item>
-                <Item Key="Description" Translatable="1">Resource Overview (OTRS Business Solution™)</Item>
-                <Item Key="Name" Translatable="1">Resource Overview (OTRS Business Solution™)</Item>
-                <Item Key="Link">Action=AgentAppointmentCalendarOverview</Item>
-                <Item Key="LinkOption">class="OTRSBusinessRequired"</Item>
-                <Item Key="NavBar">Calendar</Item>
-                <Item Key="Type"></Item>
-                <Item Key="Block">ItemArea</Item>
-                <Item Key="AccessKey"></Item>
-                <Item Key="Prio">7000</Item>
             </Hash>
         </Value>
     </Setting>
