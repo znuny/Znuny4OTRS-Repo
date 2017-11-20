@@ -1018,8 +1018,16 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         while (LevelSearch) {
 
             $TempElement = $TempElement.prev();
+            CurrentText  = $TempElement.text();
 
-            CurrentText      = $TempElement.text();
+            // special handling for broken element values
+            // that start with a leading whitespace
+            // see issue #17
+            if (!CurrentText) {
+                LevelSearch = false;
+                continue;
+            }
+
             var CompareLevel = CurrentText.search(/\S/);
 
             if (CompareLevel >= Level) {
