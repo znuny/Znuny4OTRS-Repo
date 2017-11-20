@@ -1961,31 +1961,29 @@ sub _DynamicFieldsScreenConfigImport {
 
     my $ValidDynamicFieldScreenList = $Self->_ValidDynamicFieldScreenListGet();
 
+    my %ScreenConfig;
+    my %ColumnScreenConfig;
+
     for my $DynamicField ( sort keys %{ $Param{Config} } ) {
 
-        my %ScreenConfig;
         DYNAMICFIELDSCREEN:
         for my $DynamicFieldScreen ( @{ $ValidDynamicFieldScreenList->{DynamicFieldScreens} } ) {
-            $ScreenConfig{$DynamicFieldScreen} = {
-                $DynamicField => $Param{Config}->{$DynamicField}->{$DynamicFieldScreen},
-            };
+            $ScreenConfig{$DynamicFieldScreen}->{$DynamicField}
+                = $Param{Config}->{$DynamicField}->{$DynamicFieldScreen};
         }
 
-        $ScreenConfig{NoConfigRebuild} = 1;
-        $Self->_DynamicFieldsScreenEnable(%ScreenConfig);
-
-        my %ColumnScreenConfig;
         DEFAULTCOLUMNSCREEN:
         for my $DefaultColumnsScreen ( @{ $ValidDynamicFieldScreenList->{DefaultColumnsScreens} } ) {
-            $ColumnScreenConfig{$DefaultColumnsScreen} = {
-                "DynamicField_$DynamicField" => $Param{Config}->{$DynamicField}->{$DefaultColumnsScreen},
-            };
+            $ColumnScreenConfig{$DefaultColumnsScreen}->{"DynamicField_$DynamicField"}
+                = $Param{Config}->{$DynamicField}->{$DefaultColumnsScreen};
         }
-
-        $ColumnScreenConfig{NoConfigRebuild} = 1;
-        $Self->_DefaultColumnsEnable(%ColumnScreenConfig);
-
     }
+
+    $ScreenConfig{NoConfigRebuild} = 1;
+    $Self->_DynamicFieldsScreenEnable(%ScreenConfig);
+
+    $ColumnScreenConfig{NoConfigRebuild} = 1;
+    $Self->_DefaultColumnsEnable(%ColumnScreenConfig);
 
     # reload the ZZZ files
     # get a new config object to make sure config is updated
