@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: https://github.com/OTRS/otrs/blob/3d0b968537b3fffc972bc8dba1c378d5c0b3ddef/Kernel/System/UnitTest/Helper.pm
+# $origin: otrs - 3d0b968537b3fffc972bc8dba1c378d5c0b3ddef - Kernel/System/UnitTest/Helper.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
