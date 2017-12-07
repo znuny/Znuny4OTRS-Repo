@@ -33,7 +33,7 @@
         <Description Translatable="1">This configuration defines the URL to the OTRS CloudService Proxy service. The http or https prefix will be added, depending on selection SysConfig 'Znuny4OTRSRepoType'.</Description>
         <Navigation>Core::Znuny4OTRS::Repo</Navigation>
         <Value>
-            <Item ValueType="String" ValueRegex="">portal.znuny.com/api/otrs_cloud_service/</Item>
+            <Item ValueType="String" ValueRegex="">addons.znuny.com/api/otrs_cloud_service/</Item>
         </Value>
     </Setting>
     <Setting Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
