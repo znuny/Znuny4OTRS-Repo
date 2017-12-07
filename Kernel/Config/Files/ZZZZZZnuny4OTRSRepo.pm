@@ -33,7 +33,7 @@ sub Load {
     # add the Znuny repository to the repository list
     if ( !$Self->{'Znuny4OTRSRepoDisable'} ) {
 
-        my $RepositoryBasePath = 'portal.znuny.com/api/addon_repos/';
+        my $RepositoryBasePath = 'addons.znuny.com/api/addon_repos/';
 
         # remove all repositories that match base path
         # because otherwise repositories might get added twice (once for each protocol)
