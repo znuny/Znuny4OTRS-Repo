@@ -79,7 +79,7 @@ sub Load {
 
         # set new pav url
         my $Type = $Self->{ConfigObject}->Get('Znuny4OTRSRepoType') || 'https';
-        $Self->{PackageVerifyURL} = $Type . '://portal.znuny.com/api/addon_pav/';
+        $Self->{PackageVerifyURL} = $Type . '://addons.znuny.com/api/addon_pav/';
 
         my $Home = $Param{Home} || $Self->{Home};
 

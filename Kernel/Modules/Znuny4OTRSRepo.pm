@@ -42,12 +42,12 @@ sub PreRun {
     }
 
     my $Type = $Self->{ConfigObject}->Get('Znuny4OTRSRepoType') || 'https';
-    $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/public' } = 'Addons - Znuny4OTRS / Public';
+    $RepositoryList->{ $Type . '://addons.znuny.com/api/addon_repos/public' } = 'Addons - Znuny4OTRS / Public';
 
     my $PrivateRepost = $Self->{ConfigObject}->Get('Znuny4OTRSPrivatRepos');
     if ( $PrivateRepost && ref $PrivateRepost eq 'HASH' ) {
         for my $Key ( sort keys %{$PrivateRepost} ) {
-            $RepositoryList->{ $Type . '://portal.znuny.com/api/addon_repos/' . $Key }
+            $RepositoryList->{ $Type . '://addons.znuny.com/api/addon_repos/' . $Key }
                 = "Addons - Znuny4OTRS / Private $PrivateRepost->{$Key} ";
         }
     }
