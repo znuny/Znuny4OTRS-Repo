@@ -2813,10 +2813,10 @@ sub _Download {
 #         URL => $Param{URL},
 #     );
 #
-    # strip out the API token from portal.znuny.com repository calls
+    # strip out the API token from addons.znuny.com repository calls
     # and add it to the 'Authorization' header
     my %Header;
-    my $ZnunyPortalRegex = '(portal\.znuny\.com\/api\/addon_repos\/)([^\/]+)\/';
+    my $ZnunyPortalRegex = '(addons\.znuny\.com\/api\/addon_repos\/)([^\/]+)\/';
     if (
         $Param{URL} =~ m{$ZnunyPortalRegex}xms
         && $2 ne 'public'
