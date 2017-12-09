@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.30</Version>
+    <Version>5.0.31</Version>
+    <ChangeLog Version="5.0.31" Date="2017-12-09 16:24:26 +0100">Changed addons subdomain.</ChangeLog>
     <ChangeLog Version="5.0.30" Date="2017-11-20 16:36:20 +0100">Fixed issue #17 - Chinese translations of Article Types break Core.Form.Znuny4OTRSInput.Get .</ChangeLog>
     <ChangeLog Version="5.0.29" Date="2017-11-14 17:54:25 +0100">Fixed bug: XMLData doesn't need a value.</ChangeLog>
     <ChangeLog Version="5.0.28" Date="2017-07-26 13:33:00 +0200">Added new helper functions _ITSMConfigItemDefinitionCreate and _ITSMConfigItemDefinitionCreateIfNotExists to easy add and update new definitions for cmdb classes.</ChangeLog>
