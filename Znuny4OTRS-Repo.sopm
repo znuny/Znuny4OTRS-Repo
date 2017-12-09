@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>3.3.1</Version>
+    <Version>3.3.2</Version>
+    <ChangeLog Version="3.3.2" Date="2017-12-09 16:24:47 +0100">Changed addons subdomain.</ChangeLog>
     <ChangeLog Version="3.3.1" Date="2017-05-30 19:22:36 +0200">Added security fix.</ChangeLog>
     <ChangeLog Version="3.3.0" Date="2017-05-18 10:36:31 +0200">Version update and small fixes.</ChangeLog>
     <ChangeLog Version="1.0.28" Date="2016-03-16 18:24:13 UTC">Added ProcessEntityID to AgentTicketProcess and CustomerTicketProcess.</ChangeLog>
