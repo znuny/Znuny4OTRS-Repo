@@ -2,17 +2,20 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 3d0b968537b3fffc972bc8dba1c378d5c0b3ddef - Kernel/System/UnitTest/Helper.pm
+# $origin: otrs - 4f75c41de17d160722fd1b1240541acdb6717687 - Kernel/System/UnitTest/Helper.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
-## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
 
 package Kernel::System::UnitTest::Helper;
+## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
+# ---
+# Znuny4OTRS-Repo
+# ---
+## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
+# ---
 
 use strict;
 use warnings;
@@ -24,7 +27,6 @@ use Kernel::System::SysConfig;
 use utf8;
 use Kernel::System::VariableCheck qw(:all);
 use Kernel::System::PostMaster;
-
 # ---
 
 our @ObjectDependencies = (
@@ -32,8 +34,6 @@ our @ObjectDependencies = (
     'Kernel::System::CustomerUser',
     'Kernel::System::Group',
     'Kernel::System::Main',
-    'Kernel::System::UnitTest',
-    'Kernel::System::User',
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -41,14 +41,24 @@ our @ObjectDependencies = (
     'Kernel::System::SysConfig',
     # There is a cause we don't have the
     # 'Kernel::System::Ticket',
-    # as a dependency: Since we wan't to use
+    # as a dependency: Since we don't want to use
     # $Kernel::OM->ObjectsDiscard in our UnitTests
     # we have to load our TicketObject via the MainObject
     # otherwise this object will get destroyed by the OM, too
     # which causes a database and SysConfig rollback
     'Kernel::System::ZnunyHelper',
     'Kernel::System::PostMaster',
+    # for backwards compatability with older OTRS version without Kernel::System::UnitTest::Driver
+    'Kernel::System::UnitTest',
+    'Kernel::System::DB',
+    'Kernel::System::DynamicField',
+    'Kernel::System::DynamicField::Backend',
+    'Kernel::System::Log',
+    'Kernel::System::Time',
+    'Kernel::System::XML',
 # ---
+    'Kernel::System::UnitTest::Driver',
+    'Kernel::System::User',
 );
 
 =head1 NAME
@@ -83,7 +93,12 @@ sub new {
 
     $Self->{Debug} = $Param{Debug} || 0;
 
-    $Self->{UnitTestObject} = $Kernel::OM->Get('Kernel::System::UnitTest');
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     $Self->{UnitTestDriverObject} = $Kernel::OM->Get('Kernel::System::UnitTest::Driver');
+    $Self->{UnitTestDriverObject} = $Self->UnitTestObjectGet();
+# ---
 
     # make backup of system configuration if needed
     if ( $Param{RestoreSystemConfiguration} ) {
@@ -91,7 +106,7 @@ sub new {
 
         $Self->{SysConfigBackup} = $Self->{SysConfigObject}->Download();
 
-        $Self->{UnitTestObject}->True( 1, 'Creating backup of the system configuration' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Creating backup of the system configuration.' );
     }
 
     # set environment variable to skip SSL certificate verification if needed
@@ -104,7 +119,7 @@ sub new {
         $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
 
         $Self->{RestoreSSLVerify} = 1;
-        $Self->{UnitTestObject}->True( 1, 'Skipping SSL certificates verification' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Skipping SSL certificates verification' );
     }
 
     return $Self;
@@ -114,29 +129,48 @@ sub new {
 
 creates a random ID that can be used in tests as a unique identifier.
 
-=cut
+It is guaranteed that within a test this function will never return a duplicate.
 
-# Make sure that every RandomID is only generated once in a process to
-#   ensure predictability for unit test runs.
-my %SeenRandomIDs;
+Please note that these numbers are not really random and should only be used
+to create test data.
+
+=cut
 
 sub GetRandomID {
     my ( $Self, %Param ) = @_;
 
-    for ( 1 .. 1_000 ) {
-        my $RandomID = 'test' . time() . int( rand(1_000_000_000) );
-        if ( !$SeenRandomIDs{$RandomID}++ ) {
-            return $RandomID;
-        }
-    }
+    return 'test' . $Self->GetRandomNumber();
+}
 
-    die "Could not generate RandomID!\n";
+=item GetRandomNumber()
+
+creates a random Number that can be used in tests as a unique identifier.
+
+It is guaranteed that within a test this function will never return a duplicate.
+
+Please note that these numbers are not really random and should only be used
+to create test data.
+
+=cut
+
+# Use package variables here (instead of attributes in $Self)
+# to make it work across several unit tests that run during the same second.
+my %GetRandomNumberPrevious;
+
+sub GetRandomNumber {
+
+    my $PIDReversed = reverse $$;
+    my $PID = reverse sprintf '%.6d', $PIDReversed;
+
+    my $Prefix = $PID . substr time(), -5, 5;
+
+    return $Prefix . $GetRandomNumberPrevious{$Prefix}++ || 0;
 }
 
 =item TestUserCreate()
 
 creates a test user that can be used in tests. It will
-be set to invalid automatically during the destructor. Returns
+be set to invalid automatically during L</DESTROY()>. Returns
 the login name of the new user, the password is the same.
 
     my $TestUserLogin = $Helper->TestUserCreate(
@@ -148,6 +182,7 @@ the login name of the new user, the password is the same.
         KeepValid => 1, # optional, default 0
 # ---
     );
+
 =cut
 
 sub TestUserCreate {
@@ -159,27 +194,38 @@ sub TestUserCreate {
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 # ---
 
-    # create test user
-    my $TestUserLogin = $Self->GetRandomID();
-
     # disable email checks to create new user
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
 
+    # create test user
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     my $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
-#         UserFirstname => $TestUserLogin,
-#         UserLastname  => $TestUserLogin,
-#         UserLogin     => $TestUserLogin,
-#         UserPw        => $TestUserLogin,
-#         UserEmail     => $TestUserLogin . '@localunittest.com',
-#         ValidID       => 1,
-#         ChangeUserID  => 1,
-#     ) || die "Could not create test user";
+#     my $TestUserID;
+#     my $TestUserLogin;
+#     COUNT:
+#     for my $Count ( 1 .. 10 ) {
 
-    my $TestUserID = $ZnunyHelperObject->_UserCreateIfNotExists(
+#         $TestUserLogin = $Self->GetRandomID();
+
+#         $TestUserID = $Kernel::OM->Get('Kernel::System::User')->UserAdd(
+#             UserFirstname => $TestUserLogin,
+#             UserLastname  => $TestUserLogin,
+#             UserLogin     => $TestUserLogin,
+#             UserPw        => $TestUserLogin,
+#             UserEmail     => $TestUserLogin . '@localunittest.com',
+#             ValidID       => 1,
+#             ChangeUserID  => 1,
+#         );
+
+#         last COUNT if $TestUserID;
+#     }
+
+#     die 'Could not create test user login' if !$TestUserLogin;
+#     die 'Could not create test user'       if !$TestUserID;
+    my $TestUserLogin = $Self->GetRandomID();
+    my $TestUserID    = $ZnunyHelperObject->_UserCreateIfNotExists(
         UserFirstname => $TestUserLogin,
         UserLastname  => $TestUserLogin,
         UserLogin     => $TestUserLogin,
@@ -204,7 +250,7 @@ sub TestUserCreate {
     }
 # ---
 
-    $Self->{UnitTestObject}->True( 1, "Created test user $TestUserID" );
+    $Self->{UnitTestDriverObject}->True( 1, "Created test user $TestUserID" );
 
     # Add user to groups
     GROUP_NAME:
@@ -230,7 +276,7 @@ sub TestUserCreate {
             UserID => 1,
         ) || die "Could not add test user $TestUserLogin to group $GroupName";
 
-        $Self->{UnitTestObject}->True( 1, "Added test user $TestUserLogin to group $GroupName" );
+        $Self->{UnitTestDriverObject}->True( 1, "Added test user $TestUserLogin to group $GroupName" );
     }
 
     # set user language
@@ -240,7 +286,7 @@ sub TestUserCreate {
         Key    => 'UserLanguage',
         Value  => $UserLanguage,
     );
-    $Self->{UnitTestObject}->True( 1, "Set user UserLanguage to $UserLanguage" );
+    $Self->{UnitTestDriverObject}->True( 1, "Set user UserLanguage to $UserLanguage" );
 
     return $TestUserLogin;
 }
@@ -248,7 +294,7 @@ sub TestUserCreate {
 =item TestCustomerUserCreate()
 
 creates a test customer user that can be used in tests. It will
-be set to invalid automatically during the destructor. Returns
+be set to invalid automatically during L</DESTROY()>. Returns
 the login name of the new customer user, the password is the same.
 
     my $TestUserLogin = $Helper->TestCustomerUserCreate(
@@ -259,6 +305,7 @@ the login name of the new customer user, the password is the same.
         KeepValid => 1, # optional, default 0
 # ---
     );
+
 =cut
 
 sub TestCustomerUserCreate {
@@ -275,22 +322,32 @@ sub TestCustomerUserCreate {
     local $ConfigObject->{CheckEmailAddresses} = 0;
 
     # create test user
-    my $TestUserLogin = $Self->GetRandomID();
-
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     my $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
-#         Source         => 'CustomerUser',
-#         UserFirstname  => $TestUserLogin,
-#         UserLastname   => $TestUserLogin,
-#         UserCustomerID => $TestUserLogin,
-#         UserLogin      => $TestUserLogin,
-#         UserPassword   => $TestUserLogin,
-#         UserEmail      => $TestUserLogin . '@localunittest.com',
-#         ValidID        => 1,
-#         UserID         => 1,
-#     ) || die "Could not create test user";
+#     my $TestUser;
+#     COUNT:
+#     for my $Count ( 1 .. 10 ) {
+
+#         my $TestUserLogin = $Self->GetRandomID();
+
+#         $TestUser = $Kernel::OM->Get('Kernel::System::CustomerUser')->CustomerUserAdd(
+#             Source         => 'CustomerUser',
+#             UserFirstname  => $TestUserLogin,
+#             UserLastname   => $TestUserLogin,
+#             UserCustomerID => $TestUserLogin,
+#             UserLogin      => $TestUserLogin,
+#             UserPassword   => $TestUserLogin,
+#             UserEmail      => $TestUserLogin . '@localunittest.com',
+#             ValidID        => 1,
+#             UserID         => 1,
+#         );
+
+#         last COUNT if $TestUser;
+#     }
+
+#     die 'Could not create test user' if !$TestUser;
+    my $TestUserLogin = $Self->GetRandomID();
     my $TestUser = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
         Source         => 'CustomerUser',
         UserFirstname  => $TestUserLogin,
@@ -318,7 +375,7 @@ sub TestCustomerUserCreate {
     }
 # ---
 
-    $Self->{UnitTestObject}->True( 1, "Created test customer user $TestUser" );
+    $Self->{UnitTestDriverObject}->True( 1, "Created test customer user $TestUser" );
 
     # set customer user language
     my $UserLanguage = $Param{Language} || 'en';
@@ -327,9 +384,41 @@ sub TestCustomerUserCreate {
         Key    => 'UserLanguage',
         Value  => $UserLanguage,
     );
-    $Self->{UnitTestObject}->True( 1, "Set customer user UserLanguage to $UserLanguage" );
+    $Self->{UnitTestDriverObject}->True( 1, "Set customer user UserLanguage to $UserLanguage" );
 
     return $TestUser;
+}
+
+=item GetTestHTTPHostname()
+
+returns a host name for HTTP based tests, possibly including the port.
+
+=cut
+
+sub GetTestHTTPHostname {
+    my ( $Self, %Param ) = @_;
+
+    my $Host = $Kernel::OM->Get('Kernel::Config')->Get('TestHTTPHostname');
+    return $Host if $Host;
+
+    my $FQDN = $Kernel::OM->Get('Kernel::Config')->Get('FQDN');
+
+    # try to resolve fqdn host
+    if ( $FQDN ne 'yourhost.example.com' && gethostbyname($FQDN) ) {
+        $Host = $FQDN;
+    }
+
+    # try to resolve localhost instead
+    if ( !$Host && gethostbyname('localhost') ) {
+        $Host = 'localhost';
+    }
+
+    # use hardcoded localhost ip address
+    if ( !$Host ) {
+        $Host = '127.0.0.1';
+    }
+
+    return $Host;
 }
 
 my $FixedTime;
@@ -375,7 +464,7 @@ sub FixedTimeSet {
 
 =item FixedTimeUnset()
 
-restores the regular system time behaviour.
+restores the regular system time behavior.
 
 =cut
 
@@ -423,6 +512,12 @@ BEGIN {
     };
 }
 
+=head2 DESTROY()
+
+performs various clean-ups.
+
+=cut
+
 sub DESTROY {
     my $Self = shift;
 # ---
@@ -459,8 +554,7 @@ sub DESTROY {
     if ( $Self->{SysConfigBackup} ) {
 
         $Self->{SysConfigObject}->Upload( Content => $Self->{SysConfigBackup} );
-
-        $Self->{UnitTestObject}->True( 1, 'Restored the system configuration' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Restored the system configuration' );
     }
 
     #
@@ -472,7 +566,7 @@ sub DESTROY {
 
         $Self->{RestoreSSLVerify} = 0;
 
-        $Self->{UnitTestObject}->True( 1, 'Restored SSL certificates verification' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Restored SSL certificates verification' );
     }
 
     # disable email checks to create new user
@@ -494,7 +588,7 @@ sub DESTROY {
                 ChangeUserID => 1,
             );
 
-            $Self->{UnitTestObject}->True( $Success, "Set test user $TestUser to invalid" );
+            $Self->{UnitTestDriverObject}->True( $Success, "Set test user $TestUser to invalid" );
         }
     }
 
@@ -513,7 +607,7 @@ sub DESTROY {
                 UserID  => 1,
             );
 
-            $Self->{UnitTestObject}->True(
+            $Self->{UnitTestDriverObject}->True(
                 $Success, "Set test customer user $TestCustomerUser to invalid"
             );
         }
@@ -527,7 +621,7 @@ sub DESTROY {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -661,7 +755,7 @@ sub CheckNumberOfEventExecution {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -681,7 +775,7 @@ sub CheckNumberOfEventExecution {
 
         my @EventLines = grep { $_->{Name} =~ m{\s*\Q$Event\E$} } @Lines;
 
-        $Self->{UnitTestObject}->Is(
+        $Self->{UnitTestDriverObject}->Is(
             scalar @EventLines,
             $NumEvents,
             "check num of $Event events, $Comment",
@@ -1499,7 +1593,7 @@ sub TicketCreate {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -1522,7 +1616,7 @@ sub TicketCreate {
     # create test ticket
     my $TicketID = $TicketObject->TicketCreate(%TicketAttributes);
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketID,
         "Ticket '$TicketAttributes{Title}' is created - ID $TicketID",
     );
@@ -1578,7 +1672,7 @@ sub ArticleCreate {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -1601,7 +1695,7 @@ sub ArticleCreate {
     # create test ticket
     my $ArticleID = $TicketObject->ArticleCreate(%ArticleAttributes);
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $ArticleID,
         "Article '$ArticleAttributes{Subject}' is created - ID $ArticleID",
     );
@@ -1919,6 +2013,31 @@ sub ACLValuesGet {
     }
 
     return %Result;
+}
+
+=item UnitTestObjectGet()
+
+Returns the correct unit test object.
+
+OTRS 4.0.27 introduced a new module Kernel::System::UnitTest::Driver.
+The unit test functions like True, False, etc. were moved to this module.
+
+=cut
+
+sub UnitTestObjectGet {
+    my ( $Self, %Param ) = @_;
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $UnitTestDriverAvailable = $MainObject->Require(
+        'Kernel::System::UnitTest::Driver',
+        Silent => 1,
+    );
+    if ($UnitTestDriverAvailable) {
+        return $Kernel::OM->Get('Kernel::System::UnitTest::Driver');
+    }
+
+    return $Kernel::OM->Get('Kernel::System::UnitTest');
 }
 
 # ---
