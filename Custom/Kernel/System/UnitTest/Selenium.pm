@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - c1bfa0f963d9f7fe757abef1a8e6c60cba13905a - Kernel/System/UnitTest/Selenium.pm
+# $origin: otrs - 80c9a107bc2a5e197466b5efdbdfdeacc3484922 - Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -39,9 +39,9 @@ our @ObjectDependencies = (
 # Znuny4OTRS-Repo
 # ---
 #     'Kernel::System::DateTime',
+#     'Kernel::System::UnitTest::Driver',
     'Kernel::System::JSON',
 # ---
-    'Kernel::System::UnitTest',
     'Kernel::System::UnitTest::Helper',
 );
 
@@ -98,15 +98,21 @@ Then you can use the full API of L<Selenium::Remote::Driver> on this object.
 sub new {
     my ( $Class, %Param ) = @_;
 
-    $Param{UnitTestObject} ||= $Kernel::OM->Get('Kernel::System::UnitTest');
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     $Param{UnitTestDriverObject} ||= $Kernel::OM->Get('Kernel::System::UnitTest::Driver');
+    my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+    $Param{UnitTestDriverObject} ||= $HelperObject->UnitTestObjectGet();
+# ---
 
-    $Param{UnitTestObject}->True( 1, "Starting up Selenium scenario..." );
+    $Param{UnitTestDriverObject}->True( 1, "Starting up Selenium scenario..." );
 
     my %SeleniumTestsConfig = %{ $Kernel::OM->Get('Kernel::Config')->Get('SeleniumTestsConfig') // {} };
 
     if ( !%SeleniumTestsConfig ) {
         my $Self = bless {}, $Class;
-        $Self->{UnitTestObject} = $Param{UnitTestObject};
+        $Self->{UnitTestDriverObject} = $Param{UnitTestDriverObject};
         return $Self;
     }
 
@@ -126,8 +132,8 @@ sub new {
         webelement_class => 'Kernel::System::UnitTest::Selenium::WebElement',
         %SeleniumTestsConfig
     );
-    $Self->{UnitTestObject}      = $Param{UnitTestObject};
-    $Self->{SeleniumTestsActive} = 1;
+    $Self->{UnitTestDriverObject} = $Param{UnitTestDriverObject};
+    $Self->{SeleniumTestsActive}  = 1;
 
     #$Self->debug_on();
 
@@ -141,8 +147,7 @@ sub new {
     $Self->{BaseURL} .= Kernel::System::UnitTest::Helper->GetTestHTTPHostname();
 
     # Remember the start system time for the selenium test run.
-    my $DateTimeObj = $Kernel::OM->Create('Kernel::System::DateTime');
-    $Self->{TestStartSystemTime} = $DateTimeObj->ToEpoch();
+    $Self->{TestStartSystemTime} = time;    ## no critic
 
     return $Self;
 }
@@ -160,7 +165,7 @@ sub RunTest {
     my ( $Self, $Test ) = @_;
 
     if ( !$Self->{SeleniumTestsActive} ) {
-        $Self->{UnitTestObject}->True( 1, 'Selenium testing is not active, skipping tests.' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Selenium testing is not active, skipping tests.' );
         return 1;
     }
 
@@ -202,7 +207,7 @@ sub _execute_command {    ## no critic
         print $TestName;
     }
     else {
-        $Self->{UnitTestObject}->True( 1, $TestName );
+        $Self->{UnitTestDriverObject}->True( 1, $TestName );
     }
 
     return $Result;
@@ -324,7 +329,7 @@ sub Login {
         }
     }
 
-    $Self->{UnitTestObject}->True( 1, 'Initiating login...' );
+    $Self->{UnitTestDriverObject}->True( 1, 'Initiating login...' );
 
     # we will try several times to log in
     my $MaxTries = 5;
@@ -350,13 +355,13 @@ sub Login {
             # login successful?
             $Self->find_element( 'a#LogoutButton', 'css' );    # dies if not found
 
-            $Self->{UnitTestObject}->True( 1, 'Login sequence ended...' );
+            $Self->{UnitTestDriverObject}->True( 1, 'Login sequence ended...' );
         };
 
         # an error happend
         if ($@) {
 
-            $Self->{UnitTestObject}->True( 1, "Login attempt $Try of $MaxTries not successful." );
+            $Self->{UnitTestDriverObject}->True( 1, "Login attempt $Try of $MaxTries not successful." );
 
             # try again
             next TRY if $Try < $MaxTries;
@@ -510,7 +515,7 @@ for analysis (in folder /var/otrs-unittest if it exists, in $Home/var/httpd/htdo
 sub HandleError {
     my ( $Self, $Error ) = @_;
 
-    $Self->{UnitTestObject}->False( 1, "Exception in Selenium': $Error" );
+    $Self->{UnitTestDriverObject}->False( 1, "Exception in Selenium': $Error" );
 
     #eval {
     my $Data = $Self->screenshot();
@@ -552,11 +557,12 @@ sub HandleError {
             Directory => $SharedScreenshotDir,
             Filename  => $Filename,
             Content   => \$Data,
-        ) || return $Self->False( 1, "Could not write file $SharedScreenshotDir/$Filename" );
+            )
+            || return $Self->{UnitTestDriverObject}->False( 1, "Could not write file $SharedScreenshotDir/$Filename" );
     }
 
-    $Self->{UnitTestObject}->False( 1, "Saved screenshot in $URL" );
-    $Self->{UnitTestObject}->AttachSeleniumScreenshot(
+    $Self->{UnitTestDriverObject}->False( 1, "Saved screenshot in $URL" );
+    $Self->{UnitTestDriverObject}->AttachSeleniumScreenshot(
         Filename => $Filename,
         Content  => $Data
     );
@@ -575,44 +581,46 @@ sub DEMOLISH {
     my $Self = shift;
 
     # Could be missing on early die.
-    if ( $Self->{UnitTestObject} ) {
-        $Self->{UnitTestObject}->True( 1, "Shutting down Selenium scenario." );
+    if ( $Self->{UnitTestDriverObject} ) {
+        $Self->{UnitTestDriverObject}->True( 1, "Shutting down Selenium scenario." );
     }
 
     if ( $Self->{SeleniumTestsActive} ) {
         $Self->SUPER::DEMOLISH(@_);
-    }
 
-    # Cleanup possibly leftover zombie firefox profiles.
-    my @LeftoverFirefoxProfiles = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
-        Directory => '/tmp/',
-        Filter    => 'anonymous*webdriver-profile',
-    );
+        # Cleanup possibly leftover zombie firefox profiles.
+        my @LeftoverFirefoxProfiles = $Kernel::OM->Get('Kernel::System::Main')->DirectoryRead(
+            Directory => '/tmp/',
+            Filter    => 'anonymous*webdriver-profile',
+        );
 
-    for my $LeftoverFirefoxProfile (@LeftoverFirefoxProfiles) {
-        if ( -d $LeftoverFirefoxProfile ) {
-            File::Path::remove_tree($LeftoverFirefoxProfile);
+        for my $LeftoverFirefoxProfile (@LeftoverFirefoxProfiles) {
+            if ( -d $LeftoverFirefoxProfile ) {
+                File::Path::remove_tree($LeftoverFirefoxProfile);
+            }
         }
-    }
 
-    # Cleanup all sessions, which was created after the selenium test start time.
-    my $AuthSessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
+        # Cleanup all sessions, which was created after the selenium test start time.
+        my $AuthSessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
 
-    my @Sessions = $AuthSessionObject->GetAllSessionIDs();
+        my @Sessions = $AuthSessionObject->GetAllSessionIDs();
 
-    SESSION:
-    for my $SessionID (@Sessions) {
+        SESSION:
+        for my $SessionID (@Sessions) {
 
-        my %SessionData = $AuthSessionObject->GetSessionIDData( SessionID => $SessionID );
+            my %SessionData = $AuthSessionObject->GetSessionIDData( SessionID => $SessionID );
 
-        next SESSION if !%SessionData;
-        next SESSION if $SessionData{UserSessionStart} && $SessionData{UserSessionStart} < $Self->{TestStartSystemTime};
+            next SESSION if !%SessionData;
+            next SESSION
+                if $SessionData{UserSessionStart} && $SessionData{UserSessionStart} < $Self->{TestStartSystemTime};
 
-        $AuthSessionObject->RemoveSessionID( SessionID => $SessionID );
+            $AuthSessionObject->RemoveSessionID( SessionID => $SessionID );
+        }
     }
 
     return;
 }
+
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -1119,7 +1127,7 @@ sub PageContains {
     my $UnitTestMessage = $Param{Message};
     $UnitTestMessage  ||= "Page contains '$Param{String}'";
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         index( $Self->get_page_source(), $Param{String} ) > -1,
         $UnitTestMessage,
     );
@@ -1143,7 +1151,7 @@ sub PageContainsNot {
     my $UnitTestMessage = $Param{Message};
     $UnitTestMessage  ||= "Page does not contain '$Param{String}'";
 
-    $Self->{UnitTestObject}->False(
+    $Self->{UnitTestDriverObject}->False(
         index( $Self->get_page_source(), $Param{String} ) > -1,
         $UnitTestMessage,
     );
@@ -1162,13 +1170,13 @@ sub AJAXCompleted {
     my ( $Self, %Param ) = @_;
 
     my $AJAXStartedLoading = $Self->WaitFor( JavaScript => 'return jQuery.active' );
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $AJAXStartedLoading,
         'AJAX requests started loading.'
     );
 
     my $AJAXCompletedLoading = $Self->WaitFor( JavaScript => 'return jQuery.active == 0' );
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $AJAXCompletedLoading,
         'AJAX requests have finished loading.'
     );
@@ -1328,7 +1336,7 @@ sub _GETInterface {
     $Self->VerifiedGet($RequestURL);
 
     my $PageFinishedLoading = $Self->WaitFor( JavaScript => 'return typeof($) === "function"' );
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $PageFinishedLoading,
         'Page has finished loading.'
     );
@@ -1513,7 +1521,7 @@ sub ElementExists {
 
     my $Element = $Self->FindElementSave( %Param );
 
-    return $Self->{UnitTestObject}->True(
+    return $Self->{UnitTestDriverObject}->True(
         $Element,
         $Param{Message},
     );
@@ -1551,7 +1559,7 @@ sub ElementExistsNot {
 
     my $Element = $Self->FindElementSave( %Param );
 
-    return $Self->{UnitTestObject}->False(
+    return $Self->{UnitTestDriverObject}->False(
         $Element,
         $Param{Message},
     );
@@ -1585,7 +1593,7 @@ sub _CaptureScreenshot {
     # trying to extract the name of the test file right from the UnitTestObject
     # kind of hacky but there is no other place where to get this information
     my $TestFile = 'UnknownTestFile';
-    if ($Self->{UnitTestObject}->{TestFile} =~ m{scripts\/test\/(.+?)\.t$}) {
+    if ($Self->{UnitTestDriverObject}->{TestFile} =~ m{scripts\/test\/(.+?)\.t$}) {
         $TestFile = $1;
         # make folder path a filename
         $TestFile =~ s{\/}{_}g;
@@ -1675,6 +1683,7 @@ if ($ENV{SELENIUM_SCREENSHOTS}) {
     use warnings;
 }
 # ---
+
 
 1;
 

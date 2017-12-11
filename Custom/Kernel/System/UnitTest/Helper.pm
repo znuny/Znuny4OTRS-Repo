@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 36ebfbd3bcf9a70336cc7ab15d56186e741bcc13 - Kernel/System/UnitTest/Helper.pm
+# $origin: otrs - 80c9a107bc2a5e197466b5efdbdfdeacc3484922 - Kernel/System/UnitTest/Helper.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -18,7 +18,6 @@ package Kernel::System::UnitTest::Helper;
 # ---
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
-## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::ZnunyTime)
 # ---
 
@@ -47,12 +46,13 @@ our @ObjectDependencies = (
     'Kernel::System::Group',
     'Kernel::System::Log',
     'Kernel::System::Main',
-    'Kernel::System::UnitTest',
+    'Kernel::System::UnitTest::Driver',
     'Kernel::System::User',
     'Kernel::System::XML',
 # ---
 # Znuny4OTRS-Repo
 # ---
+    'Kernel::System::UnitTest',
     'Kernel::System::Service',
     'Kernel::System::SysConfig',
     # There is a cause we don't have the
@@ -64,13 +64,16 @@ our @ObjectDependencies = (
     # which causes a database and SysConfig rollback
     'Kernel::System::ZnunyHelper',
     'Kernel::System::PostMaster',
+    'Kernel::System::DynamicField',
+    'Kernel::System::DynamicField::Backend',
+    'Kernel::System::Encode',
+    'Kernel::System::Ticket::Article',
 # ---
 );
 
 =head1 NAME
 
 Kernel::System::UnitTest::Helper - unit test helper functions
-
 
 =head2 new()
 
@@ -102,7 +105,12 @@ sub new {
 
     $Self->{Debug} = $Param{Debug} || 0;
 
-    $Self->{UnitTestObject} = $Kernel::OM->Get('Kernel::System::UnitTest');
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     $Self->{UnitTestDriverObject} = $Kernel::OM->Get('Kernel::System::UnitTest::Driver');
+    $Self->{UnitTestDriverObject} = $Self->UnitTestObjectGet();
+# ---
 
     # Remove any leftover custom files from aborted previous runs.
     $Self->CustomFileCleanup();
@@ -111,18 +119,13 @@ sub new {
     if ( $Param{SkipSSLVerify} ) {
 
         # remember original value
-# ---
-# Znuny4OTRS-Repo
-# ---
-#         $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
-        $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME}; ## no critic
-# ---
+        $Self->{PERL_LWP_SSL_VERIFY_HOSTNAME} = $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME};
 
         # set environment value to 0
-        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0; ## no critic
+        $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;    ## no critic
 
         $Self->{RestoreSSLVerify} = 1;
-        $Self->{UnitTestObject}->True( 1, 'Skipping SSL certificates verification' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Skipping SSL certificates verification' );
     }
 
     # switch article dir to a temporary one to avoid collisions
@@ -133,7 +136,7 @@ sub new {
     if ( $Param{RestoreDatabase} ) {
         $Self->{RestoreDatabase} = 1;
         my $StartedTransaction = $Self->BeginWork();
-        $Self->{UnitTestObject}->True( $StartedTransaction, 'Started database transaction.' );
+        $Self->{UnitTestDriverObject}->True( $StartedTransaction, 'Started database transaction.' );
 
     }
 
@@ -189,7 +192,7 @@ sub GetRandomNumber {
 =head2 TestUserCreate()
 
 creates a test user that can be used in tests. It will
-be set to invalid automatically during the destructor. Returns
+be set to invalid automatically during L</DESTROY()>. Returns
 the login name of the new user, the password is the same.
 
     my $TestUserLogin = $Helper->TestUserCreate(
@@ -211,18 +214,16 @@ sub TestUserCreate {
 # Znuny4OTRS-Repo
 # ---
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
-
-    # create test user
-    my $TestUserLogin = $Self->GetRandomID();
 # ---
+
     # disable email checks to create new user
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
 
+    # create test user
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     # create test user
 #     my $TestUserID;
 #     my $TestUserLogin;
 #     COUNT:
@@ -245,8 +246,8 @@ sub TestUserCreate {
 
 #     die 'Could not create test user login' if !$TestUserLogin;
 #     die 'Could not create test user'       if !$TestUserID;
-
-    my $TestUserID = $ZnunyHelperObject->_UserCreateIfNotExists(
+    my $TestUserLogin = $Self->GetRandomID();
+    my $TestUserID    = $ZnunyHelperObject->_UserCreateIfNotExists(
         UserFirstname => $TestUserLogin,
         UserLastname  => $TestUserLogin,
         UserLogin     => $TestUserLogin,
@@ -271,7 +272,7 @@ sub TestUserCreate {
     }
 # ---
 
-    $Self->{UnitTestObject}->True( 1, "Created test user $TestUserID" );
+    $Self->{UnitTestDriverObject}->True( 1, "Created test user $TestUserID" );
 
     # Add user to groups
     GROUP_NAME:
@@ -297,7 +298,7 @@ sub TestUserCreate {
             UserID => 1,
         ) || die "Could not add test user $TestUserLogin to group $GroupName";
 
-        $Self->{UnitTestObject}->True( 1, "Added test user $TestUserLogin to group $GroupName" );
+        $Self->{UnitTestDriverObject}->True( 1, "Added test user $TestUserLogin to group $GroupName" );
     }
 
     # set user language
@@ -307,7 +308,7 @@ sub TestUserCreate {
         Key    => 'UserLanguage',
         Value  => $UserLanguage,
     );
-    $Self->{UnitTestObject}->True( 1, "Set user UserLanguage to $UserLanguage" );
+    $Self->{UnitTestDriverObject}->True( 1, "Set user UserLanguage to $UserLanguage" );
 
     return $TestUserLogin;
 }
@@ -315,7 +316,7 @@ sub TestUserCreate {
 =head2 TestCustomerUserCreate()
 
 creates a test customer user that can be used in tests. It will
-be set to invalid automatically during the destructor. Returns
+be set to invalid automatically during L</DESTROY()>. Returns
 the login name of the new customer user, the password is the same.
 
     my $TestUserLogin = $Helper->TestCustomerUserCreate(
@@ -337,6 +338,7 @@ sub TestCustomerUserCreate {
 # ---
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 # ---
+
     # disable email checks to create new user
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
@@ -368,7 +370,7 @@ sub TestCustomerUserCreate {
 
 #     die 'Could not create test user' if !$TestUser;
     my $TestUserLogin = $Self->GetRandomID();
-    my $TestUser = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
+    my $TestUser      = $ZnunyHelperObject->_CustomerUserCreateIfNotExists(
         Source         => 'CustomerUser',
         UserFirstname  => $TestUserLogin,
         UserLastname   => $TestUserLogin,
@@ -395,7 +397,7 @@ sub TestCustomerUserCreate {
     }
 # ---
 
-    $Self->{UnitTestObject}->True( 1, "Created test customer user $TestUser" );
+    $Self->{UnitTestDriverObject}->True( 1, "Created test customer user $TestUser" );
 
     # set customer user language
     my $UserLanguage = $Param{Language} || 'en';
@@ -404,7 +406,7 @@ sub TestCustomerUserCreate {
         Key    => 'UserLanguage',
         Value  => $UserLanguage,
     );
-    $Self->{UnitTestObject}->True( 1, "Set customer user UserLanguage to $UserLanguage" );
+    $Self->{UnitTestDriverObject}->True( 1, "Set customer user UserLanguage to $UserLanguage" );
 
     return $TestUser;
 }
@@ -445,7 +447,7 @@ sub Rollback {
 
 =head2 GetTestHTTPHostname()
 
-returns a hostname for HTTP based tests, possibly including the port.
+returns a host name for HTTP based tests, possibly including the port.
 
 =cut
 
@@ -535,7 +537,7 @@ sub FixedTimeSet {
 
 =head2 FixedTimeUnset()
 
-restores the regular system time behaviour.
+restores the regular system time behavior.
 
 =cut
 
@@ -597,6 +599,12 @@ BEGIN {
     };
 }
 
+=head2 DESTROY()
+
+performs various clean-ups.
+
+=cut
+
 sub DESTROY {
     my $Self = shift;
 # ---
@@ -649,14 +657,15 @@ sub DESTROY {
 
         $Self->{RestoreSSLVerify} = 0;
 
-        $Self->{UnitTestObject}->True( 1, 'Restored SSL certificates verification' );
+        $Self->{UnitTestDriverObject}->True( 1, 'Restored SSL certificates verification' );
     }
 
     # restore database, clean caches
     if ( $Self->{RestoreDatabase} ) {
         my $RollbackSuccess = $Self->Rollback();
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp();
-        $Self->{UnitTestObject}->True( $RollbackSuccess, 'Rolled back all database changes and cleaned up the cache.' );
+        $Self->{UnitTestDriverObject}
+            ->True( $RollbackSuccess, 'Rolled back all database changes and cleaned up the cache.' );
     }
 
     # disable email checks to create new user
@@ -692,7 +701,7 @@ sub DESTROY {
                 ChangeUserID => 1,
             );
 
-            $Self->{UnitTestObject}->True( $Success, "Set test user $TestUser to invalid" );
+            $Self->{UnitTestDriverObject}->True( $Success, "Set test user $TestUser to invalid" );
         }
     }
 
@@ -720,7 +729,7 @@ sub DESTROY {
                 UserID  => 1,
             );
 
-            $Self->{UnitTestObject}->True(
+            $Self->{UnitTestDriverObject}->True(
                 $Success, "Set test customer user $TestCustomerUser to invalid"
             );
         }
@@ -739,7 +748,7 @@ sub DESTROY {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -1275,7 +1284,7 @@ sub DatabaseXMLExecute {
 # Znuny4OTRS-Repo
 # ---
 
-=item FixedTimeSetByDate()
+=head2 FixedTimeSetByDate()
 
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
 possible to set a fixed time by using Year, Month, Day and optional Hour, Minute, Second parameters.
@@ -1323,7 +1332,7 @@ sub FixedTimeSetByDate {
     return 1;
 }
 
-=item FixedTimeSetByTimeStamp()
+=head2 FixedTimeSetByTimeStamp()
 
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
 possible to set a fixed time by using parameters for the TimeObject TimeStamp2SystemTime function.
@@ -1358,7 +1367,7 @@ sub FixedTimeSetByTimeStamp {
     return 1;
 }
 
-=item CheckNumberOfEventExecution()
+=head2 CheckNumberOfEventExecution()
 
 This function checks the number of executions of an Event via the TicketHistory
 
@@ -1382,7 +1391,7 @@ sub CheckNumberOfEventExecution {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -1402,7 +1411,7 @@ sub CheckNumberOfEventExecution {
 
         my @EventLines = grep { $_->{Name} =~ m{\s*\Q$Event\E$} } @Lines;
 
-        $Self->{UnitTestObject}->Is(
+        $Self->{UnitTestDriverObject}->Is(
             scalar @EventLines,
             $NumEvents,
             "check num of $Event events, $Comment",
@@ -1415,7 +1424,7 @@ sub CheckNumberOfEventExecution {
     return 1;
 }
 
-=item SetupTestEnvironment()
+=head2 SetupTestEnvironment()
 
 This function calls a list of other helper functions to setup a test environment with various test data.
 
@@ -1479,7 +1488,7 @@ sub SetupTestEnvironment {
     return \%Result;
 }
 
-=item ConfigureViews()
+=head2 ConfigureViews()
 
 Toggles settings for a given view like AgentTicketNote or CustomerTicketMessage.
 
@@ -1594,7 +1603,7 @@ sub ConfigureViews {
     return \%Result;
 }
 
-=item ActivateDynamicFields()
+=head2 ActivateDynamicFields()
 
 This function activates the given DynamicFields in each agent view.
 
@@ -1645,7 +1654,7 @@ sub ActivateDynamicFields {
     return 1;
 }
 
-=item ActivateDefaultDynamicFields()
+=head2 ActivateDefaultDynamicFields()
 
 This function adds one of each default dynamic fields to the system and activates them for each agent view.
 
@@ -1878,7 +1887,7 @@ sub ActivateDefaultDynamicFields {
     return \@DynamicFields;
 }
 
-=item FullFeature()
+=head2 FullFeature()
 
 Activates Type, Service and Responsible feature.
 
@@ -1913,7 +1922,7 @@ sub FullFeature {
     );
 }
 
-=item FillTestEnvironment()
+=head2 FillTestEnvironment()
 
 Fills the system with test data. Data creation can be manipulated with own parameters passed.
 Default parameters contain various special chars.
@@ -2122,7 +2131,7 @@ sub FillTestEnvironment {
     return \%Result;
 }
 
-=item TestUserDataGet()
+=head2 TestUserDataGet()
 
 Calls TestUserCreate and returns the whole UserData instead only the Login.
 
@@ -2156,7 +2165,7 @@ sub TestUserDataGet {
     );
 }
 
-=item TestCustomerUserDataGet()
+=head2 TestCustomerUserDataGet()
 
 Calls TestCustomerUserCreate and returns the whole CustomerUserData instead only the Login.
 
@@ -2192,7 +2201,7 @@ sub TestCustomerUserDataGet {
     );
 }
 
-=item TicketCreate()
+=head2 TicketCreate()
 
 Creates a Ticket with dummy data and tests the creation. All Ticket attributes are optional.
 
@@ -2232,7 +2241,7 @@ sub TicketCreate {
         'Kernel::System::Ticket',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded TicketObject via MainObject',
     );
@@ -2255,7 +2264,7 @@ sub TicketCreate {
     # create test ticket
     my $TicketID = $TicketObject->TicketCreate(%TicketAttributes);
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketID,
         "Ticket '$TicketAttributes{Title}' is created - ID $TicketID",
     );
@@ -2267,7 +2276,7 @@ sub TicketCreate {
     return $TicketID;
 }
 
-=item ArticleCreate()
+=head2 ArticleCreate()
 
 Creates an Article with dummy data and tests the creation. All Article attributes except the TicketID are optional.
 
@@ -2311,7 +2320,7 @@ sub ArticleCreate {
         'Kernel::System::Ticket::Article',
     );
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $TicketObjectLoaded,
         'Loaded ArticleObject via MainObject',
     );
@@ -2335,7 +2344,7 @@ sub ArticleCreate {
     # create test ticket
     my $ArticleID = $ArticleObject->ArticleCreate(%ArticleAttributes);
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         $ArticleID,
         "Article '$ArticleAttributes{Subject}' is created - ID $ArticleID",
     );
@@ -2343,7 +2352,7 @@ sub ArticleCreate {
     return $ArticleID;
 }
 
-=item TestUserPreferencesSet()
+=head2 TestUserPreferencesSet()
 
 Sets preferences for a given Login or UserID
 
@@ -2378,7 +2387,7 @@ sub TestUserPreferencesSet {
     return 1;
 };
 
-=item PostMaster()
+=head2 PostMaster()
 
 This functions reads in a given file and calls the PostMaster on it. It returns the result of the PostMaster.
 
@@ -2421,7 +2430,7 @@ sub PostMaster {
     return $PostMasterObject->Run();
 }
 
-=item DatabaseXML()
+=head2 DatabaseXML()
 
 This function takes a file location of a XML file, generates and executes the SQL
 
@@ -2492,7 +2501,7 @@ sub DatabaseXML {
     return 1;
 }
 
-=item ConsoleCommand()
+=head2 ConsoleCommand()
 
 This is a helper function for executing ConsoleCommands without the hassle.
 
@@ -2527,14 +2536,14 @@ sub ConsoleCommand {
 
     my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
 
-    $Self->{UnitTestObject}->True(
+    $Self->{UnitTestDriverObject}->True(
         scalar IsStringWithData($Param{CommandModule}),
         'Command module given.',
     ) || return;
 
     my $CommandObject = $Kernel::OM->Get( $Param{CommandModule} );
 
-    $Self->{UnitTestObject}->Is(
+    $Self->{UnitTestDriverObject}->Is(
         ref $CommandObject,
         $Param{CommandModule},
         "CommandObject created from module name '$Param{CommandModule}'",
@@ -2563,7 +2572,7 @@ sub ConsoleCommand {
     return \%Result;
 }
 
-=item ACLValuesGet()
+=head2 ACLValuesGet()
 
 This is a helper function get shown values of fields or actions after ACL restrictions
 
@@ -2726,6 +2735,30 @@ sub ACLValuesGet {
     return %Result;
 }
 
+=head2 UnitTestObjectGet()
+
+Returns the correct unit test object.
+
+OTRS 4.0.27 introduced a new module Kernel::System::UnitTest::Driver.
+The unit test functions like True, False, etc. were moved to this module.
+
+=cut
+
+sub UnitTestObjectGet {
+    my ( $Self, %Param ) = @_;
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $UnitTestDriverAvailable = $MainObject->Require(
+        'Kernel::System::UnitTest::Driver',
+        Silent => 1,
+    );
+    if ($UnitTestDriverAvailable) {
+        return $Kernel::OM->Get('Kernel::System::UnitTest::Driver');
+    }
+
+    return $Kernel::OM->Get('Kernel::System::UnitTest');
+}
 # ---
 
 1;
