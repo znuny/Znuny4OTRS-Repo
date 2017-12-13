@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.32</Version>
+    <Version>5.0.33</Version>
+    <ChangeLog Version="5.0.33" Date="2017-12-13 11:08:48 +0100">Fixed issue #28 - Double repositories in AdminPackageManager online repository list.</ChangeLog>
     <ChangeLog Version="5.0.32" Date="2017-12-12 08:59:07 +0100">Added support for new unit test module.</ChangeLog>
     <ChangeLog Version="5.0.31" Date="2017-12-09 16:24:26 +0100">Changed addons subdomain.</ChangeLog>
     <ChangeLog Version="5.0.30" Date="2017-11-20 16:36:20 +0100">Fixed issue #17 - Chinese translations of Article Types break Core.Form.Znuny4OTRSInput.Get .</ChangeLog>
