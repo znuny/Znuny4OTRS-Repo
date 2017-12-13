@@ -29,11 +29,13 @@ sub Load {
 
         my $RepositoryBasePath = 'addons.znuny.com/api/addon_repos/';
 
-        # remove all repositories that match base path
-        # because otherwise repositories might get added twice (once for each protocol)
+        # remove all repositories that contain our znuny.com domain
+        # because otherwise repositories might get added multiple times
+        # - once for each protocol
+        # - obsolete URLs
         REPOSITORYURL:
         for my $RepositoryURL ( sort keys %{$RepositoryList} ) {
-            next REPOSITORYURL if $RepositoryURL !~ m{\Ahttps?://$RepositoryBasePath};
+            next REPOSITORYURL if $RepositoryURL !~ m{znuny\.com};
             delete $RepositoryList->{$RepositoryURL};
         }
 
