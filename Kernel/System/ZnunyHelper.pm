@@ -4633,7 +4633,7 @@ gets ProcessWidgetDynamicFieldGroups
         ],
     );
 
-    my %ProcessWidgetDynamicFieldGroups = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsAdd(
+    my $Success = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsAdd(
         %ProcessWidgetDynamicFieldGroups
     );
 
@@ -4710,7 +4710,7 @@ gets ProcessWidgetDynamicFieldGroups
         Group2 = [],            # deletes the whole group
     );
 
-    my %ProcessWidgetDynamicFieldGroups = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsRemove(
+    my $Success = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsRemove(
         %ProcessWidgetDynamicFieldGroups
     );
 
