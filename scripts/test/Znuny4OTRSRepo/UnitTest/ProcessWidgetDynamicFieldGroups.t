@@ -65,7 +65,7 @@ my %AfterRemoveConfig = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsGet(
 $Self->IsDeeply(
     \%AfterRemoveConfig,
     \%StartConfig,
-    'ProcessWidgetDynamicFieldGroupsAdd was successful',
+    'ProcessWidgetDynamicFieldGroupsRemove was successful',
 );
 
 1;
