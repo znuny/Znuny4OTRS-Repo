@@ -203,6 +203,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Postmaster.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/PostMasterFilterExport.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Process.t"/>
+        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ProcessWidgetDynamicFieldGroups.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Scheduler.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/SimpleEmailValidate.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ValidDynamicFieldScreenListGet.t"/>
