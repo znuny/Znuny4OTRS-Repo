@@ -4576,6 +4576,201 @@ sub _ProcessesGet {
     return \%Processes;
 }
 
+=item _ProcessWidgetDynamicFieldGroupsGet()
+
+gets ProcessWidgetDynamicFieldGroups
+
+    # get ProcessWidgetDynamicFieldGroups
+    my %ProcessWidgetDynamicFieldGroups = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsGet();
+
+    return:
+
+    %ProcessWidgetDynamicFieldGroups = (
+        Group1 = [
+            'DynamicField1',
+            'DynamicField3',
+        ],
+        Group2 = [
+            'DynamicField2',
+        ],
+    );
+
+=cut
+
+sub _ProcessWidgetDynamicFieldGroupsGet {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+
+    my $AgentTicketZoomConfig           = $ConfigObject->Get('Ticket::Frontend::AgentTicketZoom');
+    my %ProcessWidgetDynamicFieldGroups = %{ $AgentTicketZoomConfig->{ProcessWidgetDynamicFieldGroups} };
+
+    return {} if !%ProcessWidgetDynamicFieldGroups;
+
+    my %Config;
+    for my $Group ( sort keys %ProcessWidgetDynamicFieldGroups ) {
+
+        my @DynamicFields = split /\,/, $ProcessWidgetDynamicFieldGroups{$Group};
+        $Config{$Group} = \@DynamicFields || [];
+
+    }
+    return %Config;
+
+}
+
+=item _ProcessWidgetDynamicFieldGroupsAdd()
+
+gets ProcessWidgetDynamicFieldGroups
+
+    my %ProcessWidgetDynamicFieldGroups = (
+        Group1 = [
+            'DynamicField1',
+            'DynamicField3',
+        ],
+        Group2 = [
+            'DynamicField2',
+        ],
+    );
+
+    my %ProcessWidgetDynamicFieldGroups = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsAdd(
+        %ProcessWidgetDynamicFieldGroups
+    );
+
+=cut
+
+sub _ProcessWidgetDynamicFieldGroupsAdd {
+    my ( $Self, %Groups ) = @_;
+
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+    my %ProcessWidgetDynamicFieldGroups = $Self->_ProcessWidgetDynamicFieldGroupsGet();
+
+    my %NewDynamicFieldConfig;
+    my $AgentTicketZoomConfig     = $ConfigObject->Get('Ticket::Frontend::AgentTicketZoom');
+    my %CurrentDynamicFieldConfig = %{ $AgentTicketZoomConfig->{ProcessWidgetDynamicFieldGroups} };
+
+    GROUP:
+    for my $Group ( sort keys %Groups ) {
+
+        my $NewDynamicFields;
+        my @NewDynamicFields;
+        my @CurrentDynamicFields;
+
+        if ( $ProcessWidgetDynamicFieldGroups{$Group} ) {
+
+            @CurrentDynamicFields = @{ $ProcessWidgetDynamicFieldGroups{$Group} };
+            push @NewDynamicFields, @CurrentDynamicFields;
+        }
+
+        NEWDYNAMICFIELD:
+        for my $DynamicFieldName ( @{ $Groups{$Group} } ) {
+
+            my $Exists = grep { $DynamicFieldName eq $_ } @CurrentDynamicFields;
+
+            # next dynamic field if already exists
+            next NEWDYNAMICFIELD if $Exists;
+
+            push @NewDynamicFields, $DynamicFieldName;
+        }
+
+        $NewDynamicFields .= join ',', @NewDynamicFields;
+        $NewDynamicFieldConfig{$Group} = $NewDynamicFields;
+    }
+
+    %NewDynamicFieldConfig = (
+        %CurrentDynamicFieldConfig,
+        %NewDynamicFieldConfig,
+    );
+
+    my $Success = $SysConfigObject->ConfigItemUpdate(
+        Key   => 'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicFieldGroups',
+        Value => \%NewDynamicFieldConfig,
+        Valid => 1,
+    );
+
+    $Self->_PackageSetupInit();
+
+    return 1 if $Success;
+
+    return 0;
+}
+
+=item _ProcessWidgetDynamicFieldGroupsRemove()
+
+gets ProcessWidgetDynamicFieldGroups
+
+    my %ProcessWidgetDynamicFieldGroups = (
+        Group1 = [
+            'DynamicField1',
+            'DynamicField3',
+        ],
+        Group2 = [],            # deletes the whole group
+    );
+
+    my %ProcessWidgetDynamicFieldGroups = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsRemove(
+        %ProcessWidgetDynamicFieldGroups
+    );
+
+=cut
+
+sub _ProcessWidgetDynamicFieldGroupsRemove {
+    my ( $Self, %Groups ) = @_;
+
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
+    my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+
+    my %ProcessWidgetDynamicFieldGroups = $Self->_ProcessWidgetDynamicFieldGroupsGet();
+    my %NewDynamicFieldConfig;
+
+    GROUP:
+    for my $Group ( sort keys %ProcessWidgetDynamicFieldGroups ) {
+
+        my $NewDynamicFields;
+
+        if ( !$Groups{$Group} ) {
+            $NewDynamicFields = join ',', @{ $ProcessWidgetDynamicFieldGroups{$Group} };
+            $NewDynamicFieldConfig{$Group} = $NewDynamicFields;
+            next GROUP;
+        }
+
+        # delete whole group if array is empty
+        next GROUP if !IsArrayRefWithData( $Groups{$Group} );
+
+        my @NewDynamicFields;
+        DYNAMICFIELD:
+        for my $DynamicFieldName ( @{ $ProcessWidgetDynamicFieldGroups{$Group} } ) {
+
+            my $Exists = grep { $DynamicFieldName eq $_ } @{ $Groups{$Group} };
+
+            next DYNAMICFIELD if $Exists;
+            push @NewDynamicFields, $DynamicFieldName;
+
+        }
+
+        $NewDynamicFields = join ',', @NewDynamicFields;
+
+        # removes empty groups
+        next GROUP if !$NewDynamicFields;
+        $NewDynamicFieldConfig{$Group} = $NewDynamicFields;
+    }
+
+    my $Success = $SysConfigObject->ConfigItemUpdate(
+        Key   => 'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicFieldGroups',
+        Value => \%NewDynamicFieldConfig,
+        Valid => 1,
+    );
+
+    $Self->_PackageSetupInit();
+
+    return 1 if $Success;
+
+    return 0;
+}
+
 =item _ModuleGroupAdd()
 
 This function adds one or more groups to the list of groups of a frontend module registration for any interface.
