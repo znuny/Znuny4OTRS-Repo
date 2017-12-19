@@ -16,8 +16,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
-        RestoreSystemConfiguration => 1,
-        RestoreDatabase            => 1,
+        RestoreDatabase => 1,
     },
 );
 
@@ -65,7 +64,7 @@ my %AfterRemoveConfig = $ZnunyHelperObject->_ProcessWidgetDynamicFieldGroupsGet(
 $Self->IsDeeply(
     \%AfterRemoveConfig,
     \%StartConfig,
-    'ProcessWidgetDynamicFieldGroupsAdd was successful',
+    'ProcessWidgetDynamicFieldGroupsRemove was successful',
 );
 
 1;

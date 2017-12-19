@@ -4541,8 +4541,8 @@ sub _ProcessWidgetDynamicFieldGroupsGet {
 
         my @DynamicFields = split /\,/, $ProcessWidgetDynamicFieldGroups{$Group};
         $Config{$Group} = \@DynamicFields || [];
-
     }
+
     return %Config;
 
 }
@@ -4613,13 +4613,22 @@ sub _ProcessWidgetDynamicFieldGroupsAdd {
         %NewDynamicFieldConfig,
     );
 
-    my $Success = $SysConfigObject->ConfigItemUpdate(
-        Key   => 'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicFieldGroups',
-        Value => \%NewDynamicFieldConfig,
-        Valid => 1,
+    my $SysConfigKey = 'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicFieldGroups';
+
+    my $Success = $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => $SysConfigKey,
+                IsValid        => 1,
+                EffectiveValue => \%NewDynamicFieldConfig,
+            },
+        ],
+        UserID => 1,
     );
 
-    $Self->_PackageSetupInit();
+    # reload the ZZZ files
+    # get a new config object to make sure config is updated
+    $Self->_RebuildConfig();
 
     return 1 if $Success;
 
@@ -4686,13 +4695,22 @@ sub _ProcessWidgetDynamicFieldGroupsRemove {
         $NewDynamicFieldConfig{$Group} = $NewDynamicFields;
     }
 
-    my $Success = $SysConfigObject->ConfigItemUpdate(
-        Key   => 'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicFieldGroups',
-        Value => \%NewDynamicFieldConfig,
-        Valid => 1,
+    my $SysConfigKey = 'Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicFieldGroups';
+
+    my $Success = $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => $SysConfigKey,
+                IsValid        => 1,
+                EffectiveValue => \%NewDynamicFieldConfig,
+            },
+        ],
+        UserID => 1,
     );
 
-    $Self->_PackageSetupInit();
+    # reload the ZZZ files
+    # get a new config object to make sure config is updated
+    $Self->_RebuildConfig();
 
     return 1 if $Success;
 
