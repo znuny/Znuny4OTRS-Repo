@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.10</Version>
+    <Version>6.0.11</Version>
+    <ChangeLog Version="6.0.11" Date="2017-12-20 15:01:25 +0100">Added new functions - _ProcessWidgetDynamicFieldGroupsGet, _ProcessWidgetDynamicFieldGroupsAdd, _ProcessWidgetDynamicFieldGroupsRemove.&#13;
+Added RebuildConfig to make sure config is updated after _DynamicFieldsScreenDisable function.</ChangeLog>
     <ChangeLog Version="6.0.10" Date="2017-12-13 11:08:38 +0100">Fixed issue #28 - Double repositories in AdminPackageManager online repository list.</ChangeLog>
     <ChangeLog Version="6.0.9" Date="2017-12-12 08:58:56 +0100">Added support for new unit test module.</ChangeLog>
     <ChangeLog Version="6.0.8" Date="2017-12-09 16:24:13 +0100">Changed addons subdomain.</ChangeLog>
