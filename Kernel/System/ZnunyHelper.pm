@@ -2654,13 +2654,16 @@ Returns:
 sub _ServiceCreateIfNotExists {
     my ( $Self, %Param ) = @_;
 
+    my $LogObject     = $Kernel::OM->Get('Kernel::System::Log');
+    my $ServiceObject = $Kernel::OM->Get('Kernel::System::Service');
+
     # check needed stuff
     NEEDED:
     for my $Needed (qw(Name)) {
 
         next NEEDED if defined $Param{$Needed};
 
-        $Kernel::OM->Get('Kernel::System::Log')->Log(
+        $LogObject->Log(
             Priority => 'error',
             Message  => "Parameter '$Needed' is needed!",
         );
@@ -2673,7 +2676,7 @@ sub _ServiceCreateIfNotExists {
     $Param{TypeID}      ||= '2';
     $Param{Criticality} ||= '3 normal';
 
-    my %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
+    my %ServiceReversed = $ServiceObject->ServiceList(
         Valid  => 0,
         UserID => 1
     );
@@ -2695,14 +2698,14 @@ sub _ServiceCreateIfNotExists {
         my $ParentID;
         if ($CompleteServiceName) {
 
-            $ParentID = $Kernel::OM->Get('Kernel::System::Service')->ServiceLookup(
+            $ParentID = $ServiceObject->ServiceLookup(
                 Name   => $CompleteServiceName,
                 UserID => 1,
             );
 
             if ( !$ParentID ) {
 
-                $Kernel::OM->Get('Kernel::System::Log')->Log(
+                $LogObject->Log(
                     Priority => 'error',
                     Message  => "Error while getting ServiceID for parent service "
                         . "'$CompleteServiceName' for new service '" . $Name . "'.",
@@ -2721,7 +2724,7 @@ sub _ServiceCreateIfNotExists {
             next SERVICE;
         }
 
-        $ServiceID = $Kernel::OM->Get('Kernel::System::Service')->ServiceAdd(
+        $ServiceID = $ServiceObject->ServiceAdd(
             %Param,
             Name     => $ServiceName,
             ParentID => $ParentID,
@@ -2731,14 +2734,14 @@ sub _ServiceCreateIfNotExists {
 
         if ( !$ServiceID ) {
 
-            $Kernel::OM->Get('Kernel::System::Log')->Log(
+            $LogObject->Log(
                 Priority => 'error',
                 Message  => "Error while adding new service '$ServiceName' ($ParentID).",
             );
             return;
         }
 
-        %ServiceReversed = $Kernel::OM->Get('Kernel::System::Service')->ServiceList(
+        %ServiceReversed = $ServiceObject->ServiceList(
             Valid  => 0,
             UserID => 1
         );

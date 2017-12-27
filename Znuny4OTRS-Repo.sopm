@@ -184,6 +184,35 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/UnitTest/Scheduler.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/AddNote.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/CustomerUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EmailAgent.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationResponseTimeNotifyBefore.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationResponseTimeStart.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationResponseTimeStop.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationSolutionTimeNotifyBefore.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationSolutionTimeStart.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationSolutionTimeStop.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationUpdateTimeNotifyBefore.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationUpdateTimeStart.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/EscalationUpdateTimeStop.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/FollowUp.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/Lock.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/Move.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/NewTicket.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/OwnerUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/PhoneCallCustomer.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/PriorityUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SendAnswer.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/ServiceUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SetPendingTime.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SLAUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/StateUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketDynamicFieldUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TimeAccounting.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TypeUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/Unlock.pm"/>
         <File Permission="644" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
         <File Permission="644" Location="scripts/processes/UnitTestRepo/ValidProcess/UnitTestRepo.yml"/>
