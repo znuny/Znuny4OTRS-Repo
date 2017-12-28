@@ -396,7 +396,6 @@
                 <Item Key="Ticket::Frontend::AgentTicketEscalationView###DefaultColumns">AgentTicketEscalationView</Item>
                 <Item Key="Ticket::Frontend::AgentTicketSearch###DefaultColumns">AgentTicketSearch</Item>
                 <Item Key="Ticket::Frontend::AgentTicketService###DefaultColumns">AgentTicketService</Item>
-
                 <!-- DefaultColumns and Dashboard Widgets -->
                 <Item Key="DashboardBackend###0100-TicketPendingReminder">DashboardWidget TicketPendingReminder</Item>
                 <Item Key="DashboardBackend###0110-TicketEscalation">DashboardWidget TicketEscalation</Item>
@@ -440,6 +439,54 @@
                     </Array>
                 </Item>
             </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Ticket::Frontend::MenuModule###999-Znuny4OTRSTicketToUnitTest" Required="0" Valid="0">
+        <Description Translatable="1">Shows a link in the menu to go create a unit test from the current ticket.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Frontend::Agent::Ticket::MenuModule</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::TicketMenu::Generic</Item>
+                <Item Key="Name" Translatable="1">Create UnitTest</Item>
+                <Item Key="Description" Translatable="1">Creates a UnitTest from this ticket.</Item>
+                <Item Key="Action"></Item>
+                <Item Key="Link">Action=AgentZnuny4OTRSTicketToUnitTest;Subaction=CreateFile;TicketID=[% Data.TicketID | html %]</Item>
+                <Item Key="Target"></Item>
+                <Item Key="PopupType"></Item>
+                <Item Key="ClusterName" Translatable="1">Miscellaneous</Item>
+                <Item Key="ClusterPriority">998</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Ticket::Frontend::MenuModule###999-Znuny4OTRSTicketToUnitTestSend" Required="0" Valid="0">
+        <Description Translatable="1">Shows a link in the menu to go create a unit test from the current ticket.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Frontend::Agent::Ticket::MenuModule</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::TicketMenu::Generic</Item>
+                <Item Key="Name" Translatable="1">Send UnitTest</Item>
+                <Item Key="Description" Translatable="1">Creates a UnitTest from this ticket and sends to Znuny.</Item>
+                <Item Key="Action"></Item>
+                <Item Key="Link">Action=AgentZnuny4OTRSTicketToUnitTest;Subaction=SendEmail;TicketID=[% Data.TicketID | html %]</Item>
+                <Item Key="Target"></Item>
+                <Item Key="PopupType"></Item>
+                <Item Key="ClusterName" Translatable="1">Miscellaneous</Item>
+                <Item Key="ClusterPriority">999</Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Frontend::Module###AgentZnuny4OTRSTicketToUnitTest" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Group>Znuny4OTRS-Repo</Group>
+        <SubGroup>Frontend::Agent::ModuleRegistration</SubGroup>
+        <Setting>
+            <FrontendModuleReg>
+                <Group>admin</Group>
+                <Description>Creates a UnitTest from a ticket.</Description>
+                <Title>TicketToUnitTest</Title>
+            </FrontendModuleReg>
         </Setting>
     </ConfigItem>
 </otrs_config>
