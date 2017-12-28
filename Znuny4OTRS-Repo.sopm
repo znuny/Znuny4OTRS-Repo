@@ -170,8 +170,10 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium.pm"/>
         <File Permission="644" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
-        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
         <File Permission="644" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Config/Files/Znuny4OTRSRepo.xml"/>
+        <File Permission="644" Location="Kernel/Language/de_Znuny4OTRSRepo.pm"/>
+        <File Permission="644" Location="Kernel/Modules/AgentZnuny4OTRSTicketToUnitTest.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="644" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepoAdminPackageManager.pm"/>
@@ -182,8 +184,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Param.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/Scheduler.pm"/>
-        <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
+        <File Permission="644" Location="Kernel/System/UnitTest/Webservice.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/AddNote.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/CustomerUpdate.pm"/>
@@ -204,10 +206,10 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/OwnerUpdate.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/PhoneCallCustomer.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/PriorityUpdate.pm"/>
+        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SLAUpdate.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SendAnswer.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/ServiceUpdate.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SetPendingTime.pm"/>
-        <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/SLAUpdate.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/StateUpdate.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketDynamicFieldUpdate.pm"/>
         <File Permission="644" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TimeAccounting.pm"/>
@@ -229,8 +231,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FunctionCalls.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/GenericAgentCreate.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Layout.t"/>
-        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Postmaster.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/PostMasterFilterExport.t"/>
+        <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Postmaster.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Process.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ProcessWidgetDynamicFieldGroups.t"/>
         <File Permission="644" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Scheduler.t"/>

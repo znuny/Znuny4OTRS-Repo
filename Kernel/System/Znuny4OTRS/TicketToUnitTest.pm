@@ -21,6 +21,7 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
     'Kernel::System::Log',
+    'Kernel::System::Main',
     'Kernel::System::Priority',
     'Kernel::System::Queue',
     'Kernel::System::SLA',
@@ -73,7 +74,7 @@ sub new {
 
 This function creates a unittest
 
-    my $Output = $TicketToUnitTest->CreateUnitTest(
+    my $Output = $TicketToUnitTestObject->CreateUnitTest(
         TicketID => 123456,
     );
 
@@ -90,6 +91,7 @@ sub CreateUnitTest {
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
     my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
 
     # check needed stuff
     NEEDED:
@@ -103,8 +105,6 @@ sub CreateUnitTest {
         return;
     }
 
-    # Kernel/System/Znuny4OTRS/TicketToUnitTest.pm
-    # Kernel/System/Znuny4OTRS/TicketToUnitTest/NewTicket.pm
     # modul registrierung disabled / download / senden
     # Gruppe admin
     # Console::Command STDOut
@@ -152,18 +152,19 @@ sub CreateUnitTest {
             push @{ $TicketAttributes{$AttributeKey} }, $HistoryTicket{$Attribute};
         }
 
+        my $Module = "Kernel::System::Znuny4OTRS::TicketToUnitTest::$HistoryLine->{HistoryType}";
+        my $LoadedModule = $MainObject->Require(
+            $Module,
+            Silent => 1,
+        );
 
-        my $RealFile = $Home . '/' . $Znuny4OTRSHome . '/' . $HistoryLine->{HistoryType} . ".pm";
-#         $RealFile =~ s/\/\//\//g;
-
-        # check if file exists
-        if ( !-e $RealFile ) {
+        if ( !$LoadedModule){
             $Output .= "# ATTENTION: Can't find modul for '$HistoryLine->{HistoryType}' Entry - $HistoryLine->{Name}\n";
             next LINE;
         }
 
         my $ModulOutput
-            .= $Kernel::OM->Get("Kernel::System::Znuny4OTRS::TicketToUnitTest::$HistoryLine->{HistoryType}")->Run(
+            .= $Kernel::OM->Get($Module)->Run(
             %{$HistoryLine},
             %HistoryTicket,
         );
@@ -200,7 +201,7 @@ DEBUG
     $UnitTest .= $CreateObjects;
     $UnitTest .= $Output;
 
-    print $UnitTest . "\n";
+    return $UnitTest;
 
 }
 
