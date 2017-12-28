@@ -105,15 +105,16 @@ sub CreateUnitTest {
         return;
     }
 
-    # modul registrierung disabled / download / senden
-    # Gruppe admin
-    # Console::Command STDOut
-    # dependencies
+# todo
+# ----
+#
+# commandline
+# maybe preapp to remove / deny menu for not admin user
+# remove TicketToUnitTest Branch / Zammand Branch
 
-    my $UnitTest          = '';
-    my $Output            = '';
+
+    my $Output = '';
     my $CurrentSystemTime = 0;
-    my $UserID            = 1;
     my %TicketAttributes;
 
     my $Home           = $ConfigObject->Get('Home');
@@ -121,7 +122,7 @@ sub CreateUnitTest {
 
     my @HistoryLines = $TicketObject->HistoryGet(
         TicketID => $Param{TicketID},
-        UserID   => $UserID,
+        UserID   => 1,
     );
 
     LINE:
@@ -163,8 +164,7 @@ sub CreateUnitTest {
             next LINE;
         }
 
-        my $ModulOutput
-            .= $Kernel::OM->Get($Module)->Run(
+        my $ModulOutput = $Kernel::OM->Get($Module)->Run(
             %{$HistoryLine},
             %HistoryTicket,
         );
@@ -196,7 +196,7 @@ DEBUG
     my $NeededObjects = $Self->GetNeededObjects(%TicketAttributes);
     my $CreateObjects = $Self->GetCreateObjects(%TicketAttributes);
 
-    $UnitTest = $Header;
+    my $UnitTest = $Header;
     $UnitTest .= $NeededObjects;
     $UnitTest .= $CreateObjects;
     $UnitTest .= $Output;

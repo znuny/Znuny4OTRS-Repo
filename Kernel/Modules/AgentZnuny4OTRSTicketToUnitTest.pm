@@ -79,6 +79,11 @@ sub Run {
     elsif ( $Self->{Subaction} eq 'SendEmail' ) {
 
         # todo maybe additional sysconfigs
+        # From = Agent Mail
+        # To = SysConfig / Fallback support@znuny.com
+        # Subject = SysConfig
+        # Body = SysConfig + CreatedBy + Organisation
+
         my $From = $ConfigObject->Get('NotificationSenderEmail');
         my $Sent = $EmailObject->Send(
             From       => $From,
