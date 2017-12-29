@@ -2759,8 +2759,120 @@ sub UnitTestObjectGet {
 
     return $Kernel::OM->Get('Kernel::System::UnitTest');
 }
-# ---
 
+=head2 ConfigItemCreate()
+
+Creates a ConfigItem with dummy data. All Ticket attributes are optional.
+
+    my $ConfigItemID = $HelperObject->ConfigItemCreate();
+
+    or
+
+    my $ConfigItemID = $HelperObject->ConfigItemCreate(
+        Name          => 'UnitTestPC',
+        ClassName     => 'Computer',
+        DeplStateName => 'Production',
+        InciStateName => 'Operational',
+        XMLData => {
+            OtherEquipment         => '...',
+            Note                   => '...',
+            WarrantyExpirationDate => '2016-01-01',
+            InstallDate            => '2016-01-01',
+            NIC                    => [
+                {
+                    Content => 'NIC',
+                    IPoverDHCP => [
+                        {
+                            Content => $YesNoList{Yes},
+                        },
+                    ],
+                    IPAddress => [
+                        {
+                            Content => '127.0.0.1'
+                        },
+                    ],
+                },
+            ],
+        },
+    );
+
+    return:
+    $ConfigItemID = 23;
+
+=cut
+
+sub ConfigItemCreate {
+    my ( $Self, %Param ) = @_;
+
+    my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+    my $ConfigItemObject     = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $GeneralCatalogObject = $Kernel::OM->Get('Kernel::System::GeneralCatalog');
+    my $ValidObject          = $Kernel::OM->Get('Kernel::System::Valid');
+
+    # get valid id
+    my $ValidID = $ValidObject->ValidLookup(
+        Valid => 'valid',
+    );
+
+    my $ClassListRef = $GeneralCatalogObject->ItemList(
+        Class => 'ITSM::ConfigItem::Class',
+        Valid => $ValidID,
+    );
+
+    my %ClassList = reverse %{ $ClassListRef || {} };
+
+    my $YesNoRef = $GeneralCatalogObject->ItemList(
+        Class => 'ITSM::ConfigItem::YesNo',
+        Valid => $ValidID,
+    );
+
+    my %YesNoList = reverse %{ $YesNoRef || {} };
+
+    my $ConfigItemID = $ConfigItemObject->ConfigItemAdd(
+        ClassID => $ClassList{Computer},
+        UserID  => 1,
+        %Param
+    );
+
+    my $RandomID      = $Self->GetRandomID();
+    my $TestUserLogin = $Self->TestCustomerUserCreate();
+
+    # create new version of config item
+    my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
+        ConfigItemID  => $ConfigItemID,
+        Name          => "UnitTestPC-$RandomID",
+        ClassName     => 'Computer',
+        DeplStateName => 'Production',
+        InciStateName => 'Operational',
+        XMLData => {
+            OtherEquipment         => '...',
+            Note                   => '...',
+            WarrantyExpirationDate => '2016-01-01',
+            InstallDate            => '2016-01-01',
+            NIC                    => [
+                {
+                    Content => 'NIC',
+                    IPoverDHCP => [
+                        {
+                            Content => $YesNoList{Yes},
+                        },
+                    ],
+                    IPAddress => [
+                        {
+                            Content => '127.0.0.1'
+                        },
+                    ],
+                },
+            ],
+            Owner => $Param{Owner} || $TestUserLogin,
+        },
+        %Param,
+    );
+
+    return $ConfigItemID;
+}
+
+# ---
 1;
 
 =head1 TERMS AND CONDITIONS
