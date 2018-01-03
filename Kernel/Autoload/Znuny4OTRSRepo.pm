@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2018 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 6114661c44c9ca9dec45364b54bfab036ce6e34e - Kernel/System/CloudService/Backend/Run.pm
 # --
