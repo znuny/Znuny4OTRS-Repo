@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2018 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - cab4d630be0ff58f47cf2dfa2281020ad23cd0db - Kernel/System/UnitTest/Selenium.pm
 # --
