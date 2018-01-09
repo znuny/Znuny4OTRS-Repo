@@ -31,6 +31,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     $Self->AgentAppointmentEdit(%Param);
+    $Self->AgentTicketZoom(%Param);
     $Self->AdminAppointmentNotificationEvent(%Param);
     $Self->AdminDynamicField(%Param);
     $Self->AdminCloudServices(%Param);
@@ -70,6 +71,35 @@ Remove the following block:
             \s*
         <\/div>
     }{}xmsi;
+
+    return 1;
+}
+
+sub AgentTicketZoom {
+    my ( $Self, %Param ) = @_;
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
+    my $TemplateName = $Param{TemplateFile};
+    return if $TemplateName ne 'AgentTicketZoom';
+
+=for comment
+
+Remove the following block:
+
+    <option value="Timeline" disabled="disabled">Show Ticket Timeline View (OTRS Business Solution™)</option>
+
+The ArticleViewSettings will be rendered via Core.Agent.TicketZoom.ArticleViewEvents().
+We have to remove this option via layout object.
+
+=cut
+
+    return if !$LayoutObject->{_JSData}->{ArticleViewStrg};
+
+    my $Label
+        = $LayoutObject->{LanguageObject}->Translate( 'Show Ticket Timeline View (%s)', 'OTRS Business Solution™' );
+
+    $LayoutObject->{_JSData}->{ArticleViewStrg} =~ s{<option[^>]*value="Timeline"[^>]*\>\Q$Label\E<\/option>}{}si;
 
     return 1;
 }
