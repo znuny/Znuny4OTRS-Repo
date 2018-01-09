@@ -350,7 +350,7 @@ sub AdminSystemConfigurationGroup {
     my ( $Self, %Param ) = @_;
 
     my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'AdminSystemConfigurationGroup' && $TemplateName ne 'SystemConfiguration/SettingsList';
+    return if $TemplateName ne 'AdminSystemConfigurationGroup' && $TemplateName ne 'SystemConfiguration/SettingsList' && $TemplateName ne 'AdminSystemConfigurationView';
 
 =for comment
 
