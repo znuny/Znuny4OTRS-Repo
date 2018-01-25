@@ -4609,7 +4609,7 @@ sub _ProcessWidgetDynamicFieldGroupsGet {
     my $AgentTicketZoomConfig           = $ConfigObject->Get('Ticket::Frontend::AgentTicketZoom');
     my %ProcessWidgetDynamicFieldGroups = %{ $AgentTicketZoomConfig->{ProcessWidgetDynamicFieldGroups} };
 
-    return {} if !%ProcessWidgetDynamicFieldGroups;
+    return if !%ProcessWidgetDynamicFieldGroups;
 
     my %Config;
     for my $Group ( sort keys %ProcessWidgetDynamicFieldGroups ) {
