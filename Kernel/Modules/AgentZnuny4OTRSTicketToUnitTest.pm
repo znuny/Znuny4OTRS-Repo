@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -62,36 +62,34 @@ sub Run {
         TicketID => $Param{TicketID},
     );
 
-    my $Organization = $ConfigObject->Get('Organization') || 'Znuny';
-    my $Filename = "UnitTest-$Organization-$Param{TicketID}.t";
+    my %SendConfig;
+    for my $Attribute (qw(AdminEmail Organization FQDN)) {
+        $SendConfig{$Attribute} = $ConfigObject->Get($Attribute);
+    }
 
-    my $UnitTestFile = $LayoutObject->Attachment(
-        ContentType => 'text/html; charset=' . $LayoutObject->{Charset},
-        Content     => $UnitTestContent,
-        Type        => 'attachment',
-        Filename    => $Filename,
-        NoCache     => 1,
-    );
+    my $Filename = "UnitTest-$SendConfig{Organization}-$Param{TicketID}.t";
 
     if ( $Self->{Subaction} eq 'CreateFile' ) {
+        my $UnitTestFile = $LayoutObject->Attachment(
+            ContentType => 'text/html; charset=' . $LayoutObject->{Charset},
+            Content     => $UnitTestContent,
+            Type        => 'attachment',
+            Filename    => $Filename,
+            NoCache     => 1,
+        );
+
         return $UnitTestFile if $UnitTestFile;
     }
     elsif ( $Self->{Subaction} eq 'SendEmail' ) {
 
-        # todo maybe additional sysconfigs
-        # From = Agent Mail
-        # To = SysConfig / Fallback support@znuny.com
-        # Subject = SysConfig
-        # Body = SysConfig + CreatedBy + Organisation
-
-        my $From = $ConfigObject->Get('NotificationSenderEmail');
+        my $From = $ConfigObject->Get('AdminEmail');
         my $Sent = $EmailObject->Send(
-            From       => $From,
+            From       => $SendConfig{AdminEmail},
             To         => 'support@znuny.com',
-            Subject    => "UnitTest $Organization",
+            Subject    => "UnitTest $SendConfig{Organization}",
             Charset    => 'utf-8',
             MimeType   => 'text/plain',
-            Body       => "UnitTest $Organization",
+            Body       => "UnitTest $SendConfig{Organization}",
             Attachment => [
                 {
                     Filename    => $Filename,
