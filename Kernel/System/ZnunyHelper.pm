@@ -3445,6 +3445,93 @@ sub _NotificationEventCreateIfNotExists {
     return $NotificationEventID;
 }
 
+=item _StandardTemplateCreate()
+
+create or update standard template
+
+    my @StandardTemplateList = (
+        {
+            Name         => 'New Standard Template',
+            Template     => 'Thank you for your email.',
+            ContentType  => 'text/plain; charset=utf-8',
+            TemplateType => 'Answer',                     # 'Answer', 'Create', 'Email', 'Forward', 'Note', 'PhoneCall'
+            Comment      => '',                           # optional
+            ValidID      => 1,
+            UserID       => 1,
+        },
+    );
+
+    my $Success = $ZnunyHelperObject->_StandardTemplateCreate( @StandardTemplateList );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _StandardTemplateCreate {
+    my ( $Self, @StandardTemplateList ) = @_;
+
+    my $LogObject              = $Kernel::OM->Get('Kernel::System::Log');
+    my $ValidObject            = $Kernel::OM->Get('Kernel::System::Valid');
+    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+
+    my $Success = 1;
+
+    NOTIFICATIONEVENT:
+    for my $StandardTemplate (@StandardTemplateList) {
+        next StandardTemplate if !IsHashRefWithData($StandardTemplate);
+
+        # check needed stuff
+        NEEDED:
+        for my $Needed (qw(Name)) {
+
+            next NEEDED if defined $StandardTemplate->{$Needed};
+
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "Parameter '$Needed' is needed!",
+            );
+            return;
+        }
+
+        my %StandardTemplateReversed = $StandardTemplateObject->StandardTemplateList();
+        %StandardTemplateReversed = reverse %StandardTemplateReversed;
+
+        my $ItemID = $Self->_ItemReverseListGet( $StandardTemplate->{Name}, %StandardTemplateReversed );
+
+        my $ValidID = $StandardTemplate->{ValidID} // $ValidObject->ValidLookup(
+            Valid => 'valid',
+        );
+
+        if ($ItemID) {
+            my $UpdateSuccess = $StandardTemplateObject->StandardTemplateUpdate(
+                %{$StandardTemplate},
+                ID      => $ItemID,
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$UpdateSuccess ) {
+                $Success = 0;
+            }
+        }
+        else {
+            my $CreateID = $StandardTemplateObject->StandardTemplateAdd(
+                %{$StandardTemplate},
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$CreateID ) {
+                $Success = 0;
+            }
+        }
+    }
+
+    return $Success;
+}
+
 =item _ITSMVersionAdd()
 
 adds or updates a config item version.
