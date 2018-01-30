@@ -35,6 +35,7 @@ our @ObjectDependencies = (
     'Kernel::System::Queue',
     'Kernel::System::SLA',
     'Kernel::System::Service',
+    'Kernel::System::StandardTemplate',
     'Kernel::System::State',
     'Kernel::System::Storable',
     'Kernel::System::SysConfig',
