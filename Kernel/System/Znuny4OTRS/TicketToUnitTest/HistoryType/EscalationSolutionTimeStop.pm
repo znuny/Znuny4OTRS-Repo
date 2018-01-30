@@ -6,13 +6,13 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationUpdateTimeStop;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationSolutionTimeStop;
 
 use strict;
 use warnings;
 
 our @ObjectDependencies = ();
 
-use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationResponseTimeStart );
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationResponseTimeStart );
 
 1;

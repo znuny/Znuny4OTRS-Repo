@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::OwnerUpdate;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::PriorityUpdate;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::OwnerUpdate
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::OwnerUpdate functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestOwnerUpdateObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::OwnerUpdate');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -58,7 +34,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Owner)) {
+    for my $Needed (qw(Priority)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -70,15 +46,15 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketOwnerSet(
-    NewUser  => '$Param{Owner}',
-    TicketID => \$Param{TicketID},
-    UserID   => \$UserID,
+\$Success = \$TicketObject->TicketPrioritySet(
+    Priority => '$Param{Priority}',
+    TicketID  => \$Param{TicketID},
+    UserID    => \$UserID,
 );
 
 \$Self->True(
     \$Success,
-    'TicketOwnerSet to "$Param{Owner}" was successfull.',
+    'TicketPrioritySet "$Param{Priority}" was successfull.',
 );
 
 OUTPUT

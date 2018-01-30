@@ -6,13 +6,25 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationSolutionTimeStop;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::TicketObject::Priority;
 
 use strict;
 use warnings;
 
 our @ObjectDependencies = ();
 
-use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationResponseTimeStart );
+use Kernel::System::VariableCheck qw(:all);
+
+sub new {
+    my ( $Type, %Param ) = @_;
+
+    # allocate new hash for object
+    my $Self = {%Param};
+    bless( $Self, $Type );
+
+    return $Self;
+}
+
+
 
 1;

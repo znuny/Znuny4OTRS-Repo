@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::CustomerUpdate;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::StateUpdate;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::CustomerUpdate
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::CustomerUpdate functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestCustomerUpdateObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::CustomerUpdate');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -58,7 +34,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(CustomerID CustomerUser)) {
+    for my $Needed (qw(State)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -70,15 +46,15 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketCustomerSet(
-    No       => '$Param{CustomerID}',
-    User     => '$Param{CustomerUser}',
+\$Success = \$TicketObject->TicketStateSet(
+    State    => '$Param{State}',
     TicketID => \$Param{TicketID},
     UserID   => \$UserID,
 );
+
 \$Self->True(
     \$Success,
-    'TicketCustomerSet to "$Param{CustomerUser}" was successfull.',
+    'TicketStateSet to "$Param{State}" was successfull.',
 );
 
 OUTPUT

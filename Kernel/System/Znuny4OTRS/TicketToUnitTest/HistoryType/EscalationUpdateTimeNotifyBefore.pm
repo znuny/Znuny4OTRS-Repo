@@ -6,14 +6,13 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::EmailAgent;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationUpdateTimeNotifyBefore;
 
 use strict;
 use warnings;
 
-our @ObjectDependencies = (
-);
+our @ObjectDependencies = ();
 
-use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::AddNote );
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationResponseTimeStart );
 
 1;

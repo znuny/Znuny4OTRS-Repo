@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::TimeAccounting;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::OwnerUpdate;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::TimeAccounting
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::TimeAccounting functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestTimeAccountingObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::TimeAccounting');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -58,7 +34,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(TimeAccounting)) {
+    for my $Needed (qw(Owner)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -70,16 +46,15 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketAccountTime(
-    TicketID  => \$Param{TicketID},
-    ArticleID => \$ArticleID,
-    TimeUnit  => '$Param{TimeAccounting}',
-    UserID    => \$UserID,
+\$Success = \$TicketObject->TicketOwnerSet(
+    NewUser  => '$Param{Owner}',
+    TicketID => \$Param{TicketID},
+    UserID   => \$UserID,
 );
 
 \$Self->True(
     \$Success,
-    'TicketAccountTime "$Param{TimeAccounting}" was successfull.',
+    'TicketOwnerSet to "$Param{Owner}" was successfull.',
 );
 
 OUTPUT

@@ -69,36 +69,36 @@ sub Run {
 
     my $Filename = "UnitTest-$SendConfig{Organization}-$Param{TicketID}.t";
 
-    if ( $Self->{Subaction} eq 'CreateFile' ) {
-        my $UnitTestFile = $LayoutObject->Attachment(
-            ContentType => 'text/html; charset=' . $LayoutObject->{Charset},
-            Content     => $UnitTestContent,
-            Type        => 'attachment',
-            Filename    => $Filename,
-            NoCache     => 1,
-        );
+    #     if ( $Self->{Subaction} eq 'CreateFile' ) {
+    #         my $UnitTestFile = $LayoutObject->Attachment(
+    #             ContentType => 'text/html; charset=' . $LayoutObject->{Charset},
+    #             Content     => $UnitTestContent,
+    #             Type        => 'attachment',
+    #             Filename    => $Filename,
+    #             NoCache     => 1,
+    #         );
 
-        return $UnitTestFile if $UnitTestFile;
-    }
-    elsif ( $Self->{Subaction} eq 'SendEmail' ) {
+    #         return $UnitTestFile if $UnitTestFile;
+    #     }
+    #     elsif ( $Self->{Subaction} eq 'SendEmail' ) {
 
-        my $From = $ConfigObject->Get('AdminEmail');
-        my $Sent = $EmailObject->Send(
-            From       => $SendConfig{AdminEmail},
-            To         => 'support@znuny.com',
-            Subject    => "UnitTest $SendConfig{Organization}",
-            Charset    => 'utf-8',
-            MimeType   => 'text/plain',
-            Body       => "UnitTest $SendConfig{Organization}",
-            Attachment => [
-                {
-                    Filename    => $Filename,
-                    Content     => $UnitTestContent,
-                    ContentType => "text/html",
-                },
-            ],
-        );
-    }
+    #         my $From = $ConfigObject->Get('AdminEmail');
+    #         my $Sent = $EmailObject->Send(
+    #             From       => $SendConfig{AdminEmail},
+    #             To         => 'support@znuny.com',
+    #             Subject    => "UnitTest $SendConfig{Organization}",
+    #             Charset    => 'utf-8',
+    #             MimeType   => 'text/plain',
+    #             Body       => "UnitTest $SendConfig{Organization}",
+    #             Attachment => [
+    #                 {
+    #                     Filename    => $Filename,
+    #                     Content     => $UnitTestContent,
+    #                     ContentType => "text/html",
+    #                 },
+    #             ],
+    #         );
+    #     }
 
     return $LayoutObject->Redirect( OP => "Action=AgentTicketZoom;TicketID=$Param{TicketID}" );
 }

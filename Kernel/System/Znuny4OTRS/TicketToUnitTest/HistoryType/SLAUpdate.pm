@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::Move;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::SLAUpdate;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::Move
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::Move functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestMoveObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::Move');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -58,7 +34,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Queue)) {
+    for my $Needed (qw(SLA)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -70,15 +46,15 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketQueueSet(
-    Queue    => '$Param{Queue}',
+\$Success = \$TicketObject->TicketSLASet(
+    SLA      => '$Param{SLA}',
     TicketID => \$Param{TicketID},
     UserID   => \$UserID,
 );
 
 \$Self->True(
     \$Success,
-    'TicketQueueSet to "$Param{Queue}" was successfull.',
+    'TicketSLASet to "$Param{SLA}" was successfull.',
 );
 
 OUTPUT

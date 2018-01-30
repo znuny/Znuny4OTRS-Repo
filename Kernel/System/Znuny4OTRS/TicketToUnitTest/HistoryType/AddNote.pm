@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::AddNote;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::AddNote;
 
 use strict;
 use warnings;
@@ -18,39 +18,6 @@ our @ObjectDependencies = (
 
 use Kernel::System::VariableCheck qw(:all);
 
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::AddNote
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::AddNote functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestAddNoteObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::AddNote');
-
-=cut
-
-sub new {
-    my ( $Type, %Param ) = @_;
-
-    # allocate new hash for object
-    my $Self = {%Param};
-    bless( $Self, $Type );
-
-    return $Self;
-}
 
 sub Run {
     my ( $Self, %Param ) = @_;
@@ -77,7 +44,7 @@ sub Run {
     );
 
     my $Output = <<OUTPUT;
-\$ArticleID = \$HelperObject->ArticleCreate(
+\$HelperObject->ArticleCreate(
     TicketID       => \$Param{TicketID},
     Subject        => '$Article{Subject}',
     Body           => '$Article{Body}',
