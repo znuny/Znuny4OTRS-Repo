@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::NewTicket;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::NewTicket;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::NewTicket
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::NewTicket functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestNewTicketObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::NewTicket');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -61,7 +37,7 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-my \$Param{TicketID} = \$HelperObject->TicketCreate(
+\$Param{TicketID} = \$HelperObject->TicketCreate(
     Queue         => '$Param{Queue}',
     Priority      => '$Param{Priority}',
     State         => '$Param{State}',

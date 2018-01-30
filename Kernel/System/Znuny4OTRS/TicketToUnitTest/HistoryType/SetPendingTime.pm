@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::ServiceUpdate;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::SetPendingTime;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::ServiceUpdate
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::ServiceUpdate functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestServiceUpdateObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::ServiceUpdate');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -58,7 +34,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Service)) {
+    for my $Needed (qw(PendingTime)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -70,15 +46,16 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketServiceSet(
-    Service  => '$Param{Service}',
+\$Success = \$TicketObject->TicketPendingTimeSet(
+    String   => '$Param{PendingTime}',
     TicketID => \$Param{TicketID},
     UserID   => \$UserID,
 );
 
+
 \$Self->True(
     \$Success,
-    'TicketServiceSet to "$Param{Service}" was successfull.',
+    'TicketPendingTimeSet to "$Param{PendingTime}" was successfull.',
 );
 
 OUTPUT

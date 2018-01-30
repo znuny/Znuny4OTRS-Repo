@@ -140,20 +140,35 @@ sub CreateUnitTest {
 
         # creates list of needed ticket attributes
         ATTRIBUTE:
-        for my $Attribute (qw(Queue Type State Priority Owner Responsible CustomerUser Service SLA)) {
+        for my $Attribute (qw(Queue Type State Priority Owner Responsible CustomerUser Service SLA DynamicField)) {
 
-            my $AttributeKey = $Attribute;
+            my $AttributeKeyStore = $Attribute;
 
             if ( $Attribute eq "Responsible" || $Attribute eq "Owner" ) {
-                $AttributeKey = "User";
+                $AttributeKeyStore = "User";
             }
 
-            next ATTRIBUTE if !$HistoryTicket{$Attribute};
-            next ATTRIBUTE if grep { $HistoryTicket{$Attribute} eq $_ } @{ $TicketAttributes{$AttributeKey} };
-            push @{ $TicketAttributes{$AttributeKey} }, $HistoryTicket{$Attribute};
+            # all attributes above without ID Time
+            my $RegEx = qr/^$Attribute(?!ID|Time)(_.+)*$/;
+
+            my @AttributeKeys = grep { /$RegEx/ } keys %HistoryTicket;
+
+            for my $Key (@AttributeKeys){
+                next ATTRIBUTE if !$HistoryTicket{$Key};
+
+                my $Value = $HistoryTicket{$Key};
+
+                if ($AttributeKeyStore eq 'DynamicField'){
+                    $Value = $Key;
+                    $Value =~ s/DynamicField_//;
+                }
+
+                next ATTRIBUTE if grep { $Value eq $_ } @{ $TicketAttributes{$AttributeKeyStore} };
+                push @{ $TicketAttributes{$AttributeKeyStore} }, $Value;
+            }
         }
 
-        my $Module = "Kernel::System::Znuny4OTRS::TicketToUnitTest::$HistoryLine->{HistoryType}";
+        my $Module = "Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::$HistoryLine->{HistoryType}";
         my $LoadedModule = $MainObject->Require(
             $Module,
             Silent => 1,
@@ -279,6 +294,7 @@ OBJECTS
     my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 
     for my $Attribute ( sort keys %TicketAttributes ) {
+#         $Objects .= "my \$" . $Attribute . "Object = \$Kernel::OM->Get('Kernel::System::" . $Attribute . "');\n";
         $Objects .= "my \$" . $Attribute . "Object = \$Kernel::OM->Get('Kernel::System::" . $Attribute . "');\n";
     }
 
@@ -313,6 +329,10 @@ sub GetCreateObjects {
 
     my $CreateObjects;
 
+
+    use Data::Dumper;
+    print STDERR 'Debug Dump - %TicketAttributes = ' . Dumper(\%TicketAttributes) . "\n";
+
     if ($TicketAttributes{Priority}){
 
         for my $Priority (@{$TicketAttributes{Priority}}){
@@ -327,7 +347,7 @@ sub GetCreateObjects {
             );
 
             $CreateObjects .= <<OBJECTS;
-my \$True = \$PriorityObject->PriorityAdd(
+\$PriorityObject->PriorityAdd(
     Name    => '$PriorityData{Name}',
     ValidID => '$PriorityData{ValidID}',
     UserID  => 1,
@@ -502,7 +522,7 @@ OBJECTS
 # correct service IDs
 
             $CreateObjects .= <<OBJECTS;
-my \$SLAID = \$SLAObject->SLAAdd(
+\$SLAObject->SLAAdd(
     ServiceIDs          => $ServiceIDs,
     Name                => '$SLAData{Name}',
     Calendar            => '$SLAData{Calendar}',
@@ -531,7 +551,7 @@ OBJECTS
             );
 
             $CreateObjects .= <<OBJECTS;
-my \$UserID = \$UserObject->UserAdd(
+\$UserObject->UserAdd(
     UserFirstname => '$UserData{UserFirstname}',
     UserLastname  => '$UserData{UserLastname}',
     UserLogin     => '$UserData{UserLogin}',
@@ -823,7 +843,7 @@ sub HistoryTicketGet {
                 $Ticket{StateTime} = $Row[2];
 
 # ---
-                # Znuny4OTRS-Repo
+# Znuny4OTRS-Repo
 # ---
                 my $IsClosedState = grep { $_ eq $2 } @ClosedStateList;
                 if ($IsClosedState) {
@@ -857,8 +877,11 @@ sub HistoryTicketGet {
                 my $FieldName = $1;
                 my $Value = $2 || '';
                 $Ticket{$FieldName} = $Value;
+# ---
+# Znuny4OTRS-Repo
+# ---
                 $Ticket{"DynamicField_$FieldName"} = $Value;
-
+# ---
                 # Backward compatibility for TicketFreeText and TicketFreeTime
                 if ( $FieldName =~ /^Ticket(Free(?:Text|Key)(?:[?:1[0-6]|[1-9]))$/ ) {
 

@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationResponseTimeStart;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationResponseTimeStart;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationResponseTimeStart
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::EscalationResponseTimeStart functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestEscalationResponseTimeStartObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::EscalationResponseTimeStart');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;

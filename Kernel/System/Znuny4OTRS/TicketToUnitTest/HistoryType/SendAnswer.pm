@@ -6,13 +6,13 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::FollowUp;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::SendAnswer;
 
 use strict;
 use warnings;
 
 our @ObjectDependencies = ();
 
-use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::AddNote );
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::AddNote );
 
 1;

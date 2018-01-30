@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::SetPendingTime;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::TimeAccounting;
 
 use strict;
 use warnings;
@@ -16,30 +16,6 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-=head1 NAME
-
-Kernel::System::Znuny4OTRS::TicketToUnitTest::SetPendingTime
-
-=head1 SYNOPSIS
-
-All TicketToUnitTest::SetPendingTime functions
-
-=head1 PUBLIC INTERFACE
-
-=over 4
-
-=cut
-
-=item new()
-
-create an object
-
-    use Kernel::System::ObjectManager;
-    local $Kernel::OM = Kernel::System::ObjectManager->new();
-    my $TicketToUnitTestSetPendingTimeObject = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::SetPendingTime');
-
-=cut
 
 sub new {
     my ( $Type, %Param ) = @_;
@@ -58,7 +34,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(PendingTime)) {
+    for my $Needed (qw(TimeAccounting)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -70,16 +46,16 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketPendingTimeSet(
-    String   => '$Param{PendingTime}',
-    TicketID => \$Param{TicketID},
-    UserID   => \$UserID,
+\$Success = \$TicketObject->TicketAccountTime(
+    TicketID  => \$Param{TicketID},
+    ArticleID => \$ArticleID,
+    TimeUnit  => '$Param{TimeAccounting}',
+    UserID    => \$UserID,
 );
-
 
 \$Self->True(
     \$Success,
-    'TicketPendingTimeSet to "$Param{PendingTime}" was successfull.',
+    'TicketAccountTime "$Param{TimeAccounting}" was successfull.',
 );
 
 OUTPUT
