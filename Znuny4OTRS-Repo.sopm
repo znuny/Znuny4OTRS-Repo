@@ -178,6 +178,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
     <Description Lang="en">Enables Znuny4OTRS repositories to directly install and upgrade Znuny packages via package manager.</Description>
     <Description Lang="de">Aktiviert Znuny4OTRS-Repositorys, um Znuny-Pakete direkt über die Paketverwaltung zu installieren oder aktualisieren.</Description>
     <Filelist>
+        <File Permission="660" Location="Custom/Kernel/Output/HTML/Notification/AgentCloudServicesDisabled.pm"/>
         <File Permission="660" Location="Custom/Kernel/Output/Template/Document.pm"/>
         <File Permission="660" Location="Custom/Kernel/System/Package.pm"/>
         <File Permission="660" Location="Custom/Kernel/System/UnitTest/Helper.pm"/>
