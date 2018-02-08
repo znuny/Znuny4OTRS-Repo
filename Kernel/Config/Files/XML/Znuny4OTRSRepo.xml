@@ -503,10 +503,24 @@
                             <Item Key="AdminSystemConfigurationDeployment">1</Item>
                             <Item Key="Header">1</Item>
                             <Item Key="Footer">1</Item>
+                            <Item Key="AdminPackageManager">1</Item>
                         </Hash>
                     </Item>
                 </Hash>
             </Value>
+    </Setting>
+    <Setting Name="Frontend::Template::GenerateBlockHooks###100-Znuny4OTRSRemoveBSAdvertisements" Required="1" Valid="1">
+        <Description Translatable="1">Block hooks to be created for BS ad removal.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="AdminPackageManager">
+                    <Array>
+                        <Item>CloudServicesWarning</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
     </Setting>
     <Setting Name="DynamicFieldScreens###Framework" Required="1" Valid="1">
         <Description Translatable="1">This configuration defines all possible screens to enable or disable dynamic fields.</Description>
