@@ -37,6 +37,7 @@ sub Run {
     $Self->AdminAppointmentNotificationEvent(%Param);
     $Self->Error(%Param);
     $Self->Footer(%Param);
+    $Self->AdminPackageManager(%Param);
 
     return 1;
 }
@@ -44,8 +45,7 @@ sub Run {
 sub AgentAppointmentEdit {
     my ( $Self, %Param ) = @_;
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'AgentAppointmentEdit';
+    return if $Param{TemplateFile} ne 'AgentAppointmentEdit';
 
 =for comment
 
@@ -71,8 +71,7 @@ Remove the following block:
 sub AdminCloudServices {
     my ( $Self, %Param ) = @_;
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'AdminCloudServices';
+    return if $Param{TemplateFile} ne 'AdminCloudServices';
 
 =for comment
 
@@ -98,8 +97,7 @@ Remove the following block:
 sub AdminNotificationEvent {
     my ( $Self, %Param ) = @_;
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'AdminNotificationEvent';
+    return if $Param{TemplateFile} ne 'AdminNotificationEvent';
 
 =for comment
 
@@ -127,8 +125,7 @@ sub AdminProcessManagement {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'AdminProcessManagement';
+    return if $Param{TemplateFile} ne 'AdminProcessManagement';
 
 =for comment
 
@@ -205,8 +202,7 @@ sub AdminAppointmentNotificationEvent {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'AdminAppointmentNotificationEvent';
+    return if $Param{TemplateFile} ne 'AdminAppointmentNotificationEvent';
 
 =for comment
 
@@ -253,8 +249,7 @@ sub Error {
 
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'Error';
+    return if $Param{TemplateFile} ne 'Error';
 
 =for comment
 
@@ -297,8 +292,7 @@ Remove the following block:
 sub Footer {
     my ( $Self, %Param ) = @_;
 
-    my $TemplateName = $Param{TemplateFile};
-    return if $TemplateName ne 'Footer';
+    return if $Param{TemplateFile} ne 'Footer';
 
 =for comment
 
@@ -335,6 +329,42 @@ Remove the following block:
 
     ${ $Param{Data} }
         =~ s{ \$\('body'\)\.on\('click', \s 'a\.OTRSBusinessRequired', \s function\(\) \s \{ .*? \); \s* return \s false; \s* \}\); }{}xmsi;
+
+    return 1;
+}
+
+sub AdminPackageManager {
+    my ( $Self, %Param ) = @_;
+
+    return if $Param{TemplateFile} ne 'AdminPackageManager';
+
+=for comment
+
+Remove the following block:
+
+    <li>
+        <p class="FieldExplanation Error">
+            [% Translate("Cloud services are currently disabled.") | html %]
+            </br>
+            [% Translate("OTRS Verify™ can not continue!") | html %]
+        </p>
+        <form action="[% Env("CGIHandle") %]" method="post">
+            <input type="hidden" name="Action" value="AdminSysConfig"/>
+            <input type="hidden" name="Subaction" value="Edit"/>
+            <input type="hidden" name="SysConfigGroup" value="CloudService"/>
+            <input type="hidden" name="SysConfigSubGroup" value="Core"/>
+            <fieldset>
+                <button class="Fullsize CallForAction LittleSpacingTop Center" type="submit" value="[% Translate("Enable cloud services") | html %]">
+                    <span><i class="fa fa-cloud"></i> [% Translate("Enable cloud services") | html %]</span>
+                </button>
+            </fieldset>
+        </form>
+    </li>
+
+=cut
+
+    ${ $Param{Data} }
+        =~ s{<!--HookStartCloudServicesWarning-->.*?<!--HookEndCloudServicesWarning-->}{}ms;
 
     return 1;
 }
