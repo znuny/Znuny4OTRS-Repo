@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2017 OTRS AG, http://otrs.com/
-# Copyright (C) 2012-2017 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2018 OTRS AG, http://otrs.com/
+# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 4f75c41de17d160722fd1b1240541acdb6717687 - Kernel/System/UnitTest/Helper.pm
 # --
