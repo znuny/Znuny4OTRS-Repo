@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.13</Version>
+    <Version>6.0.14</Version>
+    <ChangeLog Version="6.0.14" Date="2018-02-09 13:16:21 +0100">Disabled notification about disabled OTRS cloud services.&#13;
+Online connections of package manager will now be suppressed if Znuny4OTRSRepoDisable is set to "disable all".&#13;
+Removed button to activate cloud services from package manager.</ChangeLog>
     <ChangeLog Version="6.0.13" Date="2018-01-25 08:28:46 +0100">Added missing Core.Form.Znuny4OTRSInput.js to customer frontend.</ChangeLog>
     <ChangeLog Version="6.0.12" Date="2018-01-02 15:53:31 +0100">Added new unit test helper function 'ConfigItemCreate'.</ChangeLog>
     <ChangeLog Version="6.0.11" Date="2017-12-20 15:01:25 +0100">Added new functions - _ProcessWidgetDynamicFieldGroupsGet, _ProcessWidgetDynamicFieldGroupsAdd, _ProcessWidgetDynamicFieldGroupsRemove.&#13;
