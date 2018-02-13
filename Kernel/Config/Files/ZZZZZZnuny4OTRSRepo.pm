@@ -46,11 +46,15 @@ sub Load {
         $RepositoryList->{ $RepositoryBaseURL . 'public' } = 'Addons - Znuny4OTRS / Public';
 
         # check for and add configured private repositories
-        my $PrivateRepost = $Self->{'Znuny4OTRSPrivatRepos'};
+        my $PrivateRepo = $Self->{'Znuny4OTRSPrivatRepos'};
 
-        if ( IsHashRefWithData($PrivateRepost) ) {
-            for my $Key ( sort keys %{$PrivateRepost} ) {
-                $RepositoryList->{ $RepositoryBaseURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepost->{$Key}'";
+        if ( IsHashRefWithData($PrivateRepo) ) {
+            KEY:
+            for my $Key ( sort keys %{$PrivateRepo} ) {
+
+                # Ignore example API key.
+                next KEY if $Key eq 'API-KEY';
+                $RepositoryList->{ $RepositoryBaseURL . $Key } = "Addons - Znuny4OTRS / Private '$PrivateRepo->{$Key}'";
             }
         }
 
