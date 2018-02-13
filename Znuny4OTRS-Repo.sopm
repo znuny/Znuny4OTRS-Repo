@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.14</Version>
+    <Version>6.0.15</Version>
+    <ChangeLog Version="6.0.15" Date="2018-02-13 16:10:51 +0100">Example Znuny API key now will be ignored.</ChangeLog>
     <ChangeLog Version="6.0.14" Date="2018-02-09 13:16:21 +0100">Disabled notification about disabled OTRS cloud services.&#13;
 Online connections of package manager will now be suppressed if Znuny4OTRSRepoDisable is set to "disable all".&#13;
 Removed button to activate cloud services from package manager.</ChangeLog>
