@@ -80,26 +80,25 @@ sub Run {
 
         return $UnitTestFile if $UnitTestFile;
     }
+    elsif ( $Self->{Subaction} eq 'SendEmail' ) {
 
-    #     elsif ( $Self->{Subaction} eq 'SendEmail' ) {
-
-    #         my $From = $ConfigObject->Get('AdminEmail');
-    #         my $Sent = $EmailObject->Send(
-    #             From       => $SendConfig{AdminEmail},
-    #             To         => 'support@znuny.com',
-    #             Subject    => "UnitTest $SendConfig{Organization}",
-    #             Charset    => 'utf-8',
-    #             MimeType   => 'text/plain',
-    #             Body       => "UnitTest $SendConfig{Organization}",
-    #             Attachment => [
-    #                 {
-    #                     Filename    => $Filename,
-    #                     Content     => $UnitTestContent,
-    #                     ContentType => "text/html",
-    #                 },
-    #             ],
-    #         );
-    #     }
+        my $From = $ConfigObject->Get('AdminEmail');
+        my $Sent = $EmailObject->Send(
+            From       => $SendConfig{AdminEmail},
+            To         => 'support@znuny.com',
+            Subject    => "UnitTest $SendConfig{Organization}",
+            Charset    => 'utf-8',
+            MimeType   => 'text/plain',
+            Body       => "UnitTest $SendConfig{Organization}",
+            Attachment => [
+                {
+                    Filename    => $Filename,
+                    Content     => $UnitTestContent,
+                    ContentType => "text/html",
+                },
+            ],
+        );
+    }
 
     return $LayoutObject->Redirect( OP => "Action=AgentTicketZoom;TicketID=$Param{TicketID}" );
 }
