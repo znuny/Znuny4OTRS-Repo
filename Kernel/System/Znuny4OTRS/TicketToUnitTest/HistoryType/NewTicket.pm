@@ -16,16 +16,7 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-sub new {
-    my ( $Type, %Param ) = @_;
-
-    # allocate new hash for object
-    my $Self = {};
-    bless( $Self, $Type );
-
-    return $Self;
-}
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
 sub Run {
     my ( $Self, %Param ) = @_;
@@ -50,7 +41,7 @@ sub Run {
     SLA           => '$Param{SLA}',
 );
 
-# trigger Transaction events
+# trigger transaction events
 \$Kernel::OM->ObjectsDiscard(
     Objects => ['Kernel::System::Ticket'],
 );

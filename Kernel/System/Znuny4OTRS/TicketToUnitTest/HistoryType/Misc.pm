@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::PriorityUpdate;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::Misc;
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ sub Run {
 
     # check needed stuff
     NEEDED:
-    for my $Needed (qw(Priority)) {
+    for my $Needed (qw(TicketID UserID)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -37,15 +37,16 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketPrioritySet(
-    Priority => '$Param{Priority}',
-    TicketID  => \$Param{TicketID},
-    UserID    => \$UserID,
+\$TempValue = \$TimeObject->SystemTime();
+\$Success = \$TicketObject->TicketUnlockTimeoutUpdate(
+    UnlockTimeout => \$TempValue,
+    TicketID      => $Param{TicketID},
+    UserID        => $Param{UserID},
 );
 
 \$Self->True(
     \$Success,
-    'TicketPrioritySet "$Param{Priority}" was successfull.',
+    'TicketUnlockTimeoutUpdate was successfull.',
 );
 
 OUTPUT

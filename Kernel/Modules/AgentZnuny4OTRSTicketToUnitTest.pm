@@ -69,17 +69,18 @@ sub Run {
 
     my $Filename = "UnitTest-$SendConfig{Organization}-$Param{TicketID}.t";
 
-    #     if ( $Self->{Subaction} eq 'CreateFile' ) {
-    #         my $UnitTestFile = $LayoutObject->Attachment(
-    #             ContentType => 'text/html; charset=' . $LayoutObject->{Charset},
-    #             Content     => $UnitTestContent,
-    #             Type        => 'attachment',
-    #             Filename    => $Filename,
-    #             NoCache     => 1,
-    #         );
+    if ( $Self->{Subaction} eq 'CreateFile' ) {
+        my $UnitTestFile = $LayoutObject->Attachment(
+            ContentType => 'text/html; charset=' . $LayoutObject->{Charset},
+            Content     => $UnitTestContent,
+            Type        => 'attachment',
+            Filename    => $Filename,
+            NoCache     => 1,
+        );
 
-    #         return $UnitTestFile if $UnitTestFile;
-    #     }
+        return $UnitTestFile if $UnitTestFile;
+    }
+
     #     elsif ( $Self->{Subaction} eq 'SendEmail' ) {
 
     #         my $From = $ConfigObject->Get('AdminEmail');

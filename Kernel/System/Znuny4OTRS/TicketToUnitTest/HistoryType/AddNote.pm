@@ -17,7 +17,7 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
 sub Run {
     my ( $Self, %Param ) = @_;
@@ -44,7 +44,7 @@ sub Run {
     );
 
     my $Output = <<OUTPUT;
-\$HelperObject->ArticleCreate(
+\$ArticleID = \$HelperObject->ArticleCreate(
     TicketID       => \$Param{TicketID},
     Subject        => '$Article{Subject}',
     Body           => '$Article{Body}',
@@ -59,7 +59,7 @@ sub Run {
     UserID         => \$UserID,
 );
 
-# trigger Transaction events
+# trigger transaction events
 \$Kernel::OM->ObjectsDiscard(
     Objects => ['Kernel::System::Ticket'],
 );
