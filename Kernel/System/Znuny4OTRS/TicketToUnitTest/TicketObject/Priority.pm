@@ -11,20 +11,49 @@ package Kernel::System::Znuny4OTRS::TicketToUnitTest::TicketObject::Priority;
 use strict;
 use warnings;
 
-our @ObjectDependencies = ();
+our @ObjectDependencies = (
+    'Kernel::System::Priority',
+);
 
 use Kernel::System::VariableCheck qw(:all);
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
-sub new {
-    my ( $Type, %Param ) = @_;
+sub Run {
+    my ( $Self, %Param ) = @_;
 
-    # allocate new hash for object
-    my $Self = {%Param};
-    bless( $Self, $Type );
+    my $PriorityObject = $Kernel::OM->Get('Kernel::System::Priority');
 
-    return $Self;
+    return '' if !IsArrayRefWithData( $Param{Priority} );
+
+    my $Output = <<OUTPUT;
+
+# Priority setup
+
+OUTPUT
+
+    for my $Priority ( @{ $Param{Priority} } ) {
+
+        my $PriorityID = $PriorityObject->PriorityLookup(
+            Priority => $Priority,
+        );
+
+        my %PriorityData = $PriorityObject->PriorityGet(
+            PriorityID => $PriorityID,
+            UserID     => 1,
+        );
+
+        $Output .= <<OUTPUT;
+## Priority '$PriorityData{Name}'
+
+\$ZnunyHelperObject->_PriorityCreateIfNotExists(
+    Name => "$PriorityData{Name}",
+);
+
+OUTPUT
+    }
+
+    return $Output;
+
 }
-
-
 
 1;

@@ -6,12 +6,14 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::Unlock;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::TicketObject::Type;
 
 use strict;
 use warnings;
 
-our @ObjectDependencies = ();
+our @ObjectDependencies = (
+    'Kernel::System::Type',
+);
 
 use Kernel::System::VariableCheck qw(:all);
 use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
@@ -19,19 +21,26 @@ use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    my $Output = <<OUTPUT;
-\$Success = \$TicketObject->TicketLockSet(
-    Lock     => 'lock',
-    TicketID => \$Param{TicketID},
-    UserID   => \$UserID,
-);
+    return '' if !IsArrayRefWithData( $Param{Type} );
 
-\$Self->True(
-    \$Success,
-    'TicketLockSet to "lock" was successfull.',
+    my $Output = <<OUTPUT;
+
+# Type setup
+
+OUTPUT
+
+    for my $Type ( @{ $Param{Type} } ) {
+
+        $Output .= <<OUTPUT;
+## Type '$Type'
+
+\$ZnunyHelperObject->_TypeCreateIfNotExists(
+    Name => '$Type',
 );
 
 OUTPUT
+
+    }
 
     return $Output;
 

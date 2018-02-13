@@ -16,16 +16,7 @@ our @ObjectDependencies = (
 );
 
 use Kernel::System::VariableCheck qw(:all);
-
-sub new {
-    my ( $Type, %Param ) = @_;
-
-    # allocate new hash for object
-    my $Self = {%Param};
-    bless( $Self, $Type );
-
-    return $Self;
-}
+use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
 sub Run {
     my ( $Self, %Param ) = @_;
@@ -36,13 +27,12 @@ sub Run {
     my $Value = $2 || '';
 
     my $Output = <<OUTPUT;
-
-my \$DynamicField = \$DynamicFieldObject->DynamicFieldGet(
+\$TempValue = \$DynamicFieldObject->DynamicFieldGet(
     Name => '$FieldName',
 );
 
 \$Success = \$BackendObject->ValueSet(
-    DynamicFieldConfig => \$DynamicField,
+    DynamicFieldConfig => \$TempValue,
     ObjectID           => \$Param{TicketID},
     Value              => '$Value',
     UserID             => \$UserID,

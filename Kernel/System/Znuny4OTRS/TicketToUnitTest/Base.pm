@@ -25,6 +25,12 @@ sub new {
     return $Self;
 }
 
+sub Test {
+    my ( $Type, %Param ) = @_;
 
+    print STDERR "Debug Dump - ModuleName - HERE - 1\n";
+
+    return 1;
+}
 
 1;

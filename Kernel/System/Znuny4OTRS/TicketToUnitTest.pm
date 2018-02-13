@@ -16,22 +16,18 @@ use warnings;
 our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
-    'Kernel::System::CustomerUser',
     'Kernel::System::DB',
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
     'Kernel::System::Log',
     'Kernel::System::Main',
-    'Kernel::System::Priority',
-    'Kernel::System::Queue',
-    'Kernel::System::SLA',
-    'Kernel::System::Service',
     'Kernel::System::State',
     'Kernel::System::Ticket',
     'Kernel::System::Time',
     'Kernel::System::Type',
     'Kernel::System::UnitTest::Helper',
     'Kernel::System::User',
+    'Kernel::System::ZnunyHelper',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -107,18 +103,13 @@ sub CreateUnitTest {
 
 # todo
 # ---
-#
-# commandline
 # maybe preapp to remove / deny menu for not admin user
 # remove TicketToUnitTest Branch / Zammand Branch
 
+    my $Output = "# Create ticket hitory entries\n";
 
-    my $Output = '';
     my $CurrentSystemTime = 0;
     my %TicketAttributes;
-
-    my $Home           = $ConfigObject->Get('Home');
-    my $Znuny4OTRSHome = "Kernel/System/Znuny4OTRS/TicketToUnitTest";
 
     my @HistoryLines = $TicketObject->HistoryGet(
         TicketID => $Param{TicketID},
@@ -137,6 +128,22 @@ sub CreateUnitTest {
             TicketID   => $Param{TicketID},
             SystemTime => $SystemTime,
         );
+
+
+        if ( $CurrentSystemTime < $SystemTime ) {
+
+            $CurrentSystemTime = $SystemTime;
+
+            my $TimeSetOutput = <<TIMESET;
+
+# $TimeStamp
+\$HelperObject->FixedTimeSet($SystemTime);
+TIMESET
+
+            $Output .= $TimeSetOutput . "\n";
+        }
+
+        $Output .= "# HistoryType: '$HistoryLine->{HistoryType}' - $HistoryLine->{Name}\n";
 
         # creates list of needed ticket attributes
         ATTRIBUTE:
@@ -187,17 +194,6 @@ sub CreateUnitTest {
         next LINE if !$ModulOutput;
         $Output .= $ModulOutput;
 
-        if ( $CurrentSystemTime < $SystemTime ) {
-
-            $CurrentSystemTime = $SystemTime;
-
-            my $TimeSetOutput = <<TIMESET;
-# $TimeStamp
-\$HelperObject->FixedTimeSet($SystemTime);
-TIMESET
-
-            $Output .= $TimeSetOutput . "\n";
-        }
     }
 
     $Output .= <<'DEBUG';
@@ -259,6 +255,7 @@ $Kernel::OM->ObjectParamAdd(
 
 my $UserID = 1;
 my $Success;
+my $TempValue;
 my $ArticleID;
 
 HEADER
@@ -281,24 +278,17 @@ Returns:
 =cut
 
 sub GetNeededObjects {
-    my ( $Self, %TicketAttributes ) = @_;
+    my ( $Self, %Param ) = @_;
 
-    my $Objects;
-    my $DefaultObjects = <<'OBJECTS';
-# get needed objects
-my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+    my $Objects = <<'OBJECTS';
+my $HelperObject       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $TicketObject       = $Kernel::OM->Get('Kernel::System::Ticket');
+my $ZnunyHelperObject  = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+my $TimeObject         = $Kernel::OM->Get('Kernel::System::Time');
+
 OBJECTS
-
-    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
-    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-
-    for my $Attribute ( sort keys %TicketAttributes ) {
-#         $Objects .= "my \$" . $Attribute . "Object = \$Kernel::OM->Get('Kernel::System::" . $Attribute . "');\n";
-        $Objects .= "my \$" . $Attribute . "Object = \$Kernel::OM->Get('Kernel::System::" . $Attribute . "');\n";
-    }
-
-    $Objects = $DefaultObjects . $Objects . "\n";
 
     return $Objects;
 }
@@ -309,263 +299,49 @@ This function creates the needed objects
 
 Returns:
 
-    my $Output = 'todo';
+    my $Output = '
+        ## Service 'Test'
+
+        $ZnunyHelperObject->_ServiceCreateIfNotExists(
+            Name => 'Test',
+        );
+
+        [...]
+    ';
 
 =cut
 
 sub GetCreateObjects {
     my ( $Self, %TicketAttributes ) = @_;
 
-    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
-    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
-    my $PriorityObject     = $Kernel::OM->Get('Kernel::System::Priority');
-    my $CustomerUserObject = $Kernel::OM->Get('Kernel::System::CustomerUser');
-    my $QueueObject        = $Kernel::OM->Get('Kernel::System::Queue');
-    my $UserObject         = $Kernel::OM->Get('Kernel::System::User');
-    my $ServiceObject      = $Kernel::OM->Get('Kernel::System::Service');
-    my $SLAObject          = $Kernel::OM->Get('Kernel::System::SLA');
-    my $StateObject        = $Kernel::OM->Get('Kernel::System::State');
-    my $TypeObject         = $Kernel::OM->Get('Kernel::System::Type');
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
 
-    my $CreateObjects;
+    my $Output;
+    my $ModulOutput;
 
+    ATTRIBUTE:
+    for my $TicketAttribute ( sort { "\L$a" cmp "\L$b" } keys  %TicketAttributes){
 
-    use Data::Dumper;
-    print STDERR 'Debug Dump - %TicketAttributes = ' . Dumper(\%TicketAttributes) . "\n";
+        my $Module = "Kernel::System::Znuny4OTRS::TicketToUnitTest::TicketObject::$TicketAttribute";
+        my $LoadedModule = $MainObject->Require(
+            $Module,
+            Silent => 1,
+        );
 
-    if ($TicketAttributes{Priority}){
-
-        for my $Priority (@{$TicketAttributes{Priority}}){
-
-            my $PriorityID = $PriorityObject->PriorityLookup(
-                Priority => '3 normal',
-            );
-
-            my %PriorityData = $PriorityObject->PriorityGet(
-                PriorityID => $PriorityID,
-                UserID     => 1,
-            );
-
-            $CreateObjects .= <<OBJECTS;
-\$PriorityObject->PriorityAdd(
-    Name    => '$PriorityData{Name}',
-    ValidID => '$PriorityData{ValidID}',
-    UserID  => 1,
-);
-
-OBJECTS
-        }
-    }
-
-    if ($TicketAttributes{CustomerUser}){
-
-        for my $CustomerUser (@{$TicketAttributes{CustomerUser}}){
-
-            my %CustomerUserData = $CustomerUserObject->CustomerUserDataGet(
-                User => $CustomerUser,
-            );
-
-            $CreateObjects .= <<OBJECTS;
-my \$CustomerUserLogin = \$CustomerUserObject->CustomerUserAdd(
-    Source         => '$CustomerUserData{Source}',
-    UserFirstname  => '$CustomerUserData{UserFirstname}',
-    UserLastname   => '$CustomerUserData{UserLastname}',
-    UserCustomerID => '$CustomerUserData{UserCustomerID}',
-    UserLogin      => '$CustomerUserData{UserLogin}',
-    UserPassword   => '$CustomerUserData{UserPassword}',
-    UserEmail      => '$CustomerUserData{UserEmail}',
-    ValidID        => '$CustomerUserData{ValidID}',
-    UserID         => 1,
-);
-
-OBJECTS
-        }
-    }
-
-    if ($TicketAttributes{Queue}){
-
-        for my $Queue (@{$TicketAttributes{Queue}}){
-
-            my %QueueData = $QueueObject->QueueGet(
-                Name  => $Queue,
-            );
-
-# todo
-# GroupID
-# SystemAddressID
-# SalutationID
-# SignatureID
-
-            for my $Value (sort keys %QueueData){
-                $QueueData{$Value} //= '';
-            }
-
-            $CreateObjects .= <<OBJECTS;
-\$QueueObject->QueueAdd(
-    Name                => '$QueueData{Name}',
-    ValidID             => '$QueueData{ValidID}',
-    GroupID             => '$QueueData{GroupID}',
-    Calendar            => '$QueueData{Calendar}',
-    FirstResponseTime   => '$QueueData{FirstResponseTime}',
-    FirstResponseNotify => '$QueueData{FirstResponseNotify}',
-    UpdateTime          => '$QueueData{UpdateTime}',
-    UpdateNotify        => '$QueueData{UpdateNotify}',
-    SolutionTime        => '$QueueData{SolutionTime}',
-    SolutionNotify      => '$QueueData{SolutionNotify}',
-    UnlockTimeout       => '$QueueData{UnlockTimeout}',
-    FollowUpID          => '$QueueData{FollowUpID}',
-    FollowUpLock        => '$QueueData{FollowUpLock}',
-    DefaultSignKey      => '$QueueData{DefaultSignKey}',
-    SystemAddressID     => '$QueueData{SystemAddressID}',
-    SalutationID        => '$QueueData{SalutationID}',
-    SignatureID         => '$QueueData{SignatureID}',
-    Comment             => '$QueueData{Comment}',
-    UserID              => 1,
-);
-
-OBJECTS
+        if ( !$LoadedModule){
+            $Output .= "# ATTENTION: Can't find modul for '$TicketAttribute'\n\n";
+            next ATTRIBUTE;
         }
 
+        $ModulOutput = $Kernel::OM->Get($Module)->Run(
+            %TicketAttributes
+        );
+
+        next ATTRIBUTE if !$ModulOutput;
+        $Output .= $ModulOutput;
     }
 
-    if ($TicketAttributes{State}){
-
-        for my $State (@{$TicketAttributes{State}}){
-
-            my %StateData = $StateObject->StateGet(
-                Name  => $State,
-            );
-
-            $CreateObjects .= <<OBJECTS;
-my \$ID = \$StateObject->StateAdd(
-    Name    => '$StateData{Name}',
-    Comment => '$StateData{Comment}',
-    ValidID => '$StateData{ValidID}',
-    TypeID  => '$StateData{TypeID}',
-    UserID  => 1,
-);
-
-OBJECTS
-        }
-
-    }
-
-    if ($TicketAttributes{Type}){
-
-        for my $Type (@{$TicketAttributes{Type}}){
-
-            my %TypeData = $TypeObject->TypeGet(
-                Name  => $Type,
-            );
-
-            $CreateObjects .= <<OBJECTS;
-my \$ID = \$TypeObject->TypeAdd(
-    Name    => '$TypeData{Name}',
-    ValidID => '$TypeData{ValidID}',
-    UserID  => 1,
-);
-
-OBJECTS
-        }
-
-    }
-
-    if ($TicketAttributes{Service}){
-
-        for my $Service (@{$TicketAttributes{Service}}){
-
-            my %ServiceData = $ServiceObject->ServiceGet(
-                Name   => $Service,
-                UserID => 1,
-            );
-
-            $ServiceData{ParentID} //= '';
-            $ServiceData{Comment} //= '';
-
-# todo
-# ParentID
-            $CreateObjects .= <<OBJECTS;
-my \$ServiceID = \$ServiceObject->ServiceAdd(
-    Name     => '$ServiceData{Name}',
-    ParentID => '$ServiceData{ParentID}',
-    ValidID  => '$ServiceData{ValidID}',
-    Comment  => '$ServiceData{Comment}',
-    UserID   => 1,
-);
-
-OBJECTS
-        }
-
-    }
-
-    if ($TicketAttributes{SLA}){
-
-        for my $SLA (@{$TicketAttributes{SLA}}){
-
-            my $SLAID = $SLAObject->SLALookup(
-                Name => $SLA,
-            );
-
-            my %SLAData = $SLAObject->SLAGet(
-                SLAID  => $SLAID,
-                UserID => 1,
-            );
-
-            my $ServiceIDs = '[';
-            for my $ServiceID (@{$SLAData{ServiceIDs}}){
-                $ServiceIDs .= "'$ServiceID',";
-            }
-
-            $ServiceIDs .= ']';
-
-# todo
-# correct service IDs
-
-            $CreateObjects .= <<OBJECTS;
-\$SLAObject->SLAAdd(
-    ServiceIDs          => $ServiceIDs,
-    Name                => '$SLAData{Name}',
-    Calendar            => '$SLAData{Calendar}',
-    FirstResponseTime   => '$SLAData{FirstResponseTime}',
-    FirstResponseNotify => '$SLAData{FirstResponseNotify}',
-    UpdateTime          => '$SLAData{UpdateTime}',
-    UpdateNotify        => '$SLAData{UpdateNotify}',
-    SolutionTime        => '$SLAData{SolutionTime}',
-    SolutionNotify      => '$SLAData{SolutionNotify}',
-    ValidID             => '$SLAData{ValidID}',
-    Comment             => '$SLAData{Comment}',
-    UserID              => 1,
-);
-
-OBJECTS
-        }
-
-    }
-
-    if ($TicketAttributes{User}){
-
-        for my $User (@{$TicketAttributes{User}}){
-
-            my %UserData = $UserObject->GetUserData(
-                User => $User,
-            );
-
-            $CreateObjects .= <<OBJECTS;
-\$UserObject->UserAdd(
-    UserFirstname => '$UserData{UserFirstname}',
-    UserLastname  => '$UserData{UserLastname}',
-    UserLogin     => '$UserData{UserLogin}',
-    UserPw        => '$UserData{UserPw}',
-    UserEmail     => '$UserData{UserEmail}',
-    ValidID       => '$UserData{ValidID}',
-    ChangeUserID  => 1,
-);
-
-OBJECTS
-        }
-    }
-
-    return $CreateObjects;
+    return $Output;
 }
 
 
