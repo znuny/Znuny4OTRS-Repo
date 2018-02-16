@@ -14,7 +14,6 @@ use strict;
 use warnings;
 
 our @ObjectDependencies = (
-    'Kernel::Config',
     'Kernel::System::Cache',
     'Kernel::System::DB',
     'Kernel::System::DynamicField',
@@ -83,11 +82,7 @@ Returns:
 sub CreateUnitTest {
     my ( $Self, %Param ) = @_;
 
-    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
-    my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
-    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
     # check needed stuff
     NEEDED:
@@ -101,116 +96,17 @@ sub CreateUnitTest {
         return;
     }
 
-# todo
-# ---
-# maybe preapp to remove / deny menu for not admin user
-# remove TicketToUnitTest Branch / Zammand Branch
-
-    my $Output = "# Create ticket hitory entries\n";
-
-    my $CurrentSystemTime = 0;
-    my %TicketAttributes;
-
-    my @HistoryLines = $TicketObject->HistoryGet(
-        TicketID => $Param{TicketID},
-        UserID   => 1,
-    );
-
-    LINE:
-    for my $HistoryLine (@HistoryLines) {
-
-        my $TimeStamp  = $HistoryLine->{CreateTime};
-        my $SystemTime = $TimeObject->TimeStamp2SystemTime(
-            String => $TimeStamp,
-        );
-
-        my %HistoryTicket = $Self->SystemTimeTicketGet(
-            TicketID   => $Param{TicketID},
-            SystemTime => $SystemTime,
-        );
-
-
-        if ( $CurrentSystemTime < $SystemTime ) {
-
-            $CurrentSystemTime = $SystemTime;
-
-            my $TimeSetOutput = <<TIMESET;
-
-# $TimeStamp
-\$HelperObject->FixedTimeSet($SystemTime);
-TIMESET
-
-            $Output .= $TimeSetOutput . "\n";
-        }
-
-        $Output .= "# HistoryType: '$HistoryLine->{HistoryType}' - $HistoryLine->{Name}\n";
-
-        # creates list of needed ticket attributes
-        ATTRIBUTE:
-        for my $Attribute (qw(Queue Type State Priority Owner Responsible CustomerUser Service SLA DynamicField)) {
-
-            my $AttributeKeyStore = $Attribute;
-
-            if ( $Attribute eq "Responsible" || $Attribute eq "Owner" ) {
-                $AttributeKeyStore = "User";
-            }
-
-            # all attributes above without ID Time
-            my $RegEx = qr/^$Attribute(?!ID|Time)(_.+)*$/;
-
-            my @AttributeKeys = grep { /$RegEx/ } keys %HistoryTicket;
-
-            for my $Key (@AttributeKeys){
-                next ATTRIBUTE if !$HistoryTicket{$Key};
-
-                my $Value = $HistoryTicket{$Key};
-
-                if ($AttributeKeyStore eq 'DynamicField'){
-                    $Value = $Key;
-                    $Value =~ s/DynamicField_//;
-                }
-
-                next ATTRIBUTE if grep { $Value eq $_ } @{ $TicketAttributes{$AttributeKeyStore} };
-                push @{ $TicketAttributes{$AttributeKeyStore} }, $Value;
-            }
-        }
-
-        my $Module = "Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::$HistoryLine->{HistoryType}";
-        my $LoadedModule = $MainObject->Require(
-            $Module,
-            Silent => 1,
-        );
-
-        if ( !$LoadedModule){
-            $Output .= "# ATTENTION: Can't find modul for '$HistoryLine->{HistoryType}' Entry - $HistoryLine->{Name}\n";
-            next LINE;
-        }
-
-        my $ModulOutput = $Kernel::OM->Get($Module)->Run(
-            %{$HistoryLine},
-            %HistoryTicket,
-        );
-
-        next LINE if !$ModulOutput;
-        $Output .= $ModulOutput;
-
-    }
-
-    $Output .= <<'DEBUG';
-# TODO: Remove if not needed anymore
-# Otherwise the HelperObject won't
-# delete the Ticket
-delete $HelperObject->{TestTickets};
-DEBUG
-
     my $Header        = $Self->GetHeader();
-    my $NeededObjects = $Self->GetNeededObjects(%TicketAttributes);
-    my $CreateObjects = $Self->GetCreateObjects(%TicketAttributes);
+    my $TicketHistory = $Self->GetTicketHistory(%Param);
+    my $CreateObjects = $Self->GetCreateObjects(%{$Self->{TicketAttributes}});
+    my $NeededObjects = $Self->GetNeededObjects(%{$Self->{TicketAttributes}});
+    my $Footer        = $Self->GetFooter();
 
     my $UnitTest = $Header;
     $UnitTest .= $NeededObjects;
     $UnitTest .= $CreateObjects;
-    $UnitTest .= $Output;
+    $UnitTest .= $TicketHistory;
+    $UnitTest .= $Footer;
 
     return $UnitTest;
 
@@ -270,9 +166,12 @@ This function creates the needed OM objects
 Returns:
 
     my $Output = '
-        # get needed objects
-        my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+        my $HelperObject       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $TicketObject       = $Kernel::OM->Get('Kernel::System::Ticket');
+        my $ZnunyHelperObject  = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+        my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+        my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+        my $TimeObject         = $Kernel::OM->Get('Kernel::System::Time');
     ';
 
 =cut
@@ -344,6 +243,195 @@ sub GetCreateObjects {
     return $Output;
 }
 
+=item GetTicketHistory()
+
+This function creates the all needed history 'actions'
+
+=cut
+
+sub GetTicketHistory {
+    my ( $Self, %Param ) = @_;
+
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+    my $TimeObject   = $Kernel::OM->Get('Kernel::System::Time');
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+    my $CurrentSystemTime = 0;
+    my %TicketAttributes;
+
+    my @HistoryLines = $TicketObject->HistoryGet(
+        TicketID => $Param{TicketID},
+        UserID   => 1,
+    );
+
+    my $Output = "# Create ticket hitory entries\n";
+
+    LINE:
+    for my $HistoryLine (@HistoryLines) {
+
+        my $TimeStamp  = $HistoryLine->{CreateTime};
+        my $SystemTime = $TimeObject->TimeStamp2SystemTime(
+            String => $TimeStamp,
+        );
+
+        my %HistoryTicket = $Self->SystemTimeTicketGet(
+            TicketID   => $Param{TicketID},
+            SystemTime => $SystemTime,
+        );
+
+        if ( $CurrentSystemTime < $SystemTime ) {
+
+            $CurrentSystemTime = $SystemTime;
+
+            my $TimeSetOutput = <<TIMESET;
+
+# $TimeStamp
+\$HelperObject->FixedTimeSet($SystemTime);
+TIMESET
+
+            $Output .= $TimeSetOutput . "\n";
+        }
+
+        $Output .= "# HistoryType: '$HistoryLine->{HistoryType}' - $HistoryLine->{Name}\n";
+
+        # get all ticket attributes of the current history entry and merge to existing
+        %TicketAttributes = $Self->GetTicketAttributes(
+            TicketAttributes => \%TicketAttributes,
+            HistoryTicket    => \%HistoryTicket,
+        );
+
+        my $Module = "Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::$HistoryLine->{HistoryType}";
+        my $LoadedModule = $MainObject->Require(
+            $Module,
+            Silent => 1,
+        );
+
+        if ( !$LoadedModule){
+            $Output .= "# ATTENTION: Can't find modul for '$HistoryLine->{HistoryType}' Entry - $HistoryLine->{Name}\n";
+            next LINE;
+        }
+
+        my $ModulOutput = $Kernel::OM->Get($Module)->Run(
+            %{$HistoryLine},
+            %HistoryTicket,
+        );
+
+        next LINE if !$ModulOutput;
+        $Output .= $ModulOutput;
+
+    }
+
+    %{$Self->{TicketAttributes}} = %TicketAttributes;
+
+    return $Output;
+}
+
+=item GetTicketAttributes()
+
+This function creates an hash of all ticket attributes of current history entry
+
+Returns:
+
+    my %TicketAttributes = {
+        'State' => [
+           'pending reminder',
+           'open',
+           'closed successful'
+        ],
+        'Queue' => [
+            'Junk',
+            'Misc',
+        ],
+        'Priority' => [
+            '3 normal'
+        ],
+        'DynamicField' => [
+            'Field1',
+        ],
+        'User' => [
+            'root@localhost'
+        ],
+        'SLA' => [
+            'SLA 1',
+            'SLA 2',
+        ],
+        'Service' => [
+            'Service F',
+            'Service B'
+        ],
+        'Type' => [
+            'Unclassified'
+        ],
+        'CustomerUser' => [
+            'Customer',
+            'Customer2'
+        ]
+    };
+
+=cut
+
+sub GetTicketAttributes {
+    my ( $Self, %Param ) = @_;
+
+    my %TicketAttributes = %{$Param{TicketAttributes}};
+    my %HistoryTicket    = %{$Param{HistoryTicket}};
+
+    # creates list of needed ticket attributes
+    ATTRIBUTE:
+    for my $Attribute (qw(Queue Type State Priority Owner Responsible CustomerUser Service SLA DynamicField)) {
+
+        my $AttributeKeyStore = $Attribute;
+
+        if ( $Attribute eq "Responsible" || $Attribute eq "Owner" ) {
+            $AttributeKeyStore = "User";
+        }
+
+        # all attributes above without ID Time
+        my $RegEx = qr/^$Attribute(?!ID|Time)(_.+)*$/;
+
+        my @AttributeKeys = grep { /$RegEx/ } keys %HistoryTicket;
+
+        for my $Key (@AttributeKeys){
+            next ATTRIBUTE if !$HistoryTicket{$Key};
+
+            my $Value = $HistoryTicket{$Key};
+
+            if ($AttributeKeyStore eq 'DynamicField'){
+                $Value = $Key;
+                $Value =~ s/DynamicField_//;
+            }
+
+            next ATTRIBUTE if grep { $Value eq $_ } @{ $TicketAttributes{$AttributeKeyStore} };
+            push @{ $TicketAttributes{$AttributeKeyStore} }, $Value;
+        }
+    }
+
+    return %TicketAttributes;
+}
+
+=item GetFooter()
+
+This function creates the unittest Footer
+
+Returns:
+
+    my $Output = 'UNITTEST-Footer';
+
+=cut
+
+sub GetFooter {
+    my ( $Self, %Param ) = @_;
+
+    my $Footer = <<'FOOTER';
+# TODO: Remove if not needed anymore
+# Otherwise the HelperObject won't
+# delete the Ticket
+delete $HelperObject->{TestTickets};
+
+FOOTER
+
+    return $Footer;
+}
 
 =item SystemTimeTicketGet()
 
