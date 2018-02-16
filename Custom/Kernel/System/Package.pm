@@ -1239,6 +1239,12 @@ returns a list of available online repositories
 sub PackageOnlineRepositories {
     my ( $Self, %Param ) = @_;
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+    return () if $Self->_Znuny4OTRSRepoDisabled();
+# ---
+
     # check if online repository should be fetched
     return () if !$Self->{ConfigObject}->Get('Package::RepositoryRoot');
 
@@ -1309,6 +1315,11 @@ sub PackageOnlineList {
             return;
         }
     }
+# ---
+# Znuny4OTRS-Repo
+# ---
+    return if $Self->_Znuny4OTRSRepoDisabled();
+# ---
     if ( !defined $Param{Cache} ) {
 
         if ( $Param{URL} =~ m{ \.otrs\.org\/ }xms ) {
@@ -1584,6 +1595,11 @@ sub PackageOnlineGet {
             return;
         }
     }
+# ---
+# Znuny4OTRS-Repo
+# ---
+    return if $Self->_Znuny4OTRSRepoDisabled();
+# ---
 
     #check if file might be retrieved from cloud
     my $RepositoryCloudList;
@@ -4342,6 +4358,19 @@ sub DESTROY {
 
     return 1;
 }
+
+# ---
+# Znuny4OTRS-Repo
+# ---
+sub _Znuny4OTRSRepoDisabled {
+    my ( $Self, %Param ) = shift;
+
+    my $RepoDisabled = $Self->{ConfigObject}->Get('Znuny4OTRSRepoDisable') // 0;
+    return 1 if $RepoDisabled == 1; # All online repositories disabled
+
+    return;
+}
+# ---
 
 1;
 
