@@ -463,6 +463,7 @@
         <Setting>
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::TicketMenu::Generic</Item>
+                <Item Key="Group">rw:admin</Item>
                 <Item Key="Name" Translatable="1">Create UnitTest</Item>
                 <Item Key="Description" Translatable="1">Creates a UnitTest from this ticket.</Item>
                 <Item Key="Action"></Item>
@@ -481,6 +482,7 @@
         <Setting>
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::TicketMenu::Generic</Item>
+                <Item Key="Group">rw:admin</Item>
                 <Item Key="Name" Translatable="1">Send UnitTest</Item>
                 <Item Key="Description" Translatable="1">Creates a UnitTest from this ticket and sends to Znuny.</Item>
                 <Item Key="Action"></Item>
