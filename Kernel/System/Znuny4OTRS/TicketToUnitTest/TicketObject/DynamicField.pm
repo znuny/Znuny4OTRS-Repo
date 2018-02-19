@@ -13,6 +13,7 @@ use warnings;
 
 our @ObjectDependencies = (
     'Kernel::System::DynamicField',
+    'Kernel::System::Main',
 );
 
 use Kernel::System::VariableCheck qw(:all);
