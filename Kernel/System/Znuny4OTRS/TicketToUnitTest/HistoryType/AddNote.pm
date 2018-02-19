@@ -44,10 +44,14 @@ sub Run {
     );
 
     my $Output = <<OUTPUT;
+\$TempValue = <<'BODY';
+$Article{Body}
+BODY
+
 \$ArticleID = \$HelperObject->ArticleCreate(
     TicketID       => \$Param{TicketID},
     Subject        => '$Article{Subject}',
-    Body           => '$Article{Body}',
+    Body           => \$TempValue,
     ArticleType    => '$Article{ArticleType}',
     SenderType     => '$Article{SenderType}',
     From           => '$Article{From}',

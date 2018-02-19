@@ -22,6 +22,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $MainObject         = $Kernel::OM->Get('Kernel::System::Main');
 
     return '' if !IsArrayRefWithData( $Param{DynamicField} );
 
@@ -37,6 +38,10 @@ OUTPUT
             Name => $DynamicField,
         );
 
+        my $ConfigDump = $MainObject->Dump( $DynamicFieldConfig->{Config} );
+        $ConfigDump =~ s/\$VAR1 =//;
+        $ConfigDump =~ s/\;//;
+
         $Output .= <<OUTPUT;
 ## DynamicField '$DynamicFieldConfig->{Name}'
 
@@ -46,18 +51,7 @@ OUTPUT
         Label      => '$DynamicFieldConfig->{Label}',
         ObjectType => '$DynamicFieldConfig->{ObjectType}',
         FieldType  => '$DynamicFieldConfig->{FieldType}',
-        Config     =>  {
-OUTPUT
-
-        for my $Config ( sort keys %{ $DynamicFieldConfig->{Config} } ) {
-
-            $Output .= <<CONFIG;
-            $Config => '$DynamicFieldConfig->{Config}->{$Config}',
-CONFIG
-        }
-
-        $Output .= <<OUTPUT;
-        }
+        Config     => $ConfigDump
     },
 );
 

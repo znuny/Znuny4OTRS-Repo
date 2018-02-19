@@ -25,7 +25,8 @@ sub Run {
 
     return '' if !IsArrayRefWithData( $Param{User} );
 
-    my $Output = <<OUTPUT;
+    my $Output;
+    my $Header = <<OUTPUT;
 
 # User setup
 
@@ -55,6 +56,9 @@ OUTPUT
 OUTPUT
 
     }
+
+    return '' if !$Output;
+    $Output = $Header . $Output;
 
     return $Output;
 
