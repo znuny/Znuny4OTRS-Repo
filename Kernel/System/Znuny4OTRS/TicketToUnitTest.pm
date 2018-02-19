@@ -98,6 +98,7 @@ sub CreateUnitTest {
 
     my $Header        = $Self->GetHeader();
     my $TicketHistory = $Self->GetTicketHistory(%Param);
+
     my $CreateObjects = $Self->GetCreateObjects(%{$Self->{TicketAttributes}});
     my $NeededObjects = $Self->GetNeededObjects(%{$Self->{TicketAttributes}});
     my $Footer        = $Self->GetFooter();
@@ -393,6 +394,7 @@ sub GetTicketAttributes {
 
         for my $Key (@AttributeKeys){
             next ATTRIBUTE if !$HistoryTicket{$Key};
+            next ATTRIBUTE if $HistoryTicket{$Key} eq 'NULL';
 
             my $Value = $HistoryTicket{$Key};
 
