@@ -192,8 +192,8 @@
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::TicketMenuGeneric</Item>
                 <Item Key="Group">rw:admin</Item>
-                <Item Key="Name" Translatable="1">Create UnitTest</Item>
-                <Item Key="Description" Translatable="1">Creates a UnitTest from this ticket.</Item>
+                <Item Key="Name" Translatable="1">Create analysis file</Item>
+                <Item Key="Description" Translatable="1">Creates a analysis file from this ticket.</Item>
                 <Item Key="Action"></Item>
                 <Item Key="Link">Action=AgentZnuny4OTRSTicketToUnitTest;Subaction=CreateFile;TicketID=[% Data.TicketID | html %]</Item>
                 <Item Key="Target"></Item>
@@ -211,8 +211,8 @@
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::TicketMenuGeneric</Item>
                 <Item Key="Group">rw:admin</Item>
-                <Item Key="Name" Translatable="1">Send UnitTest</Item>
-                <Item Key="Description" Translatable="1">Creates a UnitTest from this ticket and sends to Znuny.</Item>
+                <Item Key="Name" Translatable="1">Send analysis file</Item>
+                <Item Key="Description" Translatable="1">Creates a analysis file from this ticket and sends to Znuny.</Item>
                 <Item Key="Action"></Item>
                 <Item Key="Link">Action=AgentZnuny4OTRSTicketToUnitTest;Subaction=SendEmail;TicketID=[% Data.TicketID | html %]</Item>
                 <Item Key="Target"></Item>
@@ -229,7 +229,7 @@
         <Setting>
             <FrontendModuleReg>
                 <Group>admin</Group>
-                <Description>Creates a UnitTest from a ticket.</Description>
+                <Description>Creates a analysis file from a ticket.</Description>
                 <Title>TicketToUnitTest</Title>
             </FrontendModuleReg>
         </Setting>
