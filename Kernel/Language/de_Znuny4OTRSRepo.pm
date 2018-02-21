@@ -17,11 +17,11 @@ sub Data {
     my $Self = shift;
 
     # TicketToUnitTest - SysConfig
-    $Self->{Translation}->{'Create UnitTest'} = 'Erstelle UnitTest';
-    $Self->{Translation}->{'Send UnitTest'}   = 'Sende UnitTest';
+    $Self->{Translation}->{'Create analysis file'} = 'Erstelle Analysedatei';
+    $Self->{Translation}->{'Send analysis file'}   = 'Sende Analysedatei';
 
-    $Self->{Translation}->{'Creates a UnitTest from this ticket.'}                    = 'Erstellt einen UnitTest von diesem Ticket.';
-    $Self->{Translation}->{'Creates a UnitTest from this ticket and sends to Znuny.'} = 'Erstellt einen UnitTest von diesem Ticket und sendet ihn an Znuny.';
+    $Self->{Translation}->{'Creates a analysis file from this ticket.'}                    = 'Erstellt einen Analysedatei von diesem Ticket.';
+    $Self->{Translation}->{'Creates a analysis file from this ticket and sends to Znuny.'} = 'Erstellt einen Analysedatei von diesem Ticket und sendet ihn an Znuny.';
 
     return 1;
 }
