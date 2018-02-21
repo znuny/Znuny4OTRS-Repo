@@ -33,7 +33,7 @@ sub Run {
 
 \$Success = \$BackendObject->ValueSet(
     DynamicFieldConfig => \$TempValue,
-    ObjectID           => \$Param{TicketID},
+    ObjectID           => \$TicketID,
     Value              => '$Value',
     UserID             => \$UserID,
 );

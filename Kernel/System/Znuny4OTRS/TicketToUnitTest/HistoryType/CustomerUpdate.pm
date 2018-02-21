@@ -40,7 +40,7 @@ sub Run {
 \$Success = \$TicketObject->TicketCustomerSet(
     No       => '$Param{CustomerID}',
     User     => '$Param{CustomerUser}',
-    TicketID => \$Param{TicketID},
+    TicketID => \$TicketID,
     UserID   => \$UserID,
 );
 \$Self->True(

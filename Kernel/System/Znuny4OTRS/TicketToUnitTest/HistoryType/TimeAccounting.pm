@@ -38,7 +38,7 @@ sub Run {
 
     my $Output = <<OUTPUT;
 \$Success = \$TicketObject->TicketAccountTime(
-    TicketID  => \$Param{TicketID},
+    TicketID  => \$TicketID,
     ArticleID => \$ArticleID,
     TimeUnit  => '$Param{TimeAccounting}',
     UserID    => \$UserID,
