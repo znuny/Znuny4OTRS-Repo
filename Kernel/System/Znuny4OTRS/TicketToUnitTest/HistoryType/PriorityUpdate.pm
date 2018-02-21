@@ -39,7 +39,7 @@ sub Run {
     my $Output = <<OUTPUT;
 \$Success = \$TicketObject->TicketPrioritySet(
     Priority => '$Param{Priority}',
-    TicketID  => \$Param{TicketID},
+    TicketID  => \$TicketID,
     UserID    => \$UserID,
 );
 

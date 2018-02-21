@@ -39,7 +39,7 @@ sub Run {
     my $Output = <<OUTPUT;
 \$Success = \$TicketObject->TicketQueueSet(
     Queue    => '$Param{Queue}',
-    TicketID => \$Param{TicketID},
+    TicketID => \$TicketID,
     UserID   => \$UserID,
 );
 

@@ -40,7 +40,7 @@ sub Run {
 \$TempValue = \$TimeObject->SystemTime();
 \$Success = \$TicketObject->TicketUnlockTimeoutUpdate(
     UnlockTimeout => \$TempValue,
-    TicketID      => \$Param{TicketID},
+    TicketID      => \$TicketID,
     UserID        => \$UserID,
 );
 

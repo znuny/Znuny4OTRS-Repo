@@ -39,7 +39,7 @@ sub Run {
     my $Output = <<OUTPUT;
 \$Success = \$TicketObject->TicketOwnerSet(
     NewUser  => '$Param{Owner}',
-    TicketID => \$Param{TicketID},
+    TicketID => \$TicketID,
     UserID   => \$UserID,
 );
 

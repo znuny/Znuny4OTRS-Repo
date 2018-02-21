@@ -12,7 +12,6 @@ use strict;
 use warnings;
 
 our @ObjectDependencies = (
-    'Kernel::System::Type',
 );
 
 use Kernel::System::VariableCheck qw(:all);
