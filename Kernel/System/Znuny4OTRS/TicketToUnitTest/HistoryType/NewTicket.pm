@@ -5,15 +5,14 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
+## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
 
 package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::NewTicket;
 
 use strict;
 use warnings;
 
-our @ObjectDependencies = (
-    'Kernel::System::Ticket',
-);
+our @ObjectDependencies = ();
 
 use Kernel::System::VariableCheck qw(:all);
 use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
@@ -28,7 +27,7 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$Param{TicketID} = \$HelperObject->TicketCreate(
+\$TicketID = \$HelperObject->TicketCreate(
     Queue         => '$Param{Queue}',
     Priority      => '$Param{Priority}',
     State         => '$Param{State}',

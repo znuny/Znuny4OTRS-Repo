@@ -49,7 +49,7 @@ $Article{Body}
 BODY
 
 \$ArticleID = \$HelperObject->ArticleCreate(
-    TicketID       => \$Param{TicketID},
+    TicketID       => \$TicketID,
     Subject        => '$Article{Subject}',
     Body           => \$TempValue,
     ArticleType    => '$Article{ArticleType}',

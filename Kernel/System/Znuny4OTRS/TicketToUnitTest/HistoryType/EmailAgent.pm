@@ -11,8 +11,7 @@ package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EmailAgent;
 use strict;
 use warnings;
 
-our @ObjectDependencies = (
-);
+our @ObjectDependencies = ();
 
 use base qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::AddNote );
 

@@ -39,7 +39,7 @@ sub Run {
     my $Output = <<OUTPUT;
 \$Success = \$TicketObject->TicketPendingTimeSet(
     String   => '$Param{PendingTime}',
-    TicketID => \$Param{TicketID},
+    TicketID => \$TicketID,
     UserID   => \$UserID,
 );
 
