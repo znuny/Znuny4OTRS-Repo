@@ -222,7 +222,7 @@
             </Hash>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Frontend::Module###AgentZnuny4OTRSTicketToUnitTest" Required="0" Valid="0">
+    <ConfigItem Name="Frontend::Module###AgentZnuny4OTRSTicketToUnitTest" Required="1" Valid="1">
         <Description Translatable="1">Frontend module registration for the agent interface.</Description>
         <Group>Znuny4OTRS-Repo</Group>
         <SubGroup>Frontend::Agent::ModuleRegistration</SubGroup>
