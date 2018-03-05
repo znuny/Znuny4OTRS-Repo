@@ -1070,7 +1070,7 @@ sub SwitchToPopUp {
     $Self->switch_to_window( $Handles->[1] );
 
     # wait until page has loaded, if necessary
-    $Self->WaitFor( JavaScript => 'return typeof($) === "function" && $(".CancelClosePopup").length' );
+    $Self->WaitFor( JavaScript => 'return typeof($) === "function" && ($(".CancelClosePopup").length || $(".UndoClosePopup").length)' );
 
     if (
         defined $Param{WaitForAJAX}
