@@ -33,6 +33,7 @@ sub Run {
     my ( $Self, %Param ) = @_;
 
     $Self->AgentAppointmentEdit(%Param);
+    $Self->AgentNavigationBar(%Param);
     $Self->AgentTicketZoom(%Param);
     $Self->AdminAppointmentNotificationEvent(%Param);
     $Self->AdminDynamicField(%Param);
@@ -73,6 +74,26 @@ Remove the following block:
             \s*
         <\/div>
     }{}xmsi;
+
+    return 1;
+}
+
+sub AgentNavigationBar {
+    my ( $Self, %Param ) = @_;
+
+    return if $Param{TemplateFile} ne 'AgentNavigationBar';
+
+=for comment
+
+Remove the following block in reports navigation bar:
+
+    <li id="nav-Reports-Reports(OTRSBusinessSolution™)">
+        <a href="/6-test2/index.pl?Action=AgentStatisticsReports;Subaction=Overview" title="Statistic Reports overview." accesskey="" class="OTRSBusinessRequired">Berichte (OTRS Business Solution™)</a>
+    </li>
+
+=cut
+
+    ${ $Param{Data} } =~ s{<li id="nav-Reports-Reports\(OTRSBusinessSolution™\)">.*?</li>}{}smg;
 
     return 1;
 }
