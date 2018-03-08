@@ -11,6 +11,8 @@ package Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRemoveBSAdvertisement
 use strict;
 use warnings;
 
+use utf8;
+
 our @ObjectDependencies = (
     'Kernel::Output::HTML::Layout',
 );
