@@ -88,7 +88,7 @@ sub AgentNavigationBar {
 Remove the following block in reports navigation bar:
 
     <li id="nav-Reports-Reports(OTRSBusinessSolution™)">
-        <a href="/6-test2/index.pl?Action=AgentStatisticsReports;Subaction=Overview" title="Statistic Reports overview." accesskey="" class="OTRSBusinessRequired">Berichte (OTRS Business Solution™)</a>
+        <a href="/index.pl?Action=AgentStatisticsReports;Subaction=Overview" title="Statistic Reports overview." accesskey="" class="OTRSBusinessRequired">Berichte (OTRS Business Solution™)</a>
     </li>
 
 =cut
