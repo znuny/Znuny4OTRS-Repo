@@ -245,7 +245,7 @@ sub AdminProcessManagement {
 
 =for comment
 
-Remove the following block:
+Remove the following blocks:
 
         <div class="WidgetSimple">
             <div class="Header">
@@ -283,6 +283,11 @@ Remove the following block:
             </div>
         </div>
 
+        # Under "Ready2Adopt":
+        <p class="FieldExplanation">
+            [% Translate("Would you like to benefit from processes created by experts? Upgrade to %s to import some sophisticated Ready2Adopt processes.") | html | ReplacePlaceholders(OTRSBusinessLinkLabel) %]
+        </p>
+
 =cut
 
     my $ExampleProcessesText = $LayoutObject->{LanguageObject}->Translate('Example processes');
@@ -309,6 +314,14 @@ Remove the following block:
                 \s*
                 <h2>\Q$DescriptionText\E<\/h2>)
     }{$1}xmsi;
+
+    # Ready2Adpot
+    my $TranslatedExplanation = $LayoutObject->{LanguageObject}->Translate(
+        'Would you like to benefit from processes created by experts? Upgrade to %s to import some sophisticated Ready2Adopt processes.',
+        '<strong><a href="#" class="OTRSBusinessRequired">OTRS Business Solution</a></strong>™',
+    );
+
+    ${ $Param{Data} } =~ s{\Q$TranslatedExplanation\E}{}smg;
 
     return 1;
 }
