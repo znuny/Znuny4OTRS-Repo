@@ -23,6 +23,7 @@ our @ObjectDependencies = (
     'Kernel::System::Cache',
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Log',
+    'Kernel::System::Main',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -375,6 +376,162 @@ sub ValidateResult {
     );
 
     return $MockResults;
+}
+
+=item OperationFunctionCall()
+
+This function will initialize an operation to test specific functions of an operation.
+
+    my $Success = $UnitTestWebserviceObject->OperationFunctionCall(
+        Webservice    => 'WPTicket-FITS-Change',
+        Operation     => 'createOrder',
+        Function      => '_ChangeTemplateGet',
+        Data          => {}
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub OperationFunctionCall {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject       = $Kernel::OM->Get('Kernel::System::Main');
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Webservice Operation Function Data)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Webservice = $Param{Webservice};
+    my $Operation  = $Param{Operation};
+    my $Function   = $Param{Function};
+    my $Data       = $Param{Data};
+
+    my $WebserviceGet = $WebserviceObject->WebserviceGet(
+        Name => $Webservice,
+    );
+    return if !IsHashRefWithData($WebserviceGet);
+
+    my $WebserviceID   = $WebserviceGet->{ID};
+    my $ProviderConfig = $WebserviceGet->{Config}->{Provider};
+
+    $MainObject->Require('Kernel::GenericInterface::Debugger');
+    $MainObject->Require('Kernel::GenericInterface::Operation');
+
+    my $DebuggerObject = Kernel::GenericInterface::Debugger->new(
+        DebuggerConfig    => $WebserviceGet->{Config}->{Debugger},
+        WebserviceID      => $WebserviceID,
+        CommunicationType => 'Provider',
+        RemoteIP          => $ENV{REMOTE_ADDR},
+    );
+
+    my $OperationObject = Kernel::GenericInterface::Operation->new(
+        DebuggerObject => $DebuggerObject,
+        Operation      => $Operation,
+        OperationType  => $ProviderConfig->{Operation}->{$Operation}->{Type},
+        WebserviceID   => $WebserviceID,
+    );
+    return if ref $OperationObject ne 'Kernel::GenericInterface::Operation';
+
+    if ( IsHashRefWithData($Data) ) {
+        return $OperationObject->{BackendObject}->$Function( %{ $Data || {} } );
+    }
+    elsif ( IsArrayRefWithData($Data) ) {
+        return $OperationObject->{BackendObject}->$Function( @{ $Data || [] } );
+    }
+
+    return;
+}
+
+=item InvokerFunctionCall()
+
+This function will initialize an invoker to test specific functions of an invoker.
+
+    my $Success = $UnitTestWebserviceObject->InvokerFunctionCall(
+        Webservice => 'WPTicket-FITS-Change',
+        Invoker    => 'createOrder',
+        Function   => '_ChangeTemplateGet',
+        Data       => {}
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub InvokerFunctionCall {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject        = $Kernel::OM->Get('Kernel::System::Log');
+    my $MainObject       = $Kernel::OM->Get('Kernel::System::Main');
+    my $WebserviceObject = $Kernel::OM->Get('Kernel::System::GenericInterface::Webservice');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Webservice Invoker Function Data)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Webservice = $Param{Webservice};
+    my $Invoker    = $Param{Invoker};
+    my $Function   = $Param{Function};
+    my $Data       = $Param{Data};
+
+    my $WebserviceGet = $WebserviceObject->WebserviceGet(
+        Name => $Webservice,
+    );
+    return if !IsHashRefWithData($WebserviceGet);
+
+    my $WebserviceID    = $WebserviceGet->{ID};
+    my $RequesterConfig = $WebserviceGet->{Config}->{Requester};
+
+    $MainObject->Require('Kernel::GenericInterface::Debugger');
+    $MainObject->Require('Kernel::GenericInterface::Invoker');
+
+    my $DebuggerObject = Kernel::GenericInterface::Debugger->new(
+        DebuggerConfig    => $WebserviceGet->{Config}->{Debugger},
+        WebserviceID      => $WebserviceID,
+        CommunicationType => 'Requester',
+        RemoteIP          => $ENV{REMOTE_ADDR},
+    );
+
+    my $InvokerObject = Kernel::GenericInterface::Invoker->new(
+        DebuggerObject => $DebuggerObject,
+        Invoker        => $Invoker,
+        InvokerType    => $RequesterConfig->{Invoker}->{$Invoker}->{Type},
+        WebserviceID   => $WebserviceID,
+    );
+    return if ref $InvokerObject ne 'Kernel::GenericInterface::Invoker';
+
+    if ( IsHashRefWithData($Data) ) {
+        return $InvokerObject->{BackendObject}->$Function( %{ $Data || {} } );
+    }
+    elsif ( IsArrayRefWithData($Data) ) {
+        return $InvokerObject->{BackendObject}->$Function( @{ $Data || [] } );
+    }
+
+    return;
 }
 
 =item CreateGenericInterfaceMappingObject()
