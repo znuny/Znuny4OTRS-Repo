@@ -383,9 +383,9 @@ sub ValidateResult {
 This function will initialize an operation to test specific functions of an operation.
 
     my $Success = $UnitTestWebserviceObject->OperationFunctionCall(
-        Webservice    => 'WPTicket-FITS-Change',
-        Operation     => 'createOrder',
-        Function      => '_ChangeTemplateGet',
+        Webservice    => 'webservice-name',
+        Operation     => 'operation-name',
+        Function      => 'function',
         Data          => {}
     );
 
@@ -461,9 +461,9 @@ sub OperationFunctionCall {
 This function will initialize an invoker to test specific functions of an invoker.
 
     my $Success = $UnitTestWebserviceObject->InvokerFunctionCall(
-        Webservice => 'WPTicket-FITS-Change',
-        Invoker    => 'createOrder',
-        Function   => '_ChangeTemplateGet',
+        Webservice => 'webservice-name',
+        Invoker    => 'invoker-name',
+        Function   => 'function',
         Data       => {}
     );
 
