@@ -446,10 +446,10 @@ sub OperationFunctionCall {
     );
     return if ref $OperationObject ne 'Kernel::GenericInterface::Operation';
 
-    if ( IsHashRefWithData($Data) ) {
+    if ( ref $Data eq 'HASH' ) {
         return $OperationObject->{BackendObject}->$Function( %{ $Data || {} } );
     }
-    elsif ( IsArrayRefWithData($Data) ) {
+    elsif ( ref $Data eq 'ARRAY' ) {
         return $OperationObject->{BackendObject}->$Function( @{ $Data || [] } );
     }
 
@@ -524,10 +524,10 @@ sub InvokerFunctionCall {
     );
     return if ref $InvokerObject ne 'Kernel::GenericInterface::Invoker';
 
-    if ( IsHashRefWithData($Data) ) {
+    if ( ref $Data eq 'HASH' ) {
         return $InvokerObject->{BackendObject}->$Function( %{ $Data || {} } );
     }
-    elsif ( IsArrayRefWithData($Data) ) {
+    elsif ( ref $Data eq 'ARRAY' ) {
         return $InvokerObject->{BackendObject}->$Function( @{ $Data || [] } );
     }
 
