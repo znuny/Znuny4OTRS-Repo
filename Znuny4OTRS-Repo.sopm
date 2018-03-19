@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.37</Version>
+    <Version>5.0.38</Version>
+    <ChangeLog Version="5.0.38" Date="2018-03-19 11:37:14 +0100">Improved webservice test function calls.</ChangeLog>
     <ChangeLog Version="5.0.37" Date="2018-03-15 14:56:59 +0100">Added new helper functionalities to test specific invoker and operation functions of an webservice.</ChangeLog>
     <ChangeLog Version="5.0.36" Date="2018-02-13 10:32:55 +0100">Updated Core.UI.InputFields.js to latest framework version.</ChangeLog>
     <ChangeLog Version="5.0.35" Date="2018-02-09 13:47:06 +0100">Online connections of package manager will now be suppressed if Znuny4OTRSRepoDisable is set to "disable all".</ChangeLog>
