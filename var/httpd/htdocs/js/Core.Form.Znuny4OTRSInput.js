@@ -957,47 +957,47 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         toolbarCanCollapse:     true,
         toolbarStartupExpanded: false,
       }
-    })
+    });
 
     Returns:
 
       Result = true
     */
     TargetNS.RichTextConfig = function (NewConfig) {
+        if (typeof CKEDITOR === 'undefined') {
+            return;
+        }
 
-        Core.UI.RichTextEditor.InitAll = function () {
+        // remove all rte's
+        $('textarea.RichText').each(function () {
+            var EditorID = $(this).attr('id');
+            var Editor   = CKEDITOR.instances[EditorID];
 
-            $('textarea.RichText').each(function () {
-                var EditorID;
-                var Editor;
-                var EditorConfig;
-                var ExtendedConfig;
+            if (!Editor) return true;
 
-                Core.UI.RichTextEditor.Init($(this));
+            $(this).removeClass('HasCKEInstance');
+            Editor.destroy(true);
+        });
 
-                EditorID = $(this).attr('id');
-
-                if (typeof NewConfig != 'object') return true;
-
-                ExtendedConfig = NewConfig[ EditorID ] || NewConfig['Global'];
-                if (typeof ExtendedConfig != 'object') return true;
-
-                Editor = CKEDITOR.instances[EditorID];
-
-                if (!Editor) return true;
-
-                EditorConfig = Editor.config;
-
-                $.each(ExtendedConfig, function(Attribute, Value) {
-                  EditorConfig[ Attribute ] = Value;
-                });
-
-                Editor.destroy(true);
-                CKEDITOR.replace(EditorID, EditorConfig);
+        // add hack to overwrite config at its lowest place
+        CKEDITOR.replaceZnuny4OTRSInput = CKEDITOR.replace;
+        CKEDITOR.replace = function(EditorID, EditorConfig) {
+            var ExtendedConfig = NewConfig[ EditorID ] || NewConfig['Global'];
+            $.each(ExtendedConfig, function(Attribute, Value) {
+              EditorConfig[ Attribute ] = Value;
             });
+
+            return CKEDITOR.replaceZnuny4OTRSInput(EditorID, EditorConfig);
         };
 
-        Core.UI.RichTextEditor.InitAll();
+        // reinitialize all rte's
+        Core.UI.RichTextEditor.InitAllEditors();
+
+        // remove hack
+        CKEDITOR.replace = CKEDITOR.replaceZnuny4OTRSInput;
+        delete CKEDITOR.replaceZnuny4OTRSInput;
+
+        return true;
     }
 
     function RebuildLevelText($Element) {
