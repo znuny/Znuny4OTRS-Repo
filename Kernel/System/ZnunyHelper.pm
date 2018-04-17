@@ -3045,7 +3045,7 @@ of the CMDB class in the following directory:
 The required general catalog item will be created automatically.
 
     my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreate(
-        Class           => 'Private Endgeräte',
+        Class           => 'Private Endgeraete',
         ClassFile       => 'Private_Endgeraete',  # optional
         PermissionGroup => 'itsm-configitem',     # optional
     );
@@ -3141,7 +3141,7 @@ of the CMDB class in the following directory:
 The required general catalog item will be created automatically.
 
     my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreate(
-        Class           => 'Private Endgeräte',
+        Class           => 'Private Endgeraete',
         ClassFile       => 'Private_Endgeraete',  # optional
         PermissionGroup => 'itsm-configitem',     # optional
     );
@@ -4860,40 +4860,65 @@ sub _ModuleGroupAdd {
     my $FrontendList = $ConfigObject->Get( $Param{Frontend} );
     return if !IsHashRefWithData($FrontendList);
 
-    my $ModuleRegistration = $FrontendList->{ $Param{Module} };
-    return if !IsHashRefWithData($ModuleRegistration);
+    # Split module "path" (e. g. Admin###001-Framework)
+    my $Module = $Param{Module};
+    my @ModulePathElements = split '###', $Module;
 
-    GROUP:
-    for my $GroupType (qw(Group GroupRo)) {
-
-        my $AddGroups = $Param{$GroupType};
-        next GROUP if !IsArrayRefWithData($AddGroups);
-
-        my $OldGroups = $ModuleRegistration->{$GroupType} || [];
-
-        my %AddGroups = map { $_ => 1 } @{$AddGroups};
-        my %OldGroups = map { $_ => 1 } @{$OldGroups};
-
-        my %NewGroups = (
-            %AddGroups,
-            %OldGroups
-        );
-
-        my @NewGroups = sort keys %NewGroups;
-
-        $ModuleRegistration->{$GroupType} = \@NewGroups;
-
-        $SysConfigObject->SettingsSet(
-            Settings => [
-                {
-                    Name           => $Param{Frontend} . '###' . $Param{Module},
-                    IsValid        => 1,
-                    EffectiveValue => $ModuleRegistration,
-                },
-            ],
-            UserID => 1,
-        );
+    my $ModuleRegistration = $FrontendList;
+    for my $ModulePathElement (@ModulePathElements) {
+        $ModuleRegistration = $ModuleRegistration->{$ModulePathElement};
+        return if !$ModuleRegistration;
     }
+
+    return if !IsArrayRefWithData($ModuleRegistration) && !IsHashRefWithData($ModuleRegistration);
+    my $IsArray = IsArrayRefWithData($ModuleRegistration);
+
+    # Some config settings are hashes, some are arrays of hashes.
+    # Turn all into arrays temporarily for easier handling.
+    if ( !$IsArray ) {
+        $ModuleRegistration = [$ModuleRegistration];
+    }
+
+    MODULEREGISTRATION:
+    for my $CurrentModuleRegistration ( @{$ModuleRegistration} ) {
+
+        GROUP:
+        for my $GroupType (qw(Group GroupRo)) {
+
+            my $AddGroups = $Param{$GroupType};
+            next GROUP if !IsArrayRefWithData($AddGroups);
+
+            my $OldGroups = $CurrentModuleRegistration->{$GroupType} || [];
+
+            my %AddGroups = map { $_ => 1 } @{$AddGroups};
+            my %OldGroups = map { $_ => 1 } @{$OldGroups};
+
+            my %NewGroups = (
+                %AddGroups,
+                %OldGroups
+            );
+
+            my @NewGroups = sort keys %NewGroups;
+
+            $CurrentModuleRegistration->{$GroupType} = \@NewGroups;
+        }
+    }
+
+    # Turn config arrays into their original form so that config setting update works.
+    if ( !$IsArray ) {
+        $ModuleRegistration = shift @{$ModuleRegistration};
+    }
+
+    $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => $Param{Frontend} . '###' . $Param{Module},
+                IsValid        => 1,
+                EffectiveValue => $ModuleRegistration,
+            },
+        ],
+        UserID => 1,
+    );
 
     return 1;
 }
@@ -4948,39 +4973,64 @@ sub _ModuleGroupRemove {
     my $FrontendList = $ConfigObject->Get( $Param{Frontend} );
     return if !IsHashRefWithData($FrontendList);
 
-    my $ModuleRegistration = $FrontendList->{ $Param{Module} };
-    return if !IsHashRefWithData($ModuleRegistration);
+    # Split module "path" (e. g. Admin###001-Framework)
+    my $Module = $Param{Module};
+    my @ModulePathElements = split '###', $Module;
 
-    GROUP:
-    for my $GroupType (qw(Group GroupRo)) {
-
-        my $RemoveGroups = $Param{$GroupType};
-        next GROUP if !IsArrayRefWithData($RemoveGroups);
-
-        my $OldGroups = $ModuleRegistration->{$GroupType};
-        next GROUP if !IsArrayRefWithData($OldGroups);
-
-        my %OldGroups = map { $_ => 1 } @{$OldGroups};
-
-        for my $RemoveGroup ( @{$RemoveGroups} ) {
-            delete $OldGroups{$RemoveGroup};
-        }
-
-        my @NewGroups = sort keys %OldGroups;
-
-        $ModuleRegistration->{$GroupType} = \@NewGroups;
-
-        $SysConfigObject->SettingsSet(
-            Settings => [
-                {
-                    Name           => $Param{Frontend} . '###' . $Param{Module},
-                    IsValid        => 1,
-                    EffectiveValue => $ModuleRegistration,
-                },
-            ],
-            UserID => 1,
-        );
+    my $ModuleRegistration = $FrontendList;
+    for my $ModulePathElement (@ModulePathElements) {
+        $ModuleRegistration = $ModuleRegistration->{$ModulePathElement};
+        return if !$ModuleRegistration;
     }
+
+    return if !IsArrayRefWithData($ModuleRegistration) && !IsHashRefWithData($ModuleRegistration);
+    my $IsArray = IsArrayRefWithData($ModuleRegistration);
+
+    # Some config settings are hashes, some are arrays of hashes.
+    # Turn all into arrays temporarily for easier handling.
+    if ( !$IsArray ) {
+        $ModuleRegistration = [$ModuleRegistration];
+    }
+
+    MODULEREGISTRATION:
+    for my $CurrentModuleRegistration ( @{$ModuleRegistration} ) {
+
+        GROUP:
+        for my $GroupType (qw(Group GroupRo)) {
+
+            my $RemoveGroups = $Param{$GroupType};
+            next GROUP if !IsArrayRefWithData($RemoveGroups);
+
+            my $OldGroups = $CurrentModuleRegistration->{$GroupType};
+            next GROUP if !IsArrayRefWithData($OldGroups);
+
+            my %OldGroups = map { $_ => 1 } @{$OldGroups};
+
+            for my $RemoveGroup ( @{$RemoveGroups} ) {
+                delete $OldGroups{$RemoveGroup};
+            }
+
+            my @NewGroups = sort keys %OldGroups;
+
+            $CurrentModuleRegistration->{$GroupType} = \@NewGroups;
+        }
+    }
+
+    # Turn config arrays into their original form so that config setting update works.
+    if ( !$IsArray ) {
+        $ModuleRegistration = shift @{$ModuleRegistration};
+    }
+
+    $SysConfigObject->SettingsSet(
+        Settings => [
+            {
+                Name           => $Param{Frontend} . '###' . $Param{Module},
+                IsValid        => 1,
+                EffectiveValue => $ModuleRegistration,
+            },
+        ],
+        UserID => 1,
+    );
 
     return 1;
 }
