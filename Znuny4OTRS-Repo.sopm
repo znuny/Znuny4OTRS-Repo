@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.21</Version>
+    <Version>6.0.22</Version>
+    <ChangeLog Version="6.0.22" Date="2018-04-27 16:07:18 +0200">Improved show hide functionality to also hide parent Row div. This will remove optional paddings also.</ChangeLog>
     <ChangeLog Version="6.0.21" Date="2018-04-17 12:02:04 +0200">Improved _ModuleGroup(Add|Remove) to also support config keys like 'Frontend::Navigation###Admin###001-Framework'.</ChangeLog>
     <ChangeLog Version="6.0.20" Date="2018-04-04 14:31:42 +0200">RichTextConfig did not work properly because all events and patched functions of the Core.UI.RichTextEditor were lost. Reworked functionality.</ChangeLog>
     <ChangeLog Version="6.0.19" Date="2018-03-28 16:09:05 +0200">Fixed PostMaster helper function.</ChangeLog>
