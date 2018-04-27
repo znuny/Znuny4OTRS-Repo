@@ -843,7 +843,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             return false;
         }
 
-        $('.Row_' + FieldID).hide();
+        $('#'+ FieldID).parent().parent('div.Row').hide();
         $('#'+ FieldID).parent().hide();
         $("label[for='" + FieldID + "']").hide();
 
@@ -858,7 +858,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             return false;
         }
 
-        $('.Row_' + FieldID).show();
+        $('#'+ FieldID).parent().parent('div.Row').show();
         $('#'+ FieldID).parent().show();
         $("label[for='" + FieldID + "']").show();
 
