@@ -24,6 +24,7 @@ our @ObjectDependencies = (
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Log',
     'Kernel::System::Main',
+    'Kernel::System::Storable',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -668,13 +669,13 @@ sub _RedefineTransport {
 
             return {
                 Success => 1,
-                }
+            };
         }
 
         sub Kernel::GenericInterface::Transport::RequesterPerformRequest {    ## no critic
             my ( $Self, %Param ) = @_;
 
-            my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+            my $CacheObject    = $Kernel::OM->Get('Kernel::System::Cache');
             my $StorableObject = $Kernel::OM->Get('Kernel::System::Storable');
 
             my $CacheType       = 'UnitTestWebservice';
