@@ -528,6 +528,7 @@ sub _RedefineTransport {
             my ( $Self, %Param ) = @_;
 
             my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+            my $StorableObject = $Kernel::OM->Get('Kernel::System::Storable');
 
             my $CacheType       = 'UnitTestWebservice';
             my $CacheTTL        = 60 * 60 * 24 * 20;
@@ -628,7 +629,9 @@ sub _RedefineTransport {
                     Data2 => $Param{Data},
                 );
 
-                $Result = $PossibleRequest->{Result};
+                $Result = $StorableObject->Clone(
+                    Data => $PossibleRequest->{Result},
+                );
 
                 last REQUEST;
             }
