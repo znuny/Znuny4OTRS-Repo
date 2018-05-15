@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.24</Version>
+    <Version>6.0.25</Version>
+    <ChangeLog Version="6.0.25" Date="2018-05-15 14:47:44 +0200">Added new helper function DynamicFieldValueCreate to set new possible values for a existing dynamic field.</ChangeLog>
     <ChangeLog Version="6.0.24" Date="2018-05-15 13:43:29 +0200">Added MockFromFile convenience wrapper to load a JSON file and create a Mock function call for it.</ChangeLog>
     <ChangeLog Version="6.0.23" Date="2018-05-09 17:44:08 +0200">Cloned webservice reference result to prevent changes in UnitTest::Webserice.</ChangeLog>
     <ChangeLog Version="6.0.22" Date="2018-04-27 16:07:18 +0200">Improved show hide functionality to also hide parent Row div. This will remove optional paddings also.</ChangeLog>
