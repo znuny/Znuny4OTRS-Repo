@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.23</Version>
+    <Version>6.0.24</Version>
+    <ChangeLog Version="6.0.24" Date="2018-05-15 13:43:29 +0200">Added MockFromFile convenience wrapper to load a JSON file and create a Mock function call for it.</ChangeLog>
     <ChangeLog Version="6.0.23" Date="2018-05-09 17:44:08 +0200">Cloned webservice reference result to prevent changes in UnitTest::Webserice.</ChangeLog>
     <ChangeLog Version="6.0.22" Date="2018-04-27 16:07:18 +0200">Improved show hide functionality to also hide parent Row div. This will remove optional paddings also.</ChangeLog>
     <ChangeLog Version="6.0.21" Date="2018-04-17 12:02:04 +0200">Improved _ModuleGroup(Add|Remove) to also support config keys like 'Frontend::Navigation###Admin###001-Framework'.</ChangeLog>
