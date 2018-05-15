@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.38</Version>
+    <Version>5.0.39</Version>
+    <ChangeLog Version="5.0.39" Date="2018-05-15 14:47:33 +0200">Added new helper function DynamicFieldValueCreate to set new possible values for a existing dynamic field.</ChangeLog>
     <ChangeLog Version="5.0.38" Date="2018-03-19 11:37:14 +0100">Improved webservice test function calls.</ChangeLog>
     <ChangeLog Version="5.0.37" Date="2018-03-15 14:56:59 +0100">Added new helper functionalities to test specific invoker and operation functions of an webservice.</ChangeLog>
     <ChangeLog Version="5.0.36" Date="2018-02-13 10:32:55 +0100">Updated Core.UI.InputFields.js to latest framework version.</ChangeLog>
