@@ -19,9 +19,11 @@ use Kernel::GenericInterface::Mapping;
 use Kernel::GenericInterface::Transport;
 
 our @ObjectDependencies = (
+    'Kernel::Config',
     'Kernel::GenericInterface::Provider',
     'Kernel::System::Cache',
     'Kernel::System::GenericInterface::Webservice',
+    'Kernel::System::JSON',
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::Storable',
@@ -217,6 +219,69 @@ sub Mock {
             TTL   => $Self->{CacheTTL},
         );
     }
+
+    return 1;
+}
+
+=item MockFromFile()
+
+Loads a mapping from JSON file placed in 'var/mocks/' in the
+Webservice sub directory named as the Invoker like e.g.:
+'var/mocks/ExampleWebservice/SomeInvoker.json'
+
+    $UnitTestWebserviceObject->MockFromFile(
+        Webservice => 'ExampleWebservice',
+        Invoker    => 'SomeInvoker',
+        Data       => {
+
+        }
+    );
+
+=cut
+
+sub MockFromFile {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+    my $JSONObject   = $Kernel::OM->Get('Kernel::System::JSON');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Webservice Invoker)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $MockFile = $ConfigObject->Get('Home') . "/var/mocks/$Param{Webservice}/$Param{Invoker}.json";
+
+    my $JSONString = $MainObject->FileRead(
+        Location => $MockFile,
+        Mode     => 'utf8',
+    );
+
+    my $MockData = $JSONObject->Decode(
+        Data => ${$JSONString},
+    );
+
+    $Self->Mock(
+        $Param{Invoker} => [
+            {
+                Data => $Param{Data} || {},
+                Result => {
+                    Success => 1,
+                    Data    => $MockData,
+                },
+            },
+        ],
+    );
 
     return 1;
 }
