@@ -1686,6 +1686,70 @@ sub _DynamicFieldsCreate {
     return 1;
 }
 
+=item DynamicFieldValueCreate()
+
+Add a new dropdown value to a dynamic field. This function
+will extended the possible values for the field.
+
+    my $Success = $ZnunyHelperObject->DynamicFieldValueCreate(
+        Name  => 'DynamicFieldName',
+        Key   => 'ValueDropdown',
+        Value => 'ValueDropdown',    # optional (Parameter "Key" is default)
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub DynamicFieldValueCreate {
+    my ( $Self, %Param ) = @_;
+
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name Key)) {
+        next NEEDED if $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Name  = $Param{Name};
+    my $Key   = $Param{Key};
+    my $Value = $Param{Value} || $Param{Key};
+
+    my $DynamicFieldConfig = $DynamicFieldObject->DynamicFieldGet(
+        Name => $Name,
+    );
+
+    return 1 if $DynamicFieldConfig->{Config}->{PossibleValues}->{$Key}
+        && $DynamicFieldConfig->{Config}->{PossibleValues}->{$Key} eq $Value;
+
+    $DynamicFieldConfig->{Config}->{PossibleValues} ||= {};
+    $DynamicFieldConfig->{Config}->{PossibleValues}->{$Key} = $Value;
+
+    my $Success = $DynamicFieldObject->DynamicFieldUpdate(
+        %{$DynamicFieldConfig},
+        UserID => 1,
+    );
+
+    return 1 if $Success;
+
+    $LogObject->Log(
+        Priority => 'error',
+        Message  => "Can not update dynamic field configuration of field '" . $DynamicFieldConfig->{Name} . "'!",
+    );
+
+    return;
+}
+
 =item _DynamicFieldsConfigExport()
 
 exports configuration of all dynamic fields
