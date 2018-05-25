@@ -246,13 +246,13 @@ Example:
 
     my $Success = $UnitTestEmailObject->EmailValidate(
         UnitTestObject => $Self,
+        UnitTestFalse  => 1,                                         # optional, validation should get negated
         Message        => 'Sent emails must contain expected data.', # Message printed for unit test
         Email          => \@Emails,                                  # optional, result of EmailGet() will be used by default
         Header         => qr{To\:\sto\@test.com}xms,                 # Regex or array of regexes that the headers of the sent emails have to match
                                                                      #    example: [ qr{To\:\sto\@test.com}xms, qr{To\:\scc\@test.com}xms, ],
         Body           => qr{Hello [ ] World}xms,                    # Regex or string that the body of the sent emails have to match
         ToArray        => 'email1realrecipient1@test.com',           # Array of strings, string, array of regexes or regex with recipients the sent emails have to match
-                                                                     # example: ['email1realrecipient1@test.com', 'email1realrecipient2@test.com', ],
     );
 
 Returns:
@@ -457,7 +457,9 @@ sub EmailValidate {
         last EMAIL;
     }
 
-    $Param{UnitTestObject}->True(
+    my $CheckFunction = $Param{UnitTestFalse} ? 'False' : 'True';
+
+    $Param{UnitTestObject}->$CheckFunction(
         $Result,
         $Param{Message} || 'Verification of sent emails.',
     );
