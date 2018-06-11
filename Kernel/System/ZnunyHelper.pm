@@ -4188,6 +4188,7 @@ sub _WebserviceCreateIfNotExists {
         # read config
         my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
             Location => $WebserviceYAMLPath,
+            Mode     => 'utf8',
         );
 
         if ( !$Content ) {
@@ -4289,6 +4290,7 @@ sub _WebserviceCreate {
         # read config
         my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
             Location => $WebserviceYAMLPath,
+            Mode     => 'utf8',
         );
 
         if ( !$Content ) {
