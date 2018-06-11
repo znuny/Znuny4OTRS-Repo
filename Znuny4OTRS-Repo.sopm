@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.26</Version>
+    <Version>6.0.27</Version>
+    <ChangeLog Version="6.0.27" Date="2018-06-11 13:00:36 +0200">Improved helper functions OperationFunctionCall and InvokerFunctionCall.</ChangeLog>
     <ChangeLog Version="6.0.26" Date="2018-05-30 13:16:35 +0200">Improved mail helper function EmailValidate.</ChangeLog>
     <ChangeLog Version="6.0.25" Date="2018-05-15 14:47:44 +0200">Added new helper function DynamicFieldValueCreate to set new possible values for a existing dynamic field.</ChangeLog>
     <ChangeLog Version="6.0.24" Date="2018-05-15 13:43:29 +0200">Added MockFromFile convenience wrapper to load a JSON file and create a Mock function call for it.</ChangeLog>
