@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_config version="1.0" init="Application">
+    <!-- nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::ACLKeysLevel3Actions) -->
     <ConfigItem Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
         <Description Translatable="1">Define private addon repos.</Description>
         <Group>Znuny4OTRS-Repo</Group>
