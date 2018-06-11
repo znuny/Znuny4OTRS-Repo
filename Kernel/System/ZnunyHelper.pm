@@ -4126,6 +4126,7 @@ sub _WebserviceCreateIfNotExists {
         # read config
         my $Content = $MainObject->FileRead(
             Location => $WebserviceYAMLPath,
+            Mode     => 'utf8',
         );
 
         if ( !$Content ) {
@@ -4227,6 +4228,7 @@ sub _WebserviceCreate {
         # read config
         my $Content = $MainObject->FileRead(
             Location => $WebserviceYAMLPath,
+            Mode     => 'utf8',
         );
 
         if ( !$Content ) {

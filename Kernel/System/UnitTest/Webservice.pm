@@ -452,7 +452,21 @@ This function will initialize an operation to test specific functions of an oper
         Webservice    => 'webservice-name',
         Operation     => 'operation-name',
         Function      => 'function',
-        Data          => {}
+        Data          => {},
+    );
+
+    my $Success = $UnitTestWebserviceObject->OperationFunctionCall(
+        Webservice           => 'webservice-name',
+        Operation            => 'operation-name',
+        Function             => 'function',
+        Data                 => {},
+        ObjectModifyFunction => sub {
+            my (%Params) = @_;
+
+            $Params{Object}->{BackendObject}->{MessageName} = 'SEND_UPDATE';
+
+            return 1;
+        },
     );
 
 Returns:
@@ -512,6 +526,11 @@ sub OperationFunctionCall {
     );
     return if ref $OperationObject ne 'Kernel::GenericInterface::Operation';
 
+    $Self->_WebserviceObjectModify(
+        %Param,
+        Object => $OperationObject,
+    );
+
     if ( ref $Data eq 'HASH' ) {
         return $OperationObject->{BackendObject}->$Function( %{ $Data || {} } );
     }
@@ -530,7 +549,21 @@ This function will initialize an invoker to test specific functions of an invoke
         Webservice => 'webservice-name',
         Invoker    => 'invoker-name',
         Function   => 'function',
-        Data       => {}
+        Data       => {},
+    );
+
+    my $Success = $UnitTestWebserviceObject->InvokerFunctionCall(
+        Webservice => 'webservice-name',
+        Invoker    => 'invoker-name',
+        Function   => 'function',
+        Data       => {},
+        ObjectModifyFunction => sub {
+            my (%Params) = @_;
+
+            $Params{Object}->{BackendObject}->{MessageName} = 'SEND_UPDATE';
+
+            return 1;
+        },
     );
 
 Returns:
@@ -590,6 +623,11 @@ sub InvokerFunctionCall {
     );
     return if ref $InvokerObject ne 'Kernel::GenericInterface::Invoker';
 
+    $Self->_WebserviceObjectModify(
+        %Param,
+        Object => \$InvokerObject,
+    );
+
     if ( ref $Data eq 'HASH' ) {
         return $InvokerObject->{BackendObject}->$Function( %{ $Data || {} } );
     }
@@ -598,6 +636,55 @@ sub InvokerFunctionCall {
     }
 
     return;
+}
+
+=item _WebserviceObjectModify()
+
+This is an internal function which will be used for OperationFunctionCall and InvokerFunctionCall
+to modify the object values of the initialized webservice invoker or operation object.
+
+    my $Success = $UnitTestWebserviceObject->_WebserviceObjectModify(
+        Object               => \$OperationObject,
+        ObjectModifyFunction => sub {
+            my (%Params) = @_;
+
+            $Params{Object}->{BackendObject}->{MessageName} = 'SEND_UPDATE';
+
+            return 1;
+        },
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _WebserviceObjectModify {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Object)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    return if !defined $Param{ObjectModifyFunction};
+
+    $Param{ObjectModifyFunction}->(
+        Object => $Param{Object},
+    );
+
+    return 1;
 }
 
 =item CreateGenericInterfaceMappingObject()
