@@ -131,6 +131,8 @@ sub AdminDynamicField {
 
     return if $Param{TemplateFile} ne 'AdminDynamicField';
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
 =for comment
 
 Remove the following block:
@@ -149,6 +151,59 @@ Remove the following block:
         }{}gxmsi
 
     }
+
+=for comment
+
+Remove the following block:
+
+        <div class="WidgetSimple">
+            <div class="Header">
+                <h2>[% Translate("More Business Fields") | html %]</h2>
+            </div>
+            <div class="Content">
+                <div class="FieldExplanation">
+                    <p>
+                        [% Translate("Would you like to benefit from additional dynamic field types for businesses? Upgrade to %s to get access to the following field types:") | html | ReplacePlaceholders(OTRSBusinessLabel) %]
+                    </p>
+                    <dl>
+                        <dt>[% Translate('Database') | html %]</dt>
+                        <dd>[% Translate('Use external databases as configurable data sources for this dynamic field.') | html %]</dd>
+
+                        <dt>[% Translate('Web service') | html %]</dt>
+                        <dd>[% Translate('External web services can be configured as data sources for this dynamic field.') | html %]</dd>
+
+                        <dt>[% Translate('Contact with data') | html %]</dt>
+                        <dd>[% Translate('This feature allows to add (multiple) contacts with data to tickets.') | html %]</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+=cut
+
+    my $BusinessWidget = $LayoutObject->{LanguageObject}->Translate('More Business Fields');
+
+    ${ $Param{Data} } =~ s{
+        <div [^>]+ WidgetSimple [^>]+ >
+            \s*
+            <div [^>]+ >
+                \s*
+                <h2>\Q$BusinessWidget\E<\/h2>
+                \s*
+            <\/div>
+            \s*
+            <div [^>]+ Content [^>]+ >
+            \s*
+                <div [^>]+ FieldExplanation [^>]+ >
+                .+?
+                <\/div>
+            \s*
+            <\/div>
+            \s*
+        <\/div>
+        }{
+
+        }xmsi;
 
     return 1;
 }
