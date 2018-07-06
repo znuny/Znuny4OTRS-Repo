@@ -273,6 +273,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Request.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ConsoleCommandHelper.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldsConfigExport.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldSet.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FrontendModule.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FunctionCalls.t"/>
