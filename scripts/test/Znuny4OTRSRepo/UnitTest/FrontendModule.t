@@ -12,19 +12,19 @@ use utf8;
 
 use vars (qw($Self));
 
-use Kernel::System::VariableCheck qw(:all);
-
 $Kernel::OM->ObjectParamAdd(
     'Kernel::System::UnitTest::Helper' => {
         RestoreDatabase => 1,
     },
 );
 
+use Kernel::System::VariableCheck qw(:all);
+
 # get needed objects
-my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
-my $ConfigObject         = $Kernel::OM->Get('Kernel::Config');
-my $SysConfigObject      = $Kernel::OM->Get('Kernel::System::SysConfig');
-my $UnitTestHelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
+my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
+my $SysConfigObject   = $Kernel::OM->Get('Kernel::System::SysConfig');
+my $HelperObject      = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
 my @Tests = (
     {
@@ -102,13 +102,11 @@ for my $Test (@Tests) {
 
     next TEST if !$Test->{ExpectedResult};
 
-    # Write config changes
-    $ZnunyHelperObject->_RebuildConfig();
+    my %SettingGet = $SysConfigObject->SettingGet(
+        Name => $Frontend . '###' . $Module,
+    );
 
-    # refetch config object because it was discarded by _PackageSetupInit
-    $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-    my %NewData = %{ $ConfigObject->Get($Frontend)->{$Module} };
+    my %NewData = %{ $SettingGet{EffectiveValue} };
 
     for my $GroupType (qw(Group GroupRo)) {
 
@@ -136,13 +134,14 @@ for my $Test (@Tests) {
 
     next TEST if $RemoveResult != $Test->{ExpectedResult};
 
-    # Write config changes
-    $ZnunyHelperObject->_RebuildConfig();
-
     # refetch config object because it was discarded by _PackageSetupInit
     $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
-    %NewData = %{ $ConfigObject->Get($Frontend)->{$Module} };
+    %SettingGet = $SysConfigObject->SettingGet(
+        Name => $Frontend . '###' . $Module,
+    );
+
+    %NewData = %{ $SettingGet{EffectiveValue} };
 
     for my $GroupType (qw(Group GroupRo)) {
 
