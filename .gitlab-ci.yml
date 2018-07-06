@@ -29,6 +29,7 @@ job_unit_otrs_Znuny4OTRSRepo:
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/Selenium/Request" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ConsoleCommandHelper" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsConfigExport" -s /bin/bash otrs
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldSet" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/FrontendModule" -s /bin/bash otrs
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/FunctionCalls" -s /bin/bash otrs
