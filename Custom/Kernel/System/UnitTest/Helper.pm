@@ -1285,6 +1285,81 @@ sub DatabaseXMLExecute {
 # Znuny4OTRS-Repo
 # ---
 
+=head2 DynamicFieldSet()
+
+This function will set a dynamic field value for a object.
+
+    my $Success = $HelperObject->DynamicFieldSet(
+        Field      => 'DF1',
+        ObjectID   => 123,
+        ObjectType => 'Ticket',
+        Value      => '123',
+    );
+
+or
+
+    my $Success = $HelperObject->DynamicFieldSet(
+        Field          => 'DF1',
+        ObjectID       => 123,
+        ObjectType     => 'Ticket',
+        Value          => '123',
+        UserID         => 123, # optional
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub DynamicFieldSet {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject          = $Kernel::OM->Get('Kernel::System::Log');
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+    my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed ( qw(Field ObjectID ObjectType Value) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Field          = $Param{Field};
+    my $ObjectID       = $Param{ObjectID};
+    my $ObjectType     = $Param{ObjectType};
+    my $Value          = $Param{Value};
+    my $UnitTestObject = $Param{UnitTestObject};
+    my $UserID         = $Param{UserID} || 1;
+
+    my $DynamicFieldConfig = $DynamicFieldObject->DynamicFieldGet(
+        Name => $Field,
+    );
+    return if !IsHashRefWithData($DynamicFieldConfig);
+
+    my $Success = $BackendObject->ValueSet(
+        DynamicFieldConfig => $DynamicFieldConfig,
+        ObjectID           => $ObjectID,
+        Value              => $Value,
+        UserID             => $UserID,
+    );
+
+    $Self->{UnitTestDriverObject}->True(
+        $Success,
+        "HelperObject->DynamicFieldSet('$Field', '$Value') was successfully"
+    );
+
+    return $Success;
+}
+
+
 =head2 FixedTimeSetByDate()
 
 This function is a convenience wrapper around the FixedTimeSet function of this object which makes it
