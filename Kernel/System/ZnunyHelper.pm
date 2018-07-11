@@ -1,11 +1,13 @@
 # --
+# Copyright (C) 2001-2018 OTRS AG, http://otrs.com/
 # Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# --
+# $origin: otrs - dcc35285a54206c134a9d0edb8a0dce68b772f30 - Kernel/Config/Defaults.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
 
 package Kernel::System::ZnunyHelper;
 
@@ -4398,7 +4400,9 @@ Returns:
 sub _RebuildConfig {
     my ( $Self, %Param ) = @_;
 
+    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
 
     # Rebuild the configuration
     $SysConfigObject->ConfigurationDeploy(
@@ -4411,9 +4415,75 @@ sub _RebuildConfig {
     delete $INC{'Kernel/Config/Files/ZZZAAuto.pm'};
 
     # Make sure to use a new config object
-    $Kernel::OM->ObjectsDiscard(
-        Objects => ['Kernel::Config'],
-    );
+    $ConfigObject->LoadDefaults();
+    $ConfigObject->Load();
+
+    # load extra config files
+    if ( -e "$ConfigObject->{Home}/Kernel/Config/Files/" ) {
+
+        my @Files = glob("$ConfigObject->{Home}/Kernel/Config/Files/*.pm");
+
+        # Resorting the filelist.
+        my @NewFileOrderPre  = ();
+        my @NewFileOrderPost = ();
+
+        for my $File (@Files) {
+
+            if ( $File =~ /Ticket/ ) {
+                push @NewFileOrderPre, $File;
+            }
+            else {
+                push @NewFileOrderPost, $File;
+            }
+        }
+
+        @Files = ( @NewFileOrderPre, @NewFileOrderPost );
+
+        FILE:
+        for my $File (@Files) {
+
+            # do not use ZZZ files
+            if ( $Param{Level} && $Param{Level} eq 'Default' && $File =~ /ZZZ/ ) {
+                next FILE;
+            }
+
+            my $RelativeFile = $File =~ s{\Q$ConfigObject->{Home}\E/*}{}gr;
+
+            # Extract package name and load it.
+            my $Package = $RelativeFile;
+            $Package =~ s/^\///g;
+            $Package =~ s/\/{2,}/\//g;
+            $Package =~ s/\//::/g;
+            $Package =~ s/\.pm$//g;
+
+            eval {
+
+                # Try to load file.
+                if ( !require $RelativeFile ) {
+                    die "ERROR: Could not load $File: $!\n";
+                }
+
+                # Check if package has loaded and has a Load() method.
+                if (!$Package->can('Load')) {
+                    die "$Package has no Load() method.";
+                }
+
+                # Call package method but pass $ConfigObject as instance.
+                $Package->Load($ConfigObject);
+            };
+
+            if ( $@ ) {
+                my $ErrorMessage = $@;
+                $LogObject->Log(
+                    Priority => 'error',
+                    Message  => "Error in _RebuildConfig: $@",
+                );
+                next FILE;
+            }
+        }
+    }
+
+    $ConfigObject->AutoloadPerlPackages();
 
     return 1;
 }
