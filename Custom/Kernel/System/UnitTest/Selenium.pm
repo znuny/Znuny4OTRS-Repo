@@ -8,6 +8,7 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::STDERRCheck)
 
 package Kernel::System::UnitTest::Selenium;
 
@@ -391,6 +392,11 @@ Exactly one condition (JavaScript or WindowCount) must be specified.
         WindowCount  => 2,                                 # Wait until this many windows are open
         Callback     => sub { ... }                        # Wait until function returns true
         Time         => 20,                                # optional, wait time in seconds (default 20)
+# ---
+# Znuny4OTRS-Repo
+# ---
+        SkipDie => 1,                                      # Instead of a dying process do return the result of the wait for
+# ---
     );
 
 =cut
@@ -434,6 +440,12 @@ sub WaitFor {
     }
     $Argument = "Callback" if $Param{Callback};
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+    return if $Param{SkipDie};
+
+# ---
     die "WaitFor($Argument) failed.";
 }
 
@@ -1169,7 +1181,20 @@ Waits for AJAX requests to be completed by checking the jQuery 'active' attribut
 sub AJAXCompleted {
     my ( $Self, %Param ) = @_;
 
-    my $AJAXStartedLoading = $Self->WaitFor( JavaScript => 'return jQuery.active' );
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     my $AJAXStartedLoading = $Self->WaitFor( JavaScript => 'return jQuery.active' );
+    my $AJAXStartedLoading = $Self->WaitFor(
+        JavaScript => 'return jQuery.active',
+        SkipDie    => 1,
+    );
+
+    if (!$AJAXStartedLoading) {
+        print STDERR "NOTICE: SeleniumHelper->AJAXCompleted -> jQuery.active check is disabled and failed\n";
+        return 1;
+    }
+# ---
     $Self->{UnitTestDriverObject}->True(
         $AJAXStartedLoading,
         'AJAX requests started loading.'
