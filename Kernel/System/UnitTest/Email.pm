@@ -490,6 +490,9 @@ sub _SendEmails {
     my ( $Self, %Param ) = @_;
 
     my $MailQueueObj = $Kernel::OM->Get('Kernel::System::MailQueue');
+    my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+
+    $TicketObject->EventHandlerTransaction();
 
     # Get last item in the queue.
     my $Items = $MailQueueObj->List();
