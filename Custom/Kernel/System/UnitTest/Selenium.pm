@@ -1190,6 +1190,11 @@ sub AJAXCompleted {
         SkipDie    => 1,
     );
 
+    # The idea of this improvement is the following problem case:
+    # A InputSet of the Znuny4OTRSInput in a selenium test does trigger an ajax request
+    # which is completed too fast for the "WaitFor" check above. So the "WaitFor" check jQuery.active
+    # is not set to true and will crash the test completly. In these cases we want to disable
+    # the die and the following checks and hope that the ajax request is done successfully.
     if (!$AJAXStartedLoading) {
         print STDERR "NOTICE: SeleniumHelper->AJAXCompleted -> jQuery.active check is disabled and failed\n";
         return 1;
