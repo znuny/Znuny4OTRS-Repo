@@ -4400,9 +4400,7 @@ Returns:
 sub _RebuildConfig {
     my ( $Self, %Param ) = @_;
 
-    my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
     my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-    my $LogObject       = $Kernel::OM->Get('Kernel::System::Log');
 
     # Rebuild the configuration
     $SysConfigObject->ConfigurationDeploy(
@@ -4411,79 +4409,12 @@ sub _RebuildConfig {
         UserID      => 1,
     );
 
-    # Remove the ZZZAAuto.pm from %INC to force reloading it
     delete $INC{'Kernel/Config/Files/ZZZAAuto.pm'};
 
-    # Make sure to use a new config object
-    $ConfigObject->LoadDefaults();
-    $ConfigObject->Load();
-
-    # load extra config files
-    if ( -e "$ConfigObject->{Home}/Kernel/Config/Files/" ) {
-
-        my @Files = glob("$ConfigObject->{Home}/Kernel/Config/Files/*.pm");
-
-        # Resorting the filelist.
-        my @NewFileOrderPre  = ();
-        my @NewFileOrderPost = ();
-
-        for my $File (@Files) {
-
-            if ( $File =~ /Ticket/ ) {
-                push @NewFileOrderPre, $File;
-            }
-            else {
-                push @NewFileOrderPost, $File;
-            }
-        }
-
-        @Files = ( @NewFileOrderPre, @NewFileOrderPost );
-
-        FILE:
-        for my $File (@Files) {
-
-            # do not use ZZZ files
-            if ( $Param{Level} && $Param{Level} eq 'Default' && $File =~ /ZZZ/ ) {
-                next FILE;
-            }
-
-            my $RelativeFile = $File =~ s{\Q$ConfigObject->{Home}\E/*}{}gr;
-
-            # Extract package name and load it.
-            my $Package = $RelativeFile;
-            $Package =~ s/^\///g;
-            $Package =~ s/\/{2,}/\//g;
-            $Package =~ s/\//::/g;
-            $Package =~ s/\.pm$//g;
-
-            eval {
-
-                # Try to load file.
-                if ( !require $RelativeFile ) {
-                    die "ERROR: Could not load $File: $!\n";
-                }
-
-                # Check if package has loaded and has a Load() method.
-                if (!$Package->can('Load')) {
-                    die "$Package has no Load() method.";
-                }
-
-                # Call package method but pass $ConfigObject as instance.
-                $Package->Load($ConfigObject);
-            };
-
-            if ( $@ ) {
-                my $ErrorMessage = $@;
-                $LogObject->Log(
-                    Priority => 'error',
-                    Message  => "Error in _RebuildConfig: $@",
-                );
-                next FILE;
-            }
-        }
-    }
-
-    $ConfigObject->AutoloadPerlPackages();
+    # Don't use ObjectDiscard of ObjectManager because
+    # restore database will not work anymore (in tests).
+    delete $Kernel::OM->{Objects}->{'Kernel::Config'};
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     return 1;
 }
