@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.41</Version>
+    <Version>5.0.42</Version>
+    <ChangeLog Version="5.0.42" Date="2018-07-19 14:40:19 +0200">- Trying to enhance stability of Selenium tests.&#13;
+- Added helper function DynamicFieldSet to set dynamic fields easier.</ChangeLog>
     <ChangeLog Version="5.0.41" Date="2018-06-11 12:58:08 +0200">- Improved show hide functionality to also hide parent Row div. This will remove optional paddings also.&#13;
 - Improved helper functions OperationFunctionCall and InvokerFunctionCall.</ChangeLog>
     <ChangeLog Version="5.0.40" Date="2018-05-25 09:54:51 +0200">Improved mail helper function EmailValidate.</ChangeLog>
