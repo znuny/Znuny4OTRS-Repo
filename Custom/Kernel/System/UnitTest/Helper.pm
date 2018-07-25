@@ -939,7 +939,6 @@ This function will set a dynamic field value for a object.
     my $Success = $HelperObject->DynamicFieldSet(
         Field      => 'DF1',
         ObjectID   => 123,
-        ObjectType => 'Ticket',
         Value      => '123',
     );
 
@@ -948,7 +947,6 @@ or
     my $Success = $HelperObject->DynamicFieldSet(
         Field          => 'DF1',
         ObjectID       => 123,
-        ObjectType     => 'Ticket',
         Value          => '123',
         UserID         => 123, # optional
     );
@@ -968,7 +966,7 @@ sub DynamicFieldSet {
 
     # check needed stuff
     NEEDED:
-    for my $Needed ( qw(Field ObjectID ObjectType Value) ) {
+    for my $Needed ( qw(Field ObjectID Value) ) {
 
         next NEEDED if defined $Param{ $Needed };
 
@@ -981,7 +979,6 @@ sub DynamicFieldSet {
 
     my $Field          = $Param{Field};
     my $ObjectID       = $Param{ObjectID};
-    my $ObjectType     = $Param{ObjectType};
     my $Value          = $Param{Value};
     my $UnitTestObject = $Param{UnitTestObject};
     my $UserID         = $Param{UserID} || 1;
