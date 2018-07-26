@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.43</Version>
+    <Version>5.0.44</Version>
+    <ChangeLog Version="5.0.44" Date="2018-07-26 10:58:59 +0200">Improved documentation.</ChangeLog>
     <ChangeLog Version="5.0.43" Date="2018-07-25 14:01:10 +0200">Removed obsolete code.</ChangeLog>
     <ChangeLog Version="5.0.42" Date="2018-07-19 14:40:19 +0200">- Trying to enhance stability of Selenium tests.&#13;
 - Added helper function DynamicFieldSet to set dynamic fields easier.</ChangeLog>
