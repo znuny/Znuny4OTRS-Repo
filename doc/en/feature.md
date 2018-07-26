@@ -1,33 +1,52 @@
-# Integration of Znuny OPM Repositories
+# Package manager
 
-With this package you integrate Znuny repositories. Without any setting the public Znuny repository is enabled. As a Znuny customer you'll get an API key and have access to a private repostitory.
+## Integration of Znuny OPM repositories
+With this package, Znuny OPM repositories can be included in the OTRS package manager to get access to public Znuny OTRS packages. If you have received an API key from Znuny, this gives you access to the additional packages provided to you.
 
+## Configure API key
+If you have received an API key from Znuny, please store it in the SysConfig option __Znuny4OTRSPrivatRepos__.
 
-# Package verification for Znuny packages
+## Package verification also for Znuny packages
+Znuny packages are displayed as verified.
 
-With this package Znuny packages can be verified via OTRS.
+## Disabling package verification
+In OTRS it is not possible to display packages as verified without connection to the Internet. This can lead to a long, confusing list of error messages in package management. This package allows you to control and disable package verification using the __PackageVerification__ SysConfig option. If package verification is disabled, all packages are displayed as verified. In general, it is advisable to deactivate package verification only in special cases.
 
+## Outgoing communication of the package manager
+With the SysConfig option __Znuny4OTRSRepoDisable__ outgoing communication of the package manager can be deactivated.
 
-# Option to disable package verification
+### Installation of a possibly missing Perl module
+When using HTTPS as a protocol - which is automatically activated after the installation of the package - there is the possibility that an error 500 is reported when accessing the repository. The problem is solved by installing the Perl module __LWP::Protocol::https__, alternatively the setting __Znuny4OTRSRepoType__ can be switched to __HTTP__ in SysConfig.
 
-With a default OTRS setup you're not able to verify packages without an internet connection. This results in a long list of error messages in the package manager. By setting the SysConfig 'PackageVerification' you enable or disable the package verification. All packages will be shown as verified when you disable the verification. You're encouraged  to disable the packet verification only in special cases.
-
-## Tips
-After the package installation the repository access via HTTPS is the default setting. It is possible that you get an error 500 while accessing the repository. This can be solved by installtin the Perl module LWP::Protocol::https or disabling the HTTPS access by changing the SysConfig Option 'Znuny4OTRSRepoType' to HTTP.
-
-#### CentOS / Enterprise Linux
+#### Installation on CentOS/Enterprise Linux
 ```
 yum install perl-LWP-Protocol-https
 ```
-#### Ubuntu
+#### Installation on Ubuntu
 ```
 apt-get install liblwp-protocol-https-perl
 ```
-#### OS X
+#### Installation on macOS
 ```
 cpan install LWP::Protocol::https
 ```
-#### CPAN
+#### Installation via CPAN
 ```
 perl -MCPAN -e 'install LWP::Protocol::https'
 ```
+
+### Disabled SysConfig options
+The following SysConfig options will be disabled when you install this package.
+
+- Frontend::Modules####AdminRegistration
+- Package::ShowFeatureAddons
+- Daemon::SchedulerCronTaskManager::Task####OTRSBusinessEntitlementCheck
+- Daemon::SchedulerCronTaskManager::Task####OTRSBusinessAvailabilityCheck
+- Notification::Transport####NotificationView
+- Notification::Transport####SMS
+- Frontend::Modules####AdminCloudServices
+- Frontend::Modules####AdminOTRSBusiness
+- Frontend::NotifyModule####100-OTRSBusiness
+- CustomerFrontend::NotifyModule####1-OTRSBusiness
+- Daemon::SchedulerCronTaskManager::Task###RegistrationUpdateSend
+- Daemon::SchedulerCronTaskManager::Task###SupportDataCollectAsynchronous
