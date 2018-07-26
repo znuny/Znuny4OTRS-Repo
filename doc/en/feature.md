@@ -30,7 +30,7 @@ When using HTTPS as a protocol - which is automatically activated after the inst
 
 #### Installation on CentOS/Enterprise Linux
 ```
-yum install perl-LWP protocol https
+yum install perl-LWP-Protocol-https
 ```
 #### Installation on Ubuntu
 ```
