@@ -2,7 +2,7 @@
 
 Znuny4OTRS-Repo
 =================
-With this package you integrate Znuny repositories. Without any setting the public Znuny repository is enabled. As a Znuny customer you'll get an API key and have access to a private repostitory.
+With this package, Znuny OPM repositories can be included in the OTRS package manager to get access to public Znuny OTRS packages. If you have received an API key from Znuny, this gives you access to the additional packages provided to you.
 
 **Prerequisites**
 
