@@ -1,30 +1,52 @@
-# Einbindung Znuny OPM Repositories
+# Paketmanager
 
-Über dieses Paket können Znuny OPM Repositories eingebunden werden. Per Default wird das öffentliche Znuny Repository aktiviert. Es besteht auch der Zugriff auf private Repositories.
+## Einbindung von Znuny-OPM-Repositorys
+Mit diesem Paket können Znuny-OPM-Repositorys im OTRS-Paketmanager eingebunden werden, um Zugriff auf öffentliche Znuny-OTRS-Pakete zu erhalten. Sofern Sie einen API-Key von Znuny erhalten haben, erhalten Sie über diesen Zugriff auf die Ihnen zusätzlich zur Verfügung gestellten Pakete.
 
+## API-Key hinterlegen
+Falls Sie einen API-Key von Znuny erhalten haben, hinterlegen Sie diesen bitte in der SysConfig-Option __Znuny4OTRSPrivatRepos__.
 
-# Paketverifizierung auch von Znuny Paketen
+## Paketverifizierung auch für Znuny-Pakete
+Znuny-Pakete werden als verifiziert angezeigt.
 
-Mit diesem Paket können Znuny Pakete über OTRS verifiziert werden.
+## Deaktivierung der Paketverifizierung
+In OTRS ist es nicht möglich, Pakete ohne Anbindung an das Internet als verifiziert anzeigen zu lassen. Dies kann zu einer langen, unübersichtlichen Liste von Fehlermeldungen in der Paketverwaltung führen. Dieses Paket ermöglicht es, die Paketverifizierung über die SysConfig-Option __PackageVerification__ zu steuern und zu deaktivieren. Ist die Paketverifizierung deaktiviert, werden alle Pakete als verifiziert angezeigt. Generell ist es ratsam, die Paketverifizierung nur in Sonderfällen zu deaktivieren.
 
+# Weitere Funktionen/Änderungen
 
-# Deaktivieren der Paketverifizierung
-
-Im OTRS Standard ist es nicht möglich Pakete ohne Anbindung an das Internet als verifiziert anzeigen zu lassen. Das kann zu einer langen, unübersichtlichen Liste von Fehlermeldungen in der Paketverwaltung führen. Dieses Paket ermöglicht es die Paketverifizierung über die SysConfig 'PackageVerification' zu steuern und zu deaktivieren. Ist die Paketverifizierung deaktiviert, werden alle Pakete als verifiziert angezeigt. Generell ist es ratsam die Paketverifizierung nur in Sonderfällen zu deaktivieren.
-
-# Ausblenden von Nicht-Systemmeldungen
+## Ausblenden von Nicht-Systemmeldungen
 
 Seit Version 5 werden in der freien Version von OTRS vermehrt irrelevante Meldungen und Hinweistexte eingeblendet. Diese werden systemweit deaktiviert.
 
-# Deaktivierung von ungewünschten, ausgehenden Verbindungen
+## Deaktivierung von ungewünschten, ausgehenden Verbindungen
 
 Seit Version 5 öffnet OTRS ungefragt unerwünschte, ausgehende Netzwerkverbindungen. Diese Verbindungen sind oftmals nicht notwendig oder schlichtweg nicht möglich, aufgrund von Einschränkungen der Netzwerkkonnektivität oder Firewall-Regeln und verursachen Fehler-Einträge im Log. Diese Verbindungen werden automatisch deaktiviert.
 
-## Hinweise
-Bei der Nutzung von HTTPS als Protokoll, was nach der Installation des Paketes aktiviert ist, besteht die Möglichkeit das ein Fehler 500 beim Zugriff auf das Repository gemeldet wird. Das Problem wird mit der Installation des Perl-Modules LWP::Protocol::https beseitigt, alternativ kann auch in der SysConfig die Einstellung "Znuny4OTRSRepoType" auf HTTP umgeschaltet werden.
+### Ausgehende Kommunikation des Paketmanagers
+Mit der SysConfig-Option __Znuny4OTRSRepoDisable__ kann ausgehende Kommunikation des Paketmanagers deaktiviert werden. Beachten Sie aber, dass zur vollständigen Deaktivierung auch die OTRS-eigene SysConfig-Option __CloudServices::Disabled__ gesetzt werden muss.
 
+### Installation eines ggf. fehlenden Perl-Moduls
+Bei der Nutzung von HTTPS als Protokoll - was nach der Installation des Paketes automatisch aktiviert wird - besteht die Möglichkeit, dass ein Fehler 500 beim Zugriff auf das Repository gemeldet wird. Das Problem wird mit der Installation des Perl-Moduls __LWP::Protocol::https__ beseitigt, alternativ kann auch in der SysConfig die Einstellung __Znuny4OTRSRepoType__ auf __HTTP__ umgeschaltet werden.
 
-Folgende SysConfig - Einstellungen werden mit der Installation dieses Paketes deaktiviert.
+#### Installation unter CentOS/Enterprise Linux
+```
+yum install perl-LWP-Protocol-https
+```
+#### Installation unter Ubuntu
+```
+apt-get install liblwp-protocol-https-perl
+```
+#### Installation unter macOS
+```
+cpan install LWP::Protocol::https
+```
+#### Installation via CPAN
+```
+perl -MCPAN -e 'install LWP::Protocol::https'
+```
+
+### Deaktivierte SysConfig-Optionen
+Folgende SysConfig-Optionen werden mit der Installation dieses Pakets deaktiviert.
 
 - Frontend::Module###AdminRegistration
 - Package::ShowFeatureAddons
@@ -38,21 +60,3 @@ Folgende SysConfig - Einstellungen werden mit der Installation dieses Paketes de
 - CustomerFrontend::NotifyModule###1-OTRSBusiness
 - Daemon::SchedulerCronTaskManager::Task###RegistrationUpdateSend
 - Daemon::SchedulerCronTaskManager::Task###SupportDataCollectAsynchronous
-
-
-#### CentOS / Enterprise Linux
-```
-yum install perl-LWP-Protocol-https
-```
-#### Ubuntu
-```
-apt-get install liblwp-protocol-https-perl
-```
-#### OS X
-```
-cpan install LWP::Protocol::https
-```
-#### CPAN
-```
-perl -MCPAN -e 'install LWP::Protocol::https'
-```
