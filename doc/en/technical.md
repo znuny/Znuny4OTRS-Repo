@@ -1,6 +1,6 @@
 # Core.Form.Znuny4OTRSInput
 
-The purpose of this Javascript library is to make the handling of fields in the frontend much easier. It aims to make development ...
+The purpose of this Javascript library is to make the handling of fields in the frontend much easier. It aims to make development
 
 - easier
 - faster
@@ -9,18 +9,18 @@ The purpose of this Javascript library is to make the handling of fields in the 
 - normalized
 - centralized
 
-The issue with the OTRS HTML frontend is that a lot of views have its own quirks. Here are some examples:
+The issue with the OTRS HTML frontend is that a lot of views have their own quirks. Here are some examples:
 
 - Different IDs for the same fields in different views, like "NewStateID" and "StateID" etc.
 - Sometimes mixed values and IDs in Queue selection like "1||Postmaster"
-- Diffrent ways of setting values, like RichText with CKEditor enabled or not
+- Different ways of setting values, like RichText with CKEditor enabled or not
 - DynamicFields
 
 and so on.
 
-## .Module
+## Module()
 
-Returns the module for a Action or View.
+Returns the module for an action or view.
 
 Example:
 ```
@@ -33,7 +33,7 @@ var Module = Core.Form.Znuny4OTRSInput.Module("AgentTicketPhone");
 // Module = "AgentTicketPhone"
 ```
 
-## .FieldID
+## FieldID()
 
 Returns the ID of the field for the given attribute.
 
@@ -50,9 +50,9 @@ var FieldID = Core.Form.Znuny4OTRSInput.FieldID("QueueID");
 // FieldID = "DestQueueID"
 ```
 
-## .Type
+## Type()
 
-Returns the field type a given attribute.
+Returns the field type for the given attribute.
 
 Example:
 ```
@@ -68,7 +68,7 @@ var Type = Core.Form.Znuny4OTRSInput.Type("Subject");
 // Type = "input"
 ```
 
-## .Get
+## Get()
 
 Returns the key (default) or value of a given attribute.
 
@@ -83,9 +83,9 @@ var Value = Core.Form.Znuny4OTRSInput.Get("QueueID", { KeyOrValue: 'Value' });
 // Value = "Postmaster"
 ```
 
-## .Set
+## Set()
 
-Sets the key (default) or value of a given attribute. Additional option defines if a change event should get triggered (default) or not.
+Sets the key (default) or value of a given attribute. Additional option defines if a change event should be triggered (default) or not.
 
 Example:
 ```
