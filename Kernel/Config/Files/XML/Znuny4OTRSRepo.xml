@@ -138,11 +138,11 @@
                     <Array>
                     </Array>
                 </Item>
-                <Item Key="Module">Kernel::Output::HTML::NavBarModuleAdmin</Item>
+                <Item Key="Module">Kernel::Output::HTML::NavBar::ModuleAdmin</Item>
                 <Item Key="Name" Translatable="1">System Registration</Item>
-                <Item Key="Block">System</Item>
+                <Item Key="Block">OTRSGroup</Item>
                 <Item Key="Description" Translatable="1">Manage system registration.</Item>
-                <Item Key="IconBig"></Item>
+                <Item Key="IconBig">fa-edit</Item>
                 <Item Key="IconSmall"></Item>
             </Hash>
         </Value>
