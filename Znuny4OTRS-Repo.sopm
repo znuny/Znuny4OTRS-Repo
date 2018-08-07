@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.31</Version>
+    <Version>6.0.32</Version>
+    <ChangeLog Version="6.0.32" Date="2018-08-07 18:48:04 +0200">Update Frontend::NavigationModule###AdminRegistration in XML.</ChangeLog>
     <ChangeLog Version="6.0.31" Date="2018-07-26 10:59:44 +0200">Improved documentation.</ChangeLog>
     <ChangeLog Version="6.0.30" Date="2018-07-25 14:01:54 +0200">Removed obsolete code.</ChangeLog>
     <ChangeLog Version="6.0.29" Date="2018-07-19 11:56:38 +0200">Try to prevent ObjectDiscard in our _RebuildConfig function.</ChangeLog>
