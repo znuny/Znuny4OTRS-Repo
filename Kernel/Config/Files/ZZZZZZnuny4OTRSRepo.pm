@@ -29,7 +29,7 @@ sub Load {
     # module for the admin interface to be editable and only use it in all
     # other places
     # https://git.znuny.com/znuny-public/Znuny4OTRS-Repo/issues/40
-    return if $Action && $Action =~ m{\AAdminSystemConfiguration}xmsi;
+    return if $Action =~ m{\AAdminSystemConfiguration}xmsi;
 
     my $RepositoryList = $Self->{'Package::RepositoryList'};
     if ( !IsHashRefWithData($RepositoryList) ) {
