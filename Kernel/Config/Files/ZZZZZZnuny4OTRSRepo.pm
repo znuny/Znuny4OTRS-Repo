@@ -19,6 +19,13 @@ our $ObjectManagerDisabled = 1;
 sub Load {
     my ($File, $Self) = @_;
 
+    # the new sysconfig configuration in otrs 6 does prevent editing sysconfigs
+    # which are also used by perl modules in K/F/C/*.pm so we disable this
+    # module for the admin interface to be editable and only use it in all
+    # other places
+    # https://git.znuny.com/znuny-public/Znuny4OTRS-Repo/issues/40
+    return if $ENV{QUERY_STRING} =~ m{Action=AdminSystemConfiguration}xmsi;
+
     my $RepositoryList = $Self->{'Package::RepositoryList'};
     if ( !IsHashRefWithData($RepositoryList) ) {
         $RepositoryList = {};
