@@ -14,17 +14,22 @@ use warnings;
 
 use Kernel::System::VariableCheck qw(:all);
 
+use CGI;
+
 our $ObjectManagerDisabled = 1;
 
 sub Load {
     my ($File, $Self) = @_;
+
+    my $CGI    = CGI->new();
+    my $Action = $CGI->param('Action') || $CGI->url_param('Action') || '';
 
     # the new sysconfig configuration in otrs 6 does prevent editing sysconfigs
     # which are also used by perl modules in K/F/C/*.pm so we disable this
     # module for the admin interface to be editable and only use it in all
     # other places
     # https://git.znuny.com/znuny-public/Znuny4OTRS-Repo/issues/40
-    return if $ENV{QUERY_STRING} && $ENV{QUERY_STRING} !~ m{Action=AdminPackageManager}xmsi;
+    return if $Action && $Action =~ m{\AAdminSystemConfiguration}xmsi;
 
     my $RepositoryList = $Self->{'Package::RepositoryList'};
     if ( !IsHashRefWithData($RepositoryList) ) {
