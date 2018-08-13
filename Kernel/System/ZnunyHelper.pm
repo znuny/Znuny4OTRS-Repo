@@ -4593,12 +4593,13 @@ sub _ProcessCreateIfNotExists {
         }
 
         if ( !$Param{UpdateExisting} ) {
-
             EXISTINGPROCESS:
             for my $ExistingProcess ( @{$ProcessList} ) {
 
                 next EXISTINGPROCESS if !defined $ExistingProcess->{Name};
                 next EXISTINGPROCESS if $ExistingProcess->{Name} ne $ProcessData->{Process}->{Name};
+                next EXISTINGPROCESS if !defined $ExistingProcess->{State};
+                next EXISTINGPROCESS if $ExistingProcess->{State} ne 'Active';
 
                 next PROCESS;
             }
