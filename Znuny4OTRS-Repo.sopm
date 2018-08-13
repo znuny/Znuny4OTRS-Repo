@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.32</Version>
+    <Version>6.0.33</Version>
+    <ChangeLog Version="6.0.33" Date="2018-08-13 16:11:29 +0200">Fixed issue #40 - RepositoryList not editable after installation.</ChangeLog>
     <ChangeLog Version="6.0.32" Date="2018-08-07 18:48:04 +0200">Update Frontend::NavigationModule###AdminRegistration in XML.</ChangeLog>
     <ChangeLog Version="6.0.31" Date="2018-07-26 10:59:44 +0200">Improved documentation.</ChangeLog>
     <ChangeLog Version="6.0.30" Date="2018-07-25 14:01:54 +0200">Removed obsolete code.</ChangeLog>
