@@ -1,12 +1,12 @@
 # --
-# Copyright (C) 2001-2018 OTRS AG, http://otrs.com/
+# Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - ec69b1c45cd33223ff83ff380d5e910feec15791 - Kernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
-# the enclosed file COPYING for license information (AGPL). If you
-# did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+# the enclosed file COPYING for license information (GPL). If you
+# did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 # --
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::STDERRCheck)
 
@@ -2213,7 +2213,7 @@ build an opm package
             Content => 'L<http://otrs.org/>',
         },
         License => {
-            Content => 'GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007',
+            Content => 'GNU GENERAL PUBLIC LICENSE Version 3, November 2007',
         }
         Description => [
             {
@@ -5243,7 +5243,7 @@ Returns:
                         # ... ,
                     }
                 ],
-                License => 'GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007',
+                License => 'GNU GENERAL PUBLIC LICENSE Version 3, November 2007',
                 PackageRequired => [
                     {
                         Content => 'TestRequitement',
@@ -5433,10 +5433,10 @@ sub _Znuny4OTRSRepoDisabled {
 
 =head1 TERMS AND CONDITIONS
 
-This software is part of the OTRS project (L<http://otrs.org/>).
+This software is part of the OTRS project (L<https://otrs.org/>).
 
 This software comes with ABSOLUTELY NO WARRANTY. For details, see
-the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
+the enclosed file COPYING for license information (GPL). If you
+did not receive this file, see L<https://www.gnu.org/licenses/gpl-3.0.txt>.
 
 =cut

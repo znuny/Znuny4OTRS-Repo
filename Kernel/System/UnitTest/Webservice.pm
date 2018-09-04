@@ -641,7 +641,7 @@ sub InvokerFunctionCall {
 =item _WebserviceObjectModify()
 
 This is an internal function which will be used for OperationFunctionCall and InvokerFunctionCall
-to modify the object values of the initialized webservice invoker or operation object.
+to modify the object values of the initialized web service invoker or operation object.
 
     my $Success = $UnitTestWebserviceObject->_WebserviceObjectModify(
         Object               => \$OperationObject,
