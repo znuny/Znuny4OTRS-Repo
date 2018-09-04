@@ -808,10 +808,10 @@ sub _DefaultColumnsGet {
 
         # checks if substructure of DefaultColumns exists in settings
         if ( $ExistingSetting{DefaultColumns} ) {
-            $Configs{$View} = $ExistingSetting{DefaultColumns},;
+            $Configs{$View} = $ExistingSetting{DefaultColumns};
         }
         else {
-            $Configs{$View} = \%ExistingSetting,;
+            $Configs{$View} = \%ExistingSetting;
         }
     }
 

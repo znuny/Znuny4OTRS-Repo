@@ -1,5 +1,5 @@
 // --
-// Copyright (C) 2001-2018 OTRS AG, http://otrs.com/
+// Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
 // Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 // --
 // $origin: otrs - acaa27c8ba879e54c3c9db5495433a96f03b63b4 - var/httpd/htdocs/js/Core.UI.InputFields.js
