@@ -36,6 +36,12 @@ sub Run {
         return;
     }
 
+    if ( $Param{PendingTime} =~ /(\d{4})-(\d{1,2})-(\d{1,2})\s(\d{1,2}):(\d{1,2})(:(\d{1,2}))?/ ) {
+        if (!$6){
+            $Param{PendingTime} .= ':00';
+        }
+    }
+
     my $Output = <<OUTPUT;
 \$Success = \$TicketObject->TicketPendingTimeSet(
     String   => '$Param{PendingTime}',
