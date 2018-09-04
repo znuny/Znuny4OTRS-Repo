@@ -27,9 +27,9 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$TicketID = \$HelperObject->TicketCreate(
+my \$TicketID = \$HelperObject->TicketCreate(
     Queue         => '$Param{Queue}',
-    Priority      => '$Param{Priority}',
+    Priority      => "$Param{Priority}",
     State         => '$Param{State}',
     Type          => '$Param{Type}',
     OwnerID       => '$Param{OwnerID}',
