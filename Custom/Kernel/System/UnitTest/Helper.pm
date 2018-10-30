@@ -1350,7 +1350,7 @@ sub DynamicFieldSet {
 
     $Self->{UnitTestDriverObject}->True(
         $Success,
-        "HelperObject->DynamicFieldSet('$Field', '$Value') was successfully"
+        "HelperObject->DynamicFieldSet('$Field', '$Value') was successful."
     );
 
     return $Success;
