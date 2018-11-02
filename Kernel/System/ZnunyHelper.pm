@@ -1701,12 +1701,13 @@ Usable Snippets (SublimeTextAdjustments):
             },
         },
         {
-            Name          => 'TestDynamicField2',
-            Label         => "TestDynamicField2",
-            InternalField => 0,                     # optional, 0 or 1, internal fields are protected
-            ObjectType    => 'Ticket',
-            FieldType     => 'Text',
-            Config        => {
+            Name                 => 'TestDynamicField2',
+            Label                => "TestDynamicField2",
+            InternalField        => 0,                     # optional, 0 or 1, internal fields are protected
+            ObjectType           => 'Ticket',
+            FieldType            => 'Text',
+            FieldOrderAfterField => 'TestDynamicField1',   # special feature to order fields at a specific point. Can be also used for fields which are getting created in the same array before this dynamic field
+            Config               => {
                 DefaultValue => "",
             },
         },
@@ -1760,6 +1761,10 @@ sub _DynamicFieldsCreate {
         $DynamicFieldLookup{ $DynamicField->{Name} } = $DynamicField;
     }
 
+    # performance improvement for the FieldOrderAfterField functionality
+    my $FieldOrderAfterFieldActive
+        = grep { $_->{FieldOrderAfterField} || $_->{FieldOrderAfterFieldUpdate} } @DynamicFields;
+
     # create or update dynamic fields
     DYNAMICFIELD:
     for my $NewDynamicField (@DynamicFields) {
@@ -1793,10 +1798,14 @@ sub _DynamicFieldsCreate {
         else {
             my %OldDynamicFieldConfig = %{ $DynamicFieldLookup{ $NewDynamicField->{Name} } };
 
+            my $FieldOrderUpdate = $Self->DynamicFieldFieldOrderAfterFieldGet(
+                Name => $NewDynamicField->{FieldOrderAfterFieldUpdate},
+            ) || $OldDynamicFieldConfig{FieldOrder};
+
             my $Success = $DynamicFieldObject->DynamicFieldUpdate(
                 %{$NewDynamicField},
                 ID         => $OldDynamicFieldConfig{ID},
-                FieldOrder => $OldDynamicFieldConfig{FieldOrder},
+                FieldOrder => $FieldOrderUpdate,
                 ValidID    => $NewDynamicField->{ValidID} || $ValidID,
                 Reorder    => 0,
                 UserID     => 1,
@@ -1806,11 +1815,15 @@ sub _DynamicFieldsCreate {
         # check if new field has to be created
         next DYNAMICFIELD if !$CreateDynamicField;
 
+        my $FieldOrderAdd = $Self->DynamicFieldFieldOrderAfterFieldGet(
+            Name => $NewDynamicField->{FieldOrderAfterField},
+        ) || $NextOrderNumber;
+
         # create a new field
         my $FieldID = $DynamicFieldObject->DynamicFieldAdd(
             Name          => $NewDynamicField->{Name},
             Label         => $NewDynamicField->{Label},
-            FieldOrder    => $NextOrderNumber,
+            FieldOrder    => $FieldOrderAdd,
             FieldType     => $NewDynamicField->{FieldType},
             ObjectType    => $NewDynamicField->{ObjectType},
             Config        => $NewDynamicField->{Config},
@@ -1825,6 +1838,42 @@ sub _DynamicFieldsCreate {
     }
 
     return 1;
+}
+
+=item DynamicFieldFieldOrderAfterFieldGet()
+
+This function will return the field order after a specific dynamic field field name.
+
+e.g.
+
+TestDynamicField has the field order 100.
+
+
+    my $FieldOrder = $ZnunyHelperObject->DynamicFieldFieldOrderAfterFieldGet(
+        Name => 'TestDynamicField1',
+    );
+
+Returns:
+
+    my $FieldOrder = 101;
+
+=cut
+
+sub DynamicFieldFieldOrderAfterFieldGet {
+    my ( $Self, %Param ) = @_;
+
+    my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+    return if !$Param{Name};
+
+    my $DynamicFieldList = $DynamicFieldObject->DynamicFieldListGet(
+        Valid => 0,
+    );
+
+    my ($DynamicFieldFieldOrder) = grep { $_->{Name} eq $Param{Name} } @{ $DynamicFieldList || [] };
+
+    return if !IsHashRefWithData($DynamicFieldFieldOrder);
+    return $DynamicFieldFieldOrder->{FieldOrder} + 1;
 }
 
 =item DynamicFieldValueCreate()
