@@ -3005,7 +3005,8 @@ sub _QueueCreateIfNotExists {
     my $Name = $Param{Name};
 
     my %QueueReversed = $QueueObject->QueueList(
-        UserID => 1
+        UserID => 1,
+        Valid  => 0,
     );
     %QueueReversed = reverse %QueueReversed;
 
