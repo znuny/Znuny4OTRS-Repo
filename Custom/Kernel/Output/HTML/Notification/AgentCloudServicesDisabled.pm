@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 4fe218beccdb926a29dd7bed9de48211430d69d0 - Kernel/Output/HTML/Notification/AgentCloudServicesDisabled.pm
+# $origin: otrs - 87629f00b8a02498bf28c802419865b3286ead2e - Kernel/Output/HTML/Notification/AgentCloudServicesDisabled.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -58,7 +58,7 @@ sub Run {
 
     my $Text = '<a href="'
         . $LayoutObject->{Baselink}
-        . 'Action=AdminSystemConfiguration;Subaction=Edit;SysConfigSubGroup=Core;SysConfigGroup=CloudService'
+        . 'Action=AdminSystemConfiguration;Subaction=View;Setting=CloudServices::Disabled'
         . '">';
     $Text .= $LayoutObject->{LanguageObject}->Translate('Enable cloud services to unleash all OTRS features!');
     $Text .= '</a>';

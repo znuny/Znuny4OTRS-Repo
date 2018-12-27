@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 04139bf7d2feaf7631ce64edada6d19fea6a3328 - Kernel/System/UnitTest/Selenium/WebElement.pm
+# $origin: otrs - 87629f00b8a02498bf28c802419865b3286ead2e - Kernel/System/UnitTest/Selenium/WebElement.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -55,6 +55,8 @@ click an element that causes a page get/reload/submit and wait for the page to b
 
 sub VerifiedClick {    ## no critic
     my $Self = shift;
+
+    $Self->driver()->execute_script('window.Core.App.PageLoadComplete = false;');
 
     $Self->SUPER::click(@_);
 
