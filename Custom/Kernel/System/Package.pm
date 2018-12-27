@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - ec69b1c45cd33223ff83ff380d5e910feec15791 - Kernel/System/Package.pm
+# $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -595,7 +595,7 @@ sub PackageInstall {
     # install database (pre)
     if ( $Structure{DatabaseInstall} && $Structure{DatabaseInstall}->{pre} ) {
 
-        my $DatabaseInstall = $Self->_CheckDBMerged( Database => $Structure{DatabaseInstall}->{pre} );
+        my $DatabaseInstall = $Self->_CheckDBInstalledOrMerged( Database => $Structure{DatabaseInstall}->{pre} );
 
         if ( IsArrayRefWithData($DatabaseInstall) ) {
             $Self->_Database( Database => $DatabaseInstall );
@@ -636,7 +636,7 @@ sub PackageInstall {
     # install database (post)
     if ( $Structure{DatabaseInstall} && $Structure{DatabaseInstall}->{post} ) {
 
-        my $DatabaseInstall = $Self->_CheckDBMerged( Database => $Structure{DatabaseInstall}->{post} );
+        my $DatabaseInstall = $Self->_CheckDBInstalledOrMerged( Database => $Structure{DatabaseInstall}->{post} );
 
         if ( IsArrayRefWithData($DatabaseInstall) ) {
             $Self->_Database( Database => $DatabaseInstall );
@@ -659,6 +659,7 @@ sub PackageInstall {
             'SysConfigDefaultList',
             'SysConfigDefault',
             'SysConfigPersistent',
+            'SysConfigModifiedList',
         ],
     );
     $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
@@ -764,6 +765,7 @@ sub PackageReinstall {
             'SysConfigDefaultList',
             'SysConfigDefault',
             'SysConfigPersistent',
+            'SysConfigModifiedList',
         ],
     );
     $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
@@ -1193,6 +1195,7 @@ sub PackageUpgrade {
             'SysConfigDefaultList',
             'SysConfigDefault',
             'SysConfigPersistent',
+            'SysConfigModifiedList',
         ],
     );
     $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
@@ -1304,6 +1307,7 @@ sub PackageUninstall {
             'SysConfigDefaultList',
             'SysConfigDefault',
             'SysConfigPersistent',
+            'SysConfigModifiedList',
         ],
     );
     $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
@@ -1893,13 +1897,6 @@ sub PackageVerify {
     # Check if installation of packages, which are not verified by us, is possible.
     my $PackageAllowNotVerifiedPackages = $Kernel::OM->Get('Kernel::Config')->Get('Package::AllowNotVerifiedPackages');
 
-    # return package as verified if cloud services are disabled
-    if ( $Self->{CloudServicesDisabled} ) {
-
-        my $Verify = $PackageAllowNotVerifiedPackages ? 'verified' : 'not_verified';
-        return $Verify;
-    }
-
     # define package verification info
     my $PackageVerifyInfo;
 
@@ -1930,6 +1927,20 @@ sub PackageVerify {
                 Translatable('Package not verified by the OTRS Group! It is recommended not to use this package.'),
             PackageInstallPossible => 0,
         };
+    }
+
+    # return package as verified if cloud services are disabled
+    if ( $Self->{CloudServicesDisabled} ) {
+
+        my $Verify = $PackageAllowNotVerifiedPackages ? 'verified' : 'not_verified';
+
+        if ( $Verify eq 'not_verified' ) {
+            $PackageVerifyInfo->{VerifyCSSClass} = 'NotVerifiedPackage';
+        }
+
+        $Self->{PackageVerifyInfo} = $PackageVerifyInfo;
+
+        return $Verify;
     }
 
     # investigate name
@@ -2244,7 +2255,7 @@ build an opm package
 sub PackageBuild {
     my ( $Self, %Param ) = @_;
 
-    my $XML = '';
+    my $XML  = '';
     my $Home = $Param{Home} || $Self->{ConfigObject}->Get('Home');
 
     # check needed stuff
@@ -3570,7 +3581,7 @@ sub PackageUpgradeAllIsRunning {
             'Kernel::System::DateTime',
             ObjectParams => {
                 String => $SystemData{UpdateTime},
-                }
+            }
         );
         $TargetDateTimeObject->Add( Minutes => 5 );
         if ( $CurrentDateTimeObject > $TargetDateTimeObject ) {
@@ -4259,7 +4270,7 @@ sub _FileRemove {
     # check if file exists
     if ( !-e $RealFile ) {
         $Kernel::OM->Get('Kernel::System::Log')->Log(
-            Priority => 'error',
+            Priority => 'debug',
             Message  => "No such file: $RealFile!",
         );
         return;
@@ -4558,6 +4569,7 @@ sub _PackageUninstallMerged {
             'SysConfigDefaultList',
             'SysConfigDefault',
             'SysConfigPersistent',
+            'SysConfigModifiedList',
         ],
     );
     $Kernel::OM->Get('Kernel::System::Loader')->CacheDelete();
@@ -4582,7 +4594,7 @@ sub _MergedPackages {
     return 1 if ref $Param{Structure}->{PackageMerge} ne 'ARRAY';
 
     # get repository list
-    my @RepositoryList = $Self->RepositoryList();
+    my @RepositoryList    = $Self->RepositoryList();
     my %PackageListLookup = map { $_->{Name}->{Content} => $_ } @RepositoryList;
 
     # check required packages
@@ -4732,7 +4744,7 @@ sub _MergedPackages {
     return 1;
 }
 
-sub _CheckDBMerged {
+sub _CheckDBInstalledOrMerged {
     my ( $Self, %Param ) = @_;
 
     # check needed stuff
@@ -4782,7 +4794,11 @@ sub _CheckDBMerged {
             )
             || (
                 defined $Part->{IfNotPackage}
-                && defined $Self->{MergedPackages}->{ $Part->{IfNotPackage} }
+                &&
+                (
+                    defined $Self->{MergedPackages}->{ $Part->{IfNotPackage} }
+                    || $Self->PackageIsInstalled( Name => $Part->{IfNotPackage} )
+                )
             )
             )
         {
@@ -4955,13 +4971,41 @@ sub _ConfigurationDeploy {
         }
     }
 
+    #
+    # Normally, on package modifications, a configuration settings cleanup needs to happen,
+    #   to prevent old configuration settings from breaking the system.
+    #
+    # This does not work in the case of updates: there we can have situations where the packages
+    #   only exist in the DB, but not yet on the file system, and need to be reinstalled. We have
+    #   to prevent the cleanup until all packages are properly installed again.
+    #
+    # Please see bug#13754 for more information.
+    #
+
+    my $CleanUp = 1;
+
+    PACKAGE:
+    for my $Package ( $Self->RepositoryList() ) {
+
+        # Only check the deployment state of the XML configuration files for performance reasons.
+        #   Otherwise, this would be too slow on systems with many packages.
+        $CleanUp = $Self->_ConfigurationFilesDeployCheck(
+            Name    => $Package->{Name}->{Content},
+            Version => $Package->{Version}->{Content},
+        );
+
+        # Stop if any package has its configuration wrong deployed, configuration cleanup should not
+        #   take place in the lines below. Otherwise modified setting values can be lost.
+        last PACKAGE if !$CleanUp;
+    }
+
     my $SysConfigObject = Kernel::System::SysConfig->new();
 
     if (
         !$SysConfigObject->ConfigurationXML2DB(
             UserID  => 1,
             Force   => 1,
-            CleanUp => 1,
+            CleanUp => $CleanUp,
         )
         )
     {
@@ -5363,7 +5407,7 @@ sub _ConfiguredRepositoryDefinitionGet {
     return %RepositoryList if !@Matches;
 
     my @FrameworkVersionParts = split /\./, $Self->{ConfigObject}->Get('Version');
-    my $FrameworkVersion = $FrameworkVersionParts[0];
+    my $FrameworkVersion      = $FrameworkVersionParts[0];
 
     my $CurrentITSMRepository = "http://ftp.otrs.org/pub/otrs/itsm/packages$FrameworkVersion/";
 
@@ -5403,6 +5447,74 @@ sub _RepositoryCacheClear {
     );
 
     return 1;
+}
+
+=head2 _ConfigurationFilesDeployCheck()
+
+check if package configuration files are deployed correctly.
+
+    my $Success = $PackageObject->_ConfigurationFilesDeployCheck(
+        Name    => 'Application A',
+        Version => '1.0',
+    );
+
+=cut
+
+sub _ConfigurationFilesDeployCheck {
+    my ( $Self, %Param ) = @_;
+
+    # check needed stuff
+    for my $Needed (qw(Name Version)) {
+        if ( !defined $Param{$Needed} ) {
+            $Kernel::OM->Get('Kernel::System::Log')->Log(
+                Priority => 'error',
+                Message  => "$Needed not defined!",
+            );
+            return;
+        }
+    }
+
+    my $Package = $Self->RepositoryGet( %Param, Result => 'SCALAR' );
+    my %Structure = $Self->PackageParse( String => $Package );
+
+    return 1 if !$Structure{Filelist};
+    return 1 if ref $Structure{Filelist} ne 'ARRAY';
+
+    my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
+    my $Success = 1;
+
+    FILE:
+    for my $File ( @{ $Structure{Filelist} } ) {
+
+        my $Extension = substr $File->{Location}, -4, 4;
+
+        next FILE if lc $Extension ne '.xml';
+
+        my $LocalFile = $Self->{Home} . '/' . $File->{Location};
+
+        if ( !-e $LocalFile ) {
+            $Success = 0;
+            last FILE;
+        }
+
+        my $Content = $MainObject->FileRead(
+            Location => $Self->{Home} . '/' . $File->{Location},
+            Mode     => 'binmode',
+        );
+
+        if ( !$Content ) {
+            $Success = 0;
+            last FILE;
+        }
+
+        if ( ${$Content} ne $File->{Content} ) {
+            $Success = 0;
+            last FILE;
+        }
+    }
+
+    return $Success;
 }
 
 sub DESTROY {

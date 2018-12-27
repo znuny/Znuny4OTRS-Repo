@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 80c9a107bc2a5e197466b5efdbdfdeacc3484922 - Kernel/System/UnitTest/Selenium.pm
+# $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -135,6 +135,8 @@ sub new {
     );
     $Self->{UnitTestDriverObject} = $Param{UnitTestDriverObject};
     $Self->{SeleniumTestsActive}  = 1;
+
+    $Self->{UnitTestDriverObject}->{SeleniumData} = { %{ $Self->get_capabilities() }, %{ $Self->status() } };
 
     #$Self->debug_on();
 
@@ -387,11 +389,15 @@ wait with increasing sleep intervals until the given condition is true or the wa
 Exactly one condition (JavaScript or WindowCount) must be specified.
 
     my $Success = $SeleniumObject->WaitFor(
-        JavaScript   => 'return $(".someclass").length',   # Javascript code that checks condition
-        AlertPresent => 1,                                 # Wait until an alert, confirm or prompt dialog is present
-        WindowCount  => 2,                                 # Wait until this many windows are open
-        Callback     => sub { ... }                        # Wait until function returns true
-        Time         => 20,                                # optional, wait time in seconds (default 20)
+        AlertPresent   => 1,                                 # Wait until an alert, confirm or prompt dialog is present
+        Callback       => sub { ... }                        # Wait until function returns true
+        ElementExists  => 'xpath-selector'                   # Wait until an element is present
+        ElementExists  => ['css-selector', 'css'],
+        ElementMissing => 'xpath-selector',                  # Wait until an element is not present
+        ElementMissing => ['css-selector', 'css'],
+        JavaScript     => 'return $(".someclass").length',   # Javascript code that checks condition
+        WindowCount    => 2,                                 # Wait until this many windows are open
+        Time           => 20,                                # optional, wait time in seconds (default 20)
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -404,8 +410,16 @@ Exactly one condition (JavaScript or WindowCount) must be specified.
 sub WaitFor {
     my ( $Self, %Param ) = @_;
 
-    if ( !$Param{JavaScript} && !$Param{WindowCount} && !$Param{AlertPresent} && !$Param{Callback} ) {
-        die "Need JavaScript, WindowCount or AlertPresent.";
+    if (
+        !$Param{JavaScript}
+        && !$Param{WindowCount}
+        && !$Param{AlertPresent}
+        && !$Param{Callback}
+        && !$Param{ElementExists}
+        && !$Param{ElementMissing}
+        )
+    {
+        die "Need JavaScript, WindowCount, ElementExists, ElementMissing or AlertPresent.";
     }
 
     local $Self->{SuppressCommandRecording} = 1;
@@ -413,10 +427,11 @@ sub WaitFor {
     $Param{Time} //= 20;
     my $WaitedSeconds = 0;
     my $Interval      = 0.1;
+    my $WaitSeconds   = 0.5;
 
     while ( $WaitedSeconds <= $Param{Time} ) {
         if ( $Param{JavaScript} ) {
-            return 1 if $Self->execute_script( $Param{JavaScript} )
+            return 1 if $Self->execute_script( $Param{JavaScript} );
         }
         elsif ( $Param{WindowCount} ) {
             return 1 if scalar( @{ $Self->get_window_handles() } ) == $Param{WindowCount};
@@ -429,9 +444,25 @@ sub WaitFor {
         elsif ( $Param{Callback} ) {
             return 1 if $Param{Callback}->();
         }
+        elsif ( $Param{ElementExists} ) {
+            my @Arguments
+                = ref( $Param{ElementExists} ) eq 'ARRAY' ? @{ $Param{ElementExists} } : $Param{ElementExists};
+            if ( eval { $Self->find_element(@Arguments) } ) {
+                Time::HiRes::sleep($WaitSeconds);
+                return 1;
+            }
+        }
+        elsif ( $Param{ElementMissing} ) {
+            my @Arguments
+                = ref( $Param{ElementMissing} ) eq 'ARRAY' ? @{ $Param{ElementMissing} } : $Param{ElementMissing};
+            if ( !eval { $Self->find_element(@Arguments) } ) {
+                Time::HiRes::sleep($WaitSeconds);
+                return 1;
+            }
+        }
         Time::HiRes::sleep($Interval);
         $WaitedSeconds += $Interval;
-        $Interval += 0.1;
+        $Interval      += 0.1;
     }
 
     my $Argument = '';
@@ -447,6 +478,40 @@ sub WaitFor {
 
 # ---
     die "WaitFor($Argument) failed.";
+}
+
+=head2 SwitchToFrame()
+
+Change focus to another frame on the page. If C<WaitForLoad> is passed, it will wait until the frame has loaded the
+page completely.
+
+    my $Success = $SeleniumObject->SwitchToFrame(
+        FrameSelector => '.Iframe',     # (required) CSS selector of the frame element
+        WaitForLoad   => 1,             # (optional) Wait until the frame has loaded, if necessary
+        Time          => 20,            # (optional) Wait time in seconds (default 20)
+    );
+
+=cut
+
+sub SwitchToFrame {
+    my ( $Self, %Param ) = @_;
+
+    if ( !$Param{FrameSelector} ) {
+        die 'Need FrameSelector.';
+    }
+
+    if ( $Param{WaitForLoad} ) {
+        $Self->WaitFor(
+            JavaScript => "return typeof(\$('$Param{FrameSelector}').get(0).contentWindow.Core) == 'object'
+                && typeof(\$('$Param{FrameSelector}').get(0).contentWindow.Core.App) == 'object'
+                && \$('$Param{FrameSelector}').get(0).contentWindow.Core.App.PageLoadComplete;",
+            Time => $Param{Time},
+        );
+    }
+
+    $Self->switch_to_frame( $Self->find_element( $Param{FrameSelector}, 'css' ) );
+
+    return 1;
 }
 
 =head2 DragAndDrop()
@@ -632,6 +697,117 @@ sub DEMOLISH {
 
     return;
 }
+
+=head1 DEPRECATED FUNCTIONS
+
+=head2 WaitForjQueryEventBound()
+
+waits until event handler is bound to the selected C<jQuery> element. Deprecated - it will be removed in the future releases.
+
+    $SeleniumObject->WaitForjQueryEventBound(
+        CSSSelector => 'li > a#Test',       # (required) css selector
+        Event       => 'click',             # (optional) Specify event name. Default 'click'.
+    );
+
+=cut
+
+sub WaitForjQueryEventBound {
+    my ( $Self, %Param ) = @_;
+
+    # Check needed stuff.
+    if ( !$Param{CSSSelector} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need CSSSelector!",
+        );
+        return;
+    }
+
+    my $Event = $Param{Event} || 'click';
+
+    # Wait for jQuery initialization.
+    $Self->WaitFor(
+        JavaScript =>
+            'return Object.keys($("' . $Param{CSSSelector} . '")[0]).length > 0'
+    );
+
+    # Get jQuery object keys.
+    my $Keys = $Self->execute_script(
+        'return Object.keys($("' . $Param{CSSSelector} . '")[0]);'
+    );
+
+    if ( !IsArrayRefWithData($Keys) ) {
+        die "Couldn't determine jQuery object id";
+    }
+
+    my $JQueryObjectID;
+
+    KEY:
+    for my $Key ( @{$Keys} ) {
+        if ( $Key =~ m{^jQuery\d+$} ) {
+            $JQueryObjectID = $Key;
+            last KEY;
+        }
+    }
+
+    if ( !$JQueryObjectID ) {
+        die "Couldn't determine jQuery object id.";
+    }
+
+    # Wait until click event is bound to the element.
+    $Self->WaitFor(
+        JavaScript =>
+            'return $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events
+                && $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events.' . $Event . '
+                && $("' . $Param{CSSSelector} . '")[0].' . $JQueryObjectID . '.events.' . $Event . '.length > 0;',
+    );
+
+    return 1;
+}
+
+=head2 InputFieldValueSet()
+
+sets modernized input field value.
+
+    $SeleniumObject->InputFieldValueSet(
+        Element => 'css-selector',              # (required) css selector
+        Value   => 3,                           # (optional) Value
+    );
+
+=cut
+
+sub InputFieldValueSet {
+    my ( $Self, %Param ) = @_;
+
+    # Check needed stuff.
+    if ( !$Param{Element} ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need Element!",
+        );
+        die 'Missing Element.';
+    }
+    my $Value = $Param{Value} // '';
+
+    if ( $Value !~ m{^\[} && $Value !~ m{^".*"$} ) {
+
+        # Quote text of Value is not array and if not already quoted.
+        $Value = "\"$Value\"";
+    }
+
+    # Set selected value.
+    $Self->execute_script(
+        "\$('$Param{Element}').val($Value).trigger('redraw.InputField').trigger('change');"
+    );
+
+    # Wait until selection tree is closed.
+    $Self->WaitFor(
+        ElementMissing => [ '.InputField_ListContainer', 'css' ],
+    );
+
+    return 1;
+}
+
 
 # ---
 # Znuny4OTRS-Repo
@@ -1713,7 +1889,6 @@ if ($ENV{SELENIUM_SCREENSHOTS}) {
     use warnings;
 }
 # ---
-
 
 1;
 
