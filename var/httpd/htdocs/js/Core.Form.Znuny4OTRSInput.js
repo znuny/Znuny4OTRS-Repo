@@ -265,7 +265,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         Type = TargetNS.Type(FieldID);
 
-        if (FieldID === 'RichText') {
+        if (FieldID === 'RichText' || Type === 'RichText') {
             if (
                 typeof CKEDITOR !== 'undefined'
                 && CKEDITOR.instances[FieldID]
@@ -441,6 +441,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         if ($('#'+ FieldID).length == 0) return;
 
+        if ($('#'+ FieldID).hasClass('RichText')) return 'RichText';
+
         if ($('#'+ FieldID)[0].tagName != 'INPUT') {
             return $('#'+ FieldID)[0].tagName.toLowerCase();
         }
@@ -501,7 +503,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         Type = TargetNS.Type(FieldID);
 
-        if (FieldID === 'RichText') {
+        if (FieldID === 'RichText' || Type == 'RichText') {
             if (
                 typeof CKEDITOR !== 'undefined'
                 && CKEDITOR.instances[FieldID]
