@@ -1,10 +1,13 @@
-# Paketmanager
+# Funktionalität
 
 ## Einbindung von Znuny-OPM-Repositorys
 Mit diesem Paket können Znuny-OPM-Repositorys im OTRS-Paketmanager eingebunden werden, um Zugriff auf öffentliche Znuny-OTRS-Pakete zu erhalten. Sofern Sie einen API-Key von Znuny erhalten haben, erhalten Sie über diesen Zugriff auf die Ihnen zusätzlich zur Verfügung gestellten Pakete.
 
 ## API-Key hinterlegen
 Falls Sie einen API-Key von Znuny erhalten haben, hinterlegen Sie diesen bitte in der SysConfig-Option __Znuny4OTRSPrivatRepos__.
+Als Schlüssel muss der API Key gesetzt werden und als Inhalt ein beliebiger Name (z.B. "My Addons").
+
+![API KEY](doc/de/images/API-KEY.png)
 
 ## Paketverifizierung auch für Znuny-Pakete
 Znuny-Pakete werden als verifiziert angezeigt.

@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2019 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/System/UnitTest/Selenium.pm
 # --
@@ -8,7 +8,7 @@
 # the enclosed file COPYING for license information (GPL). If you
 # did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::STDERRCheck)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
 
 package Kernel::System::UnitTest::Selenium;
 

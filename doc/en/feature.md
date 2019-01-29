@@ -1,10 +1,13 @@
-# Package manager
+# Functionality
 
 ## Integration of Znuny OPM repositories
 With this package, Znuny OPM repositories can be included in the OTRS package manager to get access to public Znuny OTRS packages. If you have received an API key from Znuny, this gives you access to the additional packages provided to you.
 
 ## API key configuration
 If you have received an API key from Znuny, please store it in the SysConfig option __Znuny4OTRSPrivatRepos__.
+The key must be the API Key and the content must be any name (for example "My Addons").
+
+![API KEY](doc/de/images/API-KEY.png)
 
 ## Package verification also for Znuny packages
 Znuny packages are displayed as verified.
