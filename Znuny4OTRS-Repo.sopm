@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>4.0.24</Version>
+    <Version>4.0.25</Version>
+    <ChangeLog Version="4.0.25" Date="2019-02-14 10:19:57 +0100">Removed StorableObject in UnitTest::Webservice - this is not yet available for otrs4 - instead used Storable lib.</ChangeLog>
     <ChangeLog Version="4.0.24" Date="2018-07-26 10:58:17 +0200">Improved documentation.</ChangeLog>
     <ChangeLog Version="4.0.23" Date="2018-02-21 14:32:52 +0100">Added new function 'TicketToUnitTest'.</ChangeLog>
     <ChangeLog Version="4.0.22" Date="2018-02-09 13:17:14 +0100">Online connections of package manager will now be suppressed if Znuny4OTRSRepoDisable is set to "disable all".</ChangeLog>
