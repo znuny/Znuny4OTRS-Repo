@@ -1,13 +1,13 @@
 # --
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 ## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::DeprecatedPackageSetupInit)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::Base)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::PackageSetupInit)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::HashObjectMethodCall)
 
 package Kernel::System::ZnunyHelper;
@@ -856,10 +856,10 @@ sub _DefaultColumnsGet {
 
         # checks if substructure of DefaultColumns exists in settings
         if ( $ExistingSetting{DefaultColumns} ) {
-            $Configs{$View} = $ExistingSetting{DefaultColumns},;
+            $Configs{$View} = $ExistingSetting{DefaultColumns};
         }
         else {
-            $Configs{$View} = \%ExistingSetting,;
+            $Configs{$View} = \%ExistingSetting;
         }
     }
 
@@ -2474,10 +2474,11 @@ sub _TypeCreateIfNotExists {
 
 creates State if not exists
 
+    my $TypID = $StateObject->StateTypeLookup( StateType => 'pending auto' );
+
     my $Success = $ZnunyHelperObject->_StateCreateIfNotExists(
-        Name => 'Some State Name',
-        # e.g. new|open|closed|pending reminder|pending auto|removed|merged
-        TypeID => $StateObject->StateTypeLookup( StateType => 'pending auto' ),
+        Name   => 'Some State Name',    # e.g. new|open|closed|pending reminder|pending auto|removed|merged
+        TypeID => $TypID,
     );
 
 Returns:

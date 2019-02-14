@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -24,7 +24,6 @@ our @ObjectDependencies = (
     'Kernel::System::Cache',
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Log',
-    'Kernel::System::Storable',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -529,7 +528,7 @@ sub _RedefineTransport {
         sub Kernel::GenericInterface::Transport::RequesterPerformRequest {    ## no critic
             my ( $Self, %Param ) = @_;
 
-            my $CacheObject    = $Kernel::OM->Get('Kernel::System::Cache');
+            my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
 
             my $CacheType       = 'UnitTestWebservice';
             my $CacheTTL        = 60 * 60 * 24 * 20;
