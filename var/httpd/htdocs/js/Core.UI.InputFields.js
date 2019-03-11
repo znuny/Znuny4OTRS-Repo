@@ -1,12 +1,12 @@
 // --
-// Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
-// Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+// Copyright (C) 2001-2019 OTRS AG, https://otrs.com/
+// Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 // --
 // $origin: otrs - acaa27c8ba879e54c3c9db5495433a96f03b63b4 - var/httpd/htdocs/js/Core.UI.InputFields.js
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
-// the enclosed file COPYING for license information (AGPL). If you
-// did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
+// the enclosed file COPYING for license information (GPL). If you
+// did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 // --
 
 "use strict";
@@ -518,7 +518,17 @@ Core.UI.InputFields = (function (TargetNS) {
 
                     // If first selection, we must shorten it in order to display it
                     if (i === 0) {
-                        while (MaxWidth > 0 && OffsetLeft + $SelectionObj.outerWidth() >= MaxWidth) {
+
+// ---
+// Znuny4OTRS-Repo
+// ---
+                        // while (MaxWidth > 0 && OffsetLeft + $SelectionObj.outerWidth() >= MaxWidth) {
+
+                        // Fix for Internet Explorer 11.
+                        // After hiding modernized dropdown fields, IE 11 crashes if outer width of $SelectionObj is not set,
+                        // empty or zero.
+                        while ($SelectionObj.outerWidth() && MaxWidth > 0 && OffsetLeft + $SelectionObj.outerWidth() >= MaxWidth) {
+// ---
                             $TextObj.text(
                                 $TextObj.text().substring(0, $TextObj.text().length - 4)
                                 + '...'
