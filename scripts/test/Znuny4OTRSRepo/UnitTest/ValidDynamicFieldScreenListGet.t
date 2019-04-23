@@ -30,19 +30,19 @@ my $ExpectedValidDynamicFieldScreenListHash = {
         'AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation' => 'DashboardWidget CIC-TicketEscalation',
         'AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew'        => 'DashboardWidget CIC-TicketNew',
         'AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen'       => 'DashboardWidget CIC-TicketOpen',
-        'DashboardBackend###0100-TicketPendingReminder'                 => 'DashboardWidget TicketPendingReminder',
-        'DashboardBackend###0110-TicketEscalation'                      => 'DashboardWidget TicketEscalation',
-        'DashboardBackend###0120-TicketNew'                             => 'DashboardWidget TicketNew',
-        'DashboardBackend###0130-TicketOpen'                            => 'DashboardWidget TicketOpen',
-        'DashboardBackend###0140-RunningTicketProcess'                  => 'DashboardWidget RunningTicketProcess',
-        'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns'  => 'AgentTicketEscalationView',
-        'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'      => 'AgentTicketLockedView',
-        'Ticket::Frontend::AgentTicketQueue###DefaultColumns'           => 'AgentTicketQueue',
-        'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns' => 'AgentTicketResponsibleView',
-        'Ticket::Frontend::AgentTicketSearch###DefaultColumns'          => 'AgentTicketSearch',
-        'Ticket::Frontend::AgentTicketService###DefaultColumns'         => 'AgentTicketService',
-        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns'      => 'AgentTicketStatusView',
-        'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'       => 'AgentTicketWatchView',
+        'DashboardBackend###0100-TicketPendingReminder'                       => 'DashboardWidget TicketPendingReminder',
+        'DashboardBackend###0110-TicketEscalation'                            => 'DashboardWidget TicketEscalation',
+        'DashboardBackend###0120-TicketNew'                                   => 'DashboardWidget TicketNew',
+        'DashboardBackend###0130-TicketOpen'                                  => 'DashboardWidget TicketOpen',
+        'DashboardBackend###0140-RunningTicketProcess'                        => 'DashboardWidget RunningTicketProcess',
+        'Ticket::Frontend::AgentTicketEscalationView###DefaultColumns'        => 'AgentTicketEscalationView',
+        'Ticket::Frontend::AgentTicketLockedView###DefaultColumns'            => 'AgentTicketLockedView',
+        'Ticket::Frontend::AgentTicketQueue###DefaultColumns'                 => 'AgentTicketQueue',
+        'Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns'       => 'AgentTicketResponsibleView',
+        'Ticket::Frontend::AgentTicketSearch###DefaultColumns'                => 'AgentTicketSearch',
+        'Ticket::Frontend::AgentTicketService###DefaultColumns'               => 'AgentTicketService',
+        'Ticket::Frontend::AgentTicketStatusView###DefaultColumns'            => 'AgentTicketStatusView',
+        'Ticket::Frontend::AgentTicketWatchView###DefaultColumns'             => 'AgentTicketWatchView',
     },
     'DynamicFieldScreens' => {
         'Ticket::Frontend::AgentTicketClose###DynamicField'             => 'AgentTicketClose',
@@ -72,7 +72,7 @@ my $ExpectedValidDynamicFieldScreenListHash = {
         'Ticket::Frontend::OverviewMedium###DynamicField'               => 'OverviewMedium',
         'Ticket::Frontend::OverviewPreview###DynamicField'              => 'OverviewPreview',
         'Ticket::Frontend::OverviewSmall###DynamicField'                => 'OverviewSmall',
-        }
+    },
 };
 
 my $ExpectedValidDynamicFieldScreenListArray = {
@@ -123,7 +123,7 @@ my $ExpectedValidDynamicFieldScreenListArray = {
         'Ticket::Frontend::OverviewMedium###DynamicField',
         'Ticket::Frontend::OverviewPreview###DynamicField',
         'Ticket::Frontend::OverviewSmall###DynamicField'
-        ]
+    ],
 };
 
 # Test export

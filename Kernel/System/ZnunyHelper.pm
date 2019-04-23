@@ -30,6 +30,7 @@ our @ObjectDependencies = (
     'Kernel::System::Log',
     'Kernel::System::Main',
     'Kernel::System::NotificationEvent',
+    'Kernel::System::Package',
     'Kernel::System::PostMaster::Filter',
     'Kernel::System::Priority',
     'Kernel::System::ProcessManagement::DB::Entity',
@@ -475,7 +476,8 @@ Returns as ARRAY:
 sub _ValidDynamicFieldScreenListGet {
     my ( $Self, %Param ) = @_;
 
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    my $ConfigObject  = $Kernel::OM->Get('Kernel::Config');
+    my $PackageObject = $Kernel::OM->Get('Kernel::System::Package');
 
     $Param{Result} = lc( $Param{Result} // 'array' );
 
@@ -486,7 +488,14 @@ sub _ValidDynamicFieldScreenListGet {
         $ValidScreens->{$Screen} = {};
         my $ScreenRegistrations = $ConfigObject->Get($Screen);
 
+        REGISTRATION:
         for my $Registration ( sort keys %{$ScreenRegistrations} ) {
+            if ($Registration =~ m{^ITSM.*}xmsi){
+                my $IsInstalled = $PackageObject->PackageIsInstalled(
+                    Name => $Registration,
+                );
+                next REGISTRATION if !$IsInstalled;
+            }
 
             %{ $ValidScreens->{$Screen} } = (
                 %{ $ValidScreens->{$Screen} },
