@@ -2,14 +2,12 @@
 # Copyright (C) 2001-2019 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/System/Package.pm
+# $origin: otrs - f8e895d5cd62e6509814aef6fd2210480fc57778 - Kernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
 # did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
-
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -1917,11 +1915,7 @@ sub PackageVerify {
         $PackageVerifyInfo = {
             Description =>
                 Translatable(
-                "<p>The installation of packages which are not verified by the OTRS Group is not possible by default.</p>"
-                )
-                .
-                Translatable(
-                '<p>You can activate the installation of not verified packages in the <a href="%sAction=AdminSystemConfiguration;Subaction=View;Setting=Package%3A%3AAllowNotVerifiedPackages" target="_blank">System Configuration</a>.</p>'
+                '<p>The installation of packages which are not verified by the OTRS Group is not possible by default. You can activate the installation of not verified packages via the "AllowNotVerifiedPackages" system configuration setting.</p>'
                 ),
             Title =>
                 Translatable('Package not verified by the OTRS Group! It is recommended not to use this package.'),
@@ -3624,7 +3618,7 @@ sub _Download {
 #     my %Response = $WebUserAgentObject->Request(
 #         URL => $Param{URL},
 #     );
-#
+
     # strip out the API token from addons.znuny.com repository calls
     # and add it to the 'Authorization' header
     my %Header;
