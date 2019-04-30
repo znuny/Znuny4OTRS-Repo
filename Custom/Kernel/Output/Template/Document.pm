@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2019 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/Output/Template/Document.pm
+# $origin: otrs - 1afb2b995e59551b927c2105e234e8b87efcc37a - Kernel/Output/Template/Document.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -88,8 +88,8 @@ sub _InstallOTRSExtensions {
 # ---
 # Znuny4OTRS-Repo - https://github.com/OTRS/otrs/pull/1055
 # ---
-#                return if !exists $ParentBlock->{Children};
-#                return if !exists $ParentBlock->{Children}->{$BlockName};
+#                 return if !exists $ParentBlock->{Children};
+#                 return if !exists $ParentBlock->{Children}->{$BlockName};
 # ---
 
                 my $TemplateName = $stash->get('template')->{name} // '';
@@ -123,6 +123,7 @@ sub _InstallOTRSExtensions {
                     $output .= "<!--HookEnd${BlockName}-->\n";
                 }
 # ---
+
             };
             $stash = $Context->delocalise();
 
@@ -257,7 +258,7 @@ sub _InstallOTRSExtensions {
 
                 # Escape closing script tags in the JSON content as they will confuse the
                 #   browser's parser.
-                $JSONString =~ s{</script}{<\\/script}smxg;
+                $JSONString =~ s{ </(?<ScriptTag>script)}{<\\/$+{ScriptTag}}ismxg;
 
                 $output .= "Core.Config.AddConfig($JSONString);\n";
             }
