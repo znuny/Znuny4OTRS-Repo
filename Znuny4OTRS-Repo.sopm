@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.40</Version>
+    <Version>6.0.41</Version>
+    <ChangeLog Version="6.0.41" Date="2019-05-02 14:30:49 +0200">Extended ZnunyHelper::_ITSMConfigItemDefinitionCreate() to be able to import YAML and Perl config item files, regardless of used ITSM version.</ChangeLog>
     <ChangeLog Version="6.0.40" Date="2019-04-30 11:27:08 +0200">Updated customized OTRS files.</ChangeLog>
     <ChangeLog Version="6.0.39" Date="2019-04-23 14:51:11 +0200">Added additional is package installed check for ValidDynamicFieldScreenListGet function.</ChangeLog>
     <ChangeLog Version="6.0.38" Date="2019-02-25 09:15:12 +0100">Documentation update.</ChangeLog>
