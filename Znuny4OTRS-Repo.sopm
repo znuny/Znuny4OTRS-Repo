@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.47</Version>
+    <Version>5.0.48</Version>
+    <ChangeLog Version="5.0.48" Date="2019-05-02 14:43:50 +0200">Extended ZnunyHelper::_ITSMConfigItemDefinitionCreate() to be able to import YAML and Perl config item files, regardless of used ITSM version.</ChangeLog>
     <ChangeLog Version="5.0.47" Date="2019-03-11 14:47:32 +0100">Fixed crash of Internet Explorer 11 on hiding modernized selection fields.</ChangeLog>
     <ChangeLog Version="5.0.46" Date="2018-12-13 17:09:35 +0100">Tidied code.</ChangeLog>
     <ChangeLog Version="5.0.45" Date="2018-11-12 17:03:44 +0100">Improved DynamicFieldsCreate function to define the field order for a dynamic field after a specific one (new parameters FieldOrderAfterField and FieldOrderAfterFieldUpdate).</ChangeLog>
