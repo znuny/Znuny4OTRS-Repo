@@ -3188,6 +3188,7 @@ sub _ITSMConfigItemDefinitionCreate {
     my $MainObject       = $Kernel::OM->Get('Kernel::System::Main');
     my $ConfigObject     = $Kernel::OM->Get('Kernel::Config');
     my $ConfigItemObject = $Kernel::OM->Get('Kernel::System::ITSMConfigItem');
+    my $YAMLObject       = $Kernel::OM->Get('Kernel::System::YAML');
 
     # check needed stuff
     NEEDED:
@@ -3227,23 +3228,76 @@ sub _ITSMConfigItemDefinitionCreate {
         return $DefinitionListRef->[-1]->{DefinitionID} if IsArrayRefWithData($DefinitionListRef);
     }
 
+    # check which type of import file is present (Perl structure or YAML).
+    my $BaseClassFilePath = $Home . '/scripts/cmdb_classes/' . ( $Param{ClassFile} || $Param{Class} );
+
+    my $ClassFilePath     = $BaseClassFilePath . '.yml';
+    my $ClassFileIsYAML   = 1;
+    if ( !-f $ClassFilePath ) {
+        $ClassFilePath   = $BaseClassFilePath . '.config';
+        $ClassFileIsYAML = 0;
+    }
+    return if !-f $ClassFilePath;
+
     # get configuration from the file system
     my $ContentSCALARRef = $MainObject->FileRead(
-        Location => $Home . '/scripts/cmdb_classes/' . ( $Param{ClassFile} || $Param{Class} ) . '.config',
+        Location => $ClassFilePath,
         Mode     => 'utf8',
         Result   => 'SCALAR',
     );
     return if !$ContentSCALARRef;
 
     my $Content = ${$ContentSCALARRef};
-    return if !$Content;
+    return if !defined $Content || !length $Content;
+
+    # ITSMConfigurationManagement 6.0.18 switched format of config item definitions from Perl
+    # to YAML. Check which one is needed by checking if the new console command
+    # Kernel::System::Console::Command::Maint::ITSM::Configitem::DefinitionPerl2YAML
+    # exists.
+    my $DefinitionPerl2YAMLFilePath = $Home
+        . '/Kernel/System/Console/Command/Maint/ITSM/Configitem/DefinitionPerl2YAML.pm';
+    my $YAMLConfigItemDefinitionExpected = ( -f $DefinitionPerl2YAMLFilePath ) ? 1 : 0;
+
+    if (
+        !$ClassFileIsYAML
+        && $YAMLConfigItemDefinitionExpected
+    ) {
+        # Turn Perl config item file into Perl structure.
+        $Content = eval $Content; ## no critic
+        return if !defined $Content;
+
+        # Turn Perl structure into YAML.
+        $Content = $YAMLObject->Dump(
+            Data => $Content,
+        );
+    }
+    elsif (
+        $ClassFileIsYAML
+        && !$YAMLConfigItemDefinitionExpected
+    ) {
+        # Turn YAML config item file into Perl structure.
+        $Content = $YAMLObject->Load(
+            Data => $Content,
+        );
+        return if !defined $Content;
+
+        # Turn Perl structure into string.
+        $Content = $MainObject->Dump(
+            $Content,
+        );
+
+        # Remove leading '$VAR1 =' from dump.
+        $Content =~ s{\A\$VAR1 = }{};
+    }
+
+    return if !defined $Content || !length $Content;
 
     # get last definition
     my $LastDefinition = $ConfigItemObject->DefinitionGet(
         ClassID => $ClassID,
     );
 
-    # stop add, if definition was not changed
+    # stop add if definition was not changed
     return $LastDefinition->{DefinitionID}
         if IsHashRefWithData($LastDefinition) && $LastDefinition->{Definition} eq $Content;
 
