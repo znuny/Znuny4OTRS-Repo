@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_config version="2.0" init="Application">
+    <Setting Name="AutoloadPerlPackages###99999-Znuny4OTRSRepo" Required="1" Valid="1">
+        <Description Translatable="1">Autoloading of Znuny4OTRSRepo extensions.</Description>
+        <Navigation>Core::Autoload</Navigation>
+        <Value>
+            <Array>
+                <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepo</Item>
+                <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoArticle</Item>
+            </Array>
+        </Value>
+    </Setting>
+    <Setting Name="Znuny4OTRSPrivatRepos" Required="0" Valid="0">
+        <Description Translatable="1">Define private addon repos.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="API-KEY">My Addons</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Znuny4OTRSRepoType" Required="1" Valid="1">
+        <Description Translatable="1">Access repos via http or https.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Item ValueType="Select" SelectedID="https">
+                <Item ValueType="Option" Value="https">https</Item>
+                <Item ValueType="Option" Value="http">http</Item>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Znuny4OTRSCloudServiceProxyURL" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines the URL to the OTRS CloudService Proxy service. The http or https prefix will be added, depending on selection SysConfig 'Znuny4OTRSRepoType'.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Item ValueType="String" ValueRegex="">addons.znuny.com/api/otrs_cloud_service/</Item>
+        </Value>
+    </Setting>
+    <Setting Name="Znuny4OTRSRepoDisable" Required="1" Valid="1">
+        <Description Translatable="1">Disable online repositories.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Item ValueType="Select" SelectedID="0">
+                <Item ValueType="Option" Value="0">Enable online repositories</Item>
+                <Item ValueType="Option" Value="1">Disable all online repositories</Item>
+                <Item ValueType="Option" Value="2">Disable only Znuny4OTRS online repositories</Item>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="PackageVerification" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines if the OTRS package verification should be active or disabled. If disabled all packages are shown as verified. It's still recommended to use only verified packages.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Item ValueType="Select" SelectedID="1">
+                <Item ValueType="Option" Value="1">Active</Item>
+                <Item ValueType="Option" Value="0">Disabled</Item>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Output::FilterElementPost###Znuny4OTRSRepo" Required="1" Valid="1">
+        <Description Translatable="1">This configuration registers a Output post-filter to extend package verification.</Description>
+        <Navigation>Frontend::Base::OutputFilter</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRepo</Item>
+                <Item Key="Templates">
+                    <Hash>
+                        <Item Key="AdminPackageManager">1</Item>
+                    </Hash>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Agent::CommonJS###888-Znuny4OTRSRepo" Required="1" Valid="1">
+        <Description Translatable="1">List of JS files to always be loaded for the agent interface.</Description>
+        <Navigation>Frontend::Base::Loader</Navigation>
+        <Value>
+            <Array>
+                <Item>Core.Form.Znuny4OTRSInput.js</Item>
+            </Array>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Customer::CommonJS###888-Znuny4OTRSRepo" Required="1" Valid="1">
+        <Description Translatable="1">List of JS files to always be loaded for the customer interface.</Description>
+        <Navigation>Frontend::Base::Loader</Navigation>
+        <Value>
+            <Array>
+                <Item>Core.Form.Znuny4OTRSInput.js</Item>
+            </Array>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AdminRegistration" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration</Navigation>
+        <Value>
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="GroupRo">
+                        <Array>
+                        </Array>
+                    </Item>
+                    <Item Key="Group">
+                        <Array>
+                            <Item>admin</Item>
+                        </Array>
+                    </Item>
+                    <Item Key="Description">Admin</Item>
+                    <Item Key="Title" Translatable="1">System Registration</Item>
+                    <Item Key="NavBarName">Admin</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AdminRegistration###002-Znuny4OTRSRepo" Required="0" Valid="0">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="CSS">
+                    <Array>
+                        <Item>Core.Agent.Admin.Registration.css</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::NavigationModule###AdminRegistration" Required="0" Valid="0">
+        <Description Translatable="1">Admin area navigation for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration::AdminOverview</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Group">
+                    <Array>
+                        <Item>admin</Item>
+                    </Array>
+                </Item>
+                <Item Key="GroupRo">
+                    <Array>
+                    </Array>
+                </Item>
+                <Item Key="Module">Kernel::Output::HTML::NavBar::ModuleAdmin</Item>
+                <Item Key="Name" Translatable="1">System Registration</Item>
+                <Item Key="Block">OTRSGroup</Item>
+                <Item Key="Description" Translatable="1">Manage system registration.</Item>
+                <Item Key="IconBig">fa-edit</Item>
+                <Item Key="IconSmall"></Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Package::ShowFeatureAddons" Required="0" Valid="0" ConfigLevel="200">
+        <Description Translatable="1">Toggles display of OTRS FeatureAddons list in PackageManager.</Description>
+        <Navigation>Core::Package</Navigation>
+        <Value>
+            <Item ValueType="Checkbox">1</Item>
+        </Value>
+    </Setting>
+    <Setting Name="Daemon::SchedulerCronTaskManager::Task###OTRSBusinessEntitlementCheck" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Checks the entitlement status of OTRS Business Solution™.</Description>
+        <Navigation>Daemon::SchedulerCronTaskManager::Task</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="TaskName">OTRSBusinessEntitlementCheck</Item>
+                <Item Key="Schedule">25,45 */1 * * *</Item> <!-- default: each hour in the minute 15 and 45 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::OTRSBusiness::EntitlementCheck</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Daemon::SchedulerCronTaskManager::Task###OTRSBusinessAvailabilityCheck" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Checks the availability of OTRS Business Solution™ for this system.</Description>
+        <Navigation>Daemon::SchedulerCronTaskManager::Task</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="TaskName">OTRSBusinessAvailabilityCheck</Item>
+                <Item Key="Schedule">15,35,55 */1 * * *</Item> <!-- default: each hour in the minute 15,35 and 55 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::OTRSBusiness::AvailabilityCheck</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Notification::Transport###NotificationView" Required="0" Valid="0">
+        <Description Translatable="1">Defines all the parameters for this notification transport.</Description>
+        <Navigation>Frontend::Admin::View::NotificationEvent</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::System::Ticket::Event::NotificationEvent::Transport::NotificationView</Item>
+                <Item Key="Name">Web View</Item>
+                <Item Key="Icon">fa fa-th-list</Item>
+                <Item Key="Prio">110</Item>
+                <Item Key="IsOTRSBusinessTransport">1</Item>
+                <Item Key="AgentEnabledByDefault">0</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Notification::Transport###SMS" Required="0" Valid="0">
+        <Description Translatable="1">Defines all the parameters for this notification transport.</Description>
+        <Navigation>Frontend::Admin::View::NotificationEvent</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::System::Ticket::Event::NotificationEvent::Transport::SMS</Item>
+                <Item Key="Name">SMS (Short Message Service)</Item>
+                <Item Key="Icon">fa fa-mobile</Item>
+                <Item Key="Prio">120</Item>
+                <Item Key="IsOTRSBusinessTransport">1</Item>
+                <Item Key="AgentEnabledByDefault">0</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AdminCloudServices" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration</Navigation>
+        <Value>
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="GroupRo">
+                        <Array>
+                        </Array>
+                    </Item>
+                    <Item Key="Group">
+                        <Array>
+                            <Item>admin</Item>
+                        </Array>
+                    </Item>
+                    <Item Key="Description">Admin</Item>
+                    <Item Key="Title" Translatable="1">Cloud Services</Item>
+                    <Item Key="NavBarName">Admin</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AdminCloudServices###002-Znuny4OTRSRepo" Required="0" Valid="0">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="CSS">
+                    <Array>
+                        <Item>Core.Agent.Admin.CloudServices.css</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::NavigationModule###AdminCloudServices" Required="0" Valid="0">
+        <Description Translatable="1">Admin area navigation for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration::AdminOverview</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Group">
+                    <Array>
+                        <Item>admin</Item>
+                    </Array>
+                </Item>
+                <Item Key="GroupRo">
+                    <Array>
+                    </Array>
+                </Item>
+                <Item Key="Module">Kernel::Output::HTML::NavBar::ModuleAdmin</Item>
+                <Item Key="Name" Translatable="1">Cloud Services</Item>
+                <Item Key="Block">System</Item>
+                <Item Key="Description" Translatable="1">Manage OTRS Group cloud services.</Item>
+                <Item Key="IconBig"></Item>
+                <Item Key="IconSmall"></Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AdminOTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration</Navigation>
+        <Value>
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="GroupRo">
+                        <Array>
+                        </Array>
+                    </Item>
+                    <Item Key="Group">
+                        <Array>
+                            <Item>admin</Item>
+                        </Array>
+                    </Item>
+                    <Item Key="Description">Admin</Item>
+                    <Item Key="Title">OTRS Business Solution™</Item>
+                    <Item Key="NavBarName">Admin</Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Loader::Module::AdminOTRSBusiness###002-Znuny4OTRSRepo" Required="0" Valid="0">
+        <Description Translatable="1">Loader module registration for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration::Loader</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="CSS">
+                    <Array>
+                        <Item>Core.Agent.Admin.OTRSBusiness.css</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::NavigationModule###AdminOTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Admin area navigation for the agent interface.</Description>
+        <Navigation>Frontend::Admin::ModuleRegistration::AdminOverview</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Group">
+                    <Array>
+                        <Item>admin</Item>
+                    </Array>
+                </Item>
+                <Item Key="GroupRo">
+                    <Array>
+                    </Array>
+                </Item>
+                <Item Key="Module">Kernel::Output::HTML::NavBar::ModuleAdmin</Item>
+                <Item Key="Name">OTRS Business Solution™</Item>
+                <Item Key="Block">System</Item>
+                <Item Key="Description" Translatable="1">Deploy and manage OTRS Business Solution™.</Item>
+                <Item Key="IconBig"></Item>
+                <Item Key="IconSmall"></Item>
+                <Item Key="CssClass">OTRSBusiness</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::NotifyModule###1100-OTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Defines the module to display a notification in different interfaces on different occasions for OTRS Business Solution™.</Description>
+        <Navigation>Frontend::Agent::FrontendNotification</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::Notification::AgentOTRSBusiness</Item>
+                <Item Key="Group">admin</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Navigation###AgentAppointmentCalendarOverview###002-Calendar" Required="0" Valid="1">
+        <Description Translatable="1">Main menu item registration.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::MainMenu</Navigation>
+        <Value>
+            <Array>
+                <DefaultItem ValueType="FrontendNavigation">
+                    <Hash>
+                    </Hash>
+                </DefaultItem>
+                <Item>
+                    <Hash>
+                        <Item Key="Group">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="GroupRo">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="Description"></Item>
+                        <Item Key="Name" Translatable="1">Calendar</Item>
+                        <Item Key="Link">Action=AgentAppointmentCalendarOverview</Item>
+                        <Item Key="LinkOption"></Item>
+                        <Item Key="NavBar">Calendar</Item>
+                        <Item Key="Type">Menu</Item>
+                        <Item Key="Block">ItemArea</Item>
+                        <Item Key="AccessKey"></Item>
+                        <Item Key="Prio">75</Item>
+                    </Hash>
+                </Item>
+                <Item>
+                    <Hash>
+                        <Item Key="Group">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="GroupRo">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="Description" Translatable="1">Appointment Calendar overview page.</Item>
+                        <Item Key="Name" Translatable="1">Calendar Overview</Item>
+                        <Item Key="Link">Action=AgentAppointmentCalendarOverview</Item>
+                        <Item Key="LinkOption"></Item>
+                        <Item Key="NavBar">Calendar</Item>
+                        <Item Key="Type"></Item>
+                        <Item Key="Block">ItemArea</Item>
+                        <Item Key="AccessKey"></Item>
+                        <Item Key="Prio">6000</Item>
+                    </Hash>
+                </Item>
+                <Item>
+                    <Hash>
+                        <Item Key="Group">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="GroupRo">
+                            <Array>
+                            </Array>
+                        </Item>
+                        <Item Key="Description" Translatable="1">Create new appointment.</Item>
+                        <Item Key="Name" Translatable="1">New Appointment</Item>
+                        <Item Key="Link">Action=AgentAppointmentCalendarOverview;Subaction=AppointmentCreate</Item>
+                        <Item Key="LinkOption"></Item>
+                        <Item Key="NavBar">Calendar</Item>
+                        <Item Key="Type"></Item>
+                        <Item Key="Block">ItemArea</Item>
+                        <Item Key="AccessKey"></Item>
+                        <Item Key="Prio">8000</Item>
+                    </Hash>
+                </Item>
+            </Array>
+        </Value>
+    </Setting>
+    <Setting Name="CustomerFrontend::NotifyModule###1-OTRSBusiness" Required="0" Valid="0">
+        <Description Translatable="1">Defines the module to display a notification in different interfaces on different occasions for OTRS Business Solution™.</Description>
+        <Navigation>Frontend::Customer::FrontendNotification</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::Notification::CustomerOTRSBusiness</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Ticket::Frontend::MenuModule###999-TeaserAttachmentView" Required="0" Valid="0">
+        <Description Translatable="1">Shows a teaser link in the menu for the ticket attachment view of OTRS Business Solution™.</Description>
+        <Navigation>Frontend::Agent::View::TicketZoom::MenuModule</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::TicketMenu::TeaserAttachmentView</Item>
+                <Item Key="Name">All attachments (OTRS Business Solution™)</Item>
+                <Item Key="Description" Translatable="1">View all attachments of the current ticket</Item>
+                <Item Key="Action">AgentTicketZoom</Item>
+                <Item Key="Link">Action=AgentTicketZoom;TicketID=[% Data.TicketID | html %]</Item>
+                <Item Key="Target"></Item>
+                <Item Key="Class">OTRSBusinessRequired</Item>
+                <Item Key="PopupType"></Item>
+                <Item Key="ClusterName" Translatable="1">Miscellaneous</Item>
+                <Item Key="ClusterPriority">999</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Daemon::SchedulerCronTaskManager::Task###RegistrationUpdateSend" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Sends registration information to OTRS group.</Description>
+        <Navigation>Daemon::SchedulerCronTaskManager::Task</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="TaskName">RegistrationUpdateSend</Item>
+                <Item Key="Schedule">30 * * * *</Item> <!-- default: every hour in minute 30 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::Registration::UpdateSend</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Daemon::SchedulerCronTaskManager::Task###SupportDataCollectAsynchronous" Required="0" Valid="0" ReadOnly="0" ConfigLevel="100">
+        <Description Translatable="1">Collect support data for asynchronous plug-in modules.</Description>
+        <Navigation>Daemon::SchedulerCronTaskManager::Task</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="TaskName">SupportDataCollectAsynchronous</Item>
+                <Item Key="Schedule">1 * * * *</Item> <!-- default: every hour in minute 1 -->
+                <Item Key="Module">Kernel::System::Console::Command::Maint::SupportData::CollectAsynchronous</Item>
+                <Item Key="Function">Execute</Item>
+                <Item Key="MaximumParallelInstances">1</Item>
+                <Item Key="Params">
+                    <Array>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Output::FilterElementPost###Znuny4OTRSRemoveBSAdvertisements" Required="0" Valid="1">
+        <Description Translatable="1">This configuration registers an OutputFilter module that removes OTRS Business Solution TM advertisements.</Description>
+        <Navigation>Frontend::Base::OutputFilter</Navigation>
+            <Value>
+                <Hash>
+                    <Item Key="Module">Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRemoveBSAdvertisements</Item>
+                    <Item Key="Templates">
+                        <Hash>
+                            <Item Key="Error">1</Item>
+                            <Item Key="AgentAppointmentEdit">1</Item>
+                            <Item Key="AgentNavigationBar">1</Item>
+                            <Item Key="AgentTicketZoom">1</Item>
+                            <Item Key="AdminAppointmentNotificationEvent">1</Item>
+                            <Item Key="AdminCloudServices">1</Item>
+                            <Item Key="AdminDynamicField">1</Item>
+                            <Item Key="AdminGenericInterfaceWebservice">1</Item>
+                            <Item Key="AdminNotificationEvent">1</Item>
+                            <Item Key="AdminProcessManagement">1</Item>
+                            <Item Key="AdminSystemConfiguration">1</Item>
+                            <Item Key="AdminSystemConfigurationView">1</Item>
+                            <Item Key="AdminSystemConfigurationGroup">1</Item>
+                            <Item Key="SystemConfiguration/SettingsList">1</Item>
+                            <Item Key="AdminSystemConfigurationDeployment">1</Item>
+                            <Item Key="Header">1</Item>
+                            <Item Key="Footer">1</Item>
+                            <Item Key="AdminPackageManager">1</Item>
+                        </Hash>
+                    </Item>
+                </Hash>
+            </Value>
+    </Setting>
+    <Setting Name="Frontend::Template::GenerateBlockHooks###100-Znuny4OTRSRemoveBSAdvertisements" Required="1" Valid="1">
+        <Description Translatable="1">Block hooks to be created for BS ad removal.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="AdminPackageManager">
+                    <Array>
+                        <Item>CloudServicesWarning</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="DynamicFieldScreens###Framework" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines all possible screens to enable or disable dynamic fields.</Description>
+        <Navigation>Frontend::Base::DynamicFieldScreens</Navigation>
+        <Value>
+            <Hash>
+                <!-- Views -->
+                <Item Key="Ticket::Frontend::AgentTicketClose###DynamicField">AgentTicketClose</Item>
+                <Item Key="Ticket::Frontend::AgentTicketCompose###DynamicField">AgentTicketCompose</Item>
+                <Item Key="Ticket::Frontend::AgentTicketEmail###DynamicField">AgentTicketEmail</Item>
+                <Item Key="Ticket::Frontend::AgentTicketEmailOutbound###DynamicField">AgentTicketEmailOutbound</Item>
+                <Item Key="Ticket::Frontend::AgentTicketForward###DynamicField">AgentTicketForward</Item>
+                <Item Key="Ticket::Frontend::AgentTicketFreeText###DynamicField">AgentTicketFreeText</Item>
+                <Item Key="Ticket::Frontend::AgentTicketMove###DynamicField">AgentTicketMove</Item>
+                <Item Key="Ticket::Frontend::AgentTicketNote###DynamicField">AgentTicketNote</Item>
+                <Item Key="Ticket::Frontend::AgentTicketOwner###DynamicField">AgentTicketOwner</Item>
+                <Item Key="Ticket::Frontend::AgentTicketPending###DynamicField">AgentTicketPending</Item>
+                <Item Key="Ticket::Frontend::AgentTicketPhone###DynamicField">AgentTicketPhone</Item>
+                <Item Key="Ticket::Frontend::AgentTicketPhoneInbound###DynamicField">AgentTicketPhoneInbound</Item>
+                <Item Key="Ticket::Frontend::AgentTicketPhoneOutbound###DynamicField">AgentTicketPhoneOutbound</Item>
+                <Item Key="Ticket::Frontend::AgentTicketPrint###DynamicField">AgentTicketPrint</Item>
+                <Item Key="Ticket::Frontend::AgentTicketPriority###DynamicField">AgentTicketPriority</Item>
+                <Item Key="Ticket::Frontend::AgentTicketResponsible###DynamicField">AgentTicketResponsible</Item>
+                <Item Key="Ticket::Frontend::AgentTicketSearch###DynamicField">AgentTicketSearch</Item>
+                <Item Key="Ticket::Frontend::AgentTicketZoom###DynamicField">AgentTicketZoom</Item>
+                <Item Key="Ticket::Frontend::CustomerTicketMessage###DynamicField">CustomerTicketMessage</Item>
+                <Item Key="Ticket::Frontend::CustomerTicketPrint###DynamicField">CustomerTicketPrint</Item>
+                <Item Key="Ticket::Frontend::CustomerTicketSearch###DynamicField">CustomerTicketSearch</Item>
+                <Item Key="Ticket::Frontend::CustomerTicketZoom###DynamicField">CustomerTicketZoom</Item>
+                <!-- OverViews -->
+                <Item Key="Ticket::Frontend::OverviewMedium###DynamicField">OverviewMedium</Item>
+                <Item Key="Ticket::Frontend::OverviewPreview###DynamicField">OverviewPreview</Item>
+                <Item Key="Ticket::Frontend::OverviewSmall###DynamicField">OverviewSmall</Item>
+                <Item Key="Ticket::Frontend::CustomerTicketOverview###DynamicField">CustomerTicketOverview</Item>
+                <!-- Process -->
+                <Item Key="Ticket::Frontend::AgentTicketZoom###ProcessWidgetDynamicField">ProcessWidgetDynamicField</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="DefaultColumnsScreens###Framework" Required="1" Valid="1">
+        <Description Translatable="1">This configuration defines all possible screens to enable or disable default columns.</Description>
+        <Navigation>Frontend::Base::DynamicFieldScreens</Navigation>
+        <Value>
+            <Hash>
+                <!-- DefaultColumns -->
+                <Item Key="Ticket::Frontend::AgentTicketStatusView###DefaultColumns">AgentTicketStatusView</Item>
+                <Item Key="Ticket::Frontend::AgentTicketQueue###DefaultColumns">AgentTicketQueue</Item>
+                <Item Key="Ticket::Frontend::AgentTicketResponsibleView###DefaultColumns">AgentTicketResponsibleView</Item>
+                <Item Key="Ticket::Frontend::AgentTicketWatchView###DefaultColumns">AgentTicketWatchView</Item>
+                <Item Key="Ticket::Frontend::AgentTicketLockedView###DefaultColumns">AgentTicketLockedView</Item>
+                <Item Key="Ticket::Frontend::AgentTicketEscalationView###DefaultColumns">AgentTicketEscalationView</Item>
+                <Item Key="Ticket::Frontend::AgentTicketSearch###DefaultColumns">AgentTicketSearch</Item>
+                <Item Key="Ticket::Frontend::AgentTicketService###DefaultColumns">AgentTicketService</Item>
+                <!-- DefaultColumns and Dashboard Widgets -->
+                <Item Key="DashboardBackend###0100-TicketPendingReminder">DashboardWidget TicketPendingReminder</Item>
+                <Item Key="DashboardBackend###0110-TicketEscalation">DashboardWidget TicketEscalation</Item>
+                <Item Key="DashboardBackend###0120-TicketNew">DashboardWidget TicketNew</Item>
+                <Item Key="DashboardBackend###0130-TicketOpen">DashboardWidget TicketOpen</Item>
+                <Item Key="DashboardBackend###0140-RunningTicketProcess">DashboardWidget RunningTicketProcess</Item>
+                <Item Key="AgentCustomerInformationCenter::Backend###0100-CIC-TicketPendingReminder">DashboardWidget CIC-TicketPendingReminder</Item>
+                <Item Key="AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation">DashboardWidget CIC-TicketEscalation</Item>
+                <Item Key="AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew">DashboardWidget CIC-TicketNew</Item>
+                <Item Key="AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen">DashboardWidget CIC-TicketOpen</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Output::FilterElementPost###Znuny4OTRSRepoAdminPackageManager" Required="1" Valid="1">
+        <Description Translatable="1">This configuration registers an output filter to hide online repository selection in package manager.</Description>
+        <Navigation>Frontend::Base::OutputFilter</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::FilterElementPost::Znuny4OTRSRepoAdminPackageManager</Item>
+                <Item Key="Templates">
+                    <Hash>
+                        <Item Key="AdminPackageManager">1</Item>
+                    </Hash>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Template::GenerateBlockHooks###100-Znuny4OTRSRepoAdminPackageManager" Required="1" Valid="1">
+        <Description Translatable="1">Block hooks to be created for package manager output filter.</Description>
+        <Navigation>Core::Znuny4OTRS::Repo</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="AdminPackageManager">
+                    <Array>
+                        <Item>Overview</Item>
+                        <Item>OverviewFileUpload</Item>
+                        <Item>NoDataFoundMsg</Item>
+                        <Item>ShowRemotePackage</Item>
+                    </Array>
+                </Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Ticket::Frontend::MenuModule###999-Znuny4OTRSTicketToUnitTest" Required="0" Valid="0">
+        <Description Translatable="1">Shows a link in the menu to go create a unit test from the current ticket.</Description>
+        <Navigation>Frontend::Agent::View::TicketZoom::MenuModule</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::TicketMenu::Generic</Item>
+                <Item Key="Group">rw:admin</Item>
+                <Item Key="Name" Translatable="1">Create analysis file</Item>
+                <Item Key="Description" Translatable="1">Creates a analysis file from this ticket.</Item>
+                <Item Key="Action"></Item>
+                <Item Key="Link">Action=AgentZnuny4OTRSTicketToUnitTest;Subaction=CreateFile;TicketID=[% Data.TicketID | html %]</Item>
+                <Item Key="Target"></Item>
+                <Item Key="PopupType"></Item>
+                <Item Key="ClusterName" Translatable="1">Miscellaneous</Item>
+                <Item Key="ClusterPriority">998</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Ticket::Frontend::MenuModule###999-Znuny4OTRSTicketToUnitTestSend" Required="0" Valid="0">
+        <Description Translatable="1">Shows a link in the menu to go create a unit test from the current ticket.</Description>
+        <Navigation>Frontend::Agent::View::TicketZoom::MenuModule</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::TicketMenu::Generic</Item>
+                <Item Key="Group">rw:admin</Item>
+                <Item Key="Name" Translatable="1">Send analysis file</Item>
+                <Item Key="Description" Translatable="1">Creates a analysis file from this ticket and sends to Znuny.</Item>
+                <Item Key="Action"></Item>
+                <Item Key="Link">Action=AgentZnuny4OTRSTicketToUnitTest;Subaction=SendEmail;TicketID=[% Data.TicketID | html %]</Item>
+                <Item Key="Target"></Item>
+                <Item Key="PopupType"></Item>
+                <Item Key="ClusterName" Translatable="1">Miscellaneous</Item>
+                <Item Key="ClusterPriority">999</Item>
+            </Hash>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Module###AgentZnuny4OTRSTicketToUnitTest" Required="1" Valid="1">
+        <Description Translatable="1">Frontend module registration for the agent interface.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration</Navigation>
+        <Value>
+            <Item ValueType="FrontendRegistration">
+                <Hash>
+                    <Item Key="GroupRo">
+                        <Array>
+                        </Array>
+                    </Item>
+                    <Item Key="Group">
+                        <Array>
+                            <Item>admin</Item>
+                        </Array>
+                    </Item>
+                    <Item Key="Description">Creates a analysis file from a ticket.</Item>
+                    <Item Key="Title">TicketToUnitTest</Item>
+                    <Item Key="NavBarName"></Item>
+                </Hash>
+            </Item>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::Navigation###AgentZnuny4OTRSTicketToUnitTest###002-Ticket" Required="0" Valid="0">
+        <Description Translatable="1">Main menu item registration.</Description>
+        <Navigation>Frontend::Agent::ModuleRegistration::MainMenu</Navigation>
+        <Value>
+            <Array>
+                <DefaultItem ValueType="FrontendNavigation">
+                    <Hash>
+                    </Hash>
+                </DefaultItem>
+            </Array>
+        </Value>
+    </Setting>
+    <Setting Name="Frontend::NotifyModule###8000-PackageManager-CheckNotVerifiedPackages" Required="0" Valid="0">
+        <Description Translatable="1">Defines the module to display a notification in the agent interface, if the installation of not verified packages is activated (only shown to admins).</Description>
+        <Navigation>Frontend::Agent::FrontendNotification</Navigation>
+        <Value>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::Notification::PackageManagerCheckNotVerifiedPackages</Item>
+            </Hash>
+        </Value>
+    </Setting>
+</otrs_config>
