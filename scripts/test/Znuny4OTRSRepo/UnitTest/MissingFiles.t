@@ -31,7 +31,7 @@ my $CacheObject       = $Kernel::OM->Get('Kernel::System::Cache');
 my $MainObject        = $Kernel::OM->Get('Kernel::System::Main');
 my $YAMLObject        = $Kernel::OM->Get('Kernel::System::YAML');
 
-my ($fh, $Filename) = $FileTempObject->TempFile();
+my ( $FH, $Filename ) = $FileTempObject->TempFile();
 
 my $Home = $ConfigObject->Get('Home');
 
