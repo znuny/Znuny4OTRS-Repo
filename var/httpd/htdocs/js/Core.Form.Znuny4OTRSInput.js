@@ -875,6 +875,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return true;
     }
 
+    TargetNS.Visible = function (Attribute) {
+        var FieldID = TargetNS.FieldID(Attribute);
+        if (!FieldID) return;
+
+        return $("label[for='" + FieldID + "']:visible").length ? true : false;
+    }
+
     /*
 
     Manipulates the field to mandatory or optional field.
