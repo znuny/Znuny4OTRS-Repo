@@ -1,5 +1,5 @@
 // --
-// Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+// Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
@@ -1045,6 +1045,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
 
         return true;
+    }
+
+    TargetNS.Visible = function (Attribute) {
+        var FieldID = TargetNS.FieldID(Attribute);
+        if (!FieldID) return;
+
+        return $("label[for='" + FieldID + "']:visible").length ? true : false;
     }
 
     /*
