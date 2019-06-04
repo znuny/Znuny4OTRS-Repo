@@ -44,10 +44,10 @@ $Self->False(
 );
 
 $HelperObject->ConsoleCommand(
-    CommandModule => 'Kernel::System::Console::Command::Maint::LinkObject::Znuny4OTRS::LinkAdd',
+    CommandModule => 'Kernel::System::Console::Command::Znuny4OTRS::Repo::Maint::LinkObject::LinkAdd',
     Parameter     => [
-        '--source-object', 'Ticket',   '--source-key', $TicketID1, '--target-object', 'Ticket',
-        '--target-key',    $TicketID2, '--type',       'Normal',   '--state',         'Valid'
+        '--source-object', 'Ticket', '--source-key', $TicketID1, '--target-object', 'Ticket',
+        '--target-key', $TicketID2, '--type', 'Normal', '--state', 'Valid'
     ],
 );
 
@@ -67,10 +67,10 @@ $Self->True(
 );
 
 $HelperObject->ConsoleCommand(
-    CommandModule => 'Kernel::System::Console::Command::Maint::LinkObject::Znuny4OTRS::LinkDelete',
+    CommandModule => 'Kernel::System::Console::Command::Znuny4OTRS::Repo::Maint::LinkObject::LinkDelete',
     Parameter     => [
-        '--source-object', 'Ticket',   '--source-key', $TicketID1, '--target-object', 'Ticket',
-        '--target-key',    $TicketID2, '--type',       'Normal'
+        '--source-object', 'Ticket', '--source-key', $TicketID1, '--target-object', 'Ticket',
+        '--target-key', $TicketID2, '--type', 'Normal'
     ],
 );
 

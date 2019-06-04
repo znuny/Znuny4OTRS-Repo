@@ -79,7 +79,7 @@ $Self->IsDeeply(
 );
 
 my $Result = $HelperObject->ConsoleCommand(
-    CommandModule => 'Kernel::System::Console::Command::Admin::Config::Znuny4OTRS::MissingFiles',
+    CommandModule => 'Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::Config::MissingFiles',
 );
 
 $Self->True(
@@ -113,7 +113,7 @@ $Result = $HelperObject->ConsoleCommand(
 $CacheObject->CleanUp();
 
 $Result = $HelperObject->ConsoleCommand(
-    CommandModule => 'Kernel::System::Console::Command::Admin::Config::Znuny4OTRS::MissingFiles',
+    CommandModule => 'Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::Config::MissingFiles',
 );
 
 $Self->True(
@@ -166,14 +166,14 @@ $Self->IsNotDeeply(
 );
 
 $Result = $HelperObject->ConsoleCommand(
-    CommandModule => 'Kernel::System::Console::Command::Admin::Config::Znuny4OTRS::MissingFiles',
+    CommandModule => 'Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::Config::MissingFiles',
     Parameter     => ['--autofix'],
 );
 
 $CacheObject->CleanUp();
 
 $Result = $HelperObject->ConsoleCommand(
-    CommandModule => 'Kernel::System::Console::Command::Admin::Config::Znuny4OTRS::MissingFiles',
+    CommandModule => 'Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::Config::MissingFiles',
 );
 
 $Self->True(
