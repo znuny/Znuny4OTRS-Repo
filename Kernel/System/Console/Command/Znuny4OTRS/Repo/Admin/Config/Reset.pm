@@ -9,7 +9,7 @@
 # did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 # --
 
-package Kernel::System::Console::Command::Admin::Config::Znuny4OTRS::Reset;
+package Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::Config::Reset;
 
 use strict;
 use warnings;

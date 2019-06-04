@@ -7,7 +7,7 @@
 # --
 ## nofilter(TidyAll::Plugin::OTRS::Perl::Dumper)
 
-package Kernel::System::Console::Command::Admin::Config::Znuny4OTRS::MissingFiles;
+package Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::Config::MissingFiles;
 
 use strict;
 use warnings;
