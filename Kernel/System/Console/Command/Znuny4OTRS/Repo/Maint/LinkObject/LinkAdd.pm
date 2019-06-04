@@ -9,7 +9,7 @@
 # did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 # --
 
-package Kernel::System::Console::Command::Maint::LinkObject::Znuny4OTRS::LinkAdd;
+package Kernel::System::Console::Command::Znuny4OTRS::Repo::Maint::LinkObject::LinkAdd;
 
 use strict;
 use warnings;
