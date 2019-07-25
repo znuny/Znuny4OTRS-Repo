@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 ## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::DeprecatedPackageSetupInit)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::PackageSetupInit)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::HashObjectMethodCall)
 
 package Kernel::System::ZnunyHelper;
@@ -3084,7 +3084,8 @@ sub _QueueCreateIfNotExists {
     my $Name = $Param{Name};
 
     my %QueueReversed = $Kernel::OM->Get('Kernel::System::Queue')->QueueList(
-        UserID => 1
+        UserID => 1,
+        Valid  => 0,
     );
     %QueueReversed = reverse %QueueReversed;
 
