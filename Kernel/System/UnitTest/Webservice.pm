@@ -22,6 +22,7 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::GenericInterface::Provider',
     'Kernel::System::Cache',
+    'Kernel::System::Daemon::SchedulerDB',
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::JSON',
     'Kernel::System::Log',
@@ -41,11 +42,9 @@ All web service functions
 
 =head1 PUBLIC INTERFACE
 
-=over 4
-
 =cut
 
-=item new()
+=head2 new()
 
 create an object
 
@@ -70,7 +69,7 @@ sub new {
     return $Self;
 }
 
-=item Process()
+=head2 Process()
 
 This function simulate an incoming web service call to test operations and the mapping.
 
@@ -159,7 +158,7 @@ sub Process {
     return $Response;
 }
 
-=item Mock()
+=head2 Mock()
 
 Mocks all outgoing requests to a given mapping.
 
@@ -223,7 +222,7 @@ sub Mock {
     return 1;
 }
 
-=item MockFromFile()
+=head2 MockFromFile()
 
 Loads a mapping from JSON file placed in 'var/mocks/' in the
 Webservice sub directory named as the Invoker like e.g.:
@@ -286,7 +285,7 @@ sub MockFromFile {
     return 1;
 }
 
-=item Result()
+=head2 Result()
 
 Returns the result of all requests since beginning or the last $UnitTestWebserviceObject->Result() call. Result cache gets cleared after calling this function.
 
@@ -342,7 +341,7 @@ sub Result {
     return $StoredResults;
 }
 
-=item ValidateResult()
+=head2 ValidateResult()
 
 Processes the results of expected mocked web service calls. If no web service call was mocked an error is printed.
 
@@ -444,7 +443,137 @@ sub ValidateResult {
     return $MockResults;
 }
 
-=item OperationFunctionCall()
+=head2 SchedulerRunAll()
+
+This function will execute all asynchronous task handler tasks.
+
+    my $Success = $UnitTestWebserviceObject->SchedulerRunAll(
+        UnitTestObject => $Self,
+    );
+
+    my $Success = $UnitTestWebserviceObject->SchedulerRunAll(
+        UnitTestObject => $Self,
+        Type           => 'AsynchronousExecutor', # optional, default is 'GenericInterface'
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub SchedulerRunAll {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject         = $Kernel::OM->Get('Kernel::System::Log');
+    my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject)) {
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Type = $Param{Type} || 'GenericInterface';
+
+    my $TaskHandlerObject = $Kernel::OM->Get( 'Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker::' . $Type );
+
+    my @InvokerTasks = $SchedulerDBObject->TaskList(
+        Type => $Type,
+    );
+
+    $Param{UnitTestObject}->IsNot(
+        scalar @InvokerTasks,
+        0,
+        'Found invoker tasks to execute',
+    );
+
+    for my $TaskData (@InvokerTasks) {
+
+        my %ConfirmTask = $SchedulerDBObject->TaskGet(
+            TaskID => $TaskData->{TaskID},
+        );
+
+        # call run method on task handler object
+        $TaskHandlerObject->Run(
+            TaskID   => $ConfirmTask{TaskID},
+            TaskName => $ConfirmTask{Name},
+            Data     => $ConfirmTask{Data},
+        );
+
+        $Param{UnitTestObject}->True(
+            $ConfirmTask{Name},
+            "Run invoker task with name '$ConfirmTask{Name}'",
+        );
+
+        # delete the task
+        $SchedulerDBObject->TaskDelete(
+            TaskID => $ConfirmTask{TaskID},
+        );
+    }
+
+    return 1;
+}
+
+=head2 SchedulerCleanUp()
+
+This function will cleanup all tasks for the scheduler.
+
+    my $Success = $UnitTestWebserviceObject->SchedulerCleanUp(
+        Type => 'AsynchronousExecutor', # optional, default is 'GenericInterface'
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub SchedulerCleanUp {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject         = $Kernel::OM->Get('Kernel::System::Log');
+    my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject)) {
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Type = $Param{Type} || 'GenericInterface';
+
+    my @List = $SchedulerDBObject->TaskList(
+        Type => $Type,
+    );
+
+    for my $Task (@List) {
+        $SchedulerDBObject->TaskDelete(
+            TaskID => $Task->{TaskID},
+        );
+    }
+
+    $Param{UnitTestObject}->True(
+        1,
+        "CleanUp for all scheduler tasks of type '$Type'",
+    );
+
+    return 1;
+}
+
+=head2 OperationFunctionCall()
 
 This function will initialize an operation to test specific functions of an operation.
 
@@ -541,7 +670,7 @@ sub OperationFunctionCall {
     return;
 }
 
-=item InvokerFunctionCall()
+=head2 InvokerFunctionCall()
 
 This function will initialize an invoker to test specific functions of an invoker.
 
@@ -638,7 +767,7 @@ sub InvokerFunctionCall {
     return;
 }
 
-=item _WebserviceObjectModify()
+=head2 _WebserviceObjectModify()
 
 This is an internal function which will be used for OperationFunctionCall and InvokerFunctionCall
 to modify the object values of the initialized web service invoker or operation object.
@@ -687,7 +816,7 @@ sub _WebserviceObjectModify {
     return 1;
 }
 
-=item CreateGenericInterfaceMappingObject()
+=head2 CreateGenericInterfaceMappingObject()
 
 Creates a mapping object to be used within unit tests.
 
@@ -756,7 +885,7 @@ sub CreateGenericInterfaceMappingObject {
     return $MappingObject;
 }
 
-=item _RedefineTransport()
+=head2 _RedefineTransport()
 
 This function redefines the functions of the transport object to handle tests and provide the results.
 
@@ -984,15 +1113,3 @@ sub _RedefineTransport {
 }
 
 1;
-
-=back
-
-=head1 TERMS AND CONDITIONS
-
-This software is part of the OTRS project (L<http://otrs.org/>).
-
-This software comes with ABSOLUTELY NO WARRANTY. For details, see
-the enclosed file COPYING for license information (AGPL). If you
-did not receive this file, see L<http://www.gnu.org/licenses/agpl.txt>.
-
-=cut
