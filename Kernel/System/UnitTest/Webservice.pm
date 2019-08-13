@@ -526,7 +526,12 @@ sub SchedulerRunAll {
 This function will cleanup all tasks for the scheduler.
 
     my $Success = $UnitTestWebserviceObject->SchedulerCleanUp(
-        Type => 'AsynchronousExecutor', # optional, default is 'GenericInterface'
+        UnitTestObject => $Self,
+    );
+
+    my $Success = $UnitTestWebserviceObject->SchedulerCleanUp(
+        UnitTestObject => $Self,
+        Type           => 'AsynchronousExecutor', # optional, default is 'GenericInterface'
     );
 
 Returns:
