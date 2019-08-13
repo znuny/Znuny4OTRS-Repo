@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -21,6 +21,7 @@ use Kernel::GenericInterface::Transport;
 our @ObjectDependencies = (
     'Kernel::GenericInterface::Provider',
     'Kernel::System::Cache',
+    'Kernel::System::Daemon::SchedulerDB',
     'Kernel::System::GenericInterface::Webservice',
     'Kernel::System::Log',
     'Kernel::System::Main',
@@ -377,6 +378,141 @@ sub ValidateResult {
     );
 
     return $MockResults;
+}
+
+=item SchedulerRunAll()
+
+This function will execute all asynchronous task handler tasks.
+
+    my $Success = $UnitTestWebserviceObject->SchedulerRunAll(
+        UnitTestObject => $Self,
+    );
+
+    my $Success = $UnitTestWebserviceObject->SchedulerRunAll(
+        UnitTestObject => $Self,
+        Type           => 'AsynchronousExecutor', # optional, default is 'GenericInterface'
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub SchedulerRunAll {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject         = $Kernel::OM->Get('Kernel::System::Log');
+    my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject)) {
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Type = $Param{Type} || 'GenericInterface';
+
+    my $TaskHandlerObject = $Kernel::OM->Get( 'Kernel::System::Daemon::DaemonModules::SchedulerTaskWorker::' . $Type );
+
+    my @InvokerTasks = $SchedulerDBObject->TaskList(
+        Type => $Type,
+    );
+
+    $Param{UnitTestObject}->IsNot(
+        scalar @InvokerTasks,
+        0,
+        'Found invoker tasks to execute',
+    );
+
+    for my $TaskData (@InvokerTasks) {
+
+        my %ConfirmTask = $SchedulerDBObject->TaskGet(
+            TaskID => $TaskData->{TaskID},
+        );
+
+        # call run method on task handler object
+        $TaskHandlerObject->Run(
+            TaskID   => $ConfirmTask{TaskID},
+            TaskName => $ConfirmTask{Name},
+            Data     => $ConfirmTask{Data},
+        );
+
+        $Param{UnitTestObject}->True(
+            $ConfirmTask{Name},
+            "Run invoker task with name '$ConfirmTask{Name}'",
+        );
+
+        # delete the task
+        $SchedulerDBObject->TaskDelete(
+            TaskID => $ConfirmTask{TaskID},
+        );
+    }
+
+    return 1;
+}
+
+=item SchedulerCleanUp()
+
+This function will cleanup all tasks for the scheduler.
+
+    my $Success = $UnitTestWebserviceObject->SchedulerCleanUp(
+        UnitTestObject => $Self,
+    );
+
+    my $Success = $UnitTestWebserviceObject->SchedulerCleanUp(
+        UnitTestObject => $Self,
+        Type           => 'AsynchronousExecutor', # optional, default is 'GenericInterface'
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub SchedulerCleanUp {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject         = $Kernel::OM->Get('Kernel::System::Log');
+    my $SchedulerDBObject = $Kernel::OM->Get('Kernel::System::Daemon::SchedulerDB');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(UnitTestObject)) {
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Type = $Param{Type} || 'GenericInterface';
+
+    my @List = $SchedulerDBObject->TaskList(
+        Type => $Type,
+    );
+
+    for my $Task (@List) {
+        $SchedulerDBObject->TaskDelete(
+            TaskID => $Task->{TaskID},
+        );
+    }
+
+    $Param{UnitTestObject}->True(
+        1,
+        "CleanUp for all scheduler tasks of type '$Type'",
+    );
+
+    return 1;
 }
 
 =item OperationFunctionCall()
