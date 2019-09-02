@@ -39,7 +39,7 @@ our @ObjectDependencies = (
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     'Kernel::System::DateTime',
+    'Kernel::System::DateTime',
 #     'Kernel::System::UnitTest::Driver',
     'Kernel::System::JSON',
 # ---
@@ -1778,7 +1778,7 @@ sub _CaptureScreenshot {
     # - Package for checking direct calls and early exit
     # - Line of function call to be used in filename
     my ($CallingPackage, $CallerFilename, $TestLine) = caller(1);
-    return if $CallingPackage ne 'Kernel::System::UnitTest';
+    return if $CallingPackage ne 'Kernel::System::UnitTest::Driver';
 
     # taking a screenshot after the SeleniumObject
     # is destroyed is not possible
