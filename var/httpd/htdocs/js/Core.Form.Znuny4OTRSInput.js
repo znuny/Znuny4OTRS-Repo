@@ -914,7 +914,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         $LabelObject = $('[for="'+FieldID+'"]');
 
-        IsMandatory = $LabelObject.hasClass('Mandatory');
+        // changed check from label to field class to have this
+        // function working even if there is label given for the element
+        IsMandatory = $('#'+FieldID).hasClass('Validate_Required');
 
         if (typeof Mandatory === 'undefined') {
             return IsMandatory;
@@ -1011,6 +1013,46 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         return true;
     }
+
+    /*
+
+    This function will check if there is a sidebar on the page and else it will automatically
+    create a magic sidebar and load the widget html into the sidebar.
+
+    var Success = Core.Form.Znuny4OTRSInput.MagicSideBarAddHTML(HTML);
+
+    Returns:
+
+    var Success = 1;
+
+    */
+
+    TargetNS.MagicSideBarAddHTML = function(HTML) {
+
+        if ($('div.ARIARoleMain div.SidebarColumn').length > 0) {
+            $('div.SidebarColumn').append(HTML);
+        }
+        else {
+            var $MainElement = $('div.ARIARoleMain > div.Content').last();
+
+            $MainElement.wrap('<div class="LayoutFixedSidebar SidebarLast"></div>');
+            $MainElement.removeClass('Content').addClass('ContentColumn').attr('style', 'padding-top: 15px; padding-left: 15px;');
+
+            $MainElement = $('div.LayoutFixedSidebar').last();
+
+            $MainElement.prepend('<div class="SidebarColumn" style="padding-top: 15px; padding-left: 15px; padding-right: 10px"></div>');
+            $MainElement.append('<div class="clear"></div>');
+
+            var $Widget = $('#ResponseTemplateWidget').detach();
+
+            $Widget.appendTo('div.SidebarColumn');
+            $Widget.css('position', 'static');
+
+            $('div.ARIARoleMain div.SidebarColumn').last().append(HTML);
+        }
+
+        return 1;
+    };
 
     function RebuildLevelText($Element) {
 
