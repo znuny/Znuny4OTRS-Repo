@@ -2294,6 +2294,56 @@ sub _PostMasterFilterConfigExport {
     return $ConfigString;
 }
 
+# todo this should be merged to
+# '_PostMasterFilterCreateIfNotExists' and '_PostMasterFilterCreate'
+# while OTRS 7 porting
+
+=item _PostMasterFilterConfigImport()
+
+imports configuration of postmaster filter via yml
+
+    my $Success = $ZnunyHelperObject->_PostMasterFilterConfigImport(
+        Filter => $Filter,
+        Format => 'yml',        # optional - default
+    );
+
+    $Filter = "---
+- Match:
+  - Key: Body
+    Value: '123'
+  Name: 'PostmasterFilter'
+  Not:
+  - Key: Body
+    Value: ~
+  Set:
+  - Key: X-OTRS-DynamicField-test
+    Value: '123'
+  StopAfterMatch: 0
+";
+
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _PostMasterFilterConfigImport {
+    my ( $Self, %Param ) = @_;
+
+    my $YAMLObject = $Kernel::OM->Get('Kernel::System::YAML');
+
+    my $Format = lc( $Param{Format} // 'yml' );
+
+    my $Filter;
+    if ($Format eq 'yml'){
+        $Filter = $YAMLObject->Load(
+            Data => ${$Param{Filter}},
+        );
+    }
+    return $Self->_PostMasterFilterCreateIfNotExists( @{$Filter} );
+}
+
 =item _GroupCreateIfNotExists()
 
 creates group if not exists

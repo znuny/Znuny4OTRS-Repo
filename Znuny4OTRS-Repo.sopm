@@ -234,10 +234,11 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/Output/HTML/Layout/Znuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Admin/Config/MissingFiles.pm"/>
         <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Admin/Config/Reset.pm"/>
-        <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/DynamicFieldsConfigExport.pm"/>
+        <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Admin/DynamicField/Export.pm"/>
+        <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Admin/PostMasterFilter/Export.pm"/>
+        <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Admin/PostMasterFilter/Import.pm"/>
         <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Maint/LinkObject/LinkAdd.pm"/>
         <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/Maint/LinkObject/LinkDelete.pm"/>
-        <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/PostMasterFilterConfigExport.pm"/>
         <File Permission="660" Location="Kernel/System/Console/Command/Znuny4OTRS/Repo/TicketToUnitTest.pm"/>
         <File Permission="660" Location="Kernel/System/UnitTest/Email.pm"/>
         <File Permission="660" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
@@ -296,6 +297,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Element.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Input.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Request.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/ZnunyHelper/PostMasterFilter.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ConsoleCommandHelper.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldsConfigExport.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldSet.t"/>
