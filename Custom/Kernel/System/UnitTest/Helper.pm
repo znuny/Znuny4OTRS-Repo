@@ -52,6 +52,8 @@ our @ObjectDependencies = (
 # ---
 # Znuny4OTRS-Repo
 # ---
+    'Kernel::System::DateTime',
+    'Kernel::System::Ticket',
     'Kernel::System::UnitTest',
     'Kernel::System::Service',
     'Kernel::System::SysConfig',

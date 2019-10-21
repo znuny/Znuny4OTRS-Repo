@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Console::Command::Znuny4OTRS::Repo::DynamicFieldsConfigExport;
+package Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::DynamicField::Export;
 
 use strict;
 use warnings;

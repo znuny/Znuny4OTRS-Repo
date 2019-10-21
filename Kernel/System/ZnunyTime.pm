@@ -16,6 +16,7 @@
 
 # nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
 # nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::ObjectManagerDirectCall)
+# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
 
 # This module is a replacement for Kernel::System::Time which is deprecated since OTRS 6 and will
 # ensure the availability of Kernel::System::Time functionality for future OTRS versions.
