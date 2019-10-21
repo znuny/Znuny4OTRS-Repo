@@ -6,6 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
 
 package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationResponseTimeStart;
 
