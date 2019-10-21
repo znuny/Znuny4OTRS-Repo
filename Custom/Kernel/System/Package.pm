@@ -12,6 +12,7 @@
 # Znuny4OTRS-Repo
 # ---
 # nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
+# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
 # ---
 
 package Kernel::System::Package;
