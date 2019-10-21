@@ -63,12 +63,13 @@ our @ObjectDependencies = (
     # otherwise this object will get destroyed by the OM, too
     # which causes a database and SysConfig rollback
     'Kernel::System::ZnunyHelper',
-    'Kernel::System::PostMaster',
     'Kernel::System::DynamicField',
     'Kernel::System::DynamicField::Backend',
     'Kernel::System::Encode',
     'Kernel::System::Ticket::Article',
     'Kernel::System::CommunicationLog',
+    'Kernel::System::DateTime',
+    'Kernel::System::Ticket',
 # ---
 );
 

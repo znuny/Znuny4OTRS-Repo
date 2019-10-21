@@ -36,6 +36,7 @@ our @ObjectDependencies = (
 # Znuny4OTRS-Repo
 # ---
 #     'Kernel::Config',
+    'Kernel::System::DateTime',
 # ---
     'Kernel::System::Log',
 );

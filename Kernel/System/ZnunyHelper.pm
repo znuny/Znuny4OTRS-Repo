@@ -3319,7 +3319,7 @@ of the CMDB class in the following directory:
 
 The required general catalog item will be created automatically.
 
-    my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreate(
+    my $DefinitionID = $ZnunyHelperObject->_ITSMConfigItemDefinitionCreateIfNotExists(
         Class           => 'Private Endgeraete',
         ClassFile       => 'Private_Endgeraete',  # optional
         PermissionGroup => 'itsm-configitem',     # optional
@@ -3340,312 +3340,11 @@ sub _ITSMConfigItemDefinitionCreateIfNotExists {
     );
 }
 
-=item _NotificationEventCreate()
-
-create or update notification event
-
-    my @NotificationList = (
-        {
-            Name => 'Agent::CustomerVIPPriorityUpdate',
-            Data => {
-                Events => [
-                    'TicketPriorityUpdate',
-                ],
-                ArticleAttachmentInclude => [
-                    '0'
-                ],
-                LanguageID => [
-                    'en',
-                    'de'
-                ],
-                NotificationArticleTypeID => [
-                    1,
-                ],
-                Recipients => [
-                    'Customer',
-                ],
-                TransportEmailTemplate => [
-                    'Default',
-                ],
-                Transports => [
-                    'Email',
-                ],
-                VisibleForAgent => [
-                    '0',
-                ],
-            },
-            Message => {
-                en => {
-                    Subject     => 'Priority for your ticket changed',
-                    ContentType => 'text/html',
-                    Body        => '...',
-                },
-                de => {
-                    Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
-                    ContentType => 'text/html',
-                    Body        => '...',
-                },
-            },
-        },
-        # ...
-    );
-
-    my $Success = $ZnunyHelperObject->_NotificationEventCreate( @NotificationList );
-
-Returns:
-
-    my $Success = 1;
-
-=cut
-
-sub _NotificationEventCreate {
-    my ( $Self, @NotificationEvents ) = @_;
-
-    my $LogObject               = $Kernel::OM->Get('Kernel::System::Log');
-    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
-    my $ValidObject             = $Kernel::OM->Get('Kernel::System::Valid');
-
-    my $Success = 1;
-    NOTIFICATIONEVENT:
-    for my $NotificationEvent (@NotificationEvents) {
-        next NOTIFICATIONEVENT if !IsHashRefWithData($NotificationEvent);
-
-        # check needed stuff
-        NEEDED:
-        for my $Needed (qw(Name)) {
-
-            next NEEDED if defined $NotificationEvent->{$Needed};
-
-            $LogObject->Log(
-                Priority => 'error',
-                Message  => "Parameter '$Needed' is needed!",
-            );
-            return;
-        }
-
-        my %NotificationEventReversed = $NotificationEventObject->NotificationList(
-            UserID => 1
-        );
-        %NotificationEventReversed = reverse %NotificationEventReversed;
-
-        my $ItemID = $Self->_ItemReverseListGet( $NotificationEvent->{Name}, %NotificationEventReversed );
-        my $ValidID = $NotificationEvent->{ValidID} // $ValidObject->ValidLookup(
-            Valid => 'valid',
-        );
-
-        if ($ItemID) {
-            my $UpdateSuccess = $NotificationEventObject->NotificationUpdate(
-                %{$NotificationEvent},
-                ID      => $ItemID,
-                ValidID => $ValidID,
-                UserID  => 1,
-            );
-
-            if ( !$UpdateSuccess ) {
-                $Success = 0;
-            }
-        }
-        else {
-            my $CreateID = $NotificationEventObject->NotificationAdd(
-                %{$NotificationEvent},
-                ValidID => $ValidID,
-                UserID  => 1,
-            );
-
-            if ( !$CreateID ) {
-                $Success = 0;
-            }
-        }
-    }
-
-    return $Success;
-}
-
-=item _NotificationEventCreateIfNotExists()
-
-creates notification event if not exists
-
-    my $NotificationID = $ZnunyHelperObject->_NotificationEventCreateIfNotExists(
-        Name => 'Agent::CustomerVIPPriorityUpdate',
-        Data => {
-            Events => [
-                'TicketPriorityUpdate',
-            ],
-            ArticleAttachmentInclude => [
-                '0'
-            ],
-            LanguageID => [
-                'en',
-                'de'
-            ],
-            NotificationArticleTypeID => [
-                1,
-            ],
-            Recipients => [
-                'Customer',
-            ],
-            TransportEmailTemplate => [
-                'Default',
-            ],
-            Transports => [
-                'Email',
-            ],
-            VisibleForAgent => [
-                '0',
-            ],
-        },
-        Message => {
-            en => {
-                Subject     => 'Priority for your ticket changed',
-                ContentType => 'text/html',
-                Body        => '...',
-            },
-            de => {
-                Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
-                ContentType => 'text/html',
-                Body        => '...',
-            },
-        },
-    );
-
-Returns:
-
-    my $NotificationID = 123;
-
-=cut
-
-sub _NotificationEventCreateIfNotExists {
-    my ( $Self, %Param ) = @_;
-
-    my $LogObject               = $Kernel::OM->Get('Kernel::System::Log');
-    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
-    my $ValidObject             = $Kernel::OM->Get('Kernel::System::Valid');
-
-    # check needed stuff
-    NEEDED:
-    for my $Needed (qw(Name)) {
-
-        next NEEDED if defined $Param{$Needed};
-
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
-        );
-        return;
-    }
-
-    my %NotificationEventReversed = $NotificationEventObject->NotificationList(
-        UserID => 1
-    );
-    %NotificationEventReversed = reverse %NotificationEventReversed;
-
-    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %NotificationEventReversed );
-    return $ItemID if $ItemID;
-
-    my $ValidID = $Param{ValidID} // $ValidObject->ValidLookup(
-        Valid => 'valid',
-    );
-    my $NotificationEventID = $NotificationEventObject->NotificationAdd(
-        %Param,
-        ValidID => $ValidID,
-        UserID  => 1,
-    );
-
-    return $NotificationEventID;
-}
-
-=item _StandardTemplateCreate()
-
-create or update standard template
-
-    my @StandardTemplateList = (
-        {
-            Name         => 'New Standard Template',
-            Template     => 'Thank you for your email.',
-            ContentType  => 'text/plain; charset=utf-8',
-            TemplateType => 'Answer',                     # 'Answer', 'Create', 'Email', 'Forward', 'Note', 'PhoneCall'
-            Comment      => '',                           # optional
-            ValidID      => 1,
-            UserID       => 1,
-        },
-    );
-
-    my $Success = $ZnunyHelperObject->_StandardTemplateCreate( @StandardTemplateList );
-
-Returns:
-
-    my $Success = 1;
-
-=cut
-
-sub _StandardTemplateCreate {
-    my ( $Self, @StandardTemplateList ) = @_;
-
-    my $LogObject              = $Kernel::OM->Get('Kernel::System::Log');
-    my $ValidObject            = $Kernel::OM->Get('Kernel::System::Valid');
-    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
-
-    my $Success = 1;
-
-    NOTIFICATIONEVENT:
-    for my $StandardTemplate (@StandardTemplateList) {
-        next StandardTemplate if !IsHashRefWithData($StandardTemplate);
-
-        # check needed stuff
-        NEEDED:
-        for my $Needed (qw(Name)) {
-
-            next NEEDED if defined $StandardTemplate->{$Needed};
-
-            $LogObject->Log(
-                Priority => 'error',
-                Message  => "Parameter '$Needed' is needed!",
-            );
-            return;
-        }
-
-        my %StandardTemplateReversed = $StandardTemplateObject->StandardTemplateList();
-        %StandardTemplateReversed = reverse %StandardTemplateReversed;
-
-        my $ItemID = $Self->_ItemReverseListGet( $StandardTemplate->{Name}, %StandardTemplateReversed );
-
-        my $ValidID = $StandardTemplate->{ValidID} // $ValidObject->ValidLookup(
-            Valid => 'valid',
-        );
-
-        if ($ItemID) {
-            my $UpdateSuccess = $StandardTemplateObject->StandardTemplateUpdate(
-                %{$StandardTemplate},
-                ID      => $ItemID,
-                ValidID => $ValidID,
-                UserID  => 1,
-            );
-
-            if ( !$UpdateSuccess ) {
-                $Success = 0;
-            }
-        }
-        else {
-            my $CreateID = $StandardTemplateObject->StandardTemplateAdd(
-                %{$StandardTemplate},
-                ValidID => $ValidID,
-                UserID  => 1,
-            );
-
-            if ( !$CreateID ) {
-                $Success = 0;
-            }
-        }
-    }
-
-    return $Success;
-}
-
-=item _ITSMVersionAdd()
+=item _ITSMConfigItemVersionAdd()
 
 adds or updates a ConfigItem version.
 
-    my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
+    my $VersionID = $ZnunyHelperObject->_ITSMConfigItemVersionAdd(
         ConfigItemID  => 12345,
         Name          => 'example name',
 
@@ -3696,7 +3395,7 @@ adds or updates a ConfigItem version.
     );
 
     # create new version of ConfigItem
-    my $VersionID = $ZnunyHelperObject->_ITSMVersionAdd(
+    my $VersionID = $ZnunyHelperObject->_ITSMConfigItemVersionAdd(
         ConfigItemID  => $ConfigItemID,
         Name          => 'blub',
         ClassName     => 'Computer',
@@ -3731,7 +3430,7 @@ Returns:
 
 =cut
 
-sub _ITSMVersionAdd {
+sub _ITSMConfigItemVersionAdd {
     my ( $Self, %Param ) = @_;
 
     my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
@@ -3895,18 +3594,19 @@ sub _ITSMVersionAdd {
     return $VersionID;
 }
 
-=item _ITSMVersionExists()
+
+=item _ITSMConfigItemVersionExists()
 
 checks if a version already exists without returning a error.
 
 
-    my $Found = $ZnunyHelperObject->_ITSMVersionExists(
+    my $Found = $ZnunyHelperObject->_ITSMConfigItemVersionExists(
         VersionID  => 123,
     );
 
     or
 
-    my $Found = $ZnunyHelperObject->_ITSMVersionExists(
+    my $Found = $ZnunyHelperObject->_ITSMConfigItemVersionExists(
         ConfigItemID => 123,
     );
 
@@ -3917,7 +3617,7 @@ Returns:
 
 =cut
 
-sub _ITSMVersionExists {
+sub _ITSMConfigItemVersionExists {
     my ( $Self, %Param ) = @_;
 
     my $LogObject  = $Kernel::OM->Get('Kernel::System::Log');
@@ -3977,11 +3677,11 @@ sub _ITSMVersionExists {
     return $Found;
 }
 
-=item _ITSMVersionGet()
+=item _ITSMConfigItemVersionGet()
 
 get a ConfigItem version.
 
-    my %Version = $ZnunyHelperObject->_ITSMVersionGet(
+    my %Version = $ZnunyHelperObject->_ITSMConfigItemVersionGet(
         ConfigItemID    => 12345,
         XMLDataMultiple => 1,      # default: 0, This option will return a more complex XMLData structure with multiple element data! Makes sense if you are using CountMin, CountMax etc..
     );
@@ -4006,7 +3706,7 @@ Returns:
 
 =cut
 
-sub _ITSMVersionGet {
+sub _ITSMConfigItemVersionGet {
     my ( $Self, %Param ) = @_;
 
     my $MainObject           = $Kernel::OM->Get('Kernel::System::Main');
@@ -4028,7 +3728,7 @@ sub _ITSMVersionGet {
     );
 
     return if !$ITSMConfigItemLoaded;
-    return if !$Self->_ITSMVersionExists(%Param);
+    return if !$Self->_ITSMConfigItemVersionExists(%Param);
 
     my $VersionRef = $ConfigItemObject->VersionGet(
         %Param,
@@ -4052,6 +3752,42 @@ sub _ITSMVersionGet {
     }
 
     return %VersionConfigItem;
+}
+
+=item _ITSMVersionAdd()
+
+DEPRECATED, use $Self->_ITSMConfigItemVersionAdd instead.
+
+=cut
+
+sub _ITSMVersionAdd {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->_ITSMConfigItemVersionAdd(%Param);
+}
+
+=item _ITSMVersionExists()
+
+DEPRECATED, use $Self->_ITSMConfigItemVersionExists instead.
+
+=cut
+
+sub _ITSMVersionExists {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->_ITSMConfigItemVersionExists(%Param);
+}
+
+=item _ITSMVersionGet()
+
+DEPRECATED, use $Self->_ITSMConfigItemVersionGet instead.
+
+=cut
+
+sub _ITSMVersionGet {
+    my ( $Self, %Param ) = @_;
+
+    return $Self->_ITSMConfigItemVersionGet(%Param);
 }
 
 =item _ParseXML2Data()
@@ -5213,6 +4949,308 @@ sub _ModuleGroupRemove {
     );
 
     return 1;
+}
+
+
+=item _NotificationEventCreate()
+
+create or update notification event
+
+    my @NotificationList = (
+        {
+            Name => 'Agent::CustomerVIPPriorityUpdate',
+            Data => {
+                Events => [
+                    'TicketPriorityUpdate',
+                ],
+                ArticleAttachmentInclude => [
+                    '0'
+                ],
+                LanguageID => [
+                    'en',
+                    'de'
+                ],
+                NotificationArticleTypeID => [
+                    1,
+                ],
+                Recipients => [
+                    'Customer',
+                ],
+                TransportEmailTemplate => [
+                    'Default',
+                ],
+                Transports => [
+                    'Email',
+                ],
+                VisibleForAgent => [
+                    '0',
+                ],
+            },
+            Message => {
+                en => {
+                    Subject     => 'Priority for your ticket changed',
+                    ContentType => 'text/html',
+                    Body        => '...',
+                },
+                de => {
+                    Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
+                    ContentType => 'text/html',
+                    Body        => '...',
+                },
+            },
+        },
+        # ...
+    );
+
+    my $Success = $ZnunyHelperObject->_NotificationEventCreate( @NotificationList );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _NotificationEventCreate {
+    my ( $Self, @NotificationEvents ) = @_;
+
+    my $LogObject               = $Kernel::OM->Get('Kernel::System::Log');
+    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+    my $ValidObject             = $Kernel::OM->Get('Kernel::System::Valid');
+
+    my $Success = 1;
+    NOTIFICATIONEVENT:
+    for my $NotificationEvent (@NotificationEvents) {
+        next NOTIFICATIONEVENT if !IsHashRefWithData($NotificationEvent);
+
+        # check needed stuff
+        NEEDED:
+        for my $Needed (qw(Name)) {
+
+            next NEEDED if defined $NotificationEvent->{$Needed};
+
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "Parameter '$Needed' is needed!",
+            );
+            return;
+        }
+
+        my %NotificationEventReversed = $NotificationEventObject->NotificationList(
+            UserID => 1
+        );
+        %NotificationEventReversed = reverse %NotificationEventReversed;
+
+        my $ItemID = $Self->_ItemReverseListGet( $NotificationEvent->{Name}, %NotificationEventReversed );
+        my $ValidID = $NotificationEvent->{ValidID} // $ValidObject->ValidLookup(
+            Valid => 'valid',
+        );
+
+        if ($ItemID) {
+            my $UpdateSuccess = $NotificationEventObject->NotificationUpdate(
+                %{$NotificationEvent},
+                ID      => $ItemID,
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$UpdateSuccess ) {
+                $Success = 0;
+            }
+        }
+        else {
+            my $CreateID = $NotificationEventObject->NotificationAdd(
+                %{$NotificationEvent},
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$CreateID ) {
+                $Success = 0;
+            }
+        }
+    }
+
+    return $Success;
+}
+
+=item _NotificationEventCreateIfNotExists()
+
+creates notification event if not exists
+
+    my $NotificationID = $ZnunyHelperObject->_NotificationEventCreateIfNotExists(
+        Name => 'Agent::CustomerVIPPriorityUpdate',
+        Data => {
+            Events => [
+                'TicketPriorityUpdate',
+            ],
+            ArticleAttachmentInclude => [
+                '0'
+            ],
+            LanguageID => [
+                'en',
+                'de'
+            ],
+            NotificationArticleTypeID => [
+                1,
+            ],
+            Recipients => [
+                'Customer',
+            ],
+            TransportEmailTemplate => [
+                'Default',
+            ],
+            Transports => [
+                'Email',
+            ],
+            VisibleForAgent => [
+                '0',
+            ],
+        },
+        Message => {
+            en => {
+                Subject     => 'Priority for your ticket changed',
+                ContentType => 'text/html',
+                Body        => '...',
+            },
+            de => {
+                Subject     => 'Die Prioritaet Ihres Tickets wurde geaendert',
+                ContentType => 'text/html',
+                Body        => '...',
+            },
+        },
+    );
+
+Returns:
+
+    my $NotificationID = 123;
+
+=cut
+
+sub _NotificationEventCreateIfNotExists {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject               = $Kernel::OM->Get('Kernel::System::Log');
+    my $NotificationEventObject = $Kernel::OM->Get('Kernel::System::NotificationEvent');
+    my $ValidObject             = $Kernel::OM->Get('Kernel::System::Valid');
+
+    # check needed stuff
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my %NotificationEventReversed = $NotificationEventObject->NotificationList(
+        UserID => 1
+    );
+    %NotificationEventReversed = reverse %NotificationEventReversed;
+
+    my $ItemID = $Self->_ItemReverseListGet( $Param{Name}, %NotificationEventReversed );
+    return $ItemID if $ItemID;
+
+    my $ValidID = $Param{ValidID} // $ValidObject->ValidLookup(
+        Valid => 'valid',
+    );
+    my $NotificationEventID = $NotificationEventObject->NotificationAdd(
+        %Param,
+        ValidID => $ValidID,
+        UserID  => 1,
+    );
+
+    return $NotificationEventID;
+}
+
+=item _StandardTemplateCreate()
+
+create or update standard template
+
+    my @StandardTemplateList = (
+        {
+            Name         => 'New Standard Template',
+            Template     => 'Thank you for your email.',
+            ContentType  => 'text/plain; charset=utf-8',
+            TemplateType => 'Answer',                     # 'Answer', 'Create', 'Email', 'Forward', 'Note', 'PhoneCall'
+            Comment      => '',                           # optional
+            ValidID      => 1,
+            UserID       => 1,
+        },
+    );
+
+    my $Success = $ZnunyHelperObject->_StandardTemplateCreate( @StandardTemplateList );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub _StandardTemplateCreate {
+    my ( $Self, @StandardTemplateList ) = @_;
+
+    my $LogObject              = $Kernel::OM->Get('Kernel::System::Log');
+    my $ValidObject            = $Kernel::OM->Get('Kernel::System::Valid');
+    my $StandardTemplateObject = $Kernel::OM->Get('Kernel::System::StandardTemplate');
+
+    my $Success = 1;
+
+    NOTIFICATIONEVENT:
+    for my $StandardTemplate (@StandardTemplateList) {
+        next StandardTemplate if !IsHashRefWithData($StandardTemplate);
+
+        # check needed stuff
+        NEEDED:
+        for my $Needed (qw(Name)) {
+
+            next NEEDED if defined $StandardTemplate->{$Needed};
+
+            $LogObject->Log(
+                Priority => 'error',
+                Message  => "Parameter '$Needed' is needed!",
+            );
+            return;
+        }
+
+        my %StandardTemplateReversed = $StandardTemplateObject->StandardTemplateList();
+        %StandardTemplateReversed = reverse %StandardTemplateReversed;
+
+        my $ItemID = $Self->_ItemReverseListGet( $StandardTemplate->{Name}, %StandardTemplateReversed );
+
+        my $ValidID = $StandardTemplate->{ValidID} // $ValidObject->ValidLookup(
+            Valid => 'valid',
+        );
+
+        if ($ItemID) {
+            my $UpdateSuccess = $StandardTemplateObject->StandardTemplateUpdate(
+                %{$StandardTemplate},
+                ID      => $ItemID,
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$UpdateSuccess ) {
+                $Success = 0;
+            }
+        }
+        else {
+            my $CreateID = $StandardTemplateObject->StandardTemplateAdd(
+                %{$StandardTemplate},
+                ValidID => $ValidID,
+                UserID  => 1,
+            );
+
+            if ( !$CreateID ) {
+                $Success = 0;
+            }
+        }
+    }
+
+    return $Success;
 }
 
 =item _GenericAgentCreate()
