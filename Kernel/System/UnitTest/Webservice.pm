@@ -236,6 +236,14 @@ Webservice sub directory named as the Invoker like e.g.:
         }
     );
 
+    $UnitTestWebserviceObject->MockFromFile(
+        Location => $ConfigObject->Get('Home') . "/misc/mocks/WebserviceName/SomeInvoker.json";
+        Invoker    => 'SomeInvoker',
+        Data       => {
+
+        }
+    );
+
 =cut
 
 sub MockFromFile {
@@ -259,7 +267,7 @@ sub MockFromFile {
         return;
     }
 
-    my $MockFile = $ConfigObject->Get('Home') . "/var/mocks/$Param{Webservice}/$Param{Invoker}.json";
+    my $MockFile = $Param{Location} || $ConfigObject->Get('Home') . "/var/mocks/$Param{Webservice}/$Param{Invoker}.json";
 
     my $JSONString = $MainObject->FileRead(
         Location => $MockFile,
