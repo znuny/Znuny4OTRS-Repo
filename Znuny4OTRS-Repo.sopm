@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.48</Version>
+    <Version>6.0.49</Version>
+    <ChangeLog Version="6.0.49" Date="2019-10-21 17:13:19 +0200">- Improved MockFromFile function to also handle individual locations.&#13;
+- Fixes #14 - Added PostMasterFilterConfigImport.&#13;
+- Fixed #42 - Renamed ITSM* methods to ITSMConfigItem* and added native functions.</ChangeLog>
     <ChangeLog Version="6.0.48" Date="2019-09-20 15:25:08 +0200">Moved magic sidebar function as general helper to repo and changed mandatory function to also handle fields without label.</ChangeLog>
     <ChangeLog Version="6.0.47" Date="2019-09-02 16:43:14 +0200">Fixed helper function to capure screenshots.</ChangeLog>
     <ChangeLog Version="6.0.46" Date="2019-08-13 14:21:08 +0200">Added helper functions to run or cleanup scheduler tasks.</ChangeLog>
