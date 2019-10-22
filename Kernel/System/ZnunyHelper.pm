@@ -3199,7 +3199,7 @@ sub _GeneralCatalogItemCreateIfNotExists {
     my $GroupID = $GroupObject->GroupLookup(
         Group => $Param{PermissionGroup},
     );
-    return $ItemID if $GroupID;
+    return $ItemID if !$GroupID;
 
     $GeneralCatalogObject->GeneralCatalogPreferencesSet(
         ItemID => $ItemID,
