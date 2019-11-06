@@ -498,6 +498,7 @@
                             <Item Key="AdminNotificationEvent">1</Item>
                             <Item Key="AdminProcessManagement">1</Item>
                             <Item Key="AdminSystemConfiguration">1</Item>
+                            <Item Key="AdminSystemConfigurationSearch">1</Item>
                             <Item Key="AdminSystemConfigurationView">1</Item>
                             <Item Key="AdminSystemConfigurationGroup">1</Item>
                             <Item Key="SystemConfiguration/SettingsList">1</Item>
