@@ -463,6 +463,7 @@ sub AdminSystemConfigurationGroup {
     my ( $Self, %Param ) = @_;
 
     return if $Param{TemplateFile} ne 'AdminSystemConfigurationGroup'
+        && $Param{TemplateFile} ne 'AdminSystemConfigurationSearch'
         && $Param{TemplateFile} ne 'SystemConfiguration/SettingsList'
         && $Param{TemplateFile} ne 'AdminSystemConfigurationView';
 
@@ -475,9 +476,9 @@ Remove the following block in AdminSystemConfigurationGroup
 =cut
 
     ${ $Param{Data} }
-        =~ s{<a [^>]* AdminSystemConfigurationSettingHistory [^>]* OTRSBusinessRequired [^>]* > \s* <i [^>]*> \s* <\/i [^>]*> [^<]* <\/a>}{
+        =~ s{<a [^>]* OTRSBusinessRequired [^>]* > \s* <i [^>]*> \s* <\/i [^>]*> [^<]* <\/a>}{
 
-    }xmsi;
+    }xmsig;
 
     return 1;
 }
