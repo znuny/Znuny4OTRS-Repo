@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.50</Version>
+    <Version>6.0.51</Version>
+    <ChangeLog Version="6.0.51" Date="2019-11-06 14:18:51 +0100">Improved ad blocker (thanks to @NeverMin [github issue#18]).</ChangeLog>
     <ChangeLog Version="6.0.50" Date="2019-10-25 14:58:46 +0200">Fixed parameter 'PermissionGroup' of _GeneralCatalogItemCreateIfNotExists.</ChangeLog>
     <ChangeLog Version="6.0.49" Date="2019-10-21 17:13:19 +0200">- Improved MockFromFile function to also handle individual locations.&#13;
 - Fixes #14 - Added PostMasterFilterConfigImport.&#13;
