@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.51</Version>
+    <Version>5.0.52</Version>
+    <ChangeLog Version="5.0.52" Date="2019-11-12 12:10:17 +0100">Fixed ObjectModifyFunction for InvokerFunctionCall.</ChangeLog>
     <ChangeLog Version="5.0.51" Date="2019-09-24 16:50:44 +0200">Added helper functions to run or cleanup scheduler tasks.</ChangeLog>
     <ChangeLog Version="5.0.50" Date="2019-07-25 11:45:24 +0200">Fixed QueueCreateIfNotExists to handle invalid queues correctly.</ChangeLog>
     <ChangeLog Version="5.0.49" Date="2019-05-29 14:31:08 +0200">Added new new helper function to check the visibility of form fields.</ChangeLog>
