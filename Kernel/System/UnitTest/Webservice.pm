@@ -696,7 +696,7 @@ sub InvokerFunctionCall {
 
     $Self->_WebserviceObjectModify(
         %Param,
-        Object => \$InvokerObject,
+        Object => $InvokerObject,
     );
 
     if ( ref $Data eq 'HASH' ) {
