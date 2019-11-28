@@ -586,6 +586,10 @@
                 <Item Key="AgentCustomerInformationCenter::Backend###0110-CIC-TicketEscalation">DashboardWidget CIC-TicketEscalation</Item>
                 <Item Key="AgentCustomerInformationCenter::Backend###0120-CIC-TicketNew">DashboardWidget CIC-TicketNew</Item>
                 <Item Key="AgentCustomerInformationCenter::Backend###0130-CIC-TicketOpen">DashboardWidget CIC-TicketOpen</Item>
+                <Item Key="AgentCustomerUserInformationCenter::Backend###0100-CUIC-TicketPendingReminder">DashboardWidget CUIC-TicketPendingReminder</Item>
+                <Item Key="AgentCustomerUserInformationCenter::Backend###0110-CUIC-TicketEscalation">DashboardWidget CUIC-TicketEscalation</Item>
+                <Item Key="AgentCustomerUserInformationCenter::Backend###0120-CUIC-TicketNew">DashboardWidget CUIC-TicketNew</Item>
+                <Item Key="AgentCustomerUserInformationCenter::Backend###0130-CUIC-TicketOpen">DashboardWidget CUIC-TicketOpen</Item>
             </Hash>
         </Value>
     </Setting>
