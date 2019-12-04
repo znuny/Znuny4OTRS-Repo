@@ -4564,12 +4564,6 @@ Returns:
 sub _PackageSetupInit {
     my ( $Self, %Param ) = @_;
 
-    # the package setup has some sideffects which kills the rollback effect
-    # of the restore database so we disable it.
-    # normally we should also not needed it because files are linked and config is rebuilded
-    # in a dev or ci environment.
-    return if exists $Kernel::OM->{Objects}->{'Kernel::System::UnitTest::Helper'};
-
     # rebuild ZZZ* files
     $Kernel::OM->Get('Kernel::System::SysConfig')->WriteDefault();
 
@@ -4596,10 +4590,10 @@ sub _PackageSetupInit {
         }
     }
 
-    # make sure to use a new config object
-    $Kernel::OM->ObjectsDiscard(
-        Objects => ['Kernel::Config'],
-    );
+    # Don't use ObjectDiscard of ObjectManager because
+    # restore database will not work anymore (in tests).
+    delete $Kernel::OM->{Objects}->{'Kernel::Config'};
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
     return 1;
 }
