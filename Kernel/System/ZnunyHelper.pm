@@ -7,7 +7,7 @@
 # --
 ## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
 ## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::PackageSetupInit)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::HashObjectMethodCall)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::HashObjectMethodCall)
 
 package Kernel::System::ZnunyHelper;
 
@@ -4563,6 +4563,12 @@ Returns:
 
 sub _PackageSetupInit {
     my ( $Self, %Param ) = @_;
+
+    # the package setup has some sideffects which kills the rollback effect
+    # of the restore database so we disable it.
+    # normally we should also not needed it because files are linked and config is rebuilded
+    # in a dev or ci environment.
+    return if exists $Kernel::OM->{Objects}->{'Kernel::System::UnitTest::Helper'};
 
     # rebuild ZZZ* files
     $Kernel::OM->Get('Kernel::System::SysConfig')->WriteDefault();
