@@ -19,10 +19,16 @@ my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 my $ConfigObject         = $Kernel::OM->Get('Kernel::Config');
 my $SysConfigObject      = $Kernel::OM->Get('Kernel::System::SysConfig');
 my $UnitTestHelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $DBObject             = $Kernel::OM->Get('Kernel::System::DB');
+
+my $Value = 'test';
+if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
+    $Value = 'Test';
+}
 
 # Tests for _ItemReverseListGet function
 my $ResultItemReverseListGet = $ZnunyHelperObject->_ItemReverseListGet(
-    'test', ( 'Test' => 1 )
+    $Value, ( 'Test' => 1 )
 );
 
 $Self->True(
@@ -36,7 +42,7 @@ my $ResultEventAdd = $ZnunyHelperObject->_EventAdd(
     Event  => [
         'Znuny4OTRSRepoEvent1',
         'Znuny4OTRSRepoEvent2',
-        ]
+    ],
 );
 
 $Self->True(
@@ -50,7 +56,7 @@ my $ResultEventRemove = $ZnunyHelperObject->_EventRemove(
     Event  => [
         'Znuny4OTRSRepoEvent1',
         'Znuny4OTRSRepoEvent2',
-        ]
+    ],
 );
 
 $Self->True(
