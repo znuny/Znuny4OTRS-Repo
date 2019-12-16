@@ -267,7 +267,8 @@ sub MockFromFile {
         return;
     }
 
-    my $MockFile = $Param{Location} || $ConfigObject->Get('Home') . "/var/mocks/$Param{Webservice}/$Param{Invoker}.json";
+    my $MockFile
+        = $Param{Location} || $ConfigObject->Get('Home') . "/var/mocks/$Param{Webservice}/$Param{Invoker}.json";
 
     my $JSONString = $MainObject->FileRead(
         Location => $MockFile,
