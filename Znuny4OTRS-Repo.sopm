@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.53</Version>
+    <Version>6.0.54</Version>
+    <ChangeLog Version="6.0.54" Date="2020-01-03 11:20:27 +0100">Tidied code and improved UnitTests.</ChangeLog>
     <ChangeLog Version="6.0.53" Date="2019-11-28 12:25:38 +0100">Added possibile CustomerUserInformationCenter Widgets to DefaultColumnsScreens###Framework.</ChangeLog>
     <ChangeLog Version="6.0.52" Date="2019-11-12 12:10:05 +0100">Fixed ObjectModifyFunction for InvokerFunctionCall.</ChangeLog>
     <ChangeLog Version="6.0.51" Date="2019-11-06 14:18:51 +0100">Improved ad blocker (thanks to @NeverMin [github issue#18]).</ChangeLog>
