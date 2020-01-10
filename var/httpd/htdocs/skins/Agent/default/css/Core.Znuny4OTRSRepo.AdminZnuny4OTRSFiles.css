@@ -1,0 +1,64 @@
+/**
+ * @project     OTRS (http://www.otrs.org) - Agent Frontend
+ * @copyright   Znuny GmbH
+ * @license     AGPL (http://www.gnu.org/licenses/agpl.txt)
+ */
+
+/**
+ * @package     Skin "default"
+ * @section
+ */
+
+@media screen,projection,tv,handheld {
+
+    table {
+        border-collapse: collapse
+    }
+    td {
+        /*white-space: pre;*/
+        /*font-family: monospace;*/
+        /*font-size:16px;*/
+        /*spacing: 4px;*/
+    }
+
+    td:nth-child(2) {
+        border-right: black solid 1px;
+        padding-right: 10px
+    }
+    td:nth-child(3) {
+        border-right: #999  solid 1px;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+    td:nth-child(4) {
+        padding-left: 10px
+    }
+    td:nth-child(1),
+    td:nth-child(2) {
+        color: #000;
+        padding-right: 10px;
+    }
+
+    del {
+        background-color: #fcc;
+        color:#900;
+    }
+    tr.disc_a td:nth-child(3),
+    tr.disc_b td:nth-child(4),
+    ins {
+        background-color: #cfc;
+        color:#090;
+    }
+    .change {
+    background-color: #ddf;
+    }
+
+    del, ins {
+        font-weight: bold;
+    }
+
+    ins {
+        text-decoration: none;
+    }
+
+}
