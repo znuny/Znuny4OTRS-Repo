@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2019 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - f8e895d5cd62e6509814aef6fd2210480fc57778 - Kernel/System/Package.pm
 # --
@@ -12,7 +12,6 @@
 # Znuny4OTRS-Repo
 # ---
 # nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
-# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
 # ---
 
 package Kernel::System::Package;
@@ -40,7 +39,7 @@ our @ObjectDependencies = (
 # ---
 # Znuny4OTRS-Repo
 # ---
-#     'Kernel::System::DateTime',
+    'Kernel::System::DateTime',
 # ---
     'Kernel::System::DB',
     'Kernel::System::Encode',

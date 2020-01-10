@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2019 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -22,6 +22,18 @@ sub Data {
 
     $Self->{Translation}->{'Creates a analysis file from this ticket.'}                    = 'Erstellt einen Analysedatei von diesem Ticket.';
     $Self->{Translation}->{'Creates a analysis file from this ticket and sends to Znuny.'} = 'Erstellt einen Analysedatei von diesem Ticket und sendet ihn an Znuny.';
+
+    # AdminZnuny4OTRSFiles
+    $Self->{Translation}->{'Manage system files.'} = 'Systemdateien verwalten';
+    $Self->{Translation}->{'System file support'}  = 'Systemdatei-Support';
+    $Self->{Translation}->{'Package'}              = 'Paket';
+    $Self->{Translation}->{'Package files - %s'}   = 'Paketdateien - %s';
+    $Self->{Translation}->{'Custom files'}         = 'Angepasste Dateien';
+    $Self->{Translation}->{'Changed files'}        = 'Geänderte Dateien';
+    $Self->{Translation}->{'FullPath'}             = 'Voller Pfad';
+    $Self->{Translation}->{'StateMessage'}         = 'Statusmeldung';
+    $Self->{Translation}->{'OriginalMD5'}          = 'Original-MD5';
+    $Self->{Translation}->{'Delete cache'}         = 'Cache löschen';
 
     return 1;
 }
