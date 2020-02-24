@@ -35,6 +35,12 @@ sub Data {
     $Self->{Translation}->{'OriginalMD5'}          = 'Original-MD5';
     $Self->{Translation}->{'Delete cache'}         = 'Cache löschen';
 
+    # AdminGenericInterfaceWebservice
+    $Self->{Translation}->{'Here you can activate Ready2Adopt web services that have been created according to our best practices. Please note that these web services may depend on other modules.'} = 'Hier können Sie Ready2Adopt-Webservices aktivieren, die nach unseren Best-Practices erstellt wurden. Bitte beachten Sie, dass diese Webservices von anderen Modulen abhängen können.';
+
+    # AdminPackageManager
+    $Self->{Translation}->{'Please contact your service provider if you have an active support contract.'} = 'Wenn Sie einen Support-Vertrag für Ihr Ticketsystem haben, wenden Sie sich für eine Aktualisierung bitte an den Anbieter.';
+
     return 1;
 }
 
