@@ -15,6 +15,7 @@ use utf8;
 
 our @ObjectDependencies = (
     'Kernel::Output::HTML::Layout',
+    'Kernel::System::Encode',
 );
 
 use Kernel::System::VariableCheck qw(:all);
@@ -239,9 +240,11 @@ sub AdminGenericInterfaceWebservice {
 
     return if $Param{TemplateFile} ne 'AdminGenericInterfaceWebservice';
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
 =for comment
 
-Remove the following block in AdminGenericInterfaceWebservice
+Changed FieldExplanation of following block in AdminGenericInterfaceWebservice
 
     <div class="WidgetSimple" id="ExampleWebServices">
         <div class="Header">
@@ -258,9 +261,13 @@ Remove the following block in AdminGenericInterfaceWebservice
 
 =cut
 
-    ${ $Param{Data} } =~ s{<div\s*class="WidgetSimple"\sid\="ExampleWebServices"(.*?<\/div>){3}}{
+    # Ready2Adopt-Web-Services
+    my $TranslatedExplanation = $LayoutObject->{LanguageObject}->Translate(
+        'Here you can activate Ready2Adopt web services that have been created according to our best practices. Please note that these web services may depend on other modules.',
+    );
 
-        }ms;
+    ${ $Param{Data} }
+        =~ s{(<div\s*class="WidgetSimple"\sid\="ExampleWebServices".*?<p class\="FieldExplanation">)(.*?)(<\/p>.*<\/div>)}{$1$TranslatedExplanation$3}ms;
 
     return 1;
 }
@@ -623,6 +630,8 @@ Remove the following block in header (Avatar)
 sub AdminPackageManager {
     my ( $Self, %Param ) = @_;
 
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+
     return if $Param{TemplateFile} ne 'AdminPackageManager';
 
 =for comment
@@ -652,6 +661,34 @@ Remove the following block:
 
     ${ $Param{Data} }
         =~ s{<!--HookStartCloudServicesWarning-->.*?<!--HookEndCloudServicesWarning-->}{}ms;
+
+=for comment
+
+Changed the following block:
+
+    <p>If you are a OTRS Business Solution™ customer, please visit our customer portal and file a request.</p>
+    <p><strong>Everything else will be done as part of your contract.</strong></p>
+
+with:
+
+    <p>Please contact your service provider if you have an active support contract.</p>
+
+=cut
+
+    my $OriBusinessSolutionText
+        = "If you are a OTRS Business Solution™ customer, please visit our customer portal and file a request.";
+    my $OriBusinessSolutionContract = "Everything else will be done as part of your contract.";
+    my $NewBusinessSolutionText     = "Please contact your service provider if you have an active support contract.";
+
+    my $EncodeObject = $Kernel::OM->Get('Kernel::System::Encode');
+    $EncodeObject->EncodeInput( \$OriBusinessSolutionText );
+
+    my $BusinessSolutionText     = $LayoutObject->{LanguageObject}->Translate($OriBusinessSolutionText);
+    my $BusinessSolutionContract = $LayoutObject->{LanguageObject}->Translate($OriBusinessSolutionContract);
+    $NewBusinessSolutionText = $LayoutObject->{LanguageObject}->Translate($NewBusinessSolutionText);
+
+    ${ $Param{Data} } =~ s{$BusinessSolutionText}{$NewBusinessSolutionText}ms;
+    ${ $Param{Data} } =~ s{$BusinessSolutionContract}{}ms;
 
     return 1;
 }
