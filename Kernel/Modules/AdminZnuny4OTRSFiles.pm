@@ -757,9 +757,9 @@ sub FileDetailsExtended {
 
         # please, do not delete this
         # for development
-#         $Version = "6.0.22";
-#         $Version =~ s{\.}{_}smxg;
-#         $Version = 'rel-' . $Version;
+        #         $Version = "6.0.22";
+        #         $Version =~ s{\.}{_}smxg;
+        #         $Version = 'rel-' . $Version;
 
         my $WebUserAgentObject = Kernel::System::WebUserAgent->new(
             Timeout => 15,
