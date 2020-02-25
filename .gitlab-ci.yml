@@ -1,41 +1,84 @@
-image: registry.znuny.com/znuny/docker-otrs5ci:latest
-
-services:
-  - name: docker.io/elgalu/selenium:latest
-  - name: registry.znuny.com/znuny/docker-mysql-utf8:latest
-    alias: mysql
+image: registry.znuny.com/znuny/internal/docker-otrs5ci:stable
 
 stages:
   - test
+  - manual
   - deploy
 
-job_unit_otrs_Znuny4OTRSRepo:
+mysql:
   stage: test
+  services:
+    - name: docker.io/elgalu/selenium:latest
+    - name: registry.znuny.com/znuny/internal/docker-mysql:stable
+      alias: mysql
+  variables:
+    SELENIUM_SCREENSHOTS: 'true'
+    SELENIUM_SCREENSHOTS_FUNCTIONS: 'AgentRequest, CustomerRequest'
+  artifacts:
+    expire_in: 1 week
+#    when: on_failure
+    when: always
+    untracked: true
   script:
     - env
     - pwd
     - /run.sh
     - su -c "perl /opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-Repo.sopm" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/Selenium/Element" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/Selenium/Input" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/Selenium/Request" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ConsoleCommandHelper" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsConfigExport" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldSet" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/FrontendModule" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/FunctionCalls" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/GenericAgentCreate" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/Layout" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/Postmaster" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/PostMasterFilterExport" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/Process" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ProcessWidgetDynamicFieldGroups" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/Scheduler" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/SimpleEmailValidate" -s /bin/bash otrs
-    - su -c "perl /opt/otrs/bin/otrs.Console.pl Dev::UnitTest::Run --verbose --test Znuny4OTRSRepo/UnitTest/ValidDynamicFieldScreenListGet" -s /bin/bash otrs
+    - /unittest.sh
 
-job_deploy_otrs_Znuny4OTRSRepo:
+oracle:
+  stage: test
+  services:
+    - name: docker.io/elgalu/selenium:latest
+    - name: registry.znuny.com/znuny/internal/docker-oracle:stable
+      alias: oracle
+  variables:
+    SELENIUM_SCREENSHOTS: 'true'
+    SELENIUM_SCREENSHOTS_FUNCTIONS: 'AgentRequest, CustomerRequest'
+  artifacts:
+    expire_in: 1 week
+#    when: on_failure
+    when: always
+    untracked: true
+  script:
+    - env
+    - pwd
+    - /run.sh
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-Repo.sopm" -s /bin/bash otrs
+    - /unittest.sh
+
+postgresql:
+  stage: test
+  services:
+    - name: docker.io/elgalu/selenium:latest
+    - name: registry.znuny.com/znuny/internal/docker-postgresql:stable
+      alias: postgresql
+  variables:
+    SELENIUM_SCREENSHOTS: 'true'
+    SELENIUM_SCREENSHOTS_FUNCTIONS: 'AgentRequest, CustomerRequest'
+  artifacts:
+    expire_in: 1 week
+#    when: on_failure
+    when: always
+    untracked: true
+  script:
+    - env
+    - pwd
+    - /run.sh
+    - su -c "perl /opt/otrs/bin/otrs.Console.pl Znuny4OTRS::AdvancedPackageManager::InstallSOPM /opt/otrs/Znuny4OTRS-Repo.sopm" -s /bin/bash otrs
+    - /unittest.sh
+
+manual:
+  stage: manual
+  image: registry.znuny.com/znuny/internal/docker-pandoc:stable
+  artifacts:
+    paths:
+      - ./*.pdf
+    expire_in: 1 hrs
+  script:
+    - date
+
+deploy:
   stage: deploy
   script:
     - sh /sync_repo.sh git@github.com:znuny/Znuny4OTRS-Repo.git

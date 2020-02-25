@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 06f2e8c15fc3c7a49415644a7b4d7cf601178468 - Kernel/System/UnitTest/Helper.pm
 # --
@@ -15,7 +15,8 @@ package Kernel::System::UnitTest::Helper;
 # Znuny4OTRS-Repo
 # ---
 ## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CacheCleanup)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::CacheCleanup)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
 # ---
 
 use strict;
