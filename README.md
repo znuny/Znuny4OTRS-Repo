@@ -1,4 +1,4 @@
-![Znuny logo](http://znuny.com/assets/images/logo_small.png)
+![Znuny logo](https://www.znuny.com/assets/images/logo_small.png)
 
 Znuny4OTRS-Repo
 =================
@@ -10,22 +10,22 @@ With this package, Znuny OPM repositories can be included in the OTRS package ma
 
 **Installation**
 
-Download the package and install it via admin interface -> package manager or use Znuny4OTRS-Repo.
+Download the [package](https://addons.znuny.com/api/addon_repos/public/306/latest) and upload it via admin interface -> package manager. For more details see https://www.znuny.com/add-ons/znuny4otrs-repository.
+
+**Download**
+
+Download the [latest version](https://addons.znuny.com/api/addon_repos/public/306/latest).
 
 **Configuration**
 
 No further configuration required.
 
-**Download**
-
-For download see [http://znuny.com/en/#!/addons](http://znuny.com/en/#!/addons)
-
 **Commercial Support**
 
-For this extension and for OTRS in general visit [http://znuny.com](http://znuny.com). Looking forward to hear from you!
+For this add-on and for more in general visit [https://www.znuny.com](https://www.znuny.com). Looking forward to hear from you!
 
 Enjoy!
 
- Your Znuny Team!
+Your Znuny Team!
 
- [http://znuny.com](http://znuny.com)
+[https://www.znuny.com/](https://www.znuny.com/)
