@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2018 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - cab4d630be0ff58f47cf2dfa2281020ad23cd0db - Kernel/System/UnitTest/Selenium.pm
 # --
@@ -11,7 +11,7 @@
 # ---
 # Znuny4OTRS-Repo
 # ---
-# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::STDERRCheck)
+# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
 # ---
 
 package Kernel::System::UnitTest::Selenium;

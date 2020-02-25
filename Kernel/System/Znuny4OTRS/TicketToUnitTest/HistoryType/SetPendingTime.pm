@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2018 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -37,7 +37,7 @@ sub Run {
     }
 
     if ( $Param{PendingTime} =~ /(\d{4})-(\d{1,2})-(\d{1,2})\s(\d{1,2}):(\d{1,2})(:(\d{1,2}))?/ ) {
-        if (!$6){
+        if ( !$6 ) {
             $Param{PendingTime} .= ':00';
         }
     }
