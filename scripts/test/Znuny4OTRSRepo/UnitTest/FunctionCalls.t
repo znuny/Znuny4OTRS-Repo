@@ -34,7 +34,7 @@ if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
 
 # Tests for _ItemReverseListGet function
 my $ResultItemReverseListGet = $ZnunyHelperObject->_ItemReverseListGet(
-    'test', ( 'Test' => 1 )
+    $Value, ( 'Test' => 1 )
 );
 
 $Self->True(
