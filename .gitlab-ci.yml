@@ -1,4 +1,4 @@
-image: registry.znuny.com/znuny/internal/docker-otrs5ci:stable
+image: registry.znuny.com/znuny/internal/docker-otrs5ci:$OTRS_TAG
 
 stages:
   - test
@@ -82,3 +82,5 @@ deploy:
   stage: deploy
   script:
     - sh /sync_repo.sh git@github.com:znuny/Znuny4OTRS-Repo.git
+  only:
+    - master5
