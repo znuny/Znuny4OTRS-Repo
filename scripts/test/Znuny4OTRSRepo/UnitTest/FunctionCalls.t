@@ -25,6 +25,7 @@ my $ZnunyHelperObject    = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 my $ConfigObject         = $Kernel::OM->Get('Kernel::Config');
 my $SysConfigObject      = $Kernel::OM->Get('Kernel::System::SysConfig');
 my $UnitTestHelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $DBObject             = $Kernel::OM->Get('Kernel::System::DB');
 
 my $Value = 'test';
 if ( $DBObject->{Backend}->{'DB::CaseSensitive'} ) {
