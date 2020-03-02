@@ -258,8 +258,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/System/UnitTest/ITSMConfigItem.pm"/>
         <File Permission="660" Location="Kernel/System/UnitTest/Param.pm"/>
         <File Permission="660" Location="Kernel/System/UnitTest/Scheduler.pm"/>
-        <File Permission="660" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
         <File Permission="660" Location="Kernel/System/UnitTest/Webservice.pm"/>
+        <File Permission="660" Location="Kernel/System/UnitTest/WebUserAgent.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/Base.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/AddNote.pm"/>
@@ -283,10 +283,10 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PhoneCallAgent.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PhoneCallCustomer.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PriorityUpdate.pm"/>
-        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SLAUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SendAnswer.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/ServiceUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SetPendingTime.pm"/>
+        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SLAUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/StateUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/TicketDynamicFieldUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/TimeAccounting.pm"/>
@@ -296,13 +296,14 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/DynamicField.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/Priority.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/Queue.pm"/>
-        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/SLA.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/Service.pm"/>
+        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/SLA.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/State.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/Type.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/TicketObject/User.pm"/>
         <File Permission="660" Location="Kernel/System/ZnunyHelper.pm"/>
         <File Permission="660" Location="Kernel/System/ZnunyTime.pm"/>
+        <File Permission="660" Location="Kernel/System/ZnunyUtil.pm"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ProcessExists.yml"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidProcess/UnitTestRepo.yml"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLMissingActivity.yml"/>
@@ -312,9 +313,10 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Input.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Request.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/ZnunyHelper/PostMasterFilter.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/ZnunyUtil.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ConsoleCommandHelper.t"/>
-        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldSet.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldsConfigExport.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldSet.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/DynamicFieldsScreenConfigImportExport.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FrontendModule.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/FunctionCalls.t"/>
@@ -322,8 +324,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Layout.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/LinkAddDelete.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/MissingFiles.t"/>
-        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/PostMasterFilterExport.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Postmaster.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/PostMasterFilterExport.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Process.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ProcessWidgetDynamicFieldGroups.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/Scheduler.t"/>
