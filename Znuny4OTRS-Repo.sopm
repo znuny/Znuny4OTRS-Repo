@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.55</Version>
+    <Version>6.0.56</Version>
+    <ChangeLog Version="6.0.56" Date="2020-03-02 11:51:41 +0100">Added module Kernel::System::ZnunyUtil.</ChangeLog>
     <ChangeLog Version="6.0.55" Date="2020-01-10 15:50:38 +0100">Added AdminZnuny4OTRSFiles - File Overview for custom-, changed-, package-files in Admin view.</ChangeLog>
     <ChangeLog Version="6.0.54" Date="2020-01-03 11:20:27 +0100">Tidied code and improved UnitTests.</ChangeLog>
     <ChangeLog Version="6.0.53" Date="2019-11-28 12:25:38 +0100">Added possibile CustomerUserInformationCenter Widgets to DefaultColumnsScreens###Framework.</ChangeLog>
