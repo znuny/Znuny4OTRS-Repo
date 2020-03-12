@@ -23,12 +23,15 @@ $Kernel::OM->ObjectParamAdd(
 my $HelperObject    = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 my $ZnunyUtilObject = $Kernel::OM->Get('Kernel::System::ZnunyUtil');
 
-# IsITSMInstalled
+#
+# IsITSMInstalled()
+#
+
 my $IsITSMInstalled = $ZnunyUtilObject->IsITSMInstalled();
 
 $Self->False(
-    $IsITSMInstalled,
-    'IsITSMInstalled false',
+    scalar $IsITSMInstalled,
+    'IsITSMInstalled() must report ITSM as being not installed.',
 );
 
 $HelperObject->ConfigSettingChange(
@@ -53,8 +56,30 @@ $ZnunyUtilObject = $Kernel::OM->Get('Kernel::System::ZnunyUtil');
 $IsITSMInstalled = $ZnunyUtilObject->IsITSMInstalled();
 
 $Self->True(
-    $IsITSMInstalled,
-    'IsITSMInstalled true',
+    scalar $IsITSMInstalled,
+    'IsITSMInstalled() must report ITSM as being installed.',
+);
+
+#
+# IsFrontendContext()
+#
+
+my $IsFrontendContext = $ZnunyUtilObject->IsFrontendContext();
+
+$Self->False(
+    scalar $IsFrontendContext,
+    'IsFrontendContext() must report no frontend context.',
+);
+
+# Fake frontend context.
+my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+$LayoutObject->{Action} = 'AgentTicketZoom';
+
+$IsFrontendContext = $ZnunyUtilObject->IsFrontendContext();
+
+$Self->True(
+    scalar $IsFrontendContext,
+    'IsFrontendContext() must report frontend context.',
 );
 
 1;
