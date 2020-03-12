@@ -15,6 +15,7 @@ use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::Output::HTML::Layout',
 );
 
 =head1 NAME
@@ -68,6 +69,31 @@ sub IsITSMInstalled {
     $Self->{ITSMInstalled} = $ConfigObject->Get('Frontend::Module')->{AdminITSMCIPAllocate} ? 1 : 0;
 
     return $Self->{ITSMInstalled};
+}
+
+=head2 IsFrontendContext()
+
+Checks if current code is being executed in frontend context, e. g. agent frontend.
+
+    my $IsFrontendContext = $ZnunyUtilObject->IsFrontendContext();
+
+    Returns 1 if current code is being executed in frontend context.
+    Returns 0 if otherwise (e.g. console command context).
+
+=cut
+
+sub IsFrontendContext {
+    my ( $Self, %Param ) = @_;
+
+    # Note that "exists" is required. Otherwise Perl will create the key
+    # with an undefined value which causes crashes since the object manager
+    # won't work properly anymore.
+    return if !exists $Kernel::OM->{Objects}->{'Kernel::Output::HTML::Layout'};
+
+    my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    return if !$LayoutObject->{Action};
+
+    return 1;
 }
 
 1;
