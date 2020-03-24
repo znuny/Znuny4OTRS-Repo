@@ -472,18 +472,18 @@ sub _LoaderAdd {
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
 
         # check if we have to add the 'Customer' prefix for the SysConfig key
-        my $CustomerInterfacePrefix = '';
-        if ( $View =~ m{^Customer} ) {
-            $CustomerInterfacePrefix = 'Customer';
+        my $InterfacePrefix = '';
+        if ( $View =~ m{\A(Customer|Public)} ) {
+            $InterfacePrefix = $1;
         }
 
         # get existing config for each View
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $InterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
+                Message  => "Error while getting '${InterfacePrefix}Frontend::Module' for view '$View'.",
             );
             next VIEW;
         }
@@ -525,7 +525,7 @@ sub _LoaderAdd {
         # update the sysconfig
         my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix . "Frontend::Module###" . $View,
+            Key   => $InterfacePrefix . "Frontend::Module###" . $View,
             Value => $Config,
         );
     }
@@ -565,18 +565,18 @@ sub _LoaderRemove {
         next VIEW if !IsArrayRefWithData( $LoaderConfig{$View} );
 
         # check if we have to add the 'Customer' prefix for the SysConfig key
-        my $CustomerInterfacePrefix = '';
-        if ( $View =~ m{^Customer} ) {
-            $CustomerInterfacePrefix = 'Customer';
+        my $InterfacePrefix = '';
+        if ( $View =~ m{\A(Customer|Public)} ) {
+            $InterfacePrefix = $1;
         }
 
         # get existing config for each View
-        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $CustomerInterfacePrefix . "Frontend::Module" )->{$View};
+        my $Config = $Kernel::OM->Get('Kernel::Config')->Get( $InterfacePrefix . "Frontend::Module" )->{$View};
 
         if ( !IsHashRefWithData($Config) ) {
             $Kernel::OM->Get('Kernel::System::Log')->Log(
                 Priority => 'error',
-                Message  => "Error while getting '${CustomerInterfacePrefix}Frontend::Module' for view '$View'.",
+                Message  => "Error while getting '${InterfacePrefix}Frontend::Module' for view '$View'.",
             );
             next VIEW;
         }
@@ -632,7 +632,7 @@ sub _LoaderRemove {
         # update the sysconfig
         my $Success = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
             Valid => 1,
-            Key   => $CustomerInterfacePrefix . 'Frontend::Module###' . $View,
+            Key   => $InterfacePrefix . 'Frontend::Module###' . $View,
             Value => $Config,
         );
     }
