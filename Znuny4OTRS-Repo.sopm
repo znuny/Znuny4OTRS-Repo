@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>5.0.53</Version>
+    <Version>5.0.55</Version>
+    <ChangeLog Version="5.0.55" Date="2020-03-24 15:33:46 +0100">Added support for public interface to ZnunyHelper::_LoaderAdd() and ::_LoaderRemove().</ChangeLog>
     <ChangeLog Version="5.0.53" Date="2019-12-04 09:39:13 +0100">Fixed rollback error for unit tests which are using the RestoreDatabase attribute + code object in a test.</ChangeLog>
     <ChangeLog Version="5.0.52" Date="2019-11-12 12:10:17 +0100">Fixed ObjectModifyFunction for InvokerFunctionCall.</ChangeLog>
     <ChangeLog Version="5.0.51" Date="2019-09-24 16:50:44 +0200">Added helper functions to run or cleanup scheduler tasks.</ChangeLog>
