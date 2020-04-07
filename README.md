@@ -1,5 +1,8 @@
 ![Znuny logo](https://www.znuny.com/assets/images/logo_small.png)
 
+
+![Build status](https://badge.proxy.znuny.com/Znuny4OTRS-Repo/master)
+
 Znuny4OTRS-Repo
 =================
 With this package, Znuny OPM repositories can be included in the OTRS package manager to get access to public Znuny OTRS packages. If you have received an API key from Znuny, this gives you access to the additional packages provided to you.
