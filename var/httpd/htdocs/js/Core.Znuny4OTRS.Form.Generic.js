@@ -134,12 +134,12 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
                     DestinationNameCounter = DestinationName + '_' + Counter;
 
                 $(this).removeAttr("data-formelement-remove-destination-name");
-                $(this).attr( 'data-formelement-remove-destination-name', DestinationNameCounter );
-                $(this).data( 'formelementRemoveDestinationName', DestinationNameCounter );
+                $(this).attr('data-formelement-remove-destination-name', DestinationNameCounter);
+                $(this).data('formelementRemoveDestinationName', DestinationNameCounter);
 
                 $SourceClone.removeAttr("data-formelement-remove-destination");
-                $SourceClone.attr( 'data-formelement-remove-destination', DestinationNameCounter );
-                $SourceClone.data( 'formelementRemoveDestination', DestinationNameCounter );
+                $SourceClone.attr('data-formelement-remove-destination', DestinationNameCounter);
+                $SourceClone.data('formelementRemoveDestination', DestinationNameCounter);
 
                 // bind click function to remove button
                 $(this).on('click', function () {
