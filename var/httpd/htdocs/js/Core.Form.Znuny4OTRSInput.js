@@ -6,7 +6,7 @@
 // did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 // --
 // nofilter(TidyAll::Plugin::OTRS::JavaScript::ESLint)
-
+// todo OTRS 7 rename to Core.Znun4OTRS.Form.Input and create codepolicy
 "use strict";
 
 var Core = Core || {};
