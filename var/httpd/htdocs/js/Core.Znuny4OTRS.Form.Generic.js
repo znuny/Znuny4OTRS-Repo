@@ -105,7 +105,10 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
         $Counter     = $('[data-formelement-add-counter="'     + Param['formelementAddCounterName']     + '"]');
 
         $SourceClone = $Source.clone();
-        Counter      = $Counter.val() + 1;
+        Counter      = $Counter.val();
+
+        // increment key counter
+        Counter++;
 
         $SourceClone.addClass('ValueRow');
         $SourceClone.removeClass('Hidden ValueTemplate');
