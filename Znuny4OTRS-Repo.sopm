@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.58</Version>
+    <Version>6.0.59</Version>
+    <ChangeLog Version="6.0.59" Date="2020-04-14 11:14:19 +0200">Core.Znuny4OTRS.Form.Generic - fixed increment bug +1.</ChangeLog>
     <ChangeLog Version="6.0.58" Date="2020-04-07 11:13:59 +0200">Added Core.Znuny4OTRS.Form.Generic.js to handle with multiple value lists.</ChangeLog>
     <ChangeLog Version="6.0.57" Date="2020-03-13 08:34:07 +0100">Added ZnunyUtil::IsFrontendContext().</ChangeLog>
     <ChangeLog Version="6.0.56" Date="2020-03-02 11:51:41 +0100">Added module Kernel::System::ZnunyUtil.</ChangeLog>
