@@ -942,6 +942,56 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
     /*
 
+    Manipulates the field to readonly.
+
+    var Result = Core.Form.Znuny4OTRSInput.Readonly('DynamicField_Example', true);
+    var Result = Core.Form.Znuny4OTRSInput.Readonly('DynamicField_Example', false);
+
+    Returns:
+
+        Result = true
+
+    Or:
+
+    var CurrentState = Core.Form.Znuny4OTRSInput.Readonly('DynamicField_Example');
+
+    Returns:
+
+        CurrentState = true|false
+
+    */
+    TargetNS.Readonly = function (Attribute, Readonly) {
+
+        var IsReadonly;
+        var $LabelObject;
+        var FieldID = TargetNS.FieldID(Attribute);
+
+        if (!FieldID) {
+            return false;
+        }
+
+        IsReadonly = $('#'+FieldID).prop('readonly');
+
+        if (typeof Readonly === 'undefined') {
+            return IsReadonly;
+        }
+
+        if (Readonly === IsReadonly) {
+            return true;
+        }
+
+        if (IsReadonly) {
+            $('#'+FieldID).prop('readonly', false);
+        }
+        else {
+            $('#'+FieldID).prop('readonly', true);
+        }
+
+        return true;
+    }
+
+    /*
+
     Manipulates the error state of a given attribute.
 
     var Result = Core.Form.Znuny4OTRSInput.Error('DynamicField_Example', 'Error');
