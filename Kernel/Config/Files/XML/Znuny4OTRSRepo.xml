@@ -77,6 +77,7 @@
         <Value>
             <Array>
                 <Item>Core.Form.Znuny4OTRSInput.js</Item>
+                <Item>Core.Znuny4OTRS.Form.Generic.js</Item>
             </Array>
         </Value>
     </Setting>
@@ -86,6 +87,7 @@
         <Value>
             <Array>
                 <Item>Core.Form.Znuny4OTRSInput.js</Item>
+                <Item>Core.Znuny4OTRS.Form.Generic.js</Item>
             </Array>
         </Value>
     </Setting>
