@@ -5,6 +5,7 @@
 // the enclosed file COPYING for license information (AGPL). If you
 // did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 // --
+/* eslint no-eval: 0 */
 
 "use strict";
 
@@ -31,11 +32,14 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
      *       Initialize module functionality
      */
     TargetNS.Init = function () {
-        var $Restore = $('[data-formelement-restore]');
+        var $Restore = $('[data-formelement-restore]'),
+            $Filter     = $('[data-formelement-filter]'),
+            $Allocation = $('[data-formelement-allocation]'),
+            $Checkboxes = $('[data-formelement-select-all-checkboxes]');
 
         // This binds a click event (Add) to the document and all child elements within it.
         // This means that elements that are not yet present already get the correct bind.
-        $(document).on("click", '[data-formelement-add]', function () {
+        $(document).off("click.data-formelement-add").on("click.data-formelement-add", '[data-formelement-add]', function () {
             TargetNS.Add(
                 $(this)
             );
@@ -44,7 +48,7 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
 
         // This binds a click event (Remove) to the document and all child elements within it.
         // This means that elements that are not yet present already get the correct bind.
-        $(document).on("click", '[data-formelement-remove]', function () {
+        $(document).off("click.data-formelement-remove").on("click.data-formelement-remove", '[data-formelement-remove]', function () {
             TargetNS.Remove(
                 $(this)
             );
@@ -53,7 +57,7 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
 
         // This binds a click event (Restore) to the document and all child elements within it.
         // This means that elements that are not yet present already get the correct bind.
-        $(document).on("click", '[data-formelement-restore]', function () {
+        $(document).off("click.data-formelement-restore").on("click.data-formelement-restore", '[data-formelement-restore]', function () {
             TargetNS.Restore(
                 $(this)
             );
@@ -67,6 +71,36 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
 
             RestoreElements[DestinationName] = $DestinationClone;
         });
+
+        $Filter.each(function(){
+            var DestinationName   = $(this).data('formelementFilterDestinationName'),
+                $Destination      = $('[data-formelement-filter-destination="' + DestinationName + '"]');
+            Core.UI.Table.InitTableFilter($(this), $Destination);
+        });
+
+        $Allocation.each(function(){
+            var DestinationName = $(this).data('formelementAllocationDestinationName'),
+                $Destination     = $('[data-formelement-allocation-destination="' + DestinationName + '"]'),
+                FunctionReceive  = $(this).data('formelementAllocationFunctionReceive'),
+                FunctionRemove   = $(this).data('formelementAllocationFunctionRemove'),
+                FunctionSortStop = $(this).data('formelementAllocationFunctionSortStop');
+
+            var ReceiveCallback  = eval(FunctionReceive),
+                RemoveCallback   = eval(FunctionRemove),
+                SortStopCallback = eval(FunctionSortStop);
+
+            // Core.UI.AllocationList.Init(ListSelector, ConnectorSelector, ReceiveCallback, RemoveCallback, SortStopCallback);
+            Core.UI.AllocationList.Init($(this), $Destination, ReceiveCallback, RemoveCallback, SortStopCallback);
+        });
+
+        $Checkboxes.bind('click', function () {
+            var DestinationName   = $(this).data('formelementSelectAllCheckboxesDestinationName'),
+                $Destination      = $('[data-formelement-select-all-checkboxes-destination="' + DestinationName + '"]'),
+                $Source = $(this);
+            Core.Form.SelectAllCheckboxes($Source, $Destination);
+        });
+
+
     };
 
     /**
@@ -116,23 +150,28 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
 
         // copy values and change IDs and names
         $SourceClone.find(':input, a, button').each(function() {
-            var ID        = $(this).attr('id'),
+            var ID = $(this).attr('id'),
+                CounterID;
+
+            if (Counter){
                 CounterID = ID + '_' + Counter;
 
-            $(this).attr('id', CounterID);
-            $(this).attr('name', CounterID);
+                $(this).attr('id', CounterID);
+                $(this).attr('name', CounterID);
+
+                // set error controls
+                $(this).parent().find('#' + ID + 'Error').attr('id', CounterID + 'Error');
+                $(this).parent().find('#' + ID + 'Error').attr('name', CounterID + 'Error');
+
+                $(this).parent().find('#' + ID + 'ServerError').attr('id', CounterID + 'ServerError');
+                $(this).parent().find('#' + ID + 'ServerError').attr('name', CounterID + 'ServerError');
+            }
+
 
             $(this).addClass('Validate_Required');
 
-            // set error controls
-            $(this).parent().find('#' + ID + 'Error').attr('id', CounterID + 'Error');
-            $(this).parent().find('#' + ID + 'Error').attr('name', CounterID + 'Error');
-
-            $(this).parent().find('#' + ID + 'ServerError').attr('id', CounterID + 'ServerError');
-            $(this).parent().find('#' + ID + 'ServerError').attr('name', CounterID + 'ServerError');
-
             // add event handler to remove button
-            if($(this).is('[data-formelement-remove]')) {
+            if($(this).is('[data-formelement-remove]') && $(this).data('formelementRemove') == Param['formelementAdd']) {
                 var DestinationName        = $(this).data('formelementRemoveDestinationName'),
                     DestinationNameCounter = DestinationName + '_' + Counter;
 
@@ -145,7 +184,7 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
                 $SourceClone.data('formelementRemoveDestination', DestinationNameCounter);
 
                 // bind click function to remove button
-                $(this).on('click', function () {
+                $(this).off('click.data-formelement-remove').on('click.data-formelement-remove', function () {
                     TargetNS.Remove($(this));
                     return false;
                 });
@@ -166,6 +205,11 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
         // Modernize
         Core.UI.InputFields.Activate();
 
+        Param['Counter'] = Counter;
+        Param['Clone']   = $SourceClone;
+
+        Core.App.Publish('Core.Znuny4OTRS.Form.Generic.Add', [Param]);
+
         return false;
     };
 
@@ -178,6 +222,7 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
      * @param {Object} RemoveElement - Object of the clicked remove element.
      *
      * data-formelement-remove                                              # if empty use following data attributes:
+     * data-formelement-remove-destination='AdditionalDFStorage'            # name of destination element
      * data-formelement-remove-destination-name='AdditionalDFStorage'       # name of destination element
      *
      * data-formelement-remove='.Header'                                    # if string contains class syntax - remove all elements with this class
@@ -189,7 +234,8 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
      */
     TargetNS.Remove = function (RemoveElement){
         var $Destination,
-            Param = {};
+            Param = {},
+            Counter;
 
         $.each(RemoveElement.data(), function(Key, Value) {
             Param[Key] = Value || '';
@@ -197,7 +243,8 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
 
         // removes element from data-formelement-remove-destination-name = 'AdditionalDFStorage'
         if (
-            Param['formelementRemoveDestinationName'].length
+            Param['formelementRemoveDestinationName']
+            && Param['formelementRemoveDestinationName'].length
             && $('[data-formelement-remove-destination="' + Param['formelementRemoveDestinationName'] + '"]').length
         ){
             $Destination = $('[data-formelement-remove-destination="' + Param['formelementRemoveDestinationName'] + '"]');
@@ -208,7 +255,22 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
             $Destination = $(Param['formelementRemove']);
         }
 
-        $Destination.remove();
+        if (Param['formelementRemoveCounterName'] && $('[data-formelement-remove-counter="' + Param['formelementRemoveCounterName'] + '"]')){
+            var $Counter = $('[data-formelement-remove-counter="' + Param['formelementRemoveCounterName'] + '"]');
+            Counter      = $Counter.val();
+            Counter--;
+
+             // set new counter
+            $Counter.val(Counter);
+        }
+
+        if ($Destination){
+            $Destination.remove();
+
+            Param['Counter'] = Counter;
+            Core.App.Publish('Core.Znuny4OTRS.Form.Generic.Remove', [Param]);
+        }
+
 
         return false;
     };
