@@ -12,7 +12,7 @@
             <div class="WidgetAction Toggle">
                 <a href="#" title="[% Translate("Show or hide the content") | html %]"><i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i></a>
             </div>
-            <h2>[% Translate(Data.Name) | html %]</h2>
+            <h2>[% Translate(Data.Name) | html %] [% Translate(Data.Hint) | html %]</h2>
         </div>
         <div class="Content">
             <table class="DataTable Files">

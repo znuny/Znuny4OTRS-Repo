@@ -34,6 +34,7 @@ sub Data {
     $Self->{Translation}->{'StateMessage'}         = 'Statusmeldung';
     $Self->{Translation}->{'OriginalMD5'}          = 'Original-MD5';
     $Self->{Translation}->{'Delete cache'}         = 'Cache löschen';
+    $Self->{Translation}->{'(Files where only the permissions have been changed will not be displayed.)'}         = '(Dateien bei denen nur die Permissions geändert wurde, werden nicht angezeigt.)';
 
     # AdminGenericInterfaceWebservice
     $Self->{Translation}->{'Here you can activate Ready2Adopt web services that have been created according to our best practices. Please note that these web services may depend on other modules.'} = 'Hier können Sie Ready2Adopt-Webservices aktivieren, die nach unseren Best-Practices erstellt wurden. Bitte beachten Sie, dass diese Webservices von anderen Modulen abhängen können.';
