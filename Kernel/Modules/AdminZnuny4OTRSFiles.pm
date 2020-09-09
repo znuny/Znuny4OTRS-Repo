@@ -263,10 +263,15 @@ sub _ShowFilesWidget {
     }
     else {
 
+        my $Hint;
+        if ($Param{Widget} eq 'Changed'){
+            $Hint = $LanguageObject->Translate('(Files where only the permissions have been changed will not be displayed.)');
+        }
         $LayoutObject->Block(
             Name => 'Widget',
             Data => {
                 Name   => $Param{Widget} . ' files',
+                Hint   => $Hint,
                 Widget => $Param{Widget},
             },
         );
