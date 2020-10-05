@@ -37,7 +37,7 @@ sub Run {
 
     return if ${ $Param{Data} } !~ m{<!--HookStartOverview-->}sm;
 
-    my $RepoDisabled = $ConfigObject->Get('Znuny4OTRSRepoDisable') // 0;
+    my $RepoDisabled           = $ConfigObject->Get('Znuny4OTRSRepoDisable') // 0;
     my $RemoveOnlineRepository = $RepoDisabled == 1 ? 1 : 0;
 
     # If only Znuny repositories are disabled, remove online repository

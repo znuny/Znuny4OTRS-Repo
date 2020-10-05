@@ -24,7 +24,7 @@ sub Run {
     $Param{Name} =~ /^\%\%FieldName\%\%(.+?)\%\%Value\%\%(.*?)(?:\%\%|$)/;
 
     my $FieldName = $1;
-    my $Value = $2 || '';
+    my $Value     = $2 || '';
 
     my $Output = <<OUTPUT;
 \$TempValue = \$DynamicFieldObject->DynamicFieldGet(

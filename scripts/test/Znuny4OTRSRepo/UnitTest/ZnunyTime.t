@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-# nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
+## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
 
 use strict;
 use warnings;
@@ -22,7 +22,7 @@ my $ZnunyTimeObject = $Kernel::OM->Get('Kernel::System::ZnunyTime');
 # Just make sure that both time objects behave the same
 my $SystemTime = $TimeObject->SystemTime();
 
-my $TimeStamp = $TimeObject->SystemTime2TimeStamp( SystemTime => $SystemTime );
+my $TimeStamp      = $TimeObject->SystemTime2TimeStamp( SystemTime => $SystemTime );
 my $ZnunyTimeStamp = $ZnunyTimeObject->SystemTime2TimeStamp( SystemTime => $SystemTime );
 $Self->Is(
     $ZnunyTimeStamp,
