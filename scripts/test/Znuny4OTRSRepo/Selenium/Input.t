@@ -146,7 +146,7 @@ my $SeleniumTest = sub {
             Content   => $DynamicFieldDropdownTestData{$SetType},
             Options   => {
                 KeyOrValue => $SetType,
-                }
+            },
         );
 
         $Self->True(
@@ -160,7 +160,7 @@ my $SeleniumTest = sub {
                 Attribute => 'DynamicField_UnitTestDropdown',
                 Options   => {
                     KeyOrValue => $GetType,
-                    }
+                },
             );
 
             $Self->Is(
@@ -205,7 +205,7 @@ my $SeleniumTest = sub {
             Content   => $DynamicFieldMultiSelectTestData{$SetType},
             Options   => {
                 KeyOrValue => $SetType,
-                }
+            },
         );
 
         $Self->True(
@@ -219,7 +219,7 @@ my $SeleniumTest = sub {
                 Attribute => 'DynamicField_UnitTestMultiSelect',
                 Options   => {
                     KeyOrValue => $GetType,
-                    }
+                },
             );
 
             $Self->IsDeeply(
@@ -401,7 +401,7 @@ my $SeleniumTest = sub {
                     Content   => $SetContentMapping{$SetType},
                     Options   => {
                         KeyOrValue => $SetType,
-                        }
+                    },
                 );
 
                 $Self->True(
@@ -423,7 +423,7 @@ my $SeleniumTest = sub {
                     Attribute => $JSAttribute,
                     Options   => {
                         KeyOrValue => 'Value',
-                        }
+                    },
                 );
 
                 $Self->Is(

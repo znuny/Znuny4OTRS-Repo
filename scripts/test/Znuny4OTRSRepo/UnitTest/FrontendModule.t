@@ -74,7 +74,7 @@ for my $Test (@Tests) {
 
     my %OldData;
     my $Frontend = $Test->{Parameter}->{Frontend} || 'Frontend::Module';
-    my $Module = $Test->{Parameter}->{Module};
+    my $Module   = $Test->{Parameter}->{Module};
     if (
         $Module
         && IsHashRefWithData( $ConfigObject->Get($Frontend)->{$Module} )
