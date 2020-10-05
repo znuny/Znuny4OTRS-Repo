@@ -240,6 +240,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Custom/Kernel/System/UnitTest/Selenium/WebElement.pm"/>
         <File Permission="660" Location="Kernel/Autoload/Znuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/Autoload/Znuny4OTRSRepoArticle.pm"/>
+        <File Permission="660" Location="Kernel/Autoload/Znuny4OTRSRepoDynamicFieldBackend.pm"/>
         <File Permission="660" Location="Kernel/Config/Files/XML/Znuny4OTRSRepo.xml"/>
         <File Permission="660" Location="Kernel/Config/Files/ZZZZZZnuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/Language/de_Znuny4OTRSRepo.pm"/>
@@ -316,6 +317,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLMissingActivity.yml"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLNoProcess.yml"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLNoProcessName.yml"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Autoload/Znuny4OTRSRepoDynamicFieldBackend.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Element.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Input.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Request.t"/>

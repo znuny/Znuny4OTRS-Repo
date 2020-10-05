@@ -11,7 +11,7 @@
 # ---
 # Znuny4OTRS-Repo
 # ---
-# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
 # ---
 
 package Kernel::System::Package;

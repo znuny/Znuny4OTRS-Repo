@@ -7,6 +7,7 @@
             <Array>
                 <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepo</Item>
                 <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoArticle</Item>
+                <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoDynamicFieldBackend</Item>
             </Array>
         </Value>
     </Setting>

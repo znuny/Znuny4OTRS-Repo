@@ -110,7 +110,7 @@ sub Run {
         TemplateFile => 'AdminZnuny4OTRSFiles',
         Data         => {
             %Param,
-            }
+        }
     );
 
     if ( $Self->{Subaction} eq 'ViewFile' ) {
@@ -264,8 +264,10 @@ sub _ShowFilesWidget {
     else {
 
         my $Hint;
-        if ($Param{Widget} eq 'Changed'){
-            $Hint = $LanguageObject->Translate('(Files where only the permissions have been changed will not be displayed.)');
+        if ( $Param{Widget} eq 'Changed' ) {
+            $Hint = $LanguageObject->Translate(
+                '(Files where only the permissions have been changed will not be displayed.)'
+            );
         }
         $LayoutObject->Block(
             Name => 'Widget',
@@ -626,7 +628,7 @@ sub FileDetails {
     my $FileName    = $File;
 
     $FileName =~ s{.+\/(.*)}{$1}smxg;
-    $File =~ s{$Home\/}{}smxg;
+    $File     =~ s{$Home\/}{}smxg;
 
     my $ChangedTimeStamp = $TimeObject->SystemTime2TimeStamp(
         SystemTime => $Changed,

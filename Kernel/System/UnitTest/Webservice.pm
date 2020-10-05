@@ -137,7 +137,7 @@ sub Process {
             Success   => 1,
             Operation => $Param{Operation},
             Data      => $Param{Payload},
-            }
+        },
     );
 
     $ProviderObject->Run();
@@ -282,7 +282,7 @@ sub MockFromFile {
     $Self->Mock(
         $Param{Invoker} => [
             {
-                Data => $Param{Data} || {},
+                Data   => $Param{Data} || {},
                 Result => {
                     Success => 1,
                     Data    => $MockData,

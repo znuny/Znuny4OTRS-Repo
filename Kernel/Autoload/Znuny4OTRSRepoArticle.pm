@@ -5,9 +5,9 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-# nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
-# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::CodePolicy)
-# nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::ArticleFunctions)
+## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::CodePolicy)
+## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Deprecated::ArticleFunctions)
 package Kernel::System::Ticket::Article;    ## no critic
 
 =head1 NAME
