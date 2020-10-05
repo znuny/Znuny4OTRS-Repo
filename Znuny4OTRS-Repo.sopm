@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.62</Version>
+    <Version>6.0.63</Version>
+    <ChangeLog Version="6.0.63" Date="2020-10-05 15:12:00 +0200">Added optional parameter DynamicFieldName to Kernel::System::DynamicField::Backend::ValueSet.</ChangeLog>
     <ChangeLog Version="6.0.62" Date="2020-09-15 08:50:25 +0200">Added hint for file permission in AdminZnuny4OTRSFiles.</ChangeLog>
     <ChangeLog Version="6.0.61" Date="2020-06-10 12:21:10 +0200">Core.Znuny4OTRS.Form.Generic - improvements.</ChangeLog>
     <ChangeLog Version="6.0.60" Date="2020-04-22 11:12:00 +0200">Added Readonly function to Core.Form.Znuny4OTRSInput.</ChangeLog>
