@@ -8,6 +8,7 @@
                 <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepo</Item>
                 <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoArticle</Item>
                 <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoDynamicFieldBackend</Item>
+                <Item ValueType="String">Kernel::Autoload::Znuny4OTRSRepoVariableCheck</Item>
             </Array>
         </Value>
     </Setting>
@@ -79,6 +80,7 @@
             <Array>
                 <Item>Core.Form.Znuny4OTRSInput.js</Item>
                 <Item>Core.Znuny4OTRS.Form.Generic.js</Item>
+                <Item>Core.Znuny4OTRS.JavaScriptEnhancements.js</Item>
             </Array>
         </Value>
     </Setting>
