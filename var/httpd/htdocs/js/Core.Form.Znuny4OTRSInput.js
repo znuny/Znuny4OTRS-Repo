@@ -469,21 +469,23 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return $('#' + FieldID).length ? true : false;
     }
 
+
     TargetNS.Set = function (Attribute, Content, Options) {
 
-        var Checked;
-        var CompareKeyOrValue;
-        var CustomerKey;
-        var CustomerValue;
-        var Exists;
-        var FieldID;
-        var KeyOrValue;
-        var Prefix;
-        var Selected;
-        var SetSelected;
-        var TriggerChange;
-        var Type;
-        var SetAsTicketCustomer;
+        var Checked,
+            CompareKeyOrValue,
+            CustomerKey,
+            CustomerValue,
+            Exists,
+            FieldID,
+            KeyOrValue,
+            Prefix,
+            Selected,
+            SetSelected,
+            TriggerChange,
+            Type,
+            SetAsTicketCustomer,
+            Modernize;
 
         Options = Options || {};
 
@@ -496,6 +498,11 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
         KeyOrValue = Options.KeyOrValue || 'Key';
         FieldID    = TargetNS.FieldID(Attribute);
+
+        Modernize  = true
+        if (typeof Options.Modernize === 'boolean') {
+            Modernize = Options.Modernize;
+        }
 
         if (!FieldID) {
             return false;
@@ -741,50 +748,85 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
         else if (Type == 'select') {
 
-            // reset selection
-            $('#'+ FieldID +' option').prop('selected', false);
+            // set options of select field
+            if (Options && Options.SelectOption){
 
-            // get selected values as an array
-            SetSelected = [];
-            if (Content) {
-                if (
-                    $('#'+ FieldID).prop('multiple')
-                    && $.isArray(Content)
-                ) {
-                    SetSelected = Content;
+                $('#'+ FieldID +' option').remove();
+
+                function AppendOptions() {
+                    $.each(Content, function(Key, Value) {
+                        if (Value !== '') {
+                            // $('#'+ FieldID).append(new Option(Value,Key));
+                            $('#'+ FieldID).append($('<option>', { value: Key }).text(Value));
+
+                        }
+                    });
                 }
-                else {
-                    SetSelected = [Content];
+
+                function RedrawInputField() {
+                    $('#'+ FieldID).trigger('redraw.InputField').trigger('redraw.InputField');
+                    $('#'+ FieldID).triggerHandler('change');
+                    $('#'+ FieldID).data('tree', true);
+                }
+
+                if (TriggerChange) {
+                    $.when(AppendOptions()).then(function(){
+                        $.when(RedrawInputField()).then(function(){
+                            $('#'+ FieldID + '_Search').triggerHandler('focus.InputField');
+                        })
+                    })
+                }else {
+                    AppendOptions();
                 }
             }
+            // select one option of select field
+            else {
 
-            // cast to strings
-            SetSelected = jQuery.map(SetSelected, function(Element) {
-              return Element.toString();
-            });
+                // reset selection
+                $('#'+ FieldID +' option').prop('selected', false);
 
-            $('#'+ FieldID +' option').filter(function() {
-
-                var Text = RebuildLevelText($(this));
-
-                if (KeyOrValue == 'Key') {
-                    CompareKeyOrValue = QueueIDExtract($(this).val(), Text);
-                }
-                else {
-                    CompareKeyOrValue = Text;
-                }
-
-                Selected = false;
-                // may want to use $.trim in here?
-                if (SetSelected.indexOf($.trim(CompareKeyOrValue)) != -1) {
-                    Selected = true;
+                // get selected values as an array
+                SetSelected = [];
+                if (Content) {
+                    if (
+                        $('#'+ FieldID).prop('multiple')
+                        && $.isArray(Content)
+                    ) {
+                        SetSelected = Content;
+                    }
+                    else {
+                        SetSelected = [Content];
+                    }
                 }
 
-                return Selected;
-            }).prop('selected', true);
+                // cast to strings
+                SetSelected = jQuery.map(SetSelected, function(Element) {
+                  return Element.toString();
+                });
 
-            if (TriggerChange) {
-                $('#'+ FieldID).trigger('change');
+                $('#'+ FieldID +' option').filter(function() {
+
+                    var Text = RebuildLevelText($(this));
+
+                    if (KeyOrValue == 'Key') {
+                        CompareKeyOrValue = QueueIDExtract($(this).val(), Text);
+                    }
+                    else {
+                        CompareKeyOrValue = Text;
+                    }
+
+                    Selected = false;
+                    // may want to use $.trim in here?
+                    if (SetSelected.indexOf($.trim(CompareKeyOrValue)) != -1) {
+                        Selected = true;
+                    }
+
+                    return Selected;
+                }).prop('selected', true);
+
+                if (TriggerChange) {
+                    $('#'+ FieldID).trigger('change');
+                }
             }
 
             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
@@ -831,7 +873,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         // TODO: Attachments?
 
         // trigger redraw on modernized fields
-        if ($('#'+ FieldID).hasClass('Modernize')) {
+        if (Modernize && $('#'+ FieldID).hasClass('Modernize')) {
             $('#'+ FieldID).trigger('redraw.InputField');
         }
 
