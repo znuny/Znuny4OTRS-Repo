@@ -756,9 +756,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 function AppendOptions() {
                     $.each(Content, function(Key, Value) {
                         if (Value !== '') {
-                            // $('#'+ FieldID).append(new Option(Value,Key));
                             $('#'+ FieldID).append($('<option>', { value: Key }).text(Value));
-
                         }
                     });
                 }

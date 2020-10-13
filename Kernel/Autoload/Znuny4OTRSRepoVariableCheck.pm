@@ -34,6 +34,36 @@ our @ObjectDependencies = (
     'Kernel::System::DynamicField',
 );
 
+=head2 IsDate()
+
+Test supplied data to determine if it is a date time var
+
+returns 1 if data matches criteria or undef otherwise
+
+    my $Result = IsDate(
+        2020-09-25 10:09:00, # data to be tested
+    );
+
+=cut
+
+sub IsDate {
+    my $TestData = $_[0];
+
+    return   if !$TestData;
+    return 0 if ( $TestData !~ /^(\d{4})-(\d{1,2})-(\d{1,2})$/ );
+
+    my $DateTimeObject = $Kernel::OM->Create(
+        'Kernel::System::DateTime',
+        ObjectParams => {
+            String => $TestData . ' 00:00:00',
+        }
+    );
+
+    return 0 if !$DateTimeObject;
+
+    return 1;
+}
+
 =head2 IsDateTime()
 
 Test supplied data to determine if it is a date time var

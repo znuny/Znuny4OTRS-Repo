@@ -22,8 +22,48 @@ $Kernel::OM->ObjectParamAdd(
 
 my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 
-# IsDateTime()
+# IsDate()
 my @Tests = (
+    {
+        Description => 'IsDate() - Data is undef',
+        Data        => undef,
+        Result      => undef,
+    },
+    {
+        Description => 'IsDate() - Data is invalid',
+        Data        => '2020-09-25abc',
+        Result      => 0,
+    },
+    {
+        Description => 'IsDate() - Data is invalid',
+        Data        => '2020-09-25 10:09:00',
+        Result      => 0,
+    },
+    {
+        Description => 'IsDate() - Data is invalid',
+        Data        => '2020-09-99',
+        Result      => 0,
+    },
+    {
+        Description => 'IsDate() - Data is valid',
+        Data        => '2020-09-25',
+        Result      => 1,
+    },
+);
+
+for my $Test (@Tests) {
+
+    $Self->Is(
+        scalar IsDate(
+            $Test->{Data},
+        ),
+        scalar $Test->{Result},
+        $Test->{Description},
+    );
+}
+
+# IsDateTime()
+@Tests = (
     {
         Description => 'IsDateTime() - Data is undef',
         Data        => undef,
