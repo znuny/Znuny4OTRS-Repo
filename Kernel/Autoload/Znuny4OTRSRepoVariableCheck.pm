@@ -36,12 +36,12 @@ our @ObjectDependencies = (
 
 =head2 IsDate()
 
-Test supplied data to determine if it is a date time var
+Test supplied data to determine if it is a date var
 
 returns 1 if data matches criteria or undef otherwise
 
     my $Result = IsDate(
-        2020-09-25 10:09:00, # data to be tested
+        '2020-09-25', # data to be tested
     );
 
 =cut
@@ -71,7 +71,7 @@ Test supplied data to determine if it is a date time var
 returns 1 if data matches criteria or undef otherwise
 
     my $Result = IsDateTime(
-        2020-09-25 10:09:00, # data to be tested
+        '2020-09-25 10:09:00', # data to be tested
     );
 
 =cut
