@@ -751,6 +751,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             // set options of select field
             if (Options && Options.SelectOption){
 
+                var SearchValue = $('#'+ FieldID + '_Search').val();
                 $('#'+ FieldID +' option').remove();
 
                 function AppendOptions() {
@@ -771,6 +772,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     $.when(AppendOptions()).then(function(){
                         $.when(RedrawInputField()).then(function(){
                             $('#'+ FieldID + '_Search').triggerHandler('focus.InputField');
+                            $('#'+ FieldID + '_Search').val(SearchValue);
                         })
                     })
                 }else {
