@@ -57,3 +57,62 @@ Core.AJAX.FunctionCallSynchronous = function (URL, Data, Callback, DataType) {
     // manipulated callback function and disabled async flag
     Core.AJAX.FunctionCall(URL, Data, ResetCallback, DataType);
 };
+
+/**
+ * @private
+ * @name ToggleAJAXLoader
+ * @memberof Core.Znuny4OTRS.App
+ * @function
+ * @param {String} FieldID - Id of the field which is updated via ajax
+ * @param {Boolean} Show - Show or hide the AJAX loader image
+ * @description
+ *      Shows and hides an ajax loader for every element which is updates via ajax.
+ */
+
+Core.AJAX.ToggleAJAXLoader = function (FieldID, Show) {
+    var AJAXLoaderPrefix = 'AJAXLoader',
+        $Element = $('#' + FieldID),
+        $Loader = $('#' + AJAXLoaderPrefix + FieldID),
+        LoaderHTML = '<span id="' + AJAXLoaderPrefix + FieldID + '" class="AJAXLoader"></span>';
+
+    // Ignore hidden fields
+    if ($Element.is('[type=hidden]')) {
+        return;
+    }
+    // Element not present, reset counter and ignore
+    if (!$Element.length) {
+            ActiveAJAXCalls[FieldID] = 0;
+            return;
+    }
+
+    // Init counter value, if needed.
+    // This counter stores the number of running AJAX requests for each field.
+    // The loader image will be shown if it is > 0.
+    if (typeof ActiveAJAXCalls[FieldID] === 'undefined') {
+        ActiveAJAXCalls[FieldID] = 0;
+    }
+
+    // Calculate counter
+    if (Show) {
+        ActiveAJAXCalls[FieldID]++;
+    }
+    else {
+        ActiveAJAXCalls[FieldID]--;
+        if (ActiveAJAXCalls[FieldID] <= 0) {
+            ActiveAJAXCalls[FieldID] = 0;
+        }
+    }
+
+    // Show or hide the loader
+    if (ActiveAJAXCalls[FieldID] > 0) {
+        if (!$Loader.length) {
+            $Element.after(LoaderHTML);
+        }
+        else {
+            $Loader.show();
+        }
+    }
+    else {
+        $Loader.hide();
+    }
+};
