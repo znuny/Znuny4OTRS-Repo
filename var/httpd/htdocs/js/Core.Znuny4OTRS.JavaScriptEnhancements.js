@@ -71,9 +71,10 @@ Core.AJAX.FunctionCallSynchronous = function (URL, Data, Callback, DataType) {
 
 Core.AJAX.ToggleAJAXLoader = function (FieldID, Show) {
     var AJAXLoaderPrefix = 'AJAXLoader',
-        $Element = $('#' + FieldID),
-        $Loader = $('#' + AJAXLoaderPrefix + FieldID),
-        LoaderHTML = '<span id="' + AJAXLoaderPrefix + FieldID + '" class="AJAXLoader"></span>';
+        ActiveAJAXCalls = {};
+        $Element        = $('#' + FieldID),
+        $Loader         = $('#' + AJAXLoaderPrefix + FieldID),
+        LoaderHTML      = '<span id="' + AJAXLoaderPrefix + FieldID + '" class="AJAXLoader"></span>';
 
     // Ignore hidden fields
     if ($Element.is('[type=hidden]')) {
