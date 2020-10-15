@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.65</Version>
+    <Version>6.0.66</Version>
+    <ChangeLog Version="6.0.66" Date="2020-10-15 14:09:43 +0200">Set SearchValue after new SelectOption to InputField_Search.&#13;
+Added Core.AJAX.ToggleAJAXLoader to var/httpd/htdocs/js/Core.Znuny4OTRS.JavaScriptEnhancements.js.</ChangeLog>
     <ChangeLog Version="6.0.65" Date="2020-10-13 10:40:31 +0200">Added VariableCheck IsDate.</ChangeLog>
     <ChangeLog Version="6.0.64" Date="2020-10-09 13:01:30 +0200">Added SelectOption to Core.Form.Znuny4OTRSInput.js -&gt; Set - to add new options for selection input.&#13;
 Added Znuny4OTRSRepoVariableCheck additional VariableCheck.</ChangeLog>
