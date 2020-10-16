@@ -26,8 +26,11 @@ use warnings;
 use Kernel::System::VariableCheck qw(:all);
 
 our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Cache',
+    'Kernel::System::DB',
     'Kernel::System::Log',
-    'Kernel::System::Ticket::Article',
+    'Kernel::System::Main',
 );
 
 sub ArticleCreate {
@@ -178,7 +181,7 @@ sub ArticleAttachmentIndex {
 
 Get article attachment from storage. This is a delegate method from active backend.
 
-    my %Attachment = $ArticleBackendObject->ArticleAttachment(
+    my %Attachment = $ArticleObject->ArticleAttachment(
         TicketID  => 123,
         ArticleID => 123,
         FileID    => 1,   # as returned by ArticleAttachmentIndex
@@ -212,6 +215,209 @@ sub ArticleAttachment {    ## no critic;
     );
 
     return %Attachment;
+}
+
+=head2 ArticleCount()
+
+Returns count of article.
+
+    my $Count = $ArticleObject->ArticleCount(
+        TicketID  => 123,
+    );
+
+Returns:
+
+    my $Count = 1;
+
+=cut
+
+sub ArticleCount {
+    my ( $Self, %Param ) = @_;
+
+    my $DBObject  = $Kernel::OM->Get('Kernel::System::DB');
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    NEEDED:
+    for my $Needed (qw(TicketID)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $Count = 0;
+    my $SQL   = '
+        SELECT COUNT(*)
+        FROM article
+        WHERE ticket_id = ?';
+
+    return if !$DBObject->Prepare(
+        SQL  => $SQL,
+        Bind => [ \$Param{TicketID} ],
+    );
+
+    while ( my @Row = $DBObject->FetchrowArray() ) {
+        $Count = $Row[0];
+    }
+
+    return $Count;
+}
+
+=head2 ArticleAttachmentCount()
+
+Returns count of article attachment.
+
+    my $Count = $ArticleObject->ArticleAttachmentCount(
+        TicketID  => 123,
+        ArticleID => 123,
+    );
+
+Returns:
+
+    my $Count = 1;
+
+=cut
+
+sub ArticleAttachmentCount {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject    = $Kernel::OM->Get('Kernel::System::Log');
+    my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
+    my $MainObject   = $Kernel::OM->Get('Kernel::System::Main');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    NEEDED:
+    for my $Needed (qw(TicketID ArticleID)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+    my $Count = 0;
+
+    my $ArticleBackendObject = $Self->BackendForArticle(
+        TicketID  => $Param{TicketID},
+        ArticleID => $Param{ArticleID}
+    );
+
+    if (
+        $ArticleBackendObject->{ArticleStorageModule} eq
+        'Kernel::System::Ticket::Article::Backend::MIMEBase::ArticleStorageDB'
+        )
+    {
+
+        my $SQL = '
+            SELECT COUNT(*)
+            FROM article_data_mime_attachment
+            WHERE article_id = ?';
+
+        return if !$DBObject->Prepare(
+            SQL  => $SQL,
+            Bind => [ \$Param{ArticleID} ],
+        );
+
+        while ( my @Row = $DBObject->FetchrowArray() ) {
+            $Count = $Row[0];
+        }
+
+    }
+    elsif (
+        $ArticleBackendObject->{ArticleStorageModule} eq
+        'Kernel::System::Ticket::Article::Backend::MIMEBase::ArticleStorageFS'
+        )
+    {
+
+        $Self->{ArticleDataDir} = $ConfigObject->Get('Ticket::Article::Backend::MIMEBase::ArticleDataDir');
+
+        my $ContentPath = $Self->ArticleContentPathGet(
+            ArticleID => $Param{ArticleID},
+        );
+
+        my @Filenames = $MainObject->DirectoryRead(
+            Directory => "$Self->{ArticleDataDir}/$ContentPath/$Param{ArticleID}",
+            Filter    => "*",
+            Silent    => 1,
+        );
+
+        FILENAME:
+        for my $Filename ( sort @Filenames ) {
+
+            # do not use control file
+            next FILENAME if $Filename =~ /\.content_alternative$/;
+            next FILENAME if $Filename =~ /\.content_id$/;
+            next FILENAME if $Filename =~ /\.content_type$/;
+            next FILENAME if $Filename =~ /\.disposition$/;
+            next FILENAME if $Filename =~ /\/plain.txt$/;
+            $Count++;
+        }
+    }
+
+    return $Count;
+}
+
+=head2 ArticleContentPathGet()
+
+Get the stored content path of an article.
+
+    my $Path = $BackendObject->ArticleContentPathGet(
+        ArticleID => 123,
+    );
+
+=cut
+
+sub ArticleContentPathGet {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject   = $Kernel::OM->Get('Kernel::System::Log');
+    my $CacheObject = $Kernel::OM->Get('Kernel::System::Cache');
+    my $DBObject    = $Kernel::OM->Get('Kernel::System::DB');
+
+    NEEDED:
+    for my $Needed (qw(ArticleID)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    my $CacheKey = 'ArticleContentPathGet::' . $Param{ArticleID};
+
+    my $Cache = $CacheObject->Get(
+        Type => $Self->{CacheType},
+        Key  => $CacheKey,
+    );
+    return $Cache if $Cache;
+
+    return if !$DBObject->Prepare(
+        SQL  => 'SELECT content_path FROM article_data_mime WHERE article_id = ?',
+        Bind => [ \$Param{ArticleID} ],
+    );
+
+    my $Result;
+    while ( my @Row = $DBObject->FetchrowArray() ) {
+        $Result = $Row[0];
+    }
+
+    $CacheObject->Set(
+        Type  => $Self->{CacheType},
+        TTL   => $Self->{CacheTTL},
+        Key   => $CacheKey,
+        Value => $Result,
+    );
+
+    return $Result;
 }
 
 1;

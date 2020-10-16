@@ -324,6 +324,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLMissingActivity.yml"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLNoProcess.yml"/>
         <File Permission="660" Location="scripts/processes/UnitTestRepo/ValidYAMLNoProcessName.yml"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Autoload/Znuny4OTRSRepoArticle.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Autoload/Znuny4OTRSRepoDynamicFieldBackend.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Autoload/Znuny4OTRSRepoVariableCheck.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Element.t"/>
