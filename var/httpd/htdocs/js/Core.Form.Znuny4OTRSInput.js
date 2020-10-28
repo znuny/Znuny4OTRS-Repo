@@ -773,6 +773,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                         $.when(RedrawInputField()).then(function(){
                             $('#'+ FieldID + '_Search').triggerHandler('focus.InputField');
                             $('#'+ FieldID + '_Search').val(SearchValue);
+                            $('#'+ FieldID + '_Search').focus();
                         })
                     })
                 }else {
