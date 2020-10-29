@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - f8e895d5cd62e6509814aef6fd2210480fc57778 - Kernel/System/Package.pm
+# $origin: otrs - 09b7361cd0b8244087a5189f337559efa981bd7b - Kernel/System/Package.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -154,7 +154,7 @@ returns a list of repository packages
     my @List = $PackageObject->RepositoryList();
 
     my @List = $PackageObject->RepositoryList(
-        Result => 'short',  # will only return name, version, install_status md5sum and vendor
+        Result => 'short',  # will only return name, version, install_status md5sum, vendor and build commit ID
         instead of the structure
     );
 
@@ -217,6 +217,12 @@ sub RepositoryList {
         #   opm file from a mail client on Windows (see http://bugs.otrs.org/show_bug.cgi?id=9838).
         $Content =~ s{\r\n}{\n}xmsg;
         $Package{MD5sum} = $MainObject->MD5sum( String => \$Content );
+
+        # Extract and include build commit ID.
+        if ( $Content =~ m{ <BuildCommitID> (.*) </BuildCommitID> }smx ) {
+            $Package{BuildCommitID} = $1;
+            $Package{BuildCommitID} =~ s{ ^\s+|\s+$ }{}gsmx;
+        }
 
         # get package attributes
         if ( $Content && $Result eq 'Short' ) {
@@ -282,7 +288,7 @@ sub RepositoryGet {
         Type => 'RepositoryGet',
         Key  => $CacheKey,
     );
-    return $Cache if $Cache && $Param{Result} && $Param{Result} eq 'SCALAR';
+    return $Cache    if $Cache && $Param{Result} && $Param{Result} eq 'SCALAR';
     return ${$Cache} if $Cache;
 
     # get database object
@@ -1762,7 +1768,7 @@ sub DeployCheck {
         $Param{Log} = 1;
     }
 
-    my $Package = $Self->RepositoryGet( %Param, Result => 'SCALAR' );
+    my $Package   = $Self->RepositoryGet( %Param, Result => 'SCALAR' );
     my %Structure = $Self->PackageParse( String => $Package );
 
     $Self->{DeployCheckInfo} = undef;
@@ -5468,7 +5474,7 @@ sub _ConfigurationFilesDeployCheck {
         }
     }
 
-    my $Package = $Self->RepositoryGet( %Param, Result => 'SCALAR' );
+    my $Package   = $Self->RepositoryGet( %Param, Result => 'SCALAR' );
     my %Structure = $Self->PackageParse( String => $Package );
 
     return 1 if !$Structure{Filelist};
