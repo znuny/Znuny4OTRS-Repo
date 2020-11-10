@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.68</Version>
+    <Version>6.0.69</Version>
+    <ChangeLog Version="6.0.69" Date="2020-11-10 19:34:34 +0100">Package.pm update.&#13;
+Added Core.Znuny4OTRS.JavaScriptEnhancements.js to Loader::Customer::CommonJS.</ChangeLog>
     <ChangeLog Version="6.0.68" Date="2020-10-28 10:34:17 +0100">Added focus to Core.Form.Znuny4OTRSInput.</ChangeLog>
     <ChangeLog Version="6.0.67" Date="2020-10-16 14:05:00 +0200">Added ArticleCount and ArticleAttachmentCount function.</ChangeLog>
     <ChangeLog Version="6.0.66" Date="2020-10-15 14:09:43 +0200">Set SearchValue after new SelectOption to InputField_Search.&#13;
