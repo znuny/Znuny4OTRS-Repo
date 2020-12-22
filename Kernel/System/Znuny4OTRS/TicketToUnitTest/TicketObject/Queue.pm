@@ -37,36 +37,21 @@ OUTPUT
             Name => $Queue,
         );
 
-        for my $Value ( sort keys %QueueData ) {
-            $QueueData{$Value} //= '';
-        }
-
         $Output .= <<OUTPUT;
 ## Queue '$QueueData{Name}'
 
 \$ZnunyHelperObject->_QueueCreateIfNotExists(
-    Name                => '$QueueData{Name}',
-    GroupID             => 1,
-    ValidID             => '$QueueData{ValidID}',
-    Calendar            => '$QueueData{Calendar}',
-    FirstResponseTime   => '$QueueData{FirstResponseTime}',
-    FirstResponseNotify => '$QueueData{FirstResponseNotify}',
-    UpdateTime          => '$QueueData{UpdateTime}',
-    UpdateNotify        => '$QueueData{UpdateNotify}',
-    SolutionTime        => '$QueueData{SolutionTime}',
-    SolutionNotify      => '$QueueData{SolutionNotify}',
-    UnlockTimeout       => '$QueueData{UnlockTimeout}',
-    FollowUpID          => '$QueueData{FollowUpID}',
-    FollowUpLock        => '$QueueData{FollowUpLock}',
-    DefaultSignKey      => '$QueueData{DefaultSignKey}',
-    SystemAddressID     => 1,
-    SalutationID        => 1,
-    SignatureID         => 1,
-    Comment             => '$QueueData{Comment}',
-    UserID              => \$UserID,
-);
-
 OUTPUT
+
+        for my $Attribute ( sort keys %QueueData ) {
+            $QueueData{$Attribute} //= '';
+
+            $Output .= <<OUTPUT;
+    '$Attribute' => '$QueueData{$Attribute}',
+OUTPUT
+
+        }
+        $Output .= ');';
 
     }
 

@@ -5,46 +5,47 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
-
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::AddNote;
 
 use strict;
 use warnings;
+use utf8;
 
-our @ObjectDependencies = (
-    'Kernel::System::Log',
-    'Kernel::System::Ticket::Article',
-);
+use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
-use parent qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
-sub Run {
-    my ( $Self, %Param ) = @_;
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
 
-    my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
-    my $LogObject     = $Kernel::OM->Get('Kernel::System::Log');
+my $HelperObject  = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $ArticleObject = $Kernel::OM->Get('Kernel::System::Ticket::Article');
+my $TicketToUnitTestHistoryTypeObject
+    = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EmailCustomer');
 
-    NEEDED:
-    for my $Needed (qw(ArticleID TicketID HistoryType)) {
+my $TicketID  = $HelperObject->TicketCreate();
+my $ArticleID = $HelperObject->ArticleCreate(
+    TicketID => $TicketID,
+);
 
-        next NEEDED if defined $Param{$Needed};
+my %Param = (
+    TicketID    => $TicketID,
+    ArticleID   => $ArticleID,
+    HistoryType => 'EmailCustomer',
+);
 
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
-        );
-        return;
-    }
+my %Article = $ArticleObject->ArticleGet(
+    TicketID  => $Param{TicketID},
+    ArticleID => $Param{ArticleID}
+);
 
-    my %Article = $ArticleObject->ArticleGet(
-        TicketID  => $Param{TicketID},
-        ArticleID => $Param{ArticleID}
-    );
+my $Output = $TicketToUnitTestHistoryTypeObject->Run(
+    %Param,
+);
 
-    my $Output = <<OUTPUT;
+my $ExpectedOutout = <<OUTPUT;
 \$TempValue = <<'BODY';
 $Article{Body}
 BODY
@@ -72,8 +73,10 @@ BODY
 
 OUTPUT
 
-    return $Output;
-
-}
+$Self->Is(
+    $Output,
+    $ExpectedOutout,
+    'TicketToUnitTest::HistoryType::EmailCustomer',
+);
 
 1;

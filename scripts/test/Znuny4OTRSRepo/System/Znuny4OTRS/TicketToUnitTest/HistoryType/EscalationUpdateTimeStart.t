@@ -5,23 +5,32 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ObjectDependencies)
-
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationResponseTimeStart;
 
 use strict;
 use warnings;
+use utf8;
 
-our @ObjectDependencies = ();
+use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
-use parent qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
-sub Run {
-    my ( $Self, %Param ) = @_;
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
 
-    my $Output = <<OUTPUT;
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $TicketToUnitTestHistoryTypeObject
+    = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::EscalationUpdateTimeStart');
+
+my %Param = ();
+
+my $Output = $TicketToUnitTestHistoryTypeObject->Run(
+    %Param,
+);
+
+my $ExpectedOutout = <<OUTPUT;
 \$GenericAgentObject->JobRun(
     Job    => 'trigger escalation events',
     Config => {
@@ -42,7 +51,10 @@ sub Run {
 
 OUTPUT
 
-    return $Output;
-}
+$Self->Is(
+    $Output,
+    $ExpectedOutout,
+    'TicketToUnitTest::HistoryType::EscalationUpdateTimeStart',
+);
 
 1;

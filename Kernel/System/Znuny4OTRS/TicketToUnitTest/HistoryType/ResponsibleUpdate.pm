@@ -6,7 +6,7 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::Misc;
+package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::ResponsibleUpdate;
 
 use strict;
 use warnings;
@@ -23,8 +23,12 @@ sub Run {
 
     my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
+    $Param{Name} =~ /^\%\%(.+?)\%\%(.+?)/;
+    $Param{NewUser}   ||= $1;
+    $Param{NewUserID} ||= $2;
+
     NEEDED:
-    for my $Needed (qw(TicketID UserID)) {
+    for my $Needed (qw(NewUser)) {
 
         next NEEDED if defined $Param{$Needed};
 
@@ -36,16 +40,15 @@ sub Run {
     }
 
     my $Output = <<OUTPUT;
-\$TempValue = \$TimeObject->SystemTime();
-\$Success = \$TicketObject->TicketUnlockTimeoutUpdate(
-    UnlockTimeout => \$TempValue,
-    TicketID      => \$TicketID,
-    UserID        => \$UserID,
-);
+\$Success = \$TicketObject->TicketResponsibleSet(
+    TicketID  => \$TicketID,
+    NewUser   => '$Param{NewUser}',
+    UserID    => \$UserID,
+)
 
 \$Self->True(
     \$Success,
-    'TicketUnlockTimeoutUpdate was successfull.',
+    'TicketResponsibleSet to "$Param{NewUser}" was successfull.',
 );
 
 OUTPUT

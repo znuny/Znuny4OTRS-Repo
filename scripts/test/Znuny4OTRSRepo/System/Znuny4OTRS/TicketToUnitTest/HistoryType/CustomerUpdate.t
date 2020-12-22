@@ -6,36 +6,34 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::CustomerUpdate;
-
 use strict;
 use warnings;
+use utf8;
 
-our @ObjectDependencies = (
-    'Kernel::System::Log',
-);
+use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
-use parent qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
-sub Run {
-    my ( $Self, %Param ) = @_;
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
 
-    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $TicketToUnitTestHistoryTypeObject
+    = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::CustomerUpdate');
 
-    NEEDED:
-    for my $Needed (qw(CustomerID CustomerUser)) {
+my %Param = (
+    CustomerID   => 'Znuny',
+    CustomerUser => 'Max Musterman',
+);
 
-        next NEEDED if defined $Param{$Needed};
+my $Output = $TicketToUnitTestHistoryTypeObject->Run(
+    %Param,
+);
 
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
-        );
-        return;
-    }
-
-    my $Output = <<OUTPUT;
+my $ExpectedOutout = <<OUTPUT;
 \$Success = \$TicketObject->TicketCustomerSet(
     No       => '$Param{CustomerID}',
     User     => '$Param{CustomerUser}',
@@ -49,7 +47,10 @@ sub Run {
 
 OUTPUT
 
-    return $Output;
-}
+$Self->Is(
+    $Output,
+    $ExpectedOutout,
+    'TicketToUnitTest::HistoryType::CustomerUpdate',
+);
 
 1;
