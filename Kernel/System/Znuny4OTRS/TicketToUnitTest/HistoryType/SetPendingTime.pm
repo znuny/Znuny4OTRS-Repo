@@ -23,7 +23,6 @@ sub Run {
 
     my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
-    # check needed stuff
     NEEDED:
     for my $Needed (qw(PendingTime)) {
 

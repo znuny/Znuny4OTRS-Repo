@@ -6,36 +6,36 @@
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
 
-package Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::Misc;
-
 use strict;
 use warnings;
+use utf8;
 
-our @ObjectDependencies = (
-    'Kernel::System::Log',
-);
+use vars (qw($Self));
 
 use Kernel::System::VariableCheck qw(:all);
-use parent qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 
-sub Run {
-    my ( $Self, %Param ) = @_;
+$Kernel::OM->ObjectParamAdd(
+    'Kernel::System::UnitTest::Helper' => {
+        RestoreDatabase => 1,
+    },
+);
 
-    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+my $HelperObject = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+my $TicketToUnitTestHistoryTypeObject
+    = $Kernel::OM->Get('Kernel::System::Znuny4OTRS::TicketToUnitTest::HistoryType::Misc');
 
-    NEEDED:
-    for my $Needed (qw(TicketID UserID)) {
+my $TicketID = $HelperObject->TicketCreate();
 
-        next NEEDED if defined $Param{$Needed};
+my %Param = (
+    TicketID => $TicketID,
+    UserID   => 1,
+);
 
-        $LogObject->Log(
-            Priority => 'error',
-            Message  => "Parameter '$Needed' is needed!",
-        );
-        return;
-    }
+my $Output = $TicketToUnitTestHistoryTypeObject->Run(
+    %Param,
+);
 
-    my $Output = <<OUTPUT;
+my $ExpectedOutout = <<OUTPUT;
 \$TempValue = \$TimeObject->SystemTime();
 \$Success = \$TicketObject->TicketUnlockTimeoutUpdate(
     UnlockTimeout => \$TempValue,
@@ -50,7 +50,10 @@ sub Run {
 
 OUTPUT
 
-    return $Output;
-}
+$Self->Is(
+    $Output,
+    $ExpectedOutout,
+    'TicketToUnitTest::HistoryType::Misc',
+);
 
 1;

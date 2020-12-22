@@ -284,6 +284,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/AddNote.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/CustomerUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EmailAgent.pm"/>
+        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EmailCustomer.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationResponseTimeNotifyBefore.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationResponseTimeStart.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationResponseTimeStop.pm"/>
@@ -302,6 +303,8 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PhoneCallAgent.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PhoneCallCustomer.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PriorityUpdate.pm"/>
+        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/ResponsibleUpdate.pm"/>
+        <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SendAgentNotification.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SendAnswer.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/ServiceUpdate.pm"/>
         <File Permission="660" Location="Kernel/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SetPendingTime.pm"/>
@@ -334,6 +337,38 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Element.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Input.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/Selenium/Request.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/AddNote.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/CustomerUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EmailAgent.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EmailCustomer.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationResponseTimeNotifyBefore.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationResponseTimeStart.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationResponseTimeStop.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationSolutionTimeNotifyBefore.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationSolutionTimeStart.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationSolutionTimeStop.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationUpdateTimeNotifyBefore.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationUpdateTimeStart.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/EscalationUpdateTimeStop.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/FollowUp.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/Lock.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/Misc.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/Move.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/NewTicket.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/OwnerUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PhoneCallAgent.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PhoneCallCustomer.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/PriorityUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/ResponsibleUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SendAnswer.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/ServiceUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SetPendingTime.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/SLAUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/StateUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/TicketDynamicFieldUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/TimeAccounting.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/TypeUpdate.t"/>
+        <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/Znuny4OTRS/TicketToUnitTest/HistoryType/Unlock.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/ZnunyHelper/PostMasterFilter.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/System/ZnunyUtil.t"/>
         <File Permission="660" Location="scripts/test/Znuny4OTRSRepo/UnitTest/ConsoleCommandHelper.t"/>

@@ -629,7 +629,7 @@
             </Hash>
         </Value>
     </Setting>
-    <Setting Name="Ticket::Frontend::MenuModule###999-Znuny4OTRSTicketToUnitTest" Required="0" Valid="0">
+    <Setting Name="Ticket::Frontend::MenuModule###999-Znuny4OTRSTicketToUnitTest" Required="0" Valid="1">
         <Description Translatable="1">Shows a link in the menu to go create a unit test from the current ticket.</Description>
         <Navigation>Frontend::Agent::View::TicketZoom::MenuModule</Navigation>
         <Value>
