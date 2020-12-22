@@ -266,7 +266,7 @@ sub GetTicketHistory {
         UserID   => 1,
     );
 
-    my $Output = "# Create ticket hitory entries\n";
+    my $Output = "# Create ticket history entries\n";
 
     LINE:
     for my $HistoryLine (@HistoryLines) {

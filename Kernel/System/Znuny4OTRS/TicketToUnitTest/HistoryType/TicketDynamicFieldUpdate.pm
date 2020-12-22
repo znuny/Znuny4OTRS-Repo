@@ -21,26 +21,39 @@ use parent qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    $Param{Name} =~ /^\%\%FieldName\%\%(.+?)\%\%Value\%\%(.*?)(?:\%\%|$)/;
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
-    my $FieldName = $1;
-    my $Value     = $2 || '';
+    NEEDED:
+    for my $Needed (qw(Name)) {
+
+        next NEEDED if defined $Param{$Needed};
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    $Param{Name} =~ /^\%\%FieldName\%\%(.+?)\%\%Value\%\%(.*?)(?:\%\%|$)/;
+    $Param{FieldName} ||= $1;
+    $Param{Value}     ||= $2 || '';
 
     my $Output = <<OUTPUT;
 \$TempValue = \$DynamicFieldObject->DynamicFieldGet(
-    Name => '$FieldName',
+    Name => '$Param{FieldName}',
 );
 
 \$Success = \$BackendObject->ValueSet(
     DynamicFieldConfig => \$TempValue,
     ObjectID           => \$TicketID,
-    Value              => '$Value',
+    Value              => '$Param{Value}',
     UserID             => \$UserID,
 );
 
 \$Self->True(
     \$Success,
-    'TicketDynamicFieldUpdate "$FieldName" was successfull.',
+    'TicketDynamicFieldUpdate "$Param{FieldName}" was successfull.',
 );
 
 OUTPUT

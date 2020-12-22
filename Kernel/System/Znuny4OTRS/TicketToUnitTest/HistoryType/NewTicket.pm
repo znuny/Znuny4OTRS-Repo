@@ -21,7 +21,6 @@ use parent qw( Kernel::System::Znuny4OTRS::TicketToUnitTest::Base );
 sub Run {
     my ( $Self, %Param ) = @_;
 
-    # check needed stuff
     NEEDED:
     for my $Needed (qw(Queue Priority State Type OwnerID ResponsibleID CustomerUser CustomerID Service SLA )) {
         $Param{$Needed} //= '';
