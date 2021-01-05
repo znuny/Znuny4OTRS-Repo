@@ -1,6 +1,6 @@
 # --
-# Copyright (C) 2001-2020 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 1afb2b995e59551b927c2105e234e8b87efcc37a - Kernel/Output/Template/Document.pm
 # --
