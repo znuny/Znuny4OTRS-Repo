@@ -813,6 +813,86 @@ sub InputFieldValueSet {
 # Znuny4OTRS-Repo
 # ---
 
+=head2 SendKeys()
+
+Wrapper for the selenium function 'send_keys'.
+Send the content as single key presses/pushes to form/input.
+
+    my $Success = $SeleniumObject->SendKeys(
+        Selector     => '#DynamicField_Test',
+        SelectorType => 'css',                  # optional
+        Content      => 'ABCDEFG',
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub SendKeys {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    NEEDED:
+    for my $Needed ( qw(Selector Content) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    $Param{SelectorType} ||= 'css';
+
+    return $Self->find_element($Param{Selector}, $Param{SelectorType})->send_keys($Param{Content});
+}
+
+=head2 SelectOption()
+
+Select a option value of selection field.
+Can also be used to select autocomplete fields.
+
+    my $Success = $SeleniumObject->SelectOption(
+        Selector => 'li.ui-menu-item',
+        Content  => 'ABCDEFG',
+    );
+
+Returns:
+
+    my $Success = 1;
+
+=cut
+
+sub SelectOption {
+    my ( $Self, %Param ) = @_;
+
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
+
+    NEEDED:
+    for my $Needed ( qw(Selector Content) ) {
+
+        next NEEDED if defined $Param{ $Needed };
+
+        $LogObject->Log(
+            Priority => 'error',
+            Message  => "Parameter '$Needed' is needed!",
+        );
+        return;
+    }
+
+    $Self->WaitFor(
+        JavaScript => 'return typeof($) === "function" && $("' . $Param{Selector} . ':visible").length'
+    );
+    $Self->execute_script("\$('" . $Param{Selector} . ":contains($Param{Content})').click()");
+
+    return 1;
+}
+
 =head2 InputGet()
 
 Wrapper for the Core.Form.Znuny4OTRSInput JavaScript namespace 'Get' function.
