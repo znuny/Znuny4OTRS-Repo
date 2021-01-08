@@ -7,7 +7,7 @@
 // --
 // nofilter(TidyAll::Plugin::OTRS::JavaScript::ESLint)
 // todo OTRS 7 rename to Core.Znun4OTRS.Form.Input and create codepolicy
-"use strict";
+'use strict';
 
 var Core = Core || {};
 
@@ -240,6 +240,21 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return Action;
     }
 
+    /*
+
+    Returns the value(s) of input field.
+
+        var Result = Core.Form.Znuny4OTRSInput.Get('Queue',
+            {
+                KeyOrValue: 'Value',
+            }
+        );
+
+    Returns:
+
+        var Result = 'Postmaster';
+
+    */
     TargetNS.Get = function (Attribute, Options) {
 
         var FieldID;
@@ -437,6 +452,18 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return;
     }
 
+    /*
+
+    Returns the type of input field.
+
+        var Type = Core.Form.Znuny4OTRSInput.Type('Queue');
+
+    Returns:
+
+        var Type = 'RichText'; # RichText, DynamicField_DateTime, input, select, checkbox
+
+    */
+
     TargetNS.Type = function (FieldID) {
 
         if ($('#'+ FieldID).length == 0) return;
@@ -469,13 +496,29 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         return $('#' + FieldID).length ? true : false;
     }
 
+    /*
 
+    Set value or key of input field.
+
+        var Success = Core.Form.Znuny4OTRSInput.Set('Queue',
+            'Postmaster',
+            {
+                KeyOrValue:    'Value',
+                TriggerChange: 'false',
+            }
+        );
+
+    Returns:
+
+        var Success = true; # true, false
+
+    */
     TargetNS.Set = function (Attribute, Content, Options) {
 
         var Checked,
             CompareKeyOrValue,
-            CustomerKey,
-            CustomerValue,
+            Key,
+            Value,
             Exists,
             FieldID,
             KeyOrValue,
@@ -533,7 +576,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             Type == 'text'
             || Type == 'hidden'
             || Type == 'textarea'
-        ) {
+        )
+        {
             if (
                 Type == 'text'
                 && $('#'+ FieldID).hasClass('CustomerAutoComplete')
@@ -550,13 +594,13 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                     SetAsTicketCustomer = $('#'+ Prefix +'TicketText').hasClass('Radio');
                     $.each(Result.content, function (Index, CustomerUser) {
 
-                        CustomerKey   = CustomerUser.key,
-                        CustomerValue = CustomerUser.value;
+                        Key   = CustomerUser.key,
+                        Value = CustomerUser.value;
 
                         Exists = false;
                         $('input.CustomerTicketText').each(function (Index, Element) {
 
-                            if ($(Element).val() != CustomerValue) return true;
+                            if ($(Element).val() != Value) return true;
 
                             if (SetAsTicketCustomer) {
                                 Index = $(Element).attr('id');
@@ -574,7 +618,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                         if (Exists) return true;
 
-                        Core.Agent.CustomerSearch.AddTicketCustomer($(Event.target).attr('id'), CustomerValue, CustomerKey, SetAsTicketCustomer);
+                        Core.Agent.CustomerSearch.AddTicketCustomer($(Event.target).attr('id'), Value, Key, SetAsTicketCustomer);
 
                         Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
 
@@ -585,7 +629,8 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // start search
                 $('#'+FieldID).autocomplete('search', Content);
             }
-            // AgentTicketCustomer
+
+            // CustomerAutoComplete
             else if (
                 Type == 'text'
                 && FieldID === 'CustomerAutoComplete'
@@ -595,19 +640,18 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                     if (Result.content.length === 1) {
 
-                        CustomerKey   = Result.content[0].key,
-                        CustomerValue = Result.content[0].value;
+                        Key   = Result.content[0].key,
+                        Value = Result.content[0].value;
 
                         $('#'+ FieldID).autocomplete('close');
-                        $('#'+ FieldID).val(CustomerValue);
+                        $('#'+ FieldID).val(Value);
 
                         if (TriggerChange) {
                             $('#'+ FieldID).trigger('change');
                         }
 
                         Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
-
-                        Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
+                        Core.Agent.CustomerSearch.ReloadCustomerInfo(Key);
                     }
                     else if(KeyOrValue == 'Key' && Result.content.length > 1) {
 
@@ -615,19 +659,18 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                             if(Element.key != Content) return true;
 
-                            CustomerKey   = Element.key,
-                            CustomerValue = Element.value;
+                            Key   = Element.key,
+                            Value = Element.value;
 
                             $('#'+ FieldID).autocomplete('close');
-                            $('#'+ FieldID).val(CustomerValue);
+                            $('#'+ FieldID).val(Value);
 
                             if (TriggerChange) {
                                 $('#'+ FieldID).trigger('change');
                             }
 
                             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
-
-                            Core.Agent.CustomerSearch.ReloadCustomerInfo(CustomerKey);
+                            Core.Agent.CustomerSearch.ReloadCustomerInfo(Key);
 
                             return false;
                         });
@@ -637,23 +680,37 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                 // start search
                 $('#'+ FieldID).autocomplete('search', Content);
             }
-            // DynamicField CustomerUserID
+            // DynamicField Autocomplete
             else if (
                 Type == 'hidden'
                 && FieldID.indexOf('DynamicField_') == 0
                 && $('#'+ FieldID +'Autocomplete').length > 0
-            ) {
+            )
+            {
                 // register event listener to fetch and set result
                 $('#'+ FieldID +'Autocomplete').one('autocompleteresponse', function(Event, Result) {
 
                     if (Result.content.length === 1) {
 
-                        CustomerKey   = Result.content[0].key,
-                        CustomerValue = Result.content[0].value;
+                        // key is the stored value
+                        // value is the showed value
+                        if (Result.content[0].key){
+                            Key   = Result.content[0].key,
+                            Value = Result.content[0].value;
+                        }
+                        // DynamicField Autocomplete
+                        // value is the stored value
+                        // label is the showed value
+                        else if (Result.content[0].label) {
+                            Key   = Result.content[0].value,
+                            Value = Result.content[0].label;
+                        }
 
+                        // Key is the stored value
+                        // Value is the showed value
                         $('#'+ FieldID +'Autocomplete').autocomplete('close');
-                        $('#'+ FieldID +'Autocomplete').val(CustomerValue);
-                        $('#'+ FieldID).val(CustomerKey);
+                        $('#'+ FieldID +'Autocomplete').val(Value);
+                        $('#'+ FieldID).val(Key);
 
                         if (TriggerChange) {
                             $('#'+ FieldID).trigger('change');
@@ -661,23 +718,34 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                         Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
                     }
-                    else if(KeyOrValue == 'Key' && Result.content.length > 1) {
+                    else if(Result.content.length > 1) {
 
                         $.each(Result.content, function(Index,Element){
 
-                            if(Element.key != Content) return true;
+                            // key is the stored value
+                            // value is the showed value
+                            if (Element.key){
+                                Key   = Element.key,
+                                Value = Element.value;
+                            }
+                            // DynamicField Autocomplete
+                            // value is the stored value
+                            // label is the showed value
+                            else if (Element.label) {
+                                Key   = Element.value,
+                                Value = Element.label;
+                            }
 
-                            CustomerKey   = Element.key,
-                            CustomerValue = Element.value;
+                            if(KeyOrValue == 'Key' && Key && Key != Content) return true;
+                            if(KeyOrValue == 'Value' && Value && Value != Content) return true;
 
                             $('#'+ FieldID +'Autocomplete').autocomplete('close');
-                            $('#'+ FieldID +'Autocomplete').val(CustomerValue);
-                            $('#'+ FieldID).val(CustomerKey);
+                            $('#'+ FieldID +'Autocomplete').val(Value);
+                            $('#'+ FieldID).val(Key);
 
                             if (TriggerChange) {
                                 $('#'+ FieldID).trigger('change');
                             }
-
                             Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
 
                             return false;

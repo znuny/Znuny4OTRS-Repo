@@ -7,6 +7,7 @@
 # --
 
 ## nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
+## nofilter(TidyAll::Plugin::OTRS::Legal::OTRSAGCopyright)
 package Kernel::System::VariableCheck;    ## no critic
 
 =head1 NAME
