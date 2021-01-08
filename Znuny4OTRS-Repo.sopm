@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.70</Version>
+    <Version>6.0.71</Version>
+    <ChangeLog Version="6.0.71" Date="2021-01-08 11:50:44 +0100">Happy new year 2021. &#13;
+Tidied code and applied CP.&#13;
+Added SendKeys and SelectOption function.&#13;
+Added js inline-documentation.&#13;
+Improved Core.Form.Znuny4OTRSInput.Set function for a better autocomplate usage.</ChangeLog>
     <ChangeLog Version="6.0.70" Date="2021-01-04 11:30:09 +0100">Improved ticket to unit test.</ChangeLog>
     <ChangeLog Version="6.0.69" Date="2020-11-10 19:34:34 +0100">Package.pm update.&#13;
 Added Core.Znuny4OTRS.JavaScriptEnhancements.js to Loader::Customer::CommonJS.</ChangeLog>
