@@ -5,8 +5,8 @@
 // the enclosed file COPYING for license information (AGPL). If you
 // did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 // --
-
-"use strict";
+// nofilter(TidyAll::Plugin::OTRS::JavaScript::ESLint)
+'use strict';
 
 var Core        = Core || {};
 Core.Znuny4OTRS = Core.Znuny4OTRS || {};
