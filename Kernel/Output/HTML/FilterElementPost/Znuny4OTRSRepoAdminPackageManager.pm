@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -37,7 +37,7 @@ sub Run {
 
     return if ${ $Param{Data} } !~ m{<!--HookStartOverview-->}sm;
 
-    my $RepoDisabled = $ConfigObject->Get('Znuny4OTRSRepoDisable') // 0;
+    my $RepoDisabled           = $ConfigObject->Get('Znuny4OTRSRepoDisable') // 0;
     my $RemoveOnlineRepository = $RepoDisabled == 1 ? 1 : 0;
 
     # If only Znuny repositories are disabled, remove online repository

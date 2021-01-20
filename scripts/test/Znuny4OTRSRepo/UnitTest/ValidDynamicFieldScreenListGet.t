@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -73,7 +73,7 @@ my $ExpectedValidDynamicFieldScreenListHash = {
         'Ticket::Frontend::OverviewMedium###DynamicField'               => 'OverviewMedium',
         'Ticket::Frontend::OverviewPreview###DynamicField'              => 'OverviewPreview',
         'Ticket::Frontend::OverviewSmall###DynamicField'                => 'OverviewSmall',
-        }
+    }
 };
 
 my $ExpectedValidDynamicFieldScreenListArray = {
@@ -124,7 +124,7 @@ my $ExpectedValidDynamicFieldScreenListArray = {
         'Ticket::Frontend::OverviewMedium###DynamicField',
         'Ticket::Frontend::OverviewPreview###DynamicField',
         'Ticket::Frontend::OverviewSmall###DynamicField'
-        ]
+    ]
 };
 
 # Test export

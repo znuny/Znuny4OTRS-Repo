@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -166,7 +166,7 @@ my $SeleniumTest = sub {
             Content   => $DynamicFieldDropdownTestData{$SetType},
             Options   => {
                 KeyOrValue => $SetType,
-                }
+            }
         );
 
         $Self->True(
@@ -180,7 +180,7 @@ my $SeleniumTest = sub {
                 Attribute => 'DynamicField_UnitTestDropdown',
                 Options   => {
                     KeyOrValue => $GetType,
-                    }
+                }
             );
 
             $Self->Is(
@@ -225,7 +225,7 @@ my $SeleniumTest = sub {
             Content   => $DynamicFieldMultiSelectTestData{$SetType},
             Options   => {
                 KeyOrValue => $SetType,
-                }
+            }
         );
 
         $Self->True(
@@ -239,7 +239,7 @@ my $SeleniumTest = sub {
                 Attribute => 'DynamicField_UnitTestMultiSelect',
                 Options   => {
                     KeyOrValue => $GetType,
-                    }
+                }
             );
 
             $Self->IsDeeply(
@@ -421,7 +421,7 @@ my $SeleniumTest = sub {
                     Content   => $SetContentMapping{$SetType},
                     Options   => {
                         KeyOrValue => $SetType,
-                        }
+                    }
                 );
 
                 $Self->True(
@@ -443,7 +443,7 @@ my $SeleniumTest = sub {
                     Attribute => $JSAttribute,
                     Options   => {
                         KeyOrValue => 'Value',
-                        }
+                    }
                 );
 
                 $Self->Is(

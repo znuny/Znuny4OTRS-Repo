@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -787,7 +787,7 @@ sub _DefaultColumnsGet {
             $FrontendPath = "Ticket::Frontend::$View";
         }
 
-        my @Keys = split '###', $FrontendPath;
+        my @Keys   = split '###', $FrontendPath;
         my $Config = $ConfigObject->Get( $Keys[0] );
 
         # check if config has DefaultColumns attribute and set it
@@ -883,7 +883,7 @@ sub _DefaultColumnsEnable {
             $FrontendPath = "Ticket::Frontend::$View";
         }
 
-        my @Keys = split '###', $FrontendPath;
+        my @Keys   = split '###', $FrontendPath;
         my $Config = $ConfigObject->Get( $Keys[0] );
 
         # check if config has DefaultColumns attribute and set it
@@ -1012,7 +1012,7 @@ sub _DefaultColumnsDisable {
             $FrontendPath = "Ticket::Frontend::$View";
         }
 
-        my @Keys = split '###', $FrontendPath;
+        my @Keys   = split '###', $FrontendPath;
         my $Config = $ConfigObject->Get( $Keys[0] );
 
         # check if config has DefaultColumns attribute and set it
@@ -3497,7 +3497,7 @@ sub _NotificationEventCreate {
         );
         %NotificationEventReversed = reverse %NotificationEventReversed;
 
-        my $ItemID = $Self->_ItemReverseListGet( $NotificationEvent->{Name}, %NotificationEventReversed );
+        my $ItemID  = $Self->_ItemReverseListGet( $NotificationEvent->{Name}, %NotificationEventReversed );
         my $ValidID = $NotificationEvent->{ValidID} // $Kernel::OM->Get('Kernel::System::Valid')->ValidLookup(
             Valid => 'valid',
         );
@@ -3855,7 +3855,7 @@ sub _ITSMVersionAdd {
     my $ValidObject          = $Kernel::OM->Get('Kernel::System::Valid');
 
     my $ConfigItemID = $Param{ConfigItemID};
-    my %ConfigItem = %{ $Param{XMLData} || {} };
+    my %ConfigItem   = %{ $Param{XMLData} || {} };
 
     my %Version = $Self->_ITSMVersionGet(
         ConfigItemID => $ConfigItemID,
@@ -4384,7 +4384,7 @@ sub _WebserviceCreate {
     WEBSERVICE:
     for my $WebserviceName ( sort keys %{$Webservices} ) {
 
-        my $WebserviceID = $Self->_ItemReverseListGet( $WebserviceName, %WebserviceListReversed );
+        my $WebserviceID           = $Self->_ItemReverseListGet( $WebserviceName, %WebserviceListReversed );
         my $UpdateOrCreateFunction = 'WebserviceAdd';
 
         if ($WebserviceID) {

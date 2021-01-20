@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2020 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -164,7 +164,7 @@ for my $Test (@Tests) {
     # Turn export into Perl structure.
     if ( $Test->{ExportParams}->{Format} eq 'perl' ) {
         $Export =~ s{\A(\$VAR1)}{\$Export};
-        eval $Export;    #nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
+        eval $Export;    ## nofilter(TidyAll::Plugin::OTRS::Perl::PerlCritic)
     }
     elsif ( $Test->{ExportParams}->{Format} eq 'yml' ) {
         $Export = $YAMLObject->Load(
