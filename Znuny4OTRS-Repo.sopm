@@ -264,6 +264,7 @@ Added _DefaultColumns* helper functions.</ChangeLog>
         <File Permission="660" Location="Kernel/Language/en_Znuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/Modules/AdminZnuny4OTRSFiles.pm"/>
         <File Permission="660" Location="Kernel/Modules/AgentZnuny4OTRSTicketToUnitTest.pm"/>
+        <File Permission="660" Location="Kernel/Modules/PreApplicationZnuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRemoveBSAdvertisements.pm"/>
         <File Permission="660" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepo.pm"/>
         <File Permission="660" Location="Kernel/Output/HTML/FilterElementPost/Znuny4OTRSRepoAdminPackageManager.pm"/>

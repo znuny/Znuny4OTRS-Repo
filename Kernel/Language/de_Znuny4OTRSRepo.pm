@@ -16,6 +16,8 @@ use utf8;
 sub Data {
     my $Self = shift;
 
+    $Self->{Translation}->{'Pre-application module to check if the CKEditor plugin preventimagepaste is available.'} = 'Pre-Application-Modul zur Überprüfung, ob das CKEditor-Plugin preventimagepaste verfügbar ist.';
+
     # TicketToUnitTest - SysConfig
     $Self->{Translation}->{'Create analysis file'} = 'Erstelle Analysedatei';
     $Self->{Translation}->{'Send analysis file'}   = 'Sende Analysedatei';

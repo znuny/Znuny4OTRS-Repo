@@ -5,6 +5,7 @@
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
+## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::SpellCheck)
 
 package Kernel::System::ZnunyUtil;
 
@@ -94,6 +95,50 @@ sub IsFrontendContext {
     return if !$LayoutObject->{Action};
 
     return 1;
+}
+
+=head2 IsCKEPreventImagePastePluginAvailable()
+
+Checks if CKEditor plugin preventimagepaste is available. This is needed for compatibility with
+Znuny 6.0.31 and up as this plugin is not available there (due to newer CKEditor version).
+Package Znuny4OTRS-DynamicFieldRichTextBackend uses this function to distinguish between OTRS and Znuny.
+
+    my $IsCKEPreventImagePastePluginAvailable = $ZnunyCompatibilityObject->IsCKEPreventImagePastePluginAvailable();
+
+    Returns 1 if CKEditor plugin preventimagepaste is available.
+
+=cut
+
+sub IsCKEPreventImagePastePluginAvailable {
+    my ( $Self, %Param ) = @_;
+
+    my $Key = 'CKEditor::Plugins::PreventImagePaste::Available';
+
+    # Use cached result because it won't change within the process.
+    return $Self->{$Key} if defined $Self->{$Key};
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    $Self->{$Key} = 0;
+
+    my $CommonJS             = $ConfigObject->Get('Loader::Agent::CommonJS') // {};
+    my $CKECommonJSFilePaths = $CommonJS->{'100-CKEditor'}                   // [];
+    return $Self->{$Key} if !IsArrayRefWithData($CKECommonJSFilePaths);
+
+    my @CKECoreFilePaths = grep { $_ =~ m{/ckeditor.js\z} } @{$CKECommonJSFilePaths};
+    return $Self->{$Key} if @CKECoreFilePaths != 1;
+
+    # Replace ckeditor.js with path to preventimagepaste plugin.
+    my $CKECoreFilePath = pop @CKECoreFilePaths;
+    $CKECoreFilePath =~ s{/ckeditor.js\z}{/plugins/preventimagepaste/plugin.js};
+
+    my $OTRSHomePath = $ConfigObject->Get('Home');
+    $CKECoreFilePath = $OTRSHomePath . '/var/httpd/htdocs/js/' . $CKECoreFilePath;
+    return $Self->{$Key} if !-f $CKECoreFilePath;
+
+    $Self->{$Key} = 1;
+
+    return $Self->{$Key};
 }
 
 1;
