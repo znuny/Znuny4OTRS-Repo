@@ -784,4 +784,18 @@
             </Hash>
         </Value>
     </Setting>
+    <Setting Name="PreApplicationModule###PreApplicationZnuny4OTRSRepo" Required="0" Valid="1">
+        <Description Translatable="1">Pre-application module to check if the CKEditor plugin preventimagepaste is available.</Description>
+        <Navigation>Frontend::Agent</Navigation>
+        <Value>
+            <Item ValueType="String" ValueRegex="">Kernel::Modules::PreApplicationZnuny4OTRSRepo</Item>
+        </Value>
+    </Setting>
+    <Setting Name="CustomerPanelPreApplicationModule###PreApplicationZnuny4OTRSRepo" Required="0" Valid="1">
+        <Description Translatable="1">Pre-application module to check if the CKEditor plugin preventimagepaste is available.</Description>
+        <Navigation>Frontend::Customer</Navigation>
+        <Value>
+            <Item ValueType="String" ValueRegex="">Kernel::Modules::PreApplicationZnuny4OTRSRepo</Item>
+        </Value>
+    </Setting>
 </otrs_config>
