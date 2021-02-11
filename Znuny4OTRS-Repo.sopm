@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.71</Version>
+    <Version>6.0.72</Version>
+    <ChangeLog Version="6.0.72" Date="2021-02-11 07:58:40 +0100">Added pre-application module to add JavaScript data about availability of CKEditor plugin preventimagepaste.</ChangeLog>
     <ChangeLog Version="6.0.71" Date="2021-01-08 11:50:44 +0100">Happy new year 2021. &#13;
 Tidied code and applied CP.&#13;
 Added SendKeys and SelectOption function.&#13;
