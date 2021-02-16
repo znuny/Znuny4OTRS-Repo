@@ -36,11 +36,7 @@ our @ObjectDependencies = (
     'Kernel::Config',
     'Kernel::System::Cache',
     'Kernel::System::CloudService::Backend::Run',
-# ---
-# Znuny4OTRS-Repo
-# ---
     'Kernel::System::DateTime',
-# ---
     'Kernel::System::DB',
     'Kernel::System::Encode',
     'Kernel::System::Environment',

@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/System/UnitTest/Selenium.pm
+# $origin: otrs - f0bb1d07d3f95805517b24c575111a57ca2fac59 - Kernel/System/UnitTest/Selenium.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -15,6 +15,7 @@ package Kernel::System::UnitTest::Selenium;
 use strict;
 use warnings;
 
+use Devel::StackTrace();
 use MIME::Base64();
 use File::Path();
 use File::Temp();
@@ -28,6 +29,7 @@ use Kernel::System::UnitTest::Helper;
 # ---
 use utf8;
 use URI::Escape;
+# use Kernel::System::VariableCheck qw(IsArrayRefWithData);
 use Kernel::System::VariableCheck qw(:all);
 # ---
 
@@ -36,15 +38,19 @@ our @ObjectDependencies = (
     'Kernel::System::AuthSession',
     'Kernel::System::Log',
     'Kernel::System::Main',
+    'Kernel::System::DateTime',
 # ---
 # Znuny4OTRS-Repo
 # ---
-    'Kernel::System::DateTime',
 #     'Kernel::System::UnitTest::Driver',
     'Kernel::System::JSON',
 # ---
     'Kernel::System::UnitTest::Helper',
 );
+
+# If a test throws an exception, we'll record it here in a package variable so that we can
+#   take screenshots of *all* Selenium instances that are currently running on shutdown.
+our $TestException;
 
 =head1 NAME
 
@@ -129,10 +135,41 @@ sub new {
     $Kernel::OM->Get('Kernel::System::Main')->Require('Kernel::System::UnitTest::Selenium::WebElement')
         || die "Could not load Kernel::System::UnitTest::Selenium::WebElement";
 
-    my $Self = $Class->SUPER::new(
-        webelement_class => 'Kernel::System::UnitTest::Selenium::WebElement',
-        %SeleniumTestsConfig
-    );
+    my $Self;
+
+    # TEMPORARY WORKAROUND FOR GECKODRIVER BUG https://github.com/mozilla/geckodriver/issues/1470:
+    #   If marionette handshake fails, wait and try again. Can be removed after the bug is fixed
+    #   in a new geckodriver version.
+    eval {
+        $Self = $Class->SUPER::new(
+            webelement_class => 'Kernel::System::UnitTest::Selenium::WebElement',
+            error_handler    => sub {
+                my $Self = shift;
+                return $Self->SeleniumErrorHandler(@_);
+            },
+            %SeleniumTestsConfig
+        );
+    };
+    if ($@) {
+        my $Exception = $@;
+
+        # Only handle this specific geckodriver exception.
+        die $Exception if $Exception !~ m{Socket timeout reading Marionette handshake data};
+
+        # Sleep and try again, bail out if it fails a second time.
+        #   A long sleep of 10 seconds is acceptable here, as it occurs only very rarely.
+        sleep 10;
+
+        $Self = $Class->SUPER::new(
+            webelement_class => 'Kernel::System::UnitTest::Selenium::WebElement',
+            error_handler    => sub {
+                my $Self = shift;
+                return $Self->SeleniumErrorHandler(@_);
+            },
+            %SeleniumTestsConfig
+        );
+    }
+
     $Self->{UnitTestDriverObject} = $Param{UnitTestDriverObject};
     $Self->{SeleniumTestsActive}  = 1;
 
@@ -152,13 +189,53 @@ sub new {
     # Remember the start system time for the selenium test run.
     $Self->{TestStartSystemTime} = time;    ## no critic
 
+# ---
+# Znuny4OTRS-Repo
+# ---
+#     # Force usage of legacy webdriver methods in Chrome until things are more stable.
+#     if ( lc $SeleniumTestsConfig{browser_name} eq 'chrome' ) {
+#         $Self->{is_wd3} = 0;
+#     }
+# ---
     return $Self;
+}
+
+sub SeleniumErrorHandler {
+    my ( $Self, $Error ) = @_;
+
+    my $SuppressFrames;
+
+    # Generate stack trace information.
+    #   Don't store caller args, as this sometimes blows up due to an internal Perl bug
+    #   (see https://github.com/Perl/perl5/issues/10687).
+    my $StackTrace = Devel::StackTrace->new(
+        indent         => 1,
+        no_args        => 1,
+        ignore_package => [ 'Selenium::Remote::Driver', 'Try::Tiny', __PACKAGE__ ],
+        message        => 'Selenium stack trace started',
+        frame_filter   => sub {
+
+            # Limit stack trace to test evaluation itself.
+            return 0          if $SuppressFrames;
+            $SuppressFrames++ if $_[0]->{caller}->[3] eq 'Kernel::System::UnitTest::Driver::Run';
+
+            # Remove the long serialized eval texts from the frame to keep the trace short.
+            if ( $_[0]->{caller}->[6] ) {
+                $_[0]->{caller}->[6] = '{...}';
+            }
+            return 1;
+        }
+    )->as_string();
+
+    $Self->{_SeleniumStackTrace} = $StackTrace;
+    $Self->{_SeleniumException}  = $Error;
+
+    die $Error;
 }
 
 =head2 RunTest()
 
-runs a selenium test if Selenium testing is configured and performs proper
-error handling (calls C<HandleError()> if needed).
+runs a selenium test if Selenium testing is configured.
 
     $SeleniumObject->RunTest( sub { ... } );
 
@@ -175,7 +252,8 @@ sub RunTest {
     eval {
         $Test->();
     };
-    $Self->HandleError($@) if $@;
+
+    $TestException = $@ if $@;
 
     return 1;
 }
@@ -369,8 +447,6 @@ sub Login {
             # try again
             next TRY if $Try < $MaxTries;
 
-            # log error
-            $Self->HandleError($@);
             die "Login failed!";
         }
 
@@ -419,7 +495,7 @@ sub WaitFor {
         && !$Param{ElementMissing}
         )
     {
-        die "Need JavaScript, WindowCount, ElementExists, ElementMissing or AlertPresent.";
+        die "Need JavaScript, WindowCount, ElementExists, ElementMissing, Callback or AlertPresent.";
     }
 
     local $Self->{SuppressCommandRecording} = 1;
@@ -447,6 +523,7 @@ sub WaitFor {
         elsif ( $Param{ElementExists} ) {
             my @Arguments
                 = ref( $Param{ElementExists} ) eq 'ARRAY' ? @{ $Param{ElementExists} } : $Param{ElementExists};
+
             if ( eval { $Self->find_element(@Arguments) } ) {
                 Time::HiRes::sleep($WaitSeconds);
                 return 1;
@@ -455,6 +532,7 @@ sub WaitFor {
         elsif ( $Param{ElementMissing} ) {
             my @Arguments
                 = ref( $Param{ElementMissing} ) eq 'ARRAY' ? @{ $Param{ElementMissing} } : $Param{ElementMissing};
+
             if ( !eval { $Self->find_element(@Arguments) } ) {
                 Time::HiRes::sleep($WaitSeconds);
                 return 1;
@@ -477,7 +555,9 @@ sub WaitFor {
     return if $Param{SkipDie};
 
 # ---
-    die "WaitFor($Argument) failed.";
+
+    # Use the selenium error handler to generate a stack trace.
+    die $Self->SeleniumErrorHandler("WaitFor($Argument) failed.\n");
 }
 
 =head2 SwitchToFrame()
@@ -592,23 +672,33 @@ for analysis (in folder /var/otrs-unittest if it exists, in $Home/var/httpd/htdo
 sub HandleError {
     my ( $Self, $Error ) = @_;
 
-    $Self->{UnitTestDriverObject}->False( 1, "Exception in Selenium': $Error" );
+    # If we really have a selenium error, get the stack trace for it.
+    if ( $Self->{_SeleniumStackTrace} && $Error eq $Self->{_SeleniumException} ) {
+        $Error .= "\n" . $Self->{_SeleniumStackTrace};
+    }
 
-    #eval {
+    $Self->{UnitTestDriverObject}->False( 1, $Error );
+
+    # Don't create a test entry for the screenshot command,
+    #   to make sure it gets attached to the previous error entry.
+    local $Self->{SuppressCommandRecording} = 1;
+
     my $Data = $Self->screenshot();
     return if !$Data;
     $Data = MIME::Base64::decode_base64($Data);
+
+    # Attach the screenshot to the actual error entry.
+    my $Filename = $Kernel::OM->Get('Kernel::System::UnitTest::Helper')->GetRandomNumber() . '.png';
+    $Self->{UnitTestDriverObject}->AttachSeleniumScreenshot(
+        Filename => $Filename,
+        Content  => $Data
+    );
 
     #
     # Store screenshots in a local folder from where they can be opened directly in the browser.
     #
     my $LocalScreenshotDir = $Kernel::OM->Get('Kernel::Config')->Get('Home') . '/var/httpd/htdocs/SeleniumScreenshots';
     mkdir $LocalScreenshotDir || return $Self->False( 1, "Could not create $LocalScreenshotDir." );
-
-    my $DateTimeObj = $Kernel::OM->Create('Kernel::System::DateTime');
-    my $Filename    = $DateTimeObj->ToString();
-    $Filename .= '-' . ( int rand 100_000_000 ) . '.png';
-    $Filename =~ s{[ :]}{-}smxg;
 
     my $HttpType = $Kernel::OM->Get('Kernel::Config')->Get('HttpType');
     my $Hostname = $Kernel::OM->Get('Kernel::System::UnitTest::Helper')->GetTestHTTPHostname();
@@ -625,7 +715,7 @@ sub HandleError {
     #
     # If a shared screenshot folder is present, then we also store the screenshot there for external use.
     #
-    if ( -d '/var/otrs-unittest/' ) {
+    if ( -d '/var/otrs-unittest/' && -w '/var/otrs-unittest/' ) {
 
         my $SharedScreenshotDir = '/var/otrs-unittest/SeleniumScreenshots';
         mkdir $SharedScreenshotDir || return $Self->False( 1, "Could not create $SharedScreenshotDir." );
@@ -638,11 +728,12 @@ sub HandleError {
             || return $Self->{UnitTestDriverObject}->False( 1, "Could not write file $SharedScreenshotDir/$Filename" );
     }
 
-    $Self->{UnitTestDriverObject}->False( 1, "Saved screenshot in $URL" );
-    $Self->{UnitTestDriverObject}->AttachSeleniumScreenshot(
-        Filename => $Filename,
-        Content  => $Data
-    );
+    {
+        # Make sure the screenshot URL is output even in non-verbose mode to make it visible
+        #   for debugging, but don't register it as a test failure to keep the error count more correct.
+        local $Self->{UnitTestDriverObject}->{Verbose} = 1;
+        $Self->{UnitTestDriverObject}->True( 1, "Saved screenshot in $URL" );
+    }
 
     return;
 }
@@ -650,12 +741,17 @@ sub HandleError {
 =head2 DEMOLISH()
 
 override DEMOLISH from L<Selenium::Remote::Driver> (required because this class is managed by L<Moo>).
-Adds a unit test result to indicate the shutdown, and performs some clean-ups.
+Performs proper error handling (calls C<HandleError()> if needed). Adds a unit test result to indicate the shutdown,
+and performs some clean-ups.
 
 =cut
 
 sub DEMOLISH {
     my $Self = shift;
+
+    if ($TestException) {
+        $Self->HandleError($TestException);
+    }
 
     # Could be missing on early die.
     if ( $Self->{UnitTestDriverObject} ) {
@@ -677,7 +773,7 @@ sub DEMOLISH {
             }
         }
 
-        # Cleanup all sessions, which was created after the selenium test start time.
+        # Cleanup all sessions which were created after the selenium test start time.
         my $AuthSessionObject = $Kernel::OM->Get('Kernel::System::AuthSession');
 
         my @Sessions = $AuthSessionObject->GetAllSessionIDs();
@@ -724,6 +820,11 @@ sub WaitForjQueryEventBound {
     }
 
     my $Event = $Param{Event} || 'click';
+
+    # Wait for element availability.
+    $Self->WaitFor(
+        JavaScript => 'return typeof($) === "function" && $("' . $Param{CSSSelector} . '").length;'
+    );
 
     # Wait for jQuery initialization.
     $Self->WaitFor(

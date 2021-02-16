@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 4f35d496f20d4e3131caf585ccca47f69499def5 - Kernel/System/UnitTest/Helper.pm
+# $origin: otrs - 8207d0f681adcdeb5c1b497ac547a1d9749838d5 - Kernel/System/UnitTest/Helper.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -118,6 +118,9 @@ sub new {
     $Self->{UnitTestDriverObject} = $Self->UnitTestObjectGet();
 # ---
 
+    # Override Perl's built-in time handling mechanism to set a fixed time if needed.
+    $Self->_MockPerlTimeHandling();
+
     # Remove any leftover custom files from aborted previous runs.
     $Self->CustomFileCleanup();
 
@@ -222,11 +225,11 @@ sub TestUserCreate {
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 # ---
 
-    # disable email checks to create new user
+    # Disable email checks to create new user.
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
 
-    # create test user
+    # Create test user
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -280,11 +283,10 @@ sub TestUserCreate {
 
     $Self->{UnitTestDriverObject}->True( 1, "Created test user $TestUserID" );
 
-    # Add user to groups
+    # Add user to groups.
     GROUP_NAME:
     for my $GroupName ( @{ $Param{Groups} || [] } ) {
 
-        # get group object
         my $GroupObject = $Kernel::OM->Get('Kernel::System::Group');
 
         my $GroupID = $GroupObject->GroupLookup( Group => $GroupName );
@@ -307,7 +309,7 @@ sub TestUserCreate {
         $Self->{UnitTestDriverObject}->True( 1, "Added test user $TestUserLogin to group $GroupName" );
     }
 
-    # set user language
+    # Set user language.
     my $UserLanguage = $Param{Language} || 'en';
     $Kernel::OM->Get('Kernel::System::User')->SetPreferences(
         UserID => $TestUserID,
@@ -316,7 +318,7 @@ sub TestUserCreate {
     );
     $Self->{UnitTestDriverObject}->True( 1, "Set user UserLanguage to $UserLanguage" );
 
-    return $TestUserLogin;
+    return wantarray ? ( $TestUserLogin, $TestUserID ) : $TestUserLogin;
 }
 
 =head2 TestCustomerUserCreate()
@@ -345,11 +347,11 @@ sub TestCustomerUserCreate {
     my $ZnunyHelperObject = $Kernel::OM->Get('Kernel::System::ZnunyHelper');
 # ---
 
-    # disable email checks to create new user
+    # Disable email checks to create new user.
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
     local $ConfigObject->{CheckEmailAddresses} = 0;
 
-    # create test user
+    # Create test user
 # ---
 # Znuny4OTRS-Repo
 # ---
@@ -405,7 +407,7 @@ sub TestCustomerUserCreate {
 
     $Self->{UnitTestDriverObject}->True( 1, "Created test customer user $TestUser" );
 
-    # set customer user language
+    # Set customer user language.
     my $UserLanguage = $Param{Language} || 'en';
     $Kernel::OM->Get('Kernel::System::CustomerUser')->SetPreferences(
         UserID => $TestUser,
@@ -513,31 +515,6 @@ sub FixedTimeSet {
         $FixedTime = $TimeToSave // CORE::time();
     }
 
-    # This is needed to reload objects that directly use the native time functions
-    #   to get a hold of the overrides.
-    my @Objects = (
-        'Kernel::System::Time',
-        'Kernel::System::DB',
-        'Kernel::System::Cache::FileStorable',
-        'Kernel::System::PID',
-# ---
-# Znuny4OTRS-Repo
-# ---
-        'Kernel::System::ZnunyTime',
-# ---
-    );
-
-    for my $Object (@Objects) {
-        my $FilePath = $Object;
-        $FilePath =~ s{::}{/}xmsg;
-        $FilePath .= '.pm';
-        if ( $INC{$FilePath} ) {
-            no warnings 'redefine';    ## no critic
-            delete $INC{$FilePath};
-            $Kernel::OM->Get('Kernel::System::Main')->Require($Object);
-        }
-    }
-
     return $FixedTime;
 }
 
@@ -570,7 +547,10 @@ sub FixedTimeAddSeconds {
 }
 
 # See http://perldoc.perl.org/5.10.0/perlsub.html#Overriding-Built-in-Functions
-BEGIN {
+## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
+## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
+## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::DateTime)
+sub _MockPerlTimeHandling {
     no warnings 'redefine';    ## no critic
     *CORE::GLOBAL::time = sub {
         return defined $FixedTime ? $FixedTime : CORE::time();
@@ -603,6 +583,33 @@ BEGIN {
             @_
         );
     };
+
+    # This is needed to reload objects that directly use the native time functions
+    #   to get a hold of the overrides.
+    my @Objects = (
+        'Kernel::System::Time',
+        'Kernel::System::DB',
+        'Kernel::System::Cache::FileStorable',
+        'Kernel::System::PID',
+# ---
+# Znuny4OTRS-Repo
+# ---
+        'Kernel::System::ZnunyTime',
+# ---
+    );
+
+    for my $Object (@Objects) {
+        my $FilePath = $Object;
+        $FilePath =~ s{::}{/}xmsg;
+        $FilePath .= '.pm';
+        if ( $INC{$FilePath} ) {
+            no warnings 'redefine';    ## no critic
+            delete $INC{$FilePath};
+            require $FilePath;         ## nofilter(TidyAll::Plugin::OTRS::Perl::Require)
+        }
+    }
+
+    return 1;
 }
 
 =head2 DESTROY()
