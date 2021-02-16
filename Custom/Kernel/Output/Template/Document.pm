@@ -2,7 +2,7 @@
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
 # Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
 # --
-# $origin: otrs - 1afb2b995e59551b927c2105e234e8b87efcc37a - Kernel/Output/Template/Document.pm
+# $origin: otrs - 09b7361cd0b8244087a5189f337559efa981bd7b - Kernel/Output/Template/Document.pm
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (GPL). If you
@@ -75,9 +75,9 @@ sub _InstallOTRSExtensions {
             my $output = '';
             my ( %_tt_args, $_tt_params );
             $_tt_args{'BlockName'} = shift;
-            $_tt_params = shift;
-            $_tt_params = {} if ref $_tt_params ne 'HASH';
-            $_tt_params = { %_tt_args, %$_tt_params };
+            $_tt_params            = shift;
+            $_tt_params            = {} if ref $_tt_params ne 'HASH';
+            $_tt_params            = { %_tt_args, %$_tt_params };
 
             my $stash = $Context->localise($_tt_params);
             eval {
