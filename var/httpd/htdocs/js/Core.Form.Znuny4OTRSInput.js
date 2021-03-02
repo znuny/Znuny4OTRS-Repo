@@ -279,6 +279,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         if (!FieldID) return;
 
         Type = TargetNS.Type(FieldID);
+        if (Options.Type){
+            Type = Options.Type;
+        }
 
         if (FieldID === 'RichText' || Type === 'RichText') {
             if (
@@ -418,21 +421,27 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             }
         }
         // DynamicField Date or DateTime
+        // Core.Form.Znuny4OTRSInput.Get('DynamicField_DateName');
+        // Core.Form.Znuny4OTRSInput.Get('Year',{Type: 'PendingDate'});
         else if (
             Type == 'DynamicField_Date'
             || Type == 'DynamicField_DateTime'
+            || Type == 'PendingDate'
         ) {
             // ATTENTION - SPECIAL CASE: For DynamicFields Date or DateTime the Attribute is used as FieldID
             // to handle input actions since FieldID maps to the Checkbox element
 
             var DateStructure = {};
+            if (Type == 'PendingDate'){
+                Attribute = '';
+            }
             $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
 
                 if (
                     $('#'+ Attribute + Suffix)
                     && $('#'+ Attribute + Suffix).length == 1
                 ) {
-                    DateStructure[ Suffix ] = parseInt($('#'+ Attribute + Suffix).val(), 10);
+                    DateStructure[Suffix] = parseInt($('#'+ Attribute + Suffix).val(), 10);
                 }
                 // exit loop
                 else {
@@ -442,11 +451,25 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             // add checkbox state
             DateStructure.Used = $('#'+ FieldID).prop('checked');
+            // Core.Form.Znuny4OTRSInput.Get('DynamicField_Datum',{TimeStamp: 1});
+            // return 2020-11-25 14:22:00
+            if (Options.TimeStamp) {
+                $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+                    DateStructure[Suffix] = DateStructure[ Suffix ] || '00';
+
+                    if (DateStructure[Suffix].toString().length < 2) {
+                        DateStructure[Suffix] = '0' + DateStructure[ Suffix ];
+                    };
+                });
+
+                // 2020-11-25 14:22:00
+                DateStructure = DateStructure['Year'] + '-' + DateStructure['Month'] + '-' + DateStructure['Day'] + ' ' + DateStructure['Hour'] + ':' + DateStructure['Minute']  + ':00';
+            }
 
             // new Date(DateStructure.Year, DateStructure.Month, DateStructure.Day, DateStructure.Hour, DateStructure.Minute, DateStructure.Second);
             return DateStructure;
         }
-        // TODO: Other Date / DateTime elements (Pending etc.)?
+
         // TODO: Attachments?
 
         return;
@@ -552,6 +575,9 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
         }
 
         Type = TargetNS.Type(FieldID);
+        if(Options.Type){
+            Type = Options.Type;
+        }
 
         if (FieldID === 'RichText' || Type == 'RichText') {
             if (
@@ -716,7 +742,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                             $('#'+ FieldID).trigger('change');
                         }
 
-                        Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
+                        Core.App.Publish('Znuny4OTRSInput.Change.' + Attribute);
                     }
                     else if(Result.content.length > 1) {
 
@@ -746,7 +772,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
                             if (TriggerChange) {
                                 $('#'+ FieldID).trigger('change');
                             }
-                            Core.App.Publish('Znuny4OTRSInput.Change.'+ Attribute);
+                            Core.App.Publish('Znuny4OTRSInput.Change.' + Attribute);
 
                             return false;
                         });
@@ -832,20 +858,22 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                 function RedrawInputField() {
                     $('#'+ FieldID).trigger('redraw.InputField').trigger('redraw.InputField');
-                    $('#'+ FieldID).triggerHandler('change');
                     $('#'+ FieldID).data('tree', true);
                 }
 
                 if (TriggerChange) {
                     $.when(AppendOptions()).then(function(){
                         $.when(RedrawInputField()).then(function(){
+                            $('#'+ FieldID).triggerHandler('change');
                             $('#'+ FieldID + '_Search').triggerHandler('focus.InputField');
                             $('#'+ FieldID + '_Search').val(SearchValue);
                             $('#'+ FieldID + '_Search').focus();
                         })
                     })
                 }else {
-                    AppendOptions();
+                    $.when(AppendOptions()).then(function(){
+                        RedrawInputField();
+                    })
                 }
             }
             // select one option of select field
@@ -913,23 +941,40 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             // ATTENTION - SPECIAL CASE: For DynamicFields Date or DateTime the Attribute is used as FieldID
             // to handle input actions since FieldID maps to the Checkbox element
+            var DateContent = {};
 
-            $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+            // Core.Form.Znuny4OTRSInput.Set('DynamicField_DateTime','2020-11-25 14:22:00');
+            if (!Content['Year'] && $.type(Content) === "string") {
+                var DateObject = new Date(Content);
 
-                // skip if no value is given
-                if (typeof Content[ Suffix ] === 'undefined') return true;
+                DateContent.Year   = DateObject.getFullYear();
+                DateContent.Month  = DateObject.getMonth() + 1;
+                DateContent.Day    = DateObject.getDate();
+                DateContent.Hour   = DateObject.getHours();
+                DateContent.Minute = DateObject.getMinutes();
+                DateContent.Used   = 1;
 
-                if (
-                    $('#'+ Attribute + Suffix)
-                    && $('#'+ Attribute + Suffix).length == 1
-                ) {
-                    $('#'+ Attribute + Suffix).val(Content[ Suffix ]);
-                }
-                // exit loop
-                else {
-                    return false;
-                }
-            });
+                Content = DateContent;
+            }
+            // Core.Form.Znuny4OTRSInput.Set('DynamicField_Date',{Year: 2022, Month: 2, Day: 15, Hour: 10, Minute: 50, Used: true});
+            if (Content['Year']){
+                $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+
+                    // skip if no value is given
+                    if (typeof Content[ Suffix ] === 'undefined') return true;
+
+                    if (
+                        $('#'+ Attribute + Suffix)
+                        && $('#'+ Attribute + Suffix).length == 1
+                    ) {
+                        $('#'+ Attribute + Suffix).val(Content[ Suffix ]);
+                    }
+                    // exit loop
+                    else {
+                        return false;
+                    }
+                });
+            }
 
             if (typeof Content.Used === 'undefined') return true;
 
@@ -938,7 +983,44 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
             return true;
         }
-        // TODO: Date / DateTime ?
+        // if you use explicit Type: 'PendingDate' in Options
+        else if (Type == 'PendingDate') {
+            var DateContent = {};
+
+            // Core.Form.Znuny4OTRSInput.Set('Year','2020-11-25 14:22:00',{Type: 'PendingDate'});
+            if(!Content['Year'] && $.type(Content) === "string"){
+                var DateObject = new Date(Content);
+
+                DateContent.Year   = DateObject.getFullYear();
+                DateContent.Month  = DateObject.getMonth() + 1;
+                DateContent.Day    = DateObject.getDate();
+                DateContent.Hour   = DateObject.getHours();
+                DateContent.Minute = DateObject.getMinutes();
+                DateContent.Used   = 1;
+
+                Content = DateContent;
+            }
+            // Core.Form.Znuny4OTRSInput.Set('Year',{Year: 2022, Month: 2, Day: 15, Hour: 10, Minute: 50, Used: true},{Type: 'PendingDate'});
+            if (Content['Year']){
+                $.each(['Year', 'Month', 'Day', 'Hour', 'Minute'], function (Index, Suffix) {
+
+                    // skip if no value is given
+                    if (typeof Content[ Suffix ] === 'undefined') return true;
+
+                    if (
+                        $('#' + Suffix)
+                        && $('#' + Suffix).length == 1
+                    ) {
+                        $('#' + Suffix).val(Content[ Suffix ]);
+                    }
+                    // exit loop
+                    else {
+                        return false;
+                    }
+                });
+            }
+        }
+
         // TODO: Attachments?
 
         // trigger redraw on modernized fields
