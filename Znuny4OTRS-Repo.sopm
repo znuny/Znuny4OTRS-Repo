@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.73</Version>
+    <Version>6.0.74</Version>
+    <ChangeLog Version="6.0.74" Date="2021-03-02 19:39:57 +0100">Improvements of Core.Form.Znuny4OTRSInput.js&#13;
+- Added Type PendingDate to Core.Form.Znuny4OTRSInput.Set&#13;
+- Added Options.TimeStamp to Core.Form.Znuny4OTRSInput.Set</ChangeLog>
     <ChangeLog Version="6.0.73" Date="2021-02-16 17:24:56 +0100">Updated 'Custom' files.</ChangeLog>
     <ChangeLog Version="6.0.72" Date="2021-02-11 07:58:40 +0100">Added pre-application module to add JavaScript data about availability of CKEditor plugin preventimagepaste.</ChangeLog>
     <ChangeLog Version="6.0.71" Date="2021-01-08 11:50:44 +0100">Happy new year 2021. &#13;
