@@ -65,10 +65,13 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
         });
 
         $Restore.each(function(){
+            Core.UI.InputFields.Deactivate();
+
             var DestinationName   = $(this).data('formelementRestoreDestinationName'),
                 $Destination      = $('[data-formelement-restore-destination="' + DestinationName + '"]'),
                 $DestinationClone = $Destination.clone();
 
+            Core.UI.InputFields.Activate();
             RestoreElements[DestinationName] = $DestinationClone;
         });
 
@@ -138,6 +141,7 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
         $Destination = $('[data-formelement-add-destination="' + Param['formelementAddDestinationName'] + '"]');
         $Counter     = $('[data-formelement-add-counter="'     + Param['formelementAddCounterName']     + '"]');
 
+        Core.UI.InputFields.Deactivate();
         $SourceClone = $Source.clone();
         Counter      = $Counter.val();
 
@@ -303,7 +307,7 @@ Core.Znuny4OTRS.Form.Generic = (function (TargetNS) {
         if (RestoreElements[DestinationName] && $Destination){
             $Destination.html(RestoreElements[DestinationName].html());
         }
-
+        Core.UI.InputFields.Activate();
         return false;
     };
 
