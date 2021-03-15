@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.74</Version>
+    <Version>6.0.75</Version>
+    <ChangeLog Version="6.0.75" Date="2021-03-15 16:24:04 +0100">Improved Form.Generic.js - make use every input fiels is NOT modernized before clone / add  process starts.</ChangeLog>
     <ChangeLog Version="6.0.74" Date="2021-03-02 19:39:57 +0100">Improvements of Core.Form.Znuny4OTRSInput.js&#13;
 - Added Type PendingDate to Core.Form.Znuny4OTRSInput.Set&#13;
 - Added Options.TimeStamp to Core.Form.Znuny4OTRSInput.Set</ChangeLog>
