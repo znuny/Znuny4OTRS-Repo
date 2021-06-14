@@ -1155,9 +1155,10 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
     */
     TargetNS.Readonly = function (Attribute, Readonly) {
 
-        var IsReadonly;
-        var $LabelObject;
-        var FieldID = TargetNS.FieldID(Attribute);
+        var IsReadonly,
+            $LabelObject,
+            FieldID = TargetNS.FieldID(Attribute),
+            Type    = Core.Form.Znuny4OTRSInput.Type(FieldID);
 
         if (!FieldID) {
             return false;
@@ -1169,15 +1170,20 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
             return IsReadonly;
         }
 
-        if (Readonly === IsReadonly) {
-            return true;
-        }
+        if (Readonly) {
+            $('#' + FieldID).prop('readonly', true);
 
-        if (IsReadonly) {
-            $('#'+FieldID).prop('readonly', false);
+            if (Type == 'select'){
+                $('#' + FieldID + '_Search').prop('readonly', true);
+                $('#' + FieldID + '_Search').next().find('.Remove').remove();
+            }
         }
         else {
-            $('#'+FieldID).prop('readonly', true);
+            $('#' + FieldID).prop('readonly', false);
+
+            if (Type == 'select'){
+                $('#' + FieldID + '_Search').prop('readonly', false);
+            }
         }
 
         return true;
