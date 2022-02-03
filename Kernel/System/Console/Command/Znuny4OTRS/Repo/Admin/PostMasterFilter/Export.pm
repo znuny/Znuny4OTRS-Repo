@@ -1,11 +1,11 @@
 # --
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::Perl::ZnunyHelper)
+## nofilter(TidyAll::Plugin::Znuny4OTRS::Perl::ZnunyHelper)
 
 package Kernel::System::Console::Command::Znuny4OTRS::Repo::Admin::PostMasterFilter::Export;
 

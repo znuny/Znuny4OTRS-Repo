@@ -1,5 +1,5 @@
 # --
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 0000000000000000000000000000000000000000 - Kernel/System/Znuny4OTRS/TicketToUnitTest.pm
 # --
@@ -129,7 +129,7 @@ sub GetHeader {
 
     my $Header = <<'HEADER';
 # ---
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # ---
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
