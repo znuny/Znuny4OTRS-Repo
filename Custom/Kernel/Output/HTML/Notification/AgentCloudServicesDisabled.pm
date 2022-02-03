@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - 8207d0f681adcdeb5c1b497ac547a1d9749838d5 - Kernel/Output/HTML/Notification/AgentCloudServicesDisabled.pm
 # --

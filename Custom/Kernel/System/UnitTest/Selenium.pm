@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2021 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
 # --
 # $origin: otrs - f0bb1d07d3f95805517b24c575111a57ca2fac59 - Kernel/System/UnitTest/Selenium.pm
 # --
@@ -8,7 +8,7 @@
 # the enclosed file COPYING for license information (GPL). If you
 # did not receive this file, see https://www.gnu.org/licenses/gpl-3.0.txt.
 # --
-## nofilter(TidyAll::Plugin::OTRS::Znuny4OTRS::CodeStyle::STDERRCheck)
+## nofilter(TidyAll::Plugin::Znuny4OTRS::CodeStyle::STDERRCheck)
 
 package Kernel::System::UnitTest::Selenium;
 
@@ -1980,7 +1980,11 @@ sub _CaptureScreenshot {
     # trying to extract the name of the test file right from the UnitTestObject
     # kind of hacky but there is no other place where to get this information
     my $TestFile = 'UnknownTestFile';
-    if ($Self->{UnitTestDriverObject}->{TestFile} =~ m{scripts\/test\/(.+?)\.t$}) {
+    if (
+        $Self->{UnitTestDriverObject}->{TestFile}
+        && $Self->{UnitTestDriverObject}->{TestFile} =~ m{scripts\/test\/(.+?)\.t$}
+    ) {
+
         $TestFile = $1;
         # make folder path a filename
         $TestFile =~ s{\/}{_}g;
