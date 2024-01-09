@@ -1,11 +1,11 @@
 // --
-// Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+// Copyright (C) 2012 Znuny GmbH, https://znuny.com/
 // --
 // This software comes with ABSOLUTELY NO WARRANTY. For details, see
 // the enclosed file COPYING for license information (AGPL). If you
 // did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 // --
-// nofilter(TidyAll::Plugin::OTRS::JavaScript::ESLint)
+// nofilter(TidyAll::Plugin::Znuny::JavaScript::ESLint)
 // todo OTRS 7 rename to Core.Znun4OTRS.Form.Input and create codepolicy
 'use strict';
 
@@ -459,7 +459,7 @@ Core.Form.Znuny4OTRSInput = (function (TargetNS) {
 
                     if (DateStructure[Suffix].toString().length < 2) {
                         DateStructure[Suffix] = '0' + DateStructure[ Suffix ];
-                    };
+                    }
                 });
 
                 // 2020-11-25 14:22:00

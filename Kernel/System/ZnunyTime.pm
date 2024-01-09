@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012 Znuny GmbH, https://znuny.com/
 # --
 # $origin: otrs - 6f825a31a943011901ebbc8b0f892cead33f56a6 - Kernel/System/Time.pm
 # --
@@ -14,16 +14,17 @@
 # ---
 # package Kernel::System::Time;
 
-## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
-## nofilter(TidyAll::Plugin::Znuny4OTRS::CodeStyle::ObjectManagerDirectCall)
-## nofilter(TidyAll::Plugin::Znuny4OTRS::Perl::ObjectDependencies)
+
+## nofilter(TidyAll::Plugin::Znuny::CodeStyle::DollarUnderscore)
+## nofilter(TidyAll::Plugin::Znuny::CodeStyle::ObjectManagerDirectCall)
+## nofilter(TidyAll::Plugin::Znuny::Perl::ObjectDependencies)
 
 # This module is a replacement for Kernel::System::Time which is deprecated since OTRS 6 and will
 # ensure the availability of Kernel::System::Time functionality for future OTRS versions.
 # Behavior is exactly like in OTRS 6.
 package Kernel::System::ZnunyTime;
 # ---
-## nofilter(TidyAll::Plugin::Znuny4OTRS::Perl::HashObjectMethodCall)
+## nofilter(TidyAll::Plugin::Znuny::Perl::HashObjectMethodCall)
 
 use strict;
 use warnings;

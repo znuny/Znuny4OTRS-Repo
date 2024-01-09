@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012 Znuny GmbH, https://znuny.com/
 # --
 # $origin: otrs - 8207d0f681adcdeb5c1b497ac547a1d9749838d5 - Kernel/System/UnitTest/Helper.pm
 # --
@@ -10,16 +10,16 @@
 # --
 
 package Kernel::System::UnitTest::Helper;
-## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
-## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
-## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::DateTime)
+## nofilter(TidyAll::Plugin::Znuny::Perl::Time)
+
+
 # ---
 # Znuny4OTRS-Repo
 # ---
-## nofilter(TidyAll::Plugin::OTRS::Perl::ObjectDependencies)
-## nofilter(TidyAll::Plugin::Znuny4OTRS::Perl::CacheCleanup)
-## nofilter(TidyAll::Plugin::Znuny4OTRS::Perl::ZnunyTime)
-## nofilter(TidyAll::Plugin::OTRS::Perl::Pod::Validator)
+## nofilter(TidyAll::Plugin::Znuny::Perl::ObjectDependencies)
+## nofilter(TidyAll::Plugin::Znuny::Perl::CacheCleanup)
+## nofilter(TidyAll::Plugin::Znuny::Perl::ZnunyTime)
+## nofilter(TidyAll::Plugin::Znuny::Perl::Pod::Validator)
 # ---
 
 use strict;
@@ -547,9 +547,9 @@ sub FixedTimeAddSeconds {
 }
 
 # See http://perldoc.perl.org/5.10.0/perlsub.html#Overriding-Built-in-Functions
-## nofilter(TidyAll::Plugin::OTRS::Perl::Time)
-## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::TimeObject)
-## nofilter(TidyAll::Plugin::OTRS::Migrations::OTRS6::DateTime)
+## nofilter(TidyAll::Plugin::Znuny::Perl::Time)
+
+
 sub _MockPerlTimeHandling {
     no warnings 'redefine';    ## no critic
     *CORE::GLOBAL::time = sub {
@@ -605,7 +605,7 @@ sub _MockPerlTimeHandling {
         if ( $INC{$FilePath} ) {
             no warnings 'redefine';    ## no critic
             delete $INC{$FilePath};
-            require $FilePath;         ## nofilter(TidyAll::Plugin::OTRS::Perl::Require)
+            require $FilePath;         ## nofilter(TidyAll::Plugin::Znuny::Perl::Require)
         }
     }
 

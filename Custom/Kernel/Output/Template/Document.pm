@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012 Znuny GmbH, https://znuny.com/
 # --
 # $origin: otrs - 09b7361cd0b8244087a5189f337559efa981bd7b - Kernel/Output/Template/Document.pm
 # --
@@ -11,6 +11,12 @@
 
 package Kernel::Output::Template::Document;
 ## no critic(Perl::Critic::Policy::OTRS::RequireCamelCase)
+
+# ---
+# Znuny4OTRS-Repo
+# ---
+## nofilter(TidyAll::Plugin::Znuny::Perl::PerlCritic)
+# ---
 
 use strict;
 use warnings;

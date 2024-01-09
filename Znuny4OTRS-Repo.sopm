@@ -2,6 +2,12 @@
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
     <Version>6.0.76</Version>
+    <Framework>6.0.x</Framework>
+    <Vendor>Znuny GmbH</Vendor>
+    <URL>http://znuny.com/</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description Lang="en">Enables Znuny4OTRS repositories to directly install and upgrade Znuny packages via package manager.</Description>
+    <Description Lang="de">Aktiviert Znuny4OTRS-Repositorys, um Znuny-Pakete direkt über die Paketverwaltung zu installieren oder aktualisieren.</Description>
     <ChangeLog Version="6.0.76" Date="2021-06-16 13:13:02 +0200">Improved Core.Form.Znuny4OTRSInput.Readonly.</ChangeLog>
     <ChangeLog Version="6.0.75" Date="2021-03-15 16:24:04 +0100">Improved Form.Generic.js - make use every input fiels is NOT modernized before clone / add  process starts.</ChangeLog>
     <ChangeLog Version="6.0.74" Date="2021-03-02 19:39:57 +0100">Improvements of Core.Form.Znuny4OTRSInput.js&#13;
@@ -248,12 +254,6 @@ Added _DefaultColumns* helper functions.</ChangeLog>
     <ChangeLog Version="1.0.3" Date="2013-11-08 11:34:13 +0100">Added OTRS 3.3 support.</ChangeLog>
     <ChangeLog Version="1.0.2" Date="2013-10-24 09:38:42 +0200">Added feature to disable online repos, e. g. for production systems where you do not want it directly (only via test system).</ChangeLog>
     <ChangeLog Version="1.0.1" Date="2013-10-17 13:41:56 +0200">Added docu.</ChangeLog>
-    <Framework>6.0.x</Framework>
-    <Vendor>Znuny GmbH</Vendor>
-    <URL>http://znuny.com/</URL>
-    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
-    <Description Lang="en">Enables Znuny4OTRS repositories to directly install and upgrade Znuny packages via package manager.</Description>
-    <Description Lang="de">Aktiviert Znuny4OTRS-Repositorys, um Znuny-Pakete direkt über die Paketverwaltung zu installieren oder aktualisieren.</Description>
     <Filelist>
         <File Permission="660" Location="Custom/Kernel/Output/HTML/Notification/AgentCloudServicesDisabled.pm"/>
         <File Permission="660" Location="Custom/Kernel/Output/Template/Document.pm"/>

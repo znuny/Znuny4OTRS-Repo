@@ -1,6 +1,6 @@
 # --
 # Copyright (C) 2001-2021 OTRS AG, https://otrs.com/
-# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012 Znuny GmbH, https://znuny.com/
 # --
 # $origin: Znuny - 41845e0a367b7050ab246ba64df46b892b28de56 - Kernel/System/Package.pm
 # --
@@ -11,7 +11,7 @@
 # ---
 # Znuny4OTRS-Repo
 # ---
-## nofilter(TidyAll::Plugin::Znuny4OTRS::CodeStyle::STDERRCheck)
+## nofilter(TidyAll::Plugin::Znuny::CodeStyle::STDERRCheck)
 # ---
 
 package Kernel::System::Package;

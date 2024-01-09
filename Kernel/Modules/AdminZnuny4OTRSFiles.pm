@@ -1,11 +1,11 @@
 # --
-# Copyright (C) 2012-2022 Znuny GmbH, http://znuny.com/
+# Copyright (C) 2012 Znuny GmbH, https://znuny.com/
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
 # did not receive this file, see http://www.gnu.org/licenses/agpl.txt.
 # --
-## nofilter(TidyAll::Plugin::Znuny4OTRS::CodeStyle::GuardClause)
+## nofilter(TidyAll::Plugin::Znuny::CodeStyle::GuardClause)
 
 package Kernel::Modules::AdminZnuny4OTRSFiles;
 
@@ -13,9 +13,12 @@ use strict;
 use warnings;
 
 use Kernel::System::WebUserAgent;
+use Kernel::Language qw(Translatable);
 use Text::Diff::FormattedHTML;
 use Kernel::System::VariableCheck qw(:all);
 use File::stat;
+
+use Cwd 'abs_path';
 
 our @ObjectDependencies = (
     'Kernel::Config',
@@ -69,6 +72,16 @@ sub Run {
             TTL   => $Self->{CacheTTL},
             Key   => 'CacheDate',
             Value => $Param{CacheDate},
+        );
+    }
+
+    my $IsZnunyFile = $Self->_IsZnunyFile(
+        File => $Param{File}
+    );
+
+    if ( $Param{File} && !$IsZnunyFile ) {
+        return $LayoutObject->ErrorScreen(
+            Message => Translatable('File not found.'),
         );
     }
 
@@ -694,6 +707,8 @@ sub FileDetailsExtended {
 
     my $OriginalPath = $Param{FullPath};
 
+    $Param{Type} //= 'Package';
+
     if ( $Param{Type} eq 'Package' ) {
 
         my @RepositoryList = $PackageObject->RepositoryList(
@@ -800,6 +815,22 @@ sub FileDetailsExtended {
     );
 
     return %Extended;
+}
+
+sub _IsZnunyFile {
+    my ( $Self, %Param ) = @_;
+
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    return if !IsStringWithData( $Param{File} );
+
+    my $AbsoluteFilePath = abs_path( $Param{File} );
+
+    my $Home = $ConfigObject->Get('Home');
+
+    return if $AbsoluteFilePath !~ m{\A\Q$Home\E};
+
+    return 1;
 }
 
 1;
