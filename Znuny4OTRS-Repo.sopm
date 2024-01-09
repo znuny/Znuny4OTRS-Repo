@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_package version="1.0">
     <Name>Znuny4OTRS-Repo</Name>
-    <Version>6.0.76</Version>
+    <Version>6.0.77</Version>
     <Framework>6.0.x</Framework>
     <Vendor>Znuny GmbH</Vendor>
     <URL>http://znuny.com/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
     <Description Lang="en">Enables Znuny4OTRS repositories to directly install and upgrade Znuny packages via package manager.</Description>
     <Description Lang="de">Aktiviert Znuny4OTRS-Repositorys, um Znuny-Pakete direkt über die Paketverwaltung zu installieren oder aktualisieren.</Description>
+    <ChangeLog Version="6.0.77" Date="2024-01-09 09:00:53 +0100">Updated AdminSystemFiles: Added additional file check.</ChangeLog>
     <ChangeLog Version="6.0.76" Date="2021-06-16 13:13:02 +0200">Improved Core.Form.Znuny4OTRSInput.Readonly.</ChangeLog>
     <ChangeLog Version="6.0.75" Date="2021-03-15 16:24:04 +0100">Improved Form.Generic.js - make use every input fiels is NOT modernized before clone / add  process starts.</ChangeLog>
     <ChangeLog Version="6.0.74" Date="2021-03-02 19:39:57 +0100">Improvements of Core.Form.Znuny4OTRSInput.js&#13;
